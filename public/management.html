@@ -42,7 +42,7 @@
         .sidebar-photo-item { position: relative; }
         .sidebar-photo-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); }
         .sidebar-photo-item .delete-photo { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; z-index: 10; }
-        .upload-photo-btn { background: rgba(233,69,96,0.3); border: 1px dashed #e94560; padding: 8px; border-radius: 8px; color: white; cursor: pointer; margin-top: 10px; display: block; text-align: center; }
+        .upload-photo-btn { background: rgba(233,69,96,0.3); border: 1px dashed #e94560; padding: 8px; border-radius: 8px; color: white; cursor: pointer; margin-top: 10px; display: inline-block; text-align: center; width: 100%; }
         .zoom-link { text-align: center; padding: 15px; background: rgba(233,69,96,0.2); margin: 15px; border-radius: 10px; }
         .zoom-link a { color: #e94560; text-decoration: none; font-weight: bold; }
         .nav-menu { list-style: none; padding: 0; margin-top: 20px; }
@@ -74,8 +74,8 @@
         .site-footer { background: #1a1a2e; color: white; padding: 20px 30px; margin-top: 20px; }
         .footer-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
         .settings-panel { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .settings-group { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        .settings-group h3 { margin-bottom: 15px; color: #333; }
+        .settings-group { margin-bottom: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fefefe; }
+        .settings-group h3 { margin-bottom: 15px; color: #333; border-left: 4px solid #e94560; padding-left: 10px; }
         .form-row { margin-bottom: 15px; }
         .form-row label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-row input, .form-row textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
@@ -83,6 +83,8 @@
         .btn-primary { background: #007bff; color: white; }
         .btn-primary:hover { background: #0056b3; }
         .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; width: 450px; max-width: 90%; }
@@ -96,11 +98,7 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f0f2f5; }
-        .student-form, .teacher-form { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .save-section-btn { margin-top: 15px; width: 100%; padding: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -126,9 +124,10 @@
             <div class="sidebar-photo-area">
                 <h4>📸 Sidebar Gallery</h4>
                 <div id="sidebarPhotosGrid" class="multi-photo-grid"></div>
-                <label class="upload-photo-btn">➕ Add Photos
+                <label class="upload-photo-btn">➕ Add Photos (Max 6)
                     <input type="file" id="sidebarPhotoInput" accept="image/*" multiple style="display:none">
                 </label>
+                <button class="btn-success save-section-btn" id="saveSidebarBtn" style="margin-top:10px;">💾 Save Sidebar Gallery</button>
             </div>
             <div class="zoom-link" id="zoomLink">
                 <a href="#" target="_blank">🔗 Join Live Class</a>
@@ -179,59 +178,73 @@
                 <div class="activity-list"><h3>🔄 Recent Activity</h3><div id="recentActivity"></div></div>
             </div>
             
-            <!-- Student Module -->
-            <div id="student-module" class="module-container">
-                <div id="student-app"></div>
-            </div>
+            <!-- Student Module (dynamic) -->
+            <div id="student-module" class="module-container"><div id="student-app"></div></div>
+            <!-- Teacher Module (dynamic) -->
+            <div id="teacher-module" class="module-container"><div id="teacher-app"></div></div>
             
-            <!-- Teacher Module -->
-            <div id="teacher-module" class="module-container">
-                <div id="teacher-app"></div>
-            </div>
-            
-            <!-- Settings Module -->
+            <!-- Settings Module with Separate Save Buttons -->
             <div id="settings-module" class="module-container">
                 <div class="settings-panel">
-                    <h2>Screen & Gallery Settings</h2>
+                    <h2>⚙️ System Settings</h2>
+                    
+                    <!-- Header & Branding Section -->
                     <div class="settings-group">
-                        <h3>Header & Branding</h3>
-                        <div class="form-row"><label>Logo</label><input type="file" id="headerLogoInput" accept="image/*"></div>
-                        <div class="form-row"><label>Title</label><input type="text" id="headerTitleInput"></div>
-                        <div class="form-row"><label>Subtitle</label><input type="text" id="headerSubTitleInput"></div>
-                        <div class="form-row"><label>Zoom Meeting Link</label><input type="url" id="zoomLinkInput"></div>
+                        <h3>🏷️ Header & Branding</h3>
+                        <div class="form-row"><label>Logo Image</label><input type="file" id="headerLogoInput" accept="image/*"></div>
+                        <div class="form-row"><label>Title</label><input type="text" id="headerTitleInput" placeholder="Portal Title"></div>
+                        <div class="form-row"><label>Subtitle</label><input type="text" id="headerSubTitleInput" placeholder="Subtitle"></div>
+                        <div class="form-row"><label>Zoom Meeting Link</label><input type="url" id="zoomLinkInput" placeholder="https://zoom.us/..."></div>
+                        <button class="btn-primary save-section-btn" id="saveBrandingBtn">💾 Save Header & Branding</button>
                     </div>
+                    
+                    <!-- Media Gallery Section with Duplicate Check + Max 6 photos limit -->
                     <div class="settings-group">
-                        <h3>Media Gallery</h3>
+                        <h3>🖼️ Media Gallery (Max 6 Images | Duplicates Auto-Rejected)</h3>
                         <div class="bulk-delete-bar">
                             <span><input type="checkbox" id="selectAllGallery"> Select All</span>
                             <button class="bulk-delete-btn" id="bulkDeleteGalleryBtn" onclick="bulkDeleteGalleryItems()">🗑️ Delete Selected</button>
                         </div>
                         <div class="form-row">
-                            <label>Upload Images</label>
+                            <label>Upload Images (Max 6 total)</label>
                             <input type="file" id="galleryFilesInput" multiple accept="image/*">
-                            <button class="btn-primary btn" style="margin-top:8px" onclick="uploadGalleryPhotos()">Upload Now</button>
+                            <button class="btn-primary btn" style="margin-top:8px" onclick="prepareGalleryUpload()">📤 Stage Images</button>
                         </div>
                         <div class="form-row">
                             <label>Add Video URL</label>
                             <div style="display:flex;gap:8px">
                                 <input type="url" id="videoLinkInput" placeholder="YouTube/Vimeo link">
-                                <button class="btn-primary btn" onclick="addVideoLink()">Add</button>
+                                <button class="btn-primary btn" onclick="prepareVideoAdd()">➕ Stage Video</button>
                             </div>
                         </div>
                         <div id="galleryGrid" class="gallery-grid"></div>
+                        <button class="btn-success save-section-btn" id="saveGalleryBtn" style="margin-top:15px;">💾 Save Media Gallery (Confirm Changes)</button>
+                        <p style="font-size:12px; color:gray; margin-top:8px;">Note: Photos & videos staged will only save after clicking "Save Media Gallery". Duplicate images (by content) are auto-ignored.</p>
                     </div>
+                    
+                    <!-- Sidebar Gallery Section with Save Button -->
                     <div class="settings-group">
-                        <h3>Social Links</h3>
-                        <div class="form-row"><label>WhatsApp Number</label><input type="text" id="whatsappNumberInput"></div>
-                        <div class="form-row"><label>WhatsApp Channel Link</label><input type="url" id="whatsappChannelInput"></div>
-                        <div class="form-row"><label>YouTube Channel</label><input type="url" id="youtubeChannelInput"></div>
-                        <div class="form-row"><label>Facebook Page</label><input type="url" id="facebookLinkInput"></div>
-                        <div class="form-row"><label>Instagram Profile</label><input type="url" id="instagramLinkInput"></div>
-                        <div class="form-row"><label>Telegram Channel</label><input type="url" id="telegramLinkInput"></div>
-                        <div class="form-row"><label>Twitter/X Profile</label><input type="url" id="twitterLinkInput"></div>
-                        <div class="form-row"><label>LinkedIn Page</label><input type="url" id="linkedinLinkInput"></div>
+                        <h3>📸 Sidebar Gallery (Max 6 Photos)</h3>
+                        <div class="multi-photo-grid" id="sidebarSettingsGrid" style="grid-template-columns: repeat(4,1fr); background:#f1f1f1; padding:10px; border-radius:8px;"></div>
+                        <label class="upload-photo-btn" style="background:#e9ecef; color:#333; margin-top:10px;">➕ Add Sidebar Photos (Max 6)
+                            <input type="file" id="sidebarSettingsFileInput" accept="image/*" multiple style="display:none">
+                        </label>
+                        <button class="btn-success save-section-btn" id="saveSidebarSettingsBtn" style="margin-top:15px;">💾 Save Sidebar Gallery</button>
                     </div>
-                    <button class="btn-primary btn" onclick="saveBasicSettings()">💾 Save All Settings</button>
+                    
+                    <!-- Social Links Section -->
+                    <div class="settings-group">
+                        <h3>🌐 Social Links</h3>
+                        <div class="form-row"><label>WhatsApp Number</label><input type="text" id="whatsappNumberInput" placeholder="+91xxxxxxxxxx"></div>
+                        <div class="form-row"><label>WhatsApp Channel Link</label><input type="url" id="whatsappChannelInput" placeholder="https://whatsapp.com/channel/..."></div>
+                        <div class="form-row"><label>YouTube Channel</label><input type="url" id="youtubeChannelInput" placeholder="https://youtube.com/..."></div>
+                        <div class="form-row"><label>Facebook Page</label><input type="url" id="facebookLinkInput" placeholder="https://facebook.com/..."></div>
+                        <div class="form-row"><label>Instagram Profile</label><input type="url" id="instagramLinkInput" placeholder="https://instagram.com/..."></div>
+                        <div class="form-row"><label>Telegram Channel</label><input type="url" id="telegramLinkInput" placeholder="https://t.me/..."></div>
+                        <div class="form-row"><label>Twitter/X Profile</label><input type="url" id="twitterLinkInput" placeholder="https://twitter.com/..."></div>
+                        <div class="form-row"><label>LinkedIn Page</label><input type="url" id="linkedinLinkInput" placeholder="https://linkedin.com/..."></div>
+                        <button class="btn-primary save-section-btn" id="saveSocialBtn">💾 Save Social Links</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -244,817 +257,83 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <h3>Change Password</h3>
-            <input type="password" id="currentPassword" placeholder="Current password">
-            <input type="password" id="newPassword" placeholder="New password">
-            <input type="password" id="confirmPassword" placeholder="Confirm password">
-            <button class="btn-primary" onclick="changePassword()">Update</button>
-            <button onclick="closePasswordModal()">Cancel</button>
-        </div>
-    </div>
-    
-    <div id="adminIdModal" class="modal">
-        <div class="modal-content">
-            <h3>Change Admin ID</h3>
-            <input type="text" id="currentAdminId" readonly>
-            <input type="text" id="newAdminId" placeholder="New Admin ID">
-            <input type="password" id="verifyPassword" placeholder="Password">
-            <button onclick="changeAdminId()">Save</button>
-            <button onclick="closeAdminIdModal()">Cancel</button>
-        </div>
-    </div>
-    
-    <div id="adminPhotoModal" class="modal">
-        <div class="modal-content">
-            <h3>Update Profile Photo</h3>
-            <img id="currentAdminPhotoPreview" style="width:100px;border-radius:50%;margin:10px auto;display:block">
-            <input type="file" id="adminPhotoInput" accept="image/*">
-            <button class="btn-primary" onclick="updateAdminPhoto()">Upload</button>
-            <button onclick="closeAdminPhotoModal()">Cancel</button>
-        </div>
-    </div>
-    
-    <div id="loadingOverlay" class="loading-overlay" style="display:none">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading...</p>
-        </div>
-    </div>
+    <!-- Modals (Password, AdminID, Photo) same as before -->
+    <div id="passwordModal" class="modal"><div class="modal-content"><h3>Change Password</h3><input type="password" id="currentPassword" placeholder="Current password"><input type="password" id="newPassword" placeholder="New password"><input type="password" id="confirmPassword" placeholder="Confirm password"><button class="btn-primary" onclick="changePassword()">Update</button><button onclick="closePasswordModal()">Cancel</button></div></div>
+    <div id="adminIdModal" class="modal"><div class="modal-content"><h3>Change Admin ID</h3><input type="text" id="currentAdminId" readonly><input type="text" id="newAdminId" placeholder="New Admin ID"><input type="password" id="verifyPassword" placeholder="Password"><button onclick="changeAdminId()">Save</button><button onclick="closeAdminIdModal()">Cancel</button></div></div>
+    <div id="adminPhotoModal" class="modal"><div class="modal-content"><h3>Update Profile Photo</h3><img id="currentAdminPhotoPreview" style="width:100px;border-radius:50%;margin:10px auto;display:block"><input type="file" id="adminPhotoInput" accept="image/*"><button class="btn-primary" onclick="updateAdminPhoto()">Upload</button><button onclick="closeAdminPhotoModal()">Cancel</button></div></div>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none"><div class="loading-spinner"><div class="spinner"></div><p>Loading...</p></div></div>
 
     <script>
-        // ============================================
-        // GLOBAL VARIABLES AND UTILITIES
-        // ============================================
+        // --------------------- GLOBALS -------------------------
         let screenData = null;
-        let currentFilter = 'monthly';
-        let customStart = null, customEnd = null;
+        let adminData = null;
+        let studentModuleLoaded = false, teacherModuleLoaded = false;
         let selectedGallerySet = new Set();
         let incomeExpenseChart, studentAttendanceChart;
-        let adminData = null;
-        let studentModuleLoaded = false;
-        let teacherModuleLoaded = false;
-
-        function showLoading(msg = "Processing...") { 
-            let el = document.getElementById('loadingOverlay'); 
-            if(el) el.style.display = 'flex'; 
-        }
+        let stagedGalleryItems = []; // temporary staging for gallery (before save)
         
-        function hideLoading() { 
-            let el = document.getElementById('loadingOverlay'); 
-            if(el) el.style.display = 'none'; 
-        }
+        // Helper functions (toast, loading, compress, base64)
+        function showToast(msg, type='success') { let t=document.createElement('div'); t.className='toast-notification'; t.innerText=msg; t.style.background=type==='error'?'#dc3545':'#28a745'; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); }
+        function showLoading() { document.getElementById('loadingOverlay').style.display='flex'; }
+        function hideLoading() { document.getElementById('loadingOverlay').style.display='none'; }
+        async function toBase64(file) { let comp = await fastCompress(file); return new Promise(r=>{let fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(comp);}); }
+        async function fastCompress(file, maxKB=190) { if(file.size<=maxKB*1024) return file; try{ const options={maxSizeMB:maxKB/1024, maxWidthOrHeight:900, useWebWorker:false}; return await imageCompression(file,options); }catch(e){ return file; } }
+        function getAuthHeaders() { return { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`, 'Content-Type': 'application/json' }; }
         
-        function showToast(msg, type = 'success') {
-            let t = document.createElement('div'); 
-            t.className = 'toast-notification'; 
-            t.innerText = msg; 
-            t.style.background = type === 'error' ? '#dc3545' : '#28a745'; 
-            document.body.appendChild(t); 
-            setTimeout(() => t.remove(), 2800);
-        }
+        // --------------------- LOAD DATA -----------------------
+        async function loadScreenData() { try{ showLoading(); let res=await fetch('/api/screen'); let data=await res.json(); if(data.success) { screenData=data.data; updateUI(); updateFavicon(); renderSidebarSettings(); stagedGalleryItems = [...(screenData?.gallery || [])]; renderGallery(); } } catch(e){ console.warn(e); } finally{ hideLoading(); } }
+        function updateFavicon() { if(screenData?.logo) document.getElementById('dynamicFavicon').href=screenData.logo; }
+        function updateUI() { if(!screenData) return; if(screenData.logo) document.getElementById('headerLogo').src=screenData.logo; document.getElementById('headerTitle').innerText=screenData.title||'BBCC Portal'; document.getElementById('headerSubTitle').innerText=screenData.subTitle||'Best Coaching Center'; if(screenData.zoomMeetingLink) document.querySelector('#zoomLink a').href=screenData.zoomMeetingLink; document.getElementById('headerTitleInput').value=screenData.title||''; document.getElementById('headerSubTitleInput').value=screenData.subTitle||''; document.getElementById('zoomLinkInput').value=screenData.zoomMeetingLink||''; document.getElementById('whatsappNumberInput').value=screenData.whatsappNumber||''; document.getElementById('whatsappChannelInput').value=screenData.whatsappChannelLink||''; document.getElementById('youtubeChannelInput').value=screenData.youtubeChannelLink||''; document.getElementById('facebookLinkInput').value=screenData.facebookLink||''; document.getElementById('instagramLinkInput').value=screenData.instagramLink||''; document.getElementById('telegramLinkInput').value=screenData.telegramLink||''; document.getElementById('twitterLinkInput').value=screenData.twitterLink||''; document.getElementById('linkedinLinkInput').value=screenData.linkedinLink||''; updateFooterLinks(); renderSidebarPhotos(); }
         
-        async function fastCompress(file, maxKB = 190) { 
-            if(file.size <= maxKB * 1024) return file; 
-            try { 
-                const options = { maxSizeMB: maxKB/1024, maxWidthOrHeight: 900, useWebWorker: false }; 
-                return await imageCompression(file, options); 
-            } catch(e) { return file; } 
-        }
+        function updateFooterLinks() { let div=document.getElementById('footerSocialLinks'); if(div){ let links=[]; if(screenData?.whatsappNumber) links.push(`<a href="https://wa.me/${screenData.whatsappNumber}" target="_blank">WhatsApp</a>`); if(screenData?.whatsappChannelLink) links.push(`<a href="${screenData.whatsappChannelLink}" target="_blank">WhatsApp Ch</a>`); if(screenData?.youtubeChannelLink) links.push(`<a href="${screenData.youtubeChannelLink}" target="_blank">YouTube</a>`); if(screenData?.instagramLink) links.push(`<a href="${screenData.instagramLink}" target="_blank">Instagram</a>`); div.innerHTML=links.join(' | '); } }
         
-        async function toBase64(file) { 
-            let comp = await fastCompress(file); 
-            return new Promise((r) => {
-                let fr = new FileReader(); 
-                fr.onload = () => r(fr.result); 
-                fr.readAsDataURL(comp);
-            });
-        }
+        function renderSidebarPhotos() { let container=document.getElementById('sidebarPhotosGrid'); if(!container) return; let photos=screenData?.sidebarPhotos||[]; container.innerHTML=''; if(photos.length===0){ container.innerHTML='<div style="font-size:12px;">No photos</div>'; return; } photos.forEach((photo,idx)=>{ let div=document.createElement('div'); div.className='sidebar-photo-item'; div.innerHTML=`<img src="${photo}" alt="side"><button class="delete-photo" data-idx="${idx}">✕</button>`; container.appendChild(div); }); document.querySelectorAll('.sidebar-photo-item .delete-photo').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let idx=parseInt(btn.getAttribute('data-idx')); deleteSidebarPhotoLocal(idx); }); }); }
         
-        function getAuthHeaders() {
-            let token = localStorage.getItem('adminToken');
-            return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-        }
+        // Local delete for sidebar (needs save)
+        let localSidebarPhotos = [];
+        function syncLocalSidebar() { localSidebarPhotos = [...(screenData?.sidebarPhotos||[])]; renderSidebarSettings(); }
+        function deleteSidebarPhotoLocal(idx) { if(confirm('Remove this photo? (Save to persist)')){ localSidebarPhotos.splice(idx,1); renderSidebarSettings(); showToast('Photo removed. Click Save Sidebar Gallery to confirm.'); } }
+        function renderSidebarSettings() { let container=document.getElementById('sidebarSettingsGrid'); if(!container) return; let photos=localSidebarPhotos; container.innerHTML=''; if(photos.length===0) container.innerHTML='<div style="text-align:center;padding:10px;">No sidebar photos</div>'; photos.forEach((photo,idx)=>{ let div=document.createElement('div'); div.style.position='relative'; div.innerHTML=`<img src="${photo}" style="width:100%;height:70px;object-fit:cover;border-radius:6px;"><button style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;" data-sidx="${idx}">✕</button>`; container.appendChild(div); }); document.querySelectorAll('#sidebarSettingsGrid button').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let sidx=parseInt(btn.getAttribute('data-sidx')); deleteSidebarPhotoLocal(sidx); }); }); }
         
-        // ============================================
-        // ADMIN PROFILE
-        // ============================================
-        async function loadAdminProfile() {
-            try {
-                let token = localStorage.getItem('adminToken');
-                let res = await fetch('/api/admin/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                let data = await res.json();
-                if(data.success && data.data) {
-                    adminData = data.data;
-                    document.getElementById('adminName').innerHTML = (adminData.name || 'Admin') + ' ▼';
-                    document.getElementById('adminIdDisplay').innerHTML = `ID: ${adminData.adminID}`;
-                    if(adminData.photo) {
-                        document.getElementById('adminPhoto').src = adminData.photo;
-                    }
-                }
-            } catch(e) {
-                console.error('Error loading admin profile:', e);
-            }
-        }
+        // Gallery with staging and duplicate check (max 6 total items)
+        function prepareGalleryUpload() { let files=document.getElementById('galleryFilesInput').files; if(!files.length) return showToast('Select images','error'); let currentCount = stagedGalleryItems.filter(i=>i.type==='photo').length; if(currentCount+files.length > 6) return showToast(`Max 6 photos allowed. Current: ${currentCount}`, 'error'); Array.from(files).forEach(async file=>{ let b64=await toBase64(file); let isDuplicate = stagedGalleryItems.some(item=>item.type==='photo' && item.data===b64); if(isDuplicate){ showToast(`Duplicate skipped: ${file.name}`, 'error'); return; } stagedGalleryItems.push({ type:'photo', data:b64 }); renderGallery(); }); document.getElementById('galleryFilesInput').value=''; showToast('Images staged. Click Save Media Gallery to apply.'); }
+        function prepareVideoAdd() { let url=document.getElementById('videoLinkInput').value.trim(); if(!url) return showToast('Enter URL','error'); let isDuplicate = stagedGalleryItems.some(item=>item.type==='video' && item.url===url); if(isDuplicate) return showToast('Duplicate video URL','error'); stagedGalleryItems.push({ type:'video', url }); renderGallery(); document.getElementById('videoLinkInput').value=''; showToast('Video staged. Click Save Media Gallery to apply.'); }
+        function renderGallery() { let grid=document.getElementById('galleryGrid'); if(!grid) return; grid.innerHTML=''; selectedGallerySet.clear(); stagedGalleryItems.forEach((item,idx)=>{ let id=`stage_${idx}`; let div=document.createElement('div'); div.className='gallery-item'; let check=`<input type="checkbox" class="gallery-check" data-id="${id}" style="position:absolute; top:10px; left:10px; z-index:2;">`; if(item.type==='photo') div.innerHTML=check+`<img src="${item.data}" alt="gallery"><button class="delete-btn" data-id="${id}">✕</button>`; else div.innerHTML=check+`<video src="${item.url}" controls></video><button class="delete-btn" data-id="${id}">✕</button>`; grid.appendChild(div); }); attachGalleryEvents(); }
+        function attachGalleryEvents(){ document.querySelectorAll('.gallery-check').forEach(cb=>{ cb.addEventListener('change',(e)=>{ let id=cb.getAttribute('data-id'); if(cb.checked) selectedGallerySet.add(id); else selectedGallerySet.delete(id); updateBulkButton(); }); }); document.querySelectorAll('.gallery-item .delete-btn').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let id=btn.getAttribute('data-id'); let idx=stagedGalleryItems.findIndex((_,i)=>`stage_${i}`===id); if(idx!==-1){ stagedGalleryItems.splice(idx,1); renderGallery(); showToast('Item removed from staging. Save to persist.'); } }); }); }
+        function updateBulkButton(){ let btn=document.getElementById('bulkDeleteGalleryBtn'); if(btn){ btn.disabled=selectedGallerySet.size===0; btn.innerText=selectedGallerySet.size>0?`🗑️ Delete (${selectedGallerySet.size})`:'🗑️ Delete Selected'; } }
+        function bulkDeleteGalleryItems(){ if(selectedGallerySet.size===0) return showToast('Select items','error'); let newItems=stagedGalleryItems.filter((_,i)=>!selectedGallerySet.has(`stage_${i}`)); stagedGalleryItems=newItems; selectedGallerySet.clear(); renderGallery(); showToast('Deleted from staging. Click Save to apply.'); }
         
-        // ============================================
-        // SCREEN MANAGEMENT (FIXED DELETE)
-        // ============================================
-        async function loadScreenData() { 
-            try { 
-                showLoading(); 
-                let res = await fetch('/api/screen'); 
-                let data = await res.json(); 
-                if(data.success) { 
-                    screenData = data.data; 
-                    updateUI(); 
-                    updateFavicon(); 
-                } 
-            } catch(e) { console.warn(e); } 
-            finally { hideLoading(); } 
-        }
+        // Save functions for each section (only saves respective data)
+        async function saveBranding() { showLoading(); try{ let payload={...screenData, title:document.getElementById('headerTitleInput').value, subTitle:document.getElementById('headerSubTitleInput').value, zoomMeetingLink:document.getElementById('zoomLinkInput').value}; if(document.getElementById('headerLogoInput').files[0]) payload.logo=await toBase64(document.getElementById('headerLogoInput').files[0]); let token=localStorage.getItem('adminToken'); let res=await fetch('/api/screen',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(payload)}); let result=await res.json(); if(result.success){ await loadScreenData(); showToast('Branding saved'); } else showToast('Error','error'); }catch(e){ showToast('Save failed','error'); }finally{ hideLoading(); } }
+        async function saveGalleryPermanent() { showLoading(); try{ if(stagedGalleryItems.length>6) return showToast('Max 6 media items allowed','error'); let token=localStorage.getItem('adminToken'); let payload={...screenData, gallery:JSON.stringify(stagedGalleryItems)}; let res=await fetch('/api/screen',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(payload)}); let result=await res.json(); if(result.success){ await loadScreenData(); stagedGalleryItems=[...screenData.gallery]; renderGallery(); showToast('Media Gallery saved'); } else showToast('Error','error'); }catch(e){ showToast('Save failed','error'); }finally{ hideLoading(); } }
+        async function saveSidebarPermanent() { showLoading(); try{ if(localSidebarPhotos.length>6) return showToast('Sidebar photos limit 6','error'); let token=localStorage.getItem('adminToken'); let payload={...screenData, sidebarPhotos:JSON.stringify(localSidebarPhotos)}; let res=await fetch('/api/screen',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(payload)}); let result=await res.json(); if(result.success){ await loadScreenData(); syncLocalSidebar(); showToast('Sidebar Gallery saved'); } else showToast('Error','error'); }catch(e){ showToast('Save failed','error'); }finally{ hideLoading(); } }
+        async function saveSocialLinks() { showLoading(); try{ let token=localStorage.getItem('adminToken'); let payload={...screenData, whatsappNumber:document.getElementById('whatsappNumberInput').value, whatsappChannelLink:document.getElementById('whatsappChannelInput').value, youtubeChannelLink:document.getElementById('youtubeChannelInput').value, facebookLink:document.getElementById('facebookLinkInput').value, instagramLink:document.getElementById('instagramLinkInput').value, telegramLink:document.getElementById('telegramLinkInput').value, twitterLink:document.getElementById('twitterLinkInput').value, linkedinLink:document.getElementById('linkedinLinkInput').value}; let res=await fetch('/api/screen',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(payload)}); let result=await res.json(); if(result.success){ await loadScreenData(); showToast('Social links saved'); } else showToast('Error','error'); }catch(e){ showToast('Save failed','error'); }finally{ hideLoading(); } }
         
-        function updateFavicon() { 
-            if(screenData?.logo) document.getElementById('dynamicFavicon').href = screenData.logo; 
-        }
+        // Sidebar photo upload for settings
+        document.getElementById('sidebarSettingsFileInput')?.addEventListener('change',async(e)=>{ let files=e.target.files; if(!files.length) return; let currentCount=localSidebarPhotos.length; if(currentCount+files.length>6) return showToast(`Max 6 sidebar photos. Current: ${currentCount}`,'error'); for(let f of files){ let b64=await toBase64(f); if(!localSidebarPhotos.includes(b64)) localSidebarPhotos.push(b64); else showToast('Duplicate ignored','error'); } renderSidebarSettings(); showToast('Photos staged. Click Save Sidebar Gallery.'); e.target.value=''; });
         
-        function updateUI() { 
-            if(!screenData) return; 
-            if(screenData.logo) document.getElementById('headerLogo').src = screenData.logo; 
-            document.getElementById('headerTitle').innerText = screenData.title || 'BBCC Portal'; 
-            document.getElementById('headerSubTitle').innerText = screenData.subTitle || 'Best Coaching Center'; 
-            if(screenData.zoomMeetingLink) document.querySelector('#zoomLink a').href = screenData.zoomMeetingLink; 
-            renderSidebarPhotos(); 
-            renderGallery(); 
-            document.getElementById('headerTitleInput').value = screenData.title || ''; 
-            document.getElementById('headerSubTitleInput').value = screenData.subTitle || ''; 
-            document.getElementById('zoomLinkInput').value = screenData.zoomMeetingLink || ''; 
-            document.getElementById('whatsappNumberInput').value = screenData.whatsappNumber || ''; 
-            document.getElementById('whatsappChannelInput').value = screenData.whatsappChannelLink || '';
-            document.getElementById('youtubeChannelInput').value = screenData.youtubeChannelLink || ''; 
-            document.getElementById('facebookLinkInput').value = screenData.facebookLink || '';
-            document.getElementById('instagramLinkInput').value = screenData.instagramLink || ''; 
-            document.getElementById('telegramLinkInput').value = screenData.telegramLink || '';
-            document.getElementById('twitterLinkInput').value = screenData.twitterLink || '';
-            document.getElementById('linkedinLinkInput').value = screenData.linkedinLink || '';
-            updateFooterLinks(); 
-        }
+        // Dashboard & Admin functions (unchanged but needed)
+        async function loadAdminProfile(){ try{ let token=localStorage.getItem('adminToken'); let res=await fetch('/api/admin/profile',{headers:{'Authorization':`Bearer ${token}`}}); let data=await res.json(); if(data.success){ adminData=data.data; document.getElementById('adminName').innerHTML=(adminData.name||'Admin')+' ▼'; document.getElementById('adminIdDisplay').innerHTML=`ID: ${adminData.adminID}`; if(adminData.photo) document.getElementById('adminPhoto').src=adminData.photo; } }catch(e){ console.error(e); } }
+        async function loadDashboardData(){ try{ let token=localStorage.getItem('adminToken'); let sRes=await fetch('/api/students',{headers:{'Authorization':`Bearer ${token}`}}); let tRes=await fetch('/api/teachers',{headers:{'Authorization':`Bearer ${token}`}}); let students=(await sRes.json()).data||[]; let teachers=(await tRes.json()).data||[]; let totalFees=0,dueFees=0,totalSalary=0,dueSalary=0; students.forEach(s=>{let fh=s.feesHistory||[]; totalFees+=fh.reduce((a,b)=>a+(b.paidAmount||0),0); dueFees+=fh.reduce((a,b)=>a+(b.dueAmount||0),0);}); teachers.forEach(t=>{let sp=t.salaryPayments||[]; totalSalary+=sp.reduce((a,b)=>a+(b.paidAmount||0),0); dueSalary+=sp.reduce((a,b)=>a+(b.dueAmount||0),0);}); document.getElementById('totalStudents').innerText=students.length; document.getElementById('totalTeachers').innerText=teachers.length; document.getElementById('totalIncome').innerHTML=`₹${totalFees.toLocaleString()}`; document.getElementById('totalExpense').innerHTML=`₹${totalSalary.toLocaleString()}`; document.getElementById('totalProfit').innerHTML=`₹${(totalFees-totalSalary).toLocaleString()}`; document.getElementById('totalFeesDue').innerHTML=`₹${dueFees.toLocaleString()}`; document.getElementById('totalSalaryDue').innerHTML=`₹${dueSalary.toLocaleString()}`; let present=students.reduce((a,s)=>a+(s.attendance?.filter(a=>a.status==='present').length||0),0); let totalDays=students.reduce((a,s)=>a+(s.attendance?.length||0),0); let rate=totalDays>0?(present/totalDays)*100:0; document.getElementById('attendanceRate').innerHTML=Math.round(rate)+'%'; }catch(e){console.error(e);} }
+        function switchModule(module){ document.querySelectorAll('.module-container').forEach(c=>c.classList.remove('active')); document.getElementById(`${module}-module`).classList.add('active'); if(module==='dashboard') loadDashboardData(); else if(module==='student' && !studentModuleLoaded){ showLoading(); let s=document.createElement('script'); s.src='js/student-management.js'; s.onload=()=>{ studentModuleLoaded=true; if(window.initStudentModule) window.initStudentModule('student-app'); hideLoading(); }; s.onerror=()=>{ hideLoading(); showToast('Student module error','error');}; document.body.appendChild(s); } else if(module==='teacher' && !teacherModuleLoaded){ showLoading(); let t=document.createElement('script'); t.src='js/teacher-management.js'; t.onload=()=>{ teacherModuleLoaded=true; if(window.initTeacherModule) window.initTeacherModule('teacher-app'); hideLoading(); }; t.onerror=()=>{ hideLoading(); showToast('Teacher module error','error');}; document.body.appendChild(t); } }
+        function handleLogout(){ if(confirm('Logout?')){ localStorage.clear(); window.location.href='/login.html';} }
+        function openPasswordModal(){ document.getElementById('passwordModal').classList.add('active');} function closePasswordModal(){ document.getElementById('passwordModal').classList.remove('active');}
+        async function changePassword(){ let cur=document.getElementById('currentPassword').value,newp=document.getElementById('newPassword').value,conf=document.getElementById('confirmPassword').value; if(!cur||!newp||newp!==conf) return showToast('Invalid','error'); if(newp.length<4) return showToast('Min 4 chars','error'); showLoading(); let token=localStorage.getItem('adminToken'); let res=await fetch('/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({currentPassword:cur,newPassword:newp})}); let data=await res.json(); if(data.success){ showToast('Password changed'); closePasswordModal();} else showToast(data.message||'Wrong password','error'); hideLoading();}
+        function openAdminIdModal(){ document.getElementById('currentAdminId').value=adminData?.adminID||''; document.getElementById('adminIdModal').classList.add('active');} function closeAdminIdModal(){ document.getElementById('adminIdModal').classList.remove('active');}
+        async function changeAdminId(){ let newId=document.getElementById('newAdminId').value,pwd=document.getElementById('verifyPassword').value; if(!newId||newId.length<3) return showToast('Invalid ID','error'); showLoading(); let token=localStorage.getItem('adminToken'); let res=await fetch('/api/admin/change-id',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({newAdminId:newId,password:pwd})}); let data=await res.json(); if(data.success){ showToast('ID changed, login again'); localStorage.removeItem('adminToken'); setTimeout(()=>window.location.href='/login.html',1500);} else showToast(data.message||'Failed','error'); hideLoading();}
+        function openAdminPhotoModal(){ document.getElementById('adminPhotoModal').classList.add('active'); document.getElementById('currentAdminPhotoPreview').src=document.getElementById('adminPhoto').src;} function closeAdminPhotoModal(){ document.getElementById('adminPhotoModal').classList.remove('active');}
+        async function updateAdminPhoto(){ let file=document.getElementById('adminPhotoInput').files[0]; if(!file) return; showLoading(); let b64=await toBase64(file); let token=localStorage.getItem('adminToken'); await fetch('/api/admin/photo',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({photoBase64:b64})}); document.getElementById('adminPhoto').src=b64; showToast('Photo updated'); closeAdminPhotoModal(); hideLoading();}
+        function setFilter(f){ currentFilter=f; document.querySelectorAll('.filter-btn').forEach(btn=>btn.classList.remove('active')); if(event?.target) event.target.classList.add('active'); document.getElementById('dateRangePicker').style.display=f==='custom'?'flex':'none'; loadDashboardData();}
+        function applyCustomRange(){ loadDashboardData(); }
         
-        function renderSidebarPhotos() { 
-            let container = document.getElementById('sidebarPhotosGrid'); 
-            if(!container) return; 
-            let photos = screenData?.sidebarPhotos || []; 
-            container.innerHTML = ''; 
-            if(photos.length === 0) { 
-                container.innerHTML = '<div style="font-size:12px;text-align:center;">No photos</div>'; 
-                return; 
-            } 
-            photos.forEach((photo, idx) => { 
-                let div = document.createElement('div'); 
-                div.className = 'sidebar-photo-item'; 
-                div.innerHTML = `<img src="${photo}" alt="side"><button class="delete-photo" data-idx="${idx}">✕</button>`; 
-                container.appendChild(div); 
-            }); 
-            document.querySelectorAll('.sidebar-photo-item .delete-photo').forEach(btn => { 
-                btn.addEventListener('click', (e) => { 
-                    let idx = parseInt(btn.getAttribute('data-idx')); 
-                    deleteSidebarPhoto(idx); 
-                }); 
-            }); 
-        }
+        // Event binding & init
+        document.getElementById('saveBrandingBtn')?.addEventListener('click',saveBranding);
+        document.getElementById('saveGalleryBtn')?.addEventListener('click',saveGalleryPermanent);
+        document.getElementById('saveSidebarSettingsBtn')?.addEventListener('click',saveSidebarPermanent);
+        document.getElementById('saveSocialBtn')?.addEventListener('click',saveSocialLinks);
+        document.getElementById('selectAllGallery')?.addEventListener('change',function(){ let all=document.querySelectorAll('.gallery-check'); if(this.checked){ all.forEach(cb=>{ cb.checked=true; selectedGallerySet.add(cb.getAttribute('data-id'));});} else { all.forEach(cb=>{ cb.checked=false; selectedGallerySet.clear();});} updateBulkButton(); });
         
-        // FIXED: Delete Sidebar Photo using server API
-        async function deleteSidebarPhoto(index) { 
-            if(!confirm('Delete this sidebar image?')) return; 
-            showLoading(); 
-            try { 
-                let updated = [...(screenData?.sidebarPhotos || [])]; 
-                updated.splice(index, 1); 
-                
-                let payload = { 
-                    title: screenData?.title || '', 
-                    subTitle: screenData?.subTitle || '', 
-                    zoomMeetingLink: screenData?.zoomMeetingLink || '',
-                    whatsappNumber: screenData?.whatsappNumber || '',
-                    whatsappChannelLink: screenData?.whatsappChannelLink || '',
-                    youtubeChannelLink: screenData?.youtubeChannelLink || '',
-                    facebookLink: screenData?.facebookLink || '',
-                    instagramLink: screenData?.instagramLink || '',
-                    telegramLink: screenData?.telegramLink || '',
-                    twitterLink: screenData?.twitterLink || '',
-                    linkedinLink: screenData?.linkedinLink || '',
-                    sidebarPhotos: JSON.stringify(updated), 
-                    gallery: JSON.stringify(screenData?.gallery || []) 
-                }; 
-                
-                let token = localStorage.getItem('adminToken'); 
-                let res = await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                let result = await res.json(); 
-                if(result.success) { 
-                    await loadScreenData(); 
-                    showToast('Sidebar photo deleted'); 
-                } else showToast('Delete failed', 'error'); 
-            } catch(e) { showToast('Error deleting', 'error'); } 
-            finally { hideLoading(); } 
-        }
-        
-        async function uploadSidebarPhotos(files) { 
-            if(!files.length) return; 
-            showLoading(); 
-            try { 
-                let base64Arr = []; 
-                for(let f of files) { 
-                    let b64 = await toBase64(f); 
-                    base64Arr.push(b64); 
-                } 
-                let existing = screenData?.sidebarPhotos || []; 
-                let all = [...existing, ...base64Arr]; 
-                
-                let payload = { 
-                    title: screenData?.title || '', 
-                    subTitle: screenData?.subTitle || '', 
-                    zoomMeetingLink: screenData?.zoomMeetingLink || '',
-                    whatsappNumber: screenData?.whatsappNumber || '',
-                    whatsappChannelLink: screenData?.whatsappChannelLink || '',
-                    youtubeChannelLink: screenData?.youtubeChannelLink || '',
-                    facebookLink: screenData?.facebookLink || '',
-                    instagramLink: screenData?.instagramLink || '',
-                    telegramLink: screenData?.telegramLink || '',
-                    twitterLink: screenData?.twitterLink || '',
-                    linkedinLink: screenData?.linkedinLink || '',
-                    sidebarPhotos: JSON.stringify(all), 
-                    gallery: JSON.stringify(screenData?.gallery || []) 
-                }; 
-                
-                let token = localStorage.getItem('adminToken'); 
-                await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                await loadScreenData(); 
-                showToast(`${base64Arr.length} photo(s) added to sidebar`); 
-            } catch(e) { showToast('Upload failed', 'error'); } 
-            finally { hideLoading(); document.getElementById('sidebarPhotoInput').value = ''; } 
-        }
-        
-        // FIXED: Gallery render with proper delete
-        function renderGallery() { 
-            let grid = document.getElementById('galleryGrid'); 
-            if(!grid || !screenData?.gallery) return; 
-            grid.innerHTML = ''; 
-            selectedGallerySet.clear(); 
-            updateBulkButton(); 
-            
-            screenData.gallery.forEach((item, idx) => { 
-                let id = item._id || `temp_${idx}_${Date.now()}`; 
-                let div = document.createElement('div'); 
-                div.className = 'gallery-item'; 
-                let check = `<input type="checkbox" class="gallery-check" data-id="${id}" style="position:absolute; top:10px; left:10px; z-index:2;">`; 
-                
-                if(item.type === 'photo') { 
-                    div.innerHTML = check + `<img src="${item.data}" alt="gallery"><button class="delete-btn" data-id="${id}">✕</button>`; 
-                } else { 
-                    div.innerHTML = check + `<video src="${item.url}" controls></video><button class="delete-btn" data-id="${id}">✕</button>`; 
-                } 
-                grid.appendChild(div); 
-            }); 
-            
-            document.querySelectorAll('.gallery-check').forEach(cb => { 
-                cb.addEventListener('change', (e) => { 
-                    let val = cb.getAttribute('data-id'); 
-                    if(cb.checked) selectedGallerySet.add(val); 
-                    else selectedGallerySet.delete(val); 
-                    updateBulkButton(); 
-                }); 
-            }); 
-            
-            document.querySelectorAll('.gallery-item .delete-btn').forEach(btn => { 
-                btn.addEventListener('click', async (e) => { 
-                    let id = btn.getAttribute('data-id'); 
-                    if(confirm('Delete this item?')) await performGalleryDelete([id]); 
-                }); 
-            }); 
-        }
-        
-        function updateBulkButton() { 
-            let btn = document.getElementById('bulkDeleteGalleryBtn'); 
-            if(btn) { 
-                btn.disabled = selectedGallerySet.size === 0; 
-                btn.innerText = selectedGallerySet.size > 0 ? `🗑️ Delete (${selectedGallerySet.size})` : '🗑️ Delete Selected'; 
-            } 
-        }
-        
-        // FIXED: Delete Gallery Items using server API
-        async function performGalleryDelete(ids) { 
-            showLoading(); 
-            try { 
-                let remaining = (screenData?.gallery || []).filter(item => { 
-                    let itemId = item._id || (item.type === 'photo' ? item.data : item.url); 
-                    return !ids.includes(itemId); 
-                }); 
-                
-                let payload = { 
-                    title: screenData?.title || '', 
-                    subTitle: screenData?.subTitle || '', 
-                    zoomMeetingLink: screenData?.zoomMeetingLink || '',
-                    whatsappNumber: screenData?.whatsappNumber || '',
-                    whatsappChannelLink: screenData?.whatsappChannelLink || '',
-                    youtubeChannelLink: screenData?.youtubeChannelLink || '',
-                    facebookLink: screenData?.facebookLink || '',
-                    instagramLink: screenData?.instagramLink || '',
-                    telegramLink: screenData?.telegramLink || '',
-                    twitterLink: screenData?.twitterLink || '',
-                    linkedinLink: screenData?.linkedinLink || '',
-                    sidebarPhotos: JSON.stringify(screenData?.sidebarPhotos || []), 
-                    gallery: JSON.stringify(remaining) 
-                }; 
-                
-                let token = localStorage.getItem('adminToken'); 
-                let res = await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                let result = await res.json(); 
-                if(result.success) { 
-                    await loadScreenData(); 
-                    selectedGallerySet.clear(); 
-                    showToast(`${ids.length} item(s) deleted`); 
-                } else showToast('Delete error', 'error'); 
-            } catch(e) { showToast('Delete failed', 'error'); } 
-            finally { hideLoading(); } 
-        }
-        
-        async function bulkDeleteGalleryItems() { 
-            if(selectedGallerySet.size === 0) return showToast('Select items first', 'error'); 
-            if(confirm(`Delete ${selectedGallerySet.size} items?`)) await performGalleryDelete(Array.from(selectedGallerySet)); 
-        }
-        
-        async function uploadGalleryPhotos() { 
-            let files = document.getElementById('galleryFilesInput').files; 
-            if(!files.length) return showToast('Select images', 'error'); 
-            showLoading(); 
-            try { 
-                let base64Arr = []; 
-                for(let f of files) { 
-                    base64Arr.push(await toBase64(f)); 
-                } 
-                let newItems = base64Arr.map(img => ({ type: 'photo', data: img })); 
-                let existing = screenData?.gallery || []; 
-                let all = [...existing, ...newItems]; 
-                
-                let payload = { 
-                    title: screenData?.title || '', 
-                    subTitle: screenData?.subTitle || '', 
-                    zoomMeetingLink: screenData?.zoomMeetingLink || '',
-                    whatsappNumber: screenData?.whatsappNumber || '',
-                    whatsappChannelLink: screenData?.whatsappChannelLink || '',
-                    youtubeChannelLink: screenData?.youtubeChannelLink || '',
-                    facebookLink: screenData?.facebookLink || '',
-                    instagramLink: screenData?.instagramLink || '',
-                    telegramLink: screenData?.telegramLink || '',
-                    twitterLink: screenData?.twitterLink || '',
-                    linkedinLink: screenData?.linkedinLink || '',
-                    sidebarPhotos: JSON.stringify(screenData?.sidebarPhotos || []), 
-                    gallery: JSON.stringify(all) 
-                }; 
-                
-                let token = localStorage.getItem('adminToken'); 
-                await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                await loadScreenData(); 
-                document.getElementById('galleryFilesInput').value = ''; 
-                showToast('Photos uploaded'); 
-            } catch(e) { showToast('Upload error', 'error'); } 
-            finally { hideLoading(); } 
-        }
-        
-        async function addVideoLink() { 
-            let url = document.getElementById('videoLinkInput').value.trim(); 
-            if(!url) return showToast('Enter URL', 'error'); 
-            showLoading(); 
-            try { 
-                let newItem = { type: 'video', url: url }; 
-                let gallery = [...(screenData?.gallery || []), newItem]; 
-                
-                let payload = { 
-                    title: screenData?.title || '', 
-                    subTitle: screenData?.subTitle || '', 
-                    zoomMeetingLink: screenData?.zoomMeetingLink || '',
-                    whatsappNumber: screenData?.whatsappNumber || '',
-                    whatsappChannelLink: screenData?.whatsappChannelLink || '',
-                    youtubeChannelLink: screenData?.youtubeChannelLink || '',
-                    facebookLink: screenData?.facebookLink || '',
-                    instagramLink: screenData?.instagramLink || '',
-                    telegramLink: screenData?.telegramLink || '',
-                    twitterLink: screenData?.twitterLink || '',
-                    linkedinLink: screenData?.linkedinLink || '',
-                    sidebarPhotos: JSON.stringify(screenData?.sidebarPhotos || []), 
-                    gallery: JSON.stringify(gallery) 
-                }; 
-                
-                let token = localStorage.getItem('adminToken'); 
-                await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                await loadScreenData(); 
-                document.getElementById('videoLinkInput').value = ''; 
-                showToast('Video link added'); 
-            } catch(e) { showToast('Failed', 'error'); } 
-            finally { hideLoading(); } 
-        }
-        
-        async function saveBasicSettings() { 
-            showLoading(); 
-            try { 
-                let payload = { 
-                    title: document.getElementById('headerTitleInput').value, 
-                    subTitle: document.getElementById('headerSubTitleInput').value, 
-                    zoomMeetingLink: document.getElementById('zoomLinkInput').value, 
-                    whatsappNumber: document.getElementById('whatsappNumberInput').value,
-                    whatsappChannelLink: document.getElementById('whatsappChannelInput').value,
-                    youtubeChannelLink: document.getElementById('youtubeChannelInput').value,
-                    facebookLink: document.getElementById('facebookLinkInput').value,
-                    instagramLink: document.getElementById('instagramLinkInput').value,
-                    telegramLink: document.getElementById('telegramLinkInput').value,
-                    twitterLink: document.getElementById('twitterLinkInput').value,
-                    linkedinLink: document.getElementById('linkedinLinkInput').value,
-                    sidebarPhotos: JSON.stringify(screenData?.sidebarPhotos || []), 
-                    gallery: JSON.stringify(screenData?.gallery || []) 
-                }; 
-                
-                if(document.getElementById('headerLogoInput').files[0]) { 
-                    payload.logo = await toBase64(document.getElementById('headerLogoInput').files[0]); 
-                } 
-                
-                let token = localStorage.getItem('adminToken'); 
-                let res = await fetch('/api/screen', {
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                    body: JSON.stringify(payload)
-                }); 
-                let result = await res.json(); 
-                if(result.success) { 
-                    await loadScreenData(); 
-                    showToast('Settings saved!'); 
-                } else showToast('Error', 'error'); 
-            } catch(e) { showToast('Save failed', 'error'); } 
-            finally { hideLoading(); } 
-        }
-        
-        function updateFooterLinks() { 
-            let div = document.getElementById('footerSocialLinks'); 
-            if(div) {
-                let links = [];
-                if(screenData?.whatsappNumber) links.push(`<a href="https://wa.me/${screenData.whatsappNumber}" target="_blank">WhatsApp</a>`);
-                if(screenData?.whatsappChannelLink) links.push(`<a href="${screenData.whatsappChannelLink}" target="_blank">WhatsApp Channel</a>`);
-                if(screenData?.youtubeChannelLink) links.push(`<a href="${screenData.youtubeChannelLink}" target="_blank">YouTube</a>`);
-                if(screenData?.instagramLink) links.push(`<a href="${screenData.instagramLink}" target="_blank">Instagram</a>`);
-                if(screenData?.facebookLink) links.push(`<a href="${screenData.facebookLink}" target="_blank">Facebook</a>`);
-                if(screenData?.telegramLink) links.push(`<a href="${screenData.telegramLink}" target="_blank">Telegram</a>`);
-                div.innerHTML = links.join(' | ');
-            }
-        }
-        
-        // ============================================
-        // DASHBOARD
-        // ============================================
-        async function loadDashboardData() { 
-            try { 
-                let token = localStorage.getItem('adminToken');
-                let studentsRes = await fetch('/api/students', { headers: { 'Authorization': `Bearer ${token}` } }); 
-                let studentsData = await studentsRes.json(); 
-                let students = studentsData.data || []; 
-                
-                let teachersRes = await fetch('/api/teachers', { headers: { 'Authorization': `Bearer ${token}` } }); 
-                let teachersData = await teachersRes.json(); 
-                let teachers = teachersData.data || []; 
-                
-                let totalFees = 0, totalSalary = 0, dueFees = 0, dueSalary = 0; 
-                students.forEach(s => { 
-                    let fh = s.feesHistory || []; 
-                    totalFees += fh.reduce((a, b) => a + (b.paidAmount || 0), 0); 
-                    let du = fh.reduce((a, b) => a + (b.dueAmount || 0), 0); 
-                    dueFees += du; 
-                }); 
-                
-                teachers.forEach(t => { 
-                    let sp = t.salaryPayments || []; 
-                    totalSalary += sp.reduce((a, b) => a + (b.paidAmount || 0), 0); 
-                    let du = sp.reduce((a, b) => a + (b.dueAmount || 0), 0); 
-                    dueSalary += du; 
-                }); 
-                
-                document.getElementById('totalStudents').innerText = students.length; 
-                document.getElementById('totalTeachers').innerText = teachers.length; 
-                document.getElementById('totalIncome').innerHTML = `₹${totalFees.toLocaleString()}`; 
-                document.getElementById('totalExpense').innerHTML = `₹${totalSalary.toLocaleString()}`; 
-                document.getElementById('totalProfit').innerHTML = `₹${(totalFees - totalSalary).toLocaleString()}`; 
-                document.getElementById('totalFeesDue').innerHTML = `₹${dueFees.toLocaleString()}`; 
-                document.getElementById('totalSalaryDue').innerHTML = `₹${dueSalary.toLocaleString()}`; 
-                
-                let totalPresent = students.reduce((acc, s) => acc + (s.attendance?.filter(a => a.status === 'present').length || 0), 0);
-                let totalDays = students.reduce((acc, s) => acc + (s.attendance?.length || 0), 0);
-                let attRate = totalDays > 0 ? (totalPresent / totalDays) * 100 : 0;
-                document.getElementById('attendanceRate').innerHTML = isNaN(attRate) ? '0%' : Math.round(attRate) + '%'; 
-                
-                updateChartData(students, teachers); 
-                updateActivity(students, teachers); 
-            } catch(e) { console.error(e); } 
-        }
-        
-        function updateChartData(students, teachers) { 
-            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; 
-            let income = new Array(12).fill(0), expense = new Array(12).fill(0); 
-            students.forEach(s => { 
-                (s.feesHistory || []).forEach(f => { 
-                    if(f.paymentDate) income[new Date(f.paymentDate).getMonth()] += f.paidAmount || 0; 
-                }); 
-            }); 
-            teachers.forEach(t => { 
-                (t.salaryPayments || []).forEach(p => { 
-                    if(p.paymentDate) expense[new Date(p.paymentDate).getMonth()] += p.paidAmount || 0; 
-                }); 
-            }); 
-            
-            if(incomeExpenseChart) incomeExpenseChart.destroy(); 
-            let ctx1 = document.getElementById('incomeExpenseChart').getContext('2d');
-            incomeExpenseChart = new Chart(ctx1, { 
-                type: 'line', 
-                data: { labels: months, datasets: [{ label: 'Income', data: income, borderColor: '#28a745', fill: false }, { label: 'Expense', data: expense, borderColor: '#dc3545', fill: false }] } 
-            }); 
-            
-            if(studentAttendanceChart) studentAttendanceChart.destroy(); 
-            let totalPresent = students.reduce((acc, s) => acc + (s.attendance?.filter(a => a.status === 'present').length || 0), 0);
-            let totalAbsent = students.reduce((acc, s) => acc + (s.attendance?.filter(a => a.status === 'absent').length || 0), 0);
-            let ctx2 = document.getElementById('studentAttendanceChart').getContext('2d');
-            studentAttendanceChart = new Chart(ctx2, { 
-                type: 'bar', 
-                data: { labels: ['Present', 'Absent'], datasets: [{ label: 'Students', data: [totalPresent, totalAbsent], backgroundColor: ['#28a745', '#dc3545'] }] } 
-            }); 
-        }
-        
-        function updateActivity(students, teachers) { 
-            let acts = []; 
-            students.forEach(s => { 
-                (s.feesHistory || []).forEach(f => { 
-                    if(f.paymentDate) acts.push({ msg: `${s.studentName?.first || 'Student'} paid ₹${f.paidAmount}`, date: new Date(f.paymentDate) }); 
-                }); 
-            }); 
-            teachers.forEach(t => { 
-                (t.salaryPayments || []).forEach(p => { 
-                    if(p.paymentDate) acts.push({ msg: `Salary to ${t.personal?.name} ₹${p.paidAmount}`, date: new Date(p.paymentDate) }); 
-                }); 
-            }); 
-            acts.sort((a, b) => b.date - a.date); 
-            let html = acts.slice(0, 7).map(a => `<div class="activity-item">🔹 ${a.msg} <small>${a.date.toLocaleDateString()}</small></div>`).join(''); 
-            document.getElementById('recentActivity').innerHTML = html || '<div>No activity</div>'; 
-        }
-        
-        function setFilter(f) { 
-            currentFilter = f; 
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); 
-            if(event && event.target) event.target.classList.add('active');
-            document.getElementById('dateRangePicker').style.display = f === 'custom' ? 'flex' : 'none'; 
-            if(f !== 'custom') { customStart = null; customEnd = null; } 
-            loadDashboardData(); 
-        }
-        
-        function applyCustomRange() { 
-            let s = document.getElementById('startDate').value, e = document.getElementById('endDate').value; 
-            if(s && e) { 
-                customStart = new Date(s); 
-                customEnd = new Date(e); 
-                loadDashboardData(); 
-            } else showToast('Select dates', 'error'); 
-        }
-        
-        // ============================================
-        // MODULE LOADING
-        // ============================================
-        function switchModule(module) {
-            document.querySelectorAll('.module-container').forEach(c => c.classList.remove('active'));
-            document.getElementById(`${module}-module`).classList.add('active');
-            document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
-            if(event && event.currentTarget) event.currentTarget.classList.add('active');
-            
-            if(module === 'dashboard') {
-                loadDashboardData();
-            } else if(module === 'student' && !studentModuleLoaded) {
-                loadStudentModule();
-            } else if(module === 'teacher' && !teacherModuleLoaded) {
-                loadTeacherModule();
-            }
-        }
-        
-        function loadStudentModule() {
-            showLoading();
-            let script = document.createElement('script');
-            script.src = 'js/student-management.js';
-            script.onload = () => {
-                studentModuleLoaded = true;
-                if(window.initStudentModule) {
-                    window.initStudentModule('student-app');
-                }
-                hideLoading();
-            };
-            script.onerror = () => {
-                hideLoading();
-                document.getElementById('student-app').innerHTML = '<div style="padding:30px;text-align:center;color:red">⚠️ Student module failed to load. Please check if js/student-management.js exists.</div>';
-                showToast('Student module failed to load', 'error');
-            };
-            document.body.appendChild(script);
-        }
-        
-        function loadTeacherModule() {
-            showLoading();
-            let script = document.createElement('script');
-            script.src = 'js/teacher-management.js';
-            script.onload = () => {
-                teacherModuleLoaded = true;
-                if(window.initTeacherModule) {
-                    window.initTeacherModule('teacher-app');
-                }
-                hideLoading();
-            };
-            script.onerror = () => {
-                hideLoading();
-                document.getElementById('teacher-app').innerHTML = '<div style="padding:30px;text-align:center;color:red">⚠️ Teacher module failed to load. Please check if js/teacher-management.js exists.</div>';
-                showToast('Teacher module failed to load', 'error');
-            };
-            document.body.appendChild(script);
-        }
-        
-        // ============================================
-        // ADMIN FUNCTIONS
-        // ============================================
-        function openAdminPhotoModal() { 
-            document.getElementById('adminPhotoModal').classList.add('active'); 
-            document.getElementById('currentAdminPhotoPreview').src = document.getElementById('adminPhoto').src; 
-        }
-        
-        function closeAdminPhotoModal() { 
-            document.getElementById('adminPhotoModal').classList.remove('active'); 
-        }
-        
-        async function updateAdminPhoto() { 
-            let file = document.getElementById('adminPhotoInput').files[0]; 
-            if(!file) return; 
-            showLoading(); 
-            let b64 = await toBase64(file); 
-            let token = localStorage.getItem('adminToken'); 
-            await fetch('/api/admin/photo', {
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                body: JSON.stringify({ photoBase64: b64 })
-            }); 
-            document.getElementById('adminPhoto').src = b64; 
-            showToast('Photo updated'); 
-            closeAdminPhotoModal(); 
-            hideLoading(); 
-        }
-        
-        function openPasswordModal() { 
-            document.getElementById('passwordModal').classList.add('active'); 
-        }
-        
-        function closePasswordModal() { 
-            document.getElementById('passwordModal').classList.remove('active'); 
-        }
-        
-        async function changePassword() { 
-            let cur = document.getElementById('currentPassword').value, 
-                newp = document.getElementById('newPassword').value, 
-                conf = document.getElementById('confirmPassword').value; 
-                
-            if(!cur || !newp || newp !== conf) return showToast('Invalid input', 'error'); 
-            if(newp.length < 4) return showToast('Password must be at least 4 characters', 'error');
-            
-            showLoading(); 
-            let token = localStorage.getItem('adminToken'); 
-            let res = await fetch('/api/admin/change-password', {
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                body: JSON.stringify({ currentPassword: cur, newPassword: newp })
-            }); 
-            let data = await res.json(); 
-            if(data.success) {
-                showToast('Password changed successfully'); 
-                closePasswordModal();
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-            } else {
-                showToast(data.message || 'Wrong password', 'error'); 
-            }
-            hideLoading(); 
-        }
-        
-        function openAdminIdModal() { 
-            document.getElementById('currentAdminId').value = adminData?.adminID || ''; 
-            document.getElementById('adminIdModal').classList.add('active'); 
-        }
-        
-        function closeAdminIdModal() { 
-            document.getElementById('adminIdModal').classList.remove('active'); 
-            document.getElementById('newAdminId').value = '';
-            document.getElementById('verifyPassword').value = '';
-        }
-        
-        async function changeAdminId() { 
-            let newId = document.getElementById('newAdminId').value, 
-                pwd = document.getElementById('verifyPassword').value; 
-                
-            if(!newId) return showToast('Enter new Admin ID', 'error'); 
-            if(newId.length < 3) return showToast('Admin ID must be at least 3 characters', 'error');
-            
-            showLoading(); 
-            let token = localStorage.getItem('adminToken'); 
-            let res = await fetch('/api/admin/change-id', {
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-                body: JSON.stringify({ newAdminId: newId, password: pwd })
-            }); 
-            let data = await res.json(); 
-            if(data.success) { 
-                showToast('ID changed, please login again'); 
-                localStorage.removeItem('adminToken'); 
-                setTimeout(() => window.location.href = '/login.html', 1500); 
-            } else { 
-                showToast(data.message || 'Failed', 'error'); 
-            }
-            hideLoading(); 
-        }
-        
-        function handleLogout() { 
-            if(confirm('Are you sure you want to logout?')) { 
-                localStorage.clear(); 
-                sessionStorage.clear(); 
-                window.location.href = '/login.html'; 
-            } 
-        }
-        
-        // ============================================
-        // EVENT LISTENERS & INITIALIZATION
-        // ============================================
-        document.getElementById('sidebarPhotoInput')?.addEventListener('change', (e) => uploadSidebarPhotos(e.target.files));
-        
-        window.toggleSelectAllGallery = function() { 
-            let all = document.querySelectorAll('.gallery-check'); 
-            let selectAllCheck = document.getElementById('selectAllGallery'); 
-            if(selectAllCheck.checked) { 
-                all.forEach(cb => { cb.checked = true; selectedGallerySet.add(cb.getAttribute('data-id')); }); 
-            } else { 
-                all.forEach(cb => { cb.checked = false; selectedGallerySet.clear(); }); 
-            } 
-            updateBulkButton(); 
-        };
-        
-        document.getElementById('selectAllGallery')?.addEventListener('change', window.toggleSelectAllGallery);
-        
-        // Make functions global
-        window.bulkDeleteGalleryItems = bulkDeleteGalleryItems;
-        window.uploadGalleryPhotos = uploadGalleryPhotos;
-        window.addVideoLink = addVideoLink;
-        window.saveBasicSettings = saveBasicSettings;
-        window.setFilter = setFilter;
-        window.applyCustomRange = applyCustomRange;
-        window.switchModule = switchModule;
-        window.openPasswordModal = openPasswordModal;
-        window.closePasswordModal = closePasswordModal;
-        window.changePassword = changePassword;
-        window.openAdminIdModal = openAdminIdModal;
-        window.closeAdminIdModal = closeAdminIdModal;
-        window.changeAdminId = changeAdminId;
-        window.openAdminPhotoModal = openAdminPhotoModal;
-        window.closeAdminPhotoModal = closeAdminPhotoModal;
-        window.updateAdminPhoto = updateAdminPhoto;
-        window.handleLogout = handleLogout;
-        
-        // Initialize App
-        (async function init() { 
-            if(!localStorage.getItem('adminToken')) {
-                window.location.href = '/login.html'; 
-                return;
-            }
-            await loadAdminProfile();
-            await loadScreenData(); 
-            await loadDashboardData();
-        })();
+        (async function init(){ if(!localStorage.getItem('adminToken')){ window.location.href='/login.html'; return; } await loadAdminProfile(); await loadScreenData(); syncLocalSidebar(); renderSidebarSettings(); stagedGalleryItems=[...(screenData?.gallery||[])]; renderGallery(); await loadDashboardData(); })();
     </script>
 </body>
 </html>
