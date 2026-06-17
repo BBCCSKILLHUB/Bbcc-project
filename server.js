@@ -751,6 +751,41 @@ app.get('/api/students/search/:query', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+// ===== CLOSE CLASS =====
+app.post('/api/students/:id/close-class', verifyToken, async (req, res) => {
+    try {
+        const student = await Student.findOne({ studentId: req.params.id });
+        if (!student) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+        
+        const { className } = req.body;
+        
+        // Find the class in education history
+        const classIndex = student.educationHistory.findIndex(h => h.class === className && h.isActive === true);
+        if (classIndex === -1) {
+            return res.status(404).json({ success: false, message: "Active class not found" });
+        }
+        
+        // Mark class as completed
+        student.educationHistory[classIndex].isActive = false;
+        student.educationHistory[classIndex].isCompleted = true;
+        student.educationHistory[classIndex].endDate = new Date();
+        
+        // Check if there's any other active class
+        const hasActiveClass = student.educationHistory.some(h => h.isActive === true);
+        if (!hasActiveClass) {
+            student.isActive = false;
+        }
+        
+        student.updatedAt = new Date();
+        await student.save();
+        
+        res.json({ success: true, message: "Class closed successfully", data: student });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 // ============================================
 // SERVE HTML PAGES
 // ============================================
