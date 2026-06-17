@@ -5,11 +5,10 @@
 
 // ===== INITIALIZE STUDENT MANAGEMENT =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if student tab is clicked
     const studentTab = document.querySelector('[data-tab="students"]');
     if (studentTab) {
         studentTab.addEventListener('click', function() {
-            setTimeout(() => {
+            setTimeout(function() {
                 if (document.getElementById('tab-students').classList.contains('active')) {
                     initStudentManagement();
                 }
@@ -19,23 +18,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== STUDENT MANAGEMENT APP =====
-let allStudents = [];
-let currentStudentId = null;
-let isEditMode = false;
+var allStudents = [];
+var currentStudentId = null;
 
 function initStudentManagement() {
-    const container = document.getElementById('studentManagementApp');
+    var container = document.getElementById('studentManagementApp');
     if (!container) return;
     
-    // Render the entire student management UI
     container.innerHTML = `
-        <!-- Sub Tabs -->
         <div class="sub-tabs">
             <button class="sub-tab-btn active" data-subtab="list" onclick="switchSubTab('list')">📋 Student List</button>
             <button class="sub-tab-btn" data-subtab="add" onclick="switchSubTab('add')">➕ Add Student</button>
         </div>
 
-        <!-- Student List Sub Tab -->
         <div class="sub-tab-content active" id="subtab-list">
             <div class="card">
                 <div class="card-title">
@@ -76,7 +71,6 @@ function initStudentManagement() {
             </div>
         </div>
 
-        <!-- Add Student Sub Tab -->
         <div class="sub-tab-content" id="subtab-add">
             <div class="card">
                 <div class="card-title">
@@ -84,7 +78,6 @@ function initStudentManagement() {
                     <span id="addStudentTitle">Add New Student</span>
                 </div>
                 <form id="addStudentForm" onsubmit="saveStudent(event)">
-                    <!-- Personal Details -->
                     <h3 style="margin-bottom:15px;color:#667eea;">📝 Personal Details</h3>
                     <div class="form-row">
                         <div class="form-group">
@@ -134,7 +127,6 @@ function initStudentManagement() {
                         <textarea id="sAddress" rows="2"></textarea>
                     </div>
 
-                    <!-- Parent Details -->
                     <h3 style="margin:20px 0 15px;color:#667eea;">👨‍👩‍👦 Parent/Guardian Details</h3>
                     <div class="form-group">
                         <label>Parent Type</label>
@@ -179,7 +171,6 @@ function initStudentManagement() {
                         <input type="text" id="sGuardianRelation" placeholder="e.g., Uncle, Aunt">
                     </div>
 
-                    <!-- Education Details -->
                     <h3 style="margin:20px 0 15px;color:#667eea;">📚 Education Details</h3>
                     <div class="form-row">
                         <div class="form-group">
@@ -230,7 +221,6 @@ function initStudentManagement() {
                         </div>
                     </div>
 
-                    <!-- Photo Upload -->
                     <div class="form-group">
                         <label>Student Photo</label>
                         <div class="image-upload" onclick="document.getElementById('sPhotoInput').click()">
@@ -251,31 +241,69 @@ function initStudentManagement() {
         </div>
     `;
     
-    // Load students
     loadStudents();
 }
 
 // ===== SWITCH SUB TAB =====
 function switchSubTab(tab) {
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`[data-subtab="${tab}"]`).classList.add('active');
+    var tabs = document.querySelectorAll('.sub-tab-btn');
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+    }
+    document.querySelector('[data-subtab="' + tab + '"]').classList.add('active');
     
-    document.querySelectorAll('.sub-tab-content').forEach(tc => tc.classList.remove('active'));
-    document.getElementById(`subtab-${tab}`).classList.add('active');
+    var contents = document.querySelectorAll('.sub-tab-content');
+    for (var j = 0; j < contents.length; j++) {
+        contents[j].classList.remove('active');
+    }
+    document.getElementById('subtab-' + tab).classList.add('active');
     
     if (tab === 'list') {
         loadStudents();
     }
 }
 
+// ===== API CALL HELPER =====
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+async function apiCall(url, options) {
+    options = options || {};
+    var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + getToken()
+    };
+    if (options.headers) {
+        for (var key in options.headers) {
+            headers[key] = options.headers[key];
+        }
+    }
+    
+    var config = {
+        method: options.method || 'GET',
+        headers: headers
+    };
+    
+    if (options.body) {
+        config.body = JSON.stringify(options.body);
+    }
+    
+    var response = await fetch(url, config);
+    return await response.json();
+}
+
 // ===== LOAD STUDENTS =====
 async function loadStudents() {
     try {
-        const data = await apiCall('/api/students');
+        var data = await apiCall('/api/students');
         if (data.success) {
             allStudents = data.data;
             renderStudentTable(allStudents);
-            document.getElementById('studentCount').textContent = `(${allStudents.length} students)`;
+            var countEl = document.getElementById('studentCount');
+            if (countEl) {
+                countEl.textContent = '(' + allStudents.length + ' students)';
+            }
         }
     } catch (error) {
         showToast('Error loading students', true);
@@ -284,7 +312,8 @@ async function loadStudents() {
 
 // ===== RENDER STUDENT TABLE =====
 function renderStudentTable(students) {
-    const container = document.getElementById('studentListContainer');
+    var container = document.getElementById('studentListContainer');
+    if (!container) return;
     
     if (!students || students.length === 0) {
         container.innerHTML = `
@@ -296,7 +325,7 @@ function renderStudentTable(students) {
         return;
     }
     
-    let html = `
+    var html = `
         <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:14px;">
                 <thead>
@@ -315,15 +344,16 @@ function renderStudentTable(students) {
                 <tbody>
     `;
     
-    students.forEach((student, index) => {
-        const status = student.isBlocked ? '🔴 Blocked' : '✅ Active';
-        const statusColor = student.isBlocked ? '#e74c3c' : '#2ecc71';
+    for (var i = 0; i < students.length; i++) {
+        var student = students[i];
+        var status = student.isBlocked ? '🔴 Blocked' : '✅ Active';
+        var statusColor = student.isBlocked ? '#e74c3c' : '#2ecc71';
         
         html += `
             <tr style="border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="showStudentDetails('${student.studentId}')">
-                <td style="padding:10px;">${index + 1}</td>
+                <td style="padding:10px;">${i + 1}</td>
                 <td style="padding:10px;">
-                    ${student.photo ? `<img src="${student.photo}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;">` : '📸'}
+                    ${student.photo ? '<img src="' + student.photo + '" style="width:35px;height:35px;border-radius:50%;object-fit:cover;">' : '📸'}
                 </td>
                 <td style="padding:10px;font-weight:600;">${student.fullName || 'N/A'}</td>
                 <td style="padding:10px;">${student.currentClass || 'N/A'}</td>
@@ -342,7 +372,7 @@ function renderStudentTable(students) {
                 </td>
             </tr>
         `;
-    });
+    }
     
     html += `
                 </tbody>
@@ -361,7 +391,7 @@ async function searchStudents(query) {
     }
     
     try {
-        const data = await apiCall(`/api/students/search/${query}`);
+        var data = await apiCall('/api/students/search/' + query);
         if (data.success) {
             renderStudentTable(data.data);
         }
@@ -377,18 +407,23 @@ function filterByClass(className) {
         return;
     }
     
-    const filtered = allStudents.filter(s => s.currentClass === className);
+    var filtered = [];
+    for (var i = 0; i < allStudents.length; i++) {
+        if (allStudents[i].currentClass === className) {
+            filtered.push(allStudents[i]);
+        }
+    }
     renderStudentTable(filtered);
 }
 
 // ===== STUDENT PHOTO HANDLER =====
 function handleStudentPhoto(event) {
-    const file = event.target.files[0];
+    var file = event.target.files[0];
     if (!file) return;
     
-    const reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = function(e) {
-        const base64 = e.target.result;
+        var base64 = e.target.result;
         document.getElementById('sPhotoPreviewImg').src = base64;
         document.getElementById('sPhotoPreviewImg').style.display = 'block';
         document.getElementById('sPhotoPlaceholder').style.display = 'none';
@@ -400,9 +435,9 @@ function handleStudentPhoto(event) {
 async function saveStudent(event) {
     event.preventDefault();
     
-    const editId = document.getElementById('addStudentForm').dataset.editId;
+    var editId = document.getElementById('addStudentForm').dataset.editId;
     
-    const data = {
+    var data = {
         name: {
             first: document.getElementById('sFirstName').value.trim(),
             middle: document.getElementById('sMiddleName').value.trim(),
@@ -429,7 +464,6 @@ async function saveStudent(event) {
         photo: document.getElementById('sPhotoPreviewImg').src || ''
     };
     
-    // Validate
     if (!data.name.first || !data.name.last) {
         showToast('Please enter full name', true);
         return;
@@ -448,16 +482,16 @@ async function saveStudent(event) {
     }
     
     try {
-        let response;
+        var response;
         if (editId) {
-            response = await apiCall(`/api/students/${editId}`, {
+            response = await apiCall('/api/students/' + editId, {
                 method: 'PUT',
-                body: JSON.stringify(data)
+                body: data
             });
         } else {
             response = await apiCall('/api/students', {
                 method: 'POST',
-                body: JSON.stringify(data)
+                body: data
             });
         }
         
@@ -482,7 +516,7 @@ function resetStudentForm() {
     document.getElementById('sPhotoPreviewImg').style.display = 'none';
     document.getElementById('sPhotoPlaceholder').style.display = 'block';
     document.getElementById('addStudentTitle').textContent = 'Add New Student';
-    const submitBtn = document.querySelector('#addStudentForm button[type="submit"]');
+    var submitBtn = document.querySelector('#addStudentForm button[type="submit"]');
     submitBtn.textContent = '✅ Add Student';
     submitBtn.style.background = '';
 }
@@ -492,36 +526,23 @@ async function showStudentDetails(studentId) {
     currentStudentId = studentId;
     
     try {
-        const data = await apiCall(`/api/students/${studentId}`);
+        var data = await apiCall('/api/students/' + studentId);
         if (!data.success) {
             showToast('Student not found', true);
             return;
         }
         
-        const student = data.data;
+        var student = data.data;
         
-        // Create modal
-        const modal = document.createElement('div');
+        var modal = document.createElement('div');
         modal.id = 'studentDetailModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-            padding: 20px;
-        `;
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px;';
         
-        let educationHTML = '';
-        student.educationHistory.forEach((hist, idx) => {
-            const statusText = hist.isActive ? '🟢 CURRENT' : hist.isCompleted ? '✅ COMPLETED' : '⏳ UPCOMING';
-            const statusColor = hist.isActive ? '#2ecc71' : hist.isCompleted ? '#27ae60' : '#f39c12';
+        var educationHTML = '';
+        for (var e = 0; e < student.educationHistory.length; e++) {
+            var hist = student.educationHistory[e];
+            var statusText = hist.isActive ? '🟢 CURRENT' : (hist.isCompleted ? '✅ COMPLETED' : '⏳ UPCOMING');
+            var statusColor = hist.isActive ? '#2ecc71' : (hist.isCompleted ? '#27ae60' : '#f39c12');
             
             educationHTML += `
                 <div style="background:#f8f9fa;border-radius:10px;padding:15px;margin-bottom:15px;border-left:4px solid ${statusColor};">
@@ -532,7 +553,7 @@ async function showStudentDetails(studentId) {
                         </div>
                         <div style="font-size:13px;color:#666;">
                             ${hist.joiningDate ? new Date(hist.joiningDate).toLocaleDateString() : 'N/A'} 
-                            ${hist.endDate ? `→ ${new Date(hist.endDate).toLocaleDateString()}` : '→ Ongoing'}
+                            ${hist.endDate ? '→ ' + new Date(hist.endDate).toLocaleDateString() : '→ Ongoing'}
                         </div>
                     </div>
                     
@@ -542,88 +563,92 @@ async function showStudentDetails(studentId) {
                         <div>✅ Paid: ₹${hist.totalPaid || 0}</div>
                         <div>⚠️ Due: ₹${hist.totalDue || 0}</div>
                     </div>
-                    
-                    ${hist.isActive ? `
-                        <div style="margin-top:10px;">
-                            <div style="font-weight:600;font-size:14px;margin-bottom:8px;">💰 Month wise fees (Current Class - Excel View)</div>
-                            <div style="overflow-x:auto;">
-                                <table style="width:100%;border-collapse:collapse;font-size:12px;background:white;border-radius:8px;">
-                                    <thead>
-                                        <tr style="background:#667eea;color:white;">
-                                            <th style="padding:6px 10px;">#</th>
-                                            <th style="padding:6px 10px;">Month</th>
-                                            <th style="padding:6px 10px;">Year</th>
-                                            <th style="padding:6px 10px;">Fees</th>
-                                            <th style="padding:6px 10px;">Paid</th>
-                                            <th style="padding:6px 10px;">Due</th>
-                                            <th style="padding:6px 10px;">Status</th>
-                                            <th style="padding:6px 10px;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                            `;
-                            
-                            hist.fees.forEach((fee, i) => {
-                                const statusIcon = fee.status === 'paid' ? '✅' : fee.status === 'partial' ? '⚠️' : '❌';
-                                const statusColorFee = fee.status === 'paid' ? '#2ecc71' : fee.status === 'partial' ? '#f39c12' : '#e74c3c';
-                                
-                                educationHTML += `
-                                    <tr style="border-bottom:1px solid #f0f0f0;">
-                                        <td style="padding:6px 10px;">${i+1}</td>
-                                        <td style="padding:6px 10px;">${fee.month}</td>
-                                        <td style="padding:6px 10px;">${fee.year}</td>
-                                        <td style="padding:6px 10px;">₹${fee.amount}</td>
-                                        <td style="padding:6px 10px;">₹${fee.paidAmount || 0}</td>
-                                        <td style="padding:6px 10px;">₹${fee.dueAmount || 0}</td>
-                                        <td style="padding:6px 10px;color:${statusColorFee};font-weight:600;">${statusIcon} ${fee.status}</td>
-                                        <td style="padding:6px 10px;">
-                                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();addPayment('${student.studentId}','${fee.month}',${fee.year})">💰 Pay</button>
-                                        </td>
-                                    </tr>
-                                `;
-                            });
-                            
-                            educationHTML += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    ` : `
-                        <div style="margin-top:10px;font-size:13px;color:#666;">
-                            ✅ This class is completed. Total paid: ₹${hist.totalPaid || 0} | Total due: ₹${hist.totalDue || 0}
-                        </div>
-                    `}
-                </div>
             `;
-        });
+            
+            if (hist.isActive) {
+                educationHTML += `
+                    <div style="margin-top:10px;">
+                        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">💰 Month wise fees (Current Class - Excel View)</div>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:12px;background:white;border-radius:8px;">
+                                <thead>
+                                    <tr style="background:#667eea;color:white;">
+                                        <th style="padding:6px 10px;">#</th>
+                                        <th style="padding:6px 10px;">Month</th>
+                                        <th style="padding:6px 10px;">Year</th>
+                                        <th style="padding:6px 10px;">Fees</th>
+                                        <th style="padding:6px 10px;">Paid</th>
+                                        <th style="padding:6px 10px;">Due</th>
+                                        <th style="padding:6px 10px;">Status</th>
+                                        <th style="padding:6px 10px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                for (var f = 0; f < hist.fees.length; f++) {
+                    var fee = hist.fees[f];
+                    var statusIcon = fee.status === 'paid' ? '✅' : (fee.status === 'partial' ? '⚠️' : '❌');
+                    var statusColorFee = fee.status === 'paid' ? '#2ecc71' : (fee.status === 'partial' ? '#f39c12' : '#e74c3c');
+                    
+                    educationHTML += `
+                        <tr style="border-bottom:1px solid #f0f0f0;">
+                            <td style="padding:6px 10px;">${f+1}</td>
+                            <td style="padding:6px 10px;">${fee.month}</td>
+                            <td style="padding:6px 10px;">${fee.year}</td>
+                            <td style="padding:6px 10px;">₹${fee.amount}</td>
+                            <td style="padding:6px 10px;">₹${fee.paidAmount || 0}</td>
+                            <td style="padding:6px 10px;">₹${fee.dueAmount || 0}</td>
+                            <td style="padding:6px 10px;color:${statusColorFee};font-weight:600;">${statusIcon} ${fee.status}</td>
+                            <td style="padding:6px 10px;">
+                                <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();addPayment('${student.studentId}','${fee.month}',${fee.year})">💰 Pay</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                educationHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                educationHTML += `
+                    <div style="margin-top:10px;font-size:13px;color:#666;">
+                        ✅ This class is completed. Total paid: ₹${hist.totalPaid || 0} | Total due: ₹${hist.totalDue || 0}
+                    </div>
+                `;
+            }
+            
+            educationHTML += `</div>`;
+        }
         
         modal.innerHTML = `
             <div style="background:white;border-radius:20px;max-width:1000px;width:100%;max-height:90vh;overflow-y:auto;padding:0;">
                 <div style="position:sticky;top:0;background:white;padding:20px 25px;border-bottom:2px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;border-radius:20px 20px 0 0;z-index:1;">
                     <div style="display:flex;align-items:center;gap:15px;">
                         <div style="width:50px;height:50px;border-radius:50%;overflow:hidden;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;">
-                            ${student.photo ? `<img src="${student.photo}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}
+                            ${student.photo ? '<img src="' + student.photo + '" style="width:100%;height:100%;object-fit:cover;">' : '👤'}
                         </div>
                         <div>
                             <h2 style="font-size:20px;color:#333;">${student.fullName || 'N/A'}</h2>
                             <div style="font-size:13px;color:#888;">ID: ${student.studentId} | Aadhar: ${student.aadharNumber}</div>
                         </div>
                     </div>
-                    <button onclick="this.closest('#studentDetailModal').remove()" style="width:35px;height:35px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
+                    <button onclick="this.closest(\'#studentDetailModal\').remove()" style="width:35px;height:35px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
                 </div>
                 
                 <div style="padding:25px;">
-                    <!-- Personal Details -->
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;background:#f8f9fa;padding:15px;border-radius:10px;margin-bottom:20px;">
                         <div><strong>📞 Mobile:</strong> ${student.studentMobile || 'N/A'}</div>
                         <div><strong>📧 Email:</strong> ${student.email || 'N/A'}</div>
                         <div><strong>🎂 DOB:</strong> ${student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}</div>
                         <div><strong>⚥ Gender:</strong> ${student.gender || 'N/A'}</div>
-                        <div><strong>👨 Father:</strong> ${student.fatherName || 'N/A'} ${student.fatherMobile ? `(${student.fatherMobile})` : ''}</div>
-                        <div><strong>👩 Mother:</strong> ${student.motherName || 'N/A'} ${student.motherMobile ? `(${student.motherMobile})` : ''}</div>
+                        <div><strong>👨 Father:</strong> ${student.fatherName || 'N/A'} ${student.fatherMobile ? '(' + student.fatherMobile + ')' : ''}</div>
+                        <div><strong>👩 Mother:</strong> ${student.motherName || 'N/A'} ${student.motherMobile ? '(' + student.motherMobile + ')' : ''}</div>
                     </div>
                     
-                    <!-- Summary -->
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:linear-gradient(135deg,#667eea, #764ba2);color:white;padding:15px;border-radius:10px;margin-bottom:20px;">
                         <div><strong>📚 Total Classes:</strong> ${student.educationHistory.length}</div>
                         <div><strong>📅 Total Months:</strong> ${student.totalMonths || 0}</div>
@@ -632,11 +657,9 @@ async function showStudentDetails(studentId) {
                         <div><strong>⚠️ Total Due:</strong> ₹${student.totalDue || 0}</div>
                     </div>
                     
-                    <!-- Education History -->
                     <h3 style="margin-bottom:15px;color:#333;">🎓 Education & Promotion History</h3>
                     ${educationHTML}
                     
-                    <!-- Actions -->
                     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:2px solid #f0f0f0;">
                         <button class="btn btn-primary" onclick="promoteStudent('${student.studentId}')">🚀 Promote</button>
                         <button class="btn btn-warning" onclick="editStudent('${student.studentId}')">✏️ Edit Profile</button>
@@ -644,7 +667,7 @@ async function showStudentDetails(studentId) {
                             ${student.isBlocked ? '🔓 Unblock' : '🔒 Block'}
                         </button>
                         <button class="btn btn-danger" onclick="deleteStudent('${student.studentId}')">🗑️ Delete</button>
-                        <button onclick="this.closest('#studentDetailModal').remove()" class="btn" style="background:#e0e0e0;">❌ Close</button>
+                        <button onclick="this.closest(\'#studentDetailModal\').remove()" class="btn" style="background:#e0e0e0;">❌ Close</button>
                     </div>
                 </div>
             </div>
@@ -659,27 +682,28 @@ async function showStudentDetails(studentId) {
 
 // ===== ADD PAYMENT =====
 async function addPayment(studentId, month, year) {
-    const amount = prompt(`Enter amount to pay for ${month} ${year}:`);
+    var amount = prompt('Enter amount to pay for ' + month + ' ' + year + ':');
     if (!amount || isNaN(amount) || amount <= 0) return;
     
-    const mode = prompt('Payment Mode (cash/cheque/online/card):') || 'cash';
-    const remarks = prompt('Remarks (optional):') || '';
+    var mode = prompt('Payment Mode (cash/cheque/online/card):') || 'cash';
+    var remarks = prompt('Remarks (optional):') || '';
     
     try {
-        const data = await apiCall(`/api/students/${studentId}/payment`, {
+        var data = await apiCall('/api/students/' + studentId + '/payment', {
             method: 'POST',
-            body: JSON.stringify({
-                month,
-                year,
+            body: {
+                month: month,
+                year: year,
                 paidAmount: parseFloat(amount),
                 paymentMode: mode,
-                remarks
-            })
+                remarks: remarks
+            }
         });
         
         if (data.success) {
             showToast('Payment added successfully!');
-            document.getElementById('studentDetailModal')?.remove();
+            var modal = document.getElementById('studentDetailModal');
+            if (modal) modal.remove();
             showStudentDetails(studentId);
             loadStudents();
         } else {
@@ -692,28 +716,16 @@ async function addPayment(studentId, month, year) {
 
 // ===== PROMOTE STUDENT =====
 async function promoteStudent(studentId) {
-    const data = await apiCall(`/api/students/${studentId}`);
+    var data = await apiCall('/api/students/' + studentId);
     if (!data.success) {
         showToast('Student not found', true);
         return;
     }
     
-    const student = data.data;
+    var student = data.data;
     
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.6);
-        z-index: 3000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    `;
+    var modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
     
     modal.innerHTML = `
         <div style="background:white;border-radius:20px;max-width:500px;width:100%;padding:30px;">
@@ -723,7 +735,7 @@ async function promoteStudent(studentId) {
                 <div><strong>Current Class:</strong> ${student.currentClass} (${student.currentBoard})</div>
                 <div><strong>Current Fees:</strong> ₹${student.monthlyFees}</div>
                 <div><strong>Total Due:</strong> ₹${student.totalDue}</div>
-                ${student.totalDue > 0 ? `<div style="color:#e74c3c;font-weight:600;">⚠️ Please clear all dues first!</div>` : ''}
+                ${student.totalDue > 0 ? '<div style="color:#e74c3c;font-weight:600;">⚠️ Please clear all dues first!</div>' : ''}
             </div>
             
             <div class="form-group">
@@ -777,7 +789,7 @@ async function promoteStudent(studentId) {
                 <button onclick="confirmPromote('${studentId}')" class="btn btn-success" style="flex:1;" ${student.totalDue > 0 ? 'disabled' : ''}>
                     ✅ Promote
                 </button>
-                <button onclick="this.closest('div[style]').remove()" class="btn" style="flex:1;background:#e0e0e0;">❌ Cancel</button>
+                <button onclick="this.closest(\'div[style]\').remove()" class="btn" style="flex:1;background:#e0e0e0;">❌ Cancel</button>
             </div>
             ${student.totalDue > 0 ? '<div style="color:#e74c3c;margin-top:10px;text-align:center;">Please clear all dues before promotion</div>' : ''}
         </div>
@@ -788,10 +800,10 @@ async function promoteStudent(studentId) {
 
 // ===== CONFIRM PROMOTE =====
 async function confirmPromote(studentId) {
-    const newClass = document.getElementById('promoteClass').value;
-    const newBoard = document.getElementById('promoteBoard').value;
-    const newFees = parseFloat(document.getElementById('promoteFees').value);
-    const promotionDate = document.getElementById('promoteDate').value;
+    var newClass = document.getElementById('promoteClass').value;
+    var newBoard = document.getElementById('promoteBoard').value;
+    var newFees = parseFloat(document.getElementById('promoteFees').value);
+    var promotionDate = document.getElementById('promoteDate').value;
     
     if (!newClass) {
         showToast('Please select a class', true);
@@ -804,20 +816,22 @@ async function confirmPromote(studentId) {
     }
     
     try {
-        const data = await apiCall(`/api/students/${studentId}/promote`, {
+        var data = await apiCall('/api/students/' + studentId + '/promote', {
             method: 'POST',
-            body: JSON.stringify({
-                newClass,
-                newBoard,
-                newFees,
-                promotionDate
-            })
+            body: {
+                newClass: newClass,
+                newBoard: newBoard,
+                newFees: newFees,
+                promotionDate: promotionDate
+            }
         });
         
         if (data.success) {
             showToast('Student promoted successfully! 🎉');
-            document.querySelector('div[style*="position: fixed"][style*="z-index: 3000"]')?.remove();
-            document.getElementById('studentDetailModal')?.remove();
+            var promoteModal = document.querySelector('div[style*="position: fixed"][style*="z-index: 3000"]');
+            if (promoteModal) promoteModal.remove();
+            var detailModal = document.getElementById('studentDetailModal');
+            if (detailModal) detailModal.remove();
             loadStudents();
         } else {
             showToast(data.message || 'Failed to promote', true);
@@ -830,20 +844,19 @@ async function confirmPromote(studentId) {
 // ===== EDIT STUDENT =====
 async function editStudent(studentId) {
     try {
-        const data = await apiCall(`/api/students/${studentId}`);
+        var data = await apiCall('/api/students/' + studentId);
         if (!data.success) {
             showToast('Student not found', true);
             return;
         }
         
-        const student = data.data;
+        var student = data.data;
         
-        document.getElementById('studentDetailModal')?.remove();
+        var detailModal = document.getElementById('studentDetailModal');
+        if (detailModal) detailModal.remove();
         
-        // Switch to add tab
         switchSubTab('add');
         
-        // Fill form with student data
         document.getElementById('sFirstName').value = student.name?.first || '';
         document.getElementById('sMiddleName').value = student.name?.middle || '';
         document.getElementById('sLastName').value = student.name?.last || '';
@@ -872,10 +885,9 @@ async function editStudent(studentId) {
             document.getElementById('sPhotoPlaceholder').style.display = 'none';
         }
         
-        // Set edit mode
         document.getElementById('addStudentForm').dataset.editId = studentId;
         document.getElementById('addStudentTitle').textContent = 'Edit Student';
-        const submitBtn = document.querySelector('#addStudentForm button[type="submit"]');
+        var submitBtn = document.querySelector('#addStudentForm button[type="submit"]');
         submitBtn.textContent = '✏️ Update Student';
         submitBtn.style.background = '#f39c12';
         
@@ -889,28 +901,29 @@ async function editStudent(studentId) {
 // ===== TOGGLE BLOCK =====
 async function toggleBlock(studentId) {
     try {
-        const data = await apiCall(`/api/students/${studentId}`);
+        var data = await apiCall('/api/students/' + studentId);
         if (!data.success) {
             showToast('Student not found', true);
             return;
         }
         
-        const student = data.data;
-        const action = student.isBlocked ? 'unblock' : 'block';
+        var student = data.data;
+        var action = student.isBlocked ? 'unblock' : 'block';
         
-        if (!confirm(`Are you sure you want to ${action} this student?`)) return;
+        if (!confirm('Are you sure you want to ' + action + ' this student?')) return;
         
-        const response = await apiCall(`/api/students/${studentId}`, {
+        var response = await apiCall('/api/students/' + studentId, {
             method: 'PUT',
-            body: JSON.stringify({ isBlocked: !student.isBlocked })
+            body: { isBlocked: !student.isBlocked }
         });
         
         if (response.success) {
-            showToast(`Student ${action}ed successfully!`);
+            showToast('Student ' + action + 'ed successfully!');
             loadStudents();
-            document.getElementById('studentDetailModal')?.remove();
+            var modal = document.getElementById('studentDetailModal');
+            if (modal) modal.remove();
         } else {
-            showToast(`Failed to ${action} student`, true);
+            showToast('Failed to ' + action + ' student', true);
         }
     } catch (error) {
         showToast('Error toggling block status', true);
@@ -922,13 +935,14 @@ async function deleteStudent(studentId) {
     if (!confirm('Are you sure you want to delete this student? This action cannot be undone!')) return;
     
     try {
-        const data = await apiCall(`/api/students/${studentId}`, {
+        var data = await apiCall('/api/students/' + studentId, {
             method: 'DELETE'
         });
         
         if (data.success) {
             showToast('Student deleted successfully!');
-            document.getElementById('studentDetailModal')?.remove();
+            var modal = document.getElementById('studentDetailModal');
+            if (modal) modal.remove();
             loadStudents();
         } else {
             showToast('Failed to delete student', true);
@@ -936,4 +950,28 @@ async function deleteStudent(studentId) {
     } catch (error) {
         showToast('Error deleting student', true);
     }
+}
+
+// ===== TOAST FUNCTION =====
+function showToast(message, isError) {
+    var toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#2ecc71;color:white;padding:15px 25px;border-radius:10px;font-weight:600;box-shadow:0 5px 20px rgba(0,0,0,0.2);display:none;animation:slideUp 0.5s ease;z-index:1000;';
+        document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.className = 'toast' + (isError ? ' error' : '');
+    if (isError) {
+        toast.style.background = '#e74c3c';
+    } else {
+        toast.style.background = '#2ecc71';
+    }
+    toast.style.display = 'block';
+    
+    setTimeout(function() {
+        toast.style.display = 'none';
+    }, 4000);
 }
