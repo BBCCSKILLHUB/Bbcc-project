@@ -226,7 +226,128 @@ app.put('/api/settings', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+// ============================================
+// ADMIN PROFILE APIS - ADD THIS TO SERVER.JS
+// ============================================
 
+// Update Admin Profile (Name, Photo)
+app.put('/api/admin/profile', verifyToken, async (req, res) => {
+    try {
+        const { name, photo } = req.body;
+        const admin = await Admin.findOne({ adminID: req.user.adminID });
+        
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "Admin not found" });
+        }
+        
+        if (name) admin.name = name;
+        if (photo !== undefined) admin.photo = photo;
+        
+        await admin.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Profile updated successfully",
+            admin: {
+                name: admin.name,
+                adminID: admin.adminID,
+                photo: admin.photo,
+                role: admin.role
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Get Admin Profile
+app.get('/api/admin/profile', verifyToken, async (req, res) => {
+    try {
+        const admin = await Admin.findOne({ adminID: req.user.adminID }).select('-pws');
+        res.json({ success: true, admin });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Change Admin Password with Strength Check
+app.put('/api/admin/change-password', verifyToken, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        const admin = await Admin.findOne({ adminID: req.user.adminID });
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "Admin not found" });
+        }
+        
+        // Verify current password
+        const isValid = await bcrypt.compare(currentPassword, admin.pws);
+        if (!isValid) {
+            return res.status(401).json({ success: false, message: "Current password is incorrect" });
+        }
+        
+        // Check password strength
+        if (newPassword.length < 4) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Password must be at least 4 characters long" 
+            });
+        }
+        
+        // Hash and save new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        admin.pws = hashedPassword;
+        await admin.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Password changed successfully" 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Change Admin ID
+app.put('/api/admin/change-id', verifyToken, async (req, res) => {
+    try {
+        const { newAdminID, password } = req.body;
+        
+        if (!newAdminID || newAdminID.length < 3) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Admin ID must be at least 3 characters" 
+            });
+        }
+        
+        const admin = await Admin.findOne({ adminID: req.user.adminID });
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "Admin not found" });
+        }
+        
+        // Verify password
+        const isValid = await bcrypt.compare(password, admin.pws);
+        if (!isValid) {
+            return res.status(401).json({ success: false, message: "Password is incorrect" });
+        }
+        
+        // Check if new ID already exists
+        const existing = await Admin.findOne({ adminID: newAdminID });
+        if (existing) {
+            return res.status(400).json({ success: false, message: "Admin ID already exists" });
+        }
+        
+        admin.adminID = newAdminID;
+        await admin.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Admin ID changed successfully. Please login again." 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 // ============================================
 // SERVE HTML PAGES
 // ============================================
