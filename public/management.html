@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management - BBCC Skill Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            overflow: hidden;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            background: white;
+            padding: 0 30px;
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #e0e0e0;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+
+        .tab-btn {
+            padding: 15px 25px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn .badge {
+            background: #667eea;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            font-size: 24px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        /* ===== IMAGE UPLOAD ===== */
+        .image-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .image-upload:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .image-upload .preview {
+            max-width: 150px;
+            max-height: 150px;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-upload .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-upload input[type="file"] {
+            display: none;
+        }
+
+        .image-upload .hint {
+            color: #888;
+            font-size: 13px;
+        }
+
+        /* ===== SOCIAL MEDIA GRID ===== */
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-item .icon {
+            font-size: 24px;
+            min-width: 40px;
+        }
+
+        .social-item input {
+            flex: 1;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideUp 0.5s ease;
+            z-index: 1000;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                padding: 0 15px;
+                gap: 0;
+            }
+
+            .tab-btn {
+                padding: 12px 15px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo" id="headerLogo">🚀</div>
+            <div>
+                <div class="header-title" id="headerTitle">BBCC Skill Hub</div>
+                <div class="header-subtitle" id="headerSubtitle">Empowering Skills, Building Futures</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <span style="color:white;font-size:14px;" id="adminName">Admin</span>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </header>
+
+    <!-- ===== TABS ===== -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="header">
+            🏠 Header Settings
+        </button>
+        <button class="tab-btn" data-tab="footer">
+            📱 Footer & Social Media
+        </button>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div class="content">
+
+        <!-- ===== TAB 1: HEADER SETTINGS ===== -->
+        <div class="tab-content active" id="tab-header">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🖼️</span>
+                    Logo Upload
+                </div>
+                <div class="image-upload" onclick="document.getElementById('logoInput').click()">
+                    <div class="preview" id="logoPreview">
+                        <img src="" alt="Logo" style="display:none;" id="logoPreviewImg">
+                        <span id="logoPlaceholder" style="font-size:40px;">📷</span>
+                    </div>
+                    <div class="hint">Click to upload logo (PNG, JPG)</div>
+                    <input type="file" id="logoInput" accept="image/*">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">✏️</span>
+                    Header Text
+                </div>
+                <form id="headerForm">
+                    <div class="form-group">
+                        <label>Main Title</label>
+                        <input type="text" id="titleInput" placeholder="Enter main title">
+                    </div>
+                    <div class="form-group">
+                        <label>Sub Title</label>
+                        <input type="text" id="subTitleInput" placeholder="Enter sub title">
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Header</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== TAB 2: FOOTER & SOCIAL MEDIA ===== -->
+        <div class="tab-content" id="tab-footer">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📱</span>
+                    Social Media & Contact
+                </div>
+                <form id="footerForm">
+                    <div class="form-group">
+                        <label>📞 WhatsApp Number</label>
+                        <input type="text" id="whatsappNumber" placeholder="+91 9876543210">
+                    </div>
+
+                    <div class="form-group">
+                        <label>💬 WhatsApp Channel Link</label>
+                        <input type="url" id="whatsappChannelLink" placeholder="https://whatsapp.com/channel/...">
+                    </div>
+
+                    <div class="social-grid">
+                        <div class="social-item">
+                            <span class="icon">▶️</span>
+                            <input type="url" id="youtubeChannelLink" placeholder="YouTube Link">
+                        </div>
+                        <div class="social-item">
+                            <span class="icon">📘</span>
+                            <input type="url" id="facebookLink" placeholder="Facebook Link">
+                        </div>
+                        <div class="social-item">
+                            <span class="icon">📸</span>
+                            <input type="url" id="instagramLink" placeholder="Instagram Link">
+                        </div>
+                        <div class="social-item">
+                            <span class="icon">✈️</span>
+                            <input type="url" id="telegramLink" placeholder="Telegram Link">
+                        </div>
+                        <div class="social-item">
+                            <span class="icon">🐦</span>
+                            <input type="url" id="twitterLink" placeholder="Twitter/X Link">
+                        </div>
+                        <div class="social-item">
+                            <span class="icon">💼</span>
+                            <input type="url" id="linkedinLink" placeholder="LinkedIn Link">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top:10px;">💾 Save Footer</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================
+        // CHECK AUTH
+        // ============================================
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // ============================================
+        // API HELPER
+        // ============================================
+        async function apiCall(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+            
+            return await response.json();
+        }
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+
+        // ============================================
+        // TABS
+        // ============================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+            });
+        });
+
+        // ============================================
+        // LOAD SETTINGS
+        // ============================================
+        async function loadSettings() {
+            try {
+                const data = await apiCall('/api/settings');
+                if (data.success) {
+                    const settings = data.data;
+                    
+                    // Update header
+                    document.getElementById('headerTitle').textContent = settings.title || 'BBCC Skill Hub';
+                    document.getElementById('headerSubtitle').textContent = settings.subTitle || 'Empowering Skills, Building Futures';
+                    document.getElementById('titleInput').value = settings.title || '';
+                    document.getElementById('subTitleInput').value = settings.subTitle || '';
+                    
+                    // Update logo
+                    if (settings.logo) {
+                        document.getElementById('logoPreviewImg').src = settings.logo;
+                        document.getElementById('logoPreviewImg').style.display = 'block';
+                        document.getElementById('logoPlaceholder').style.display = 'none';
+                    }
+                    
+                    // Update footer
+                    document.getElementById('whatsappNumber').value = settings.whatsappNumber || '';
+                    document.getElementById('whatsappChannelLink').value = settings.whatsappChannelLink || '';
+                    document.getElementById('youtubeChannelLink').value = settings.youtubeChannelLink || '';
+                    document.getElementById('facebookLink').value = settings.facebookLink || '';
+                    document.getElementById('instagramLink').value = settings.instagramLink || '';
+                    document.getElementById('telegramLink').value = settings.telegramLink || '';
+                    document.getElementById('twitterLink').value = settings.twitterLink || '';
+                    document.getElementById('linkedinLink').value = settings.linkedinLink || '';
+                }
+            } catch (error) {
+                showToast('Error loading settings', true);
+            }
+        }
+
+        // ============================================
+        // LOGO UPLOAD
+        // ============================================
+        document.getElementById('logoInput').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result;
+                
+                // Show preview
+                document.getElementById('logoPreviewImg').src = base64;
+                document.getElementById('logoPreviewImg').style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
+                
+                // Save to server
+                try {
+                    const data = await apiCall('/api/settings', {
+                        method: 'PUT',
+                        body: JSON.stringify({ logo: base64 })
+                    });
+                    
+                    if (data.success) {
+                        showToast('Logo uploaded successfully!');
+                        // Update header
+                        document.querySelector('.header-logo').innerHTML = `<img src="${base64}" alt="Logo">`;
+                    } else {
+                        showToast('Failed to upload logo', true);
+                    }
+                } catch (error) {
+                    showToast('Error uploading logo', true);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ============================================
+        // HEADER FORM
+        // ============================================
+        document.getElementById('headerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('titleInput').value.trim();
+            const subTitle = document.getElementById('subTitleInput').value.trim();
+            
+            try {
+                const data = await apiCall('/api/settings', {
+                    method: 'PUT',
+                    body: JSON.stringify({ title, subTitle })
+                });
+                
+                if (data.success) {
+                    showToast('Header updated successfully!');
+                    // Update header
+                    document.getElementById('headerTitle').textContent = title || 'BBCC Skill Hub';
+                    document.getElementById('headerSubtitle').textContent = subTitle || 'Empowering Skills, Building Futures';
+                } else {
+                    showToast('Failed to update header', true);
+                }
+            } catch (error) {
+                showToast('Error updating header', true);
+            }
+        });
+
+        // ============================================
+        // FOOTER FORM
+        // ============================================
+        document.getElementById('footerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                whatsappNumber: document.getElementById('whatsappNumber').value.trim(),
+                whatsappChannelLink: document.getElementById('whatsappChannelLink').value.trim(),
+                youtubeChannelLink: document.getElementById('youtubeChannelLink').value.trim(),
+                facebookLink: document.getElementById('facebookLink').value.trim(),
+                instagramLink: document.getElementById('instagramLink').value.trim(),
+                telegramLink: document.getElementById('telegramLink').value.trim(),
+                twitterLink: document.getElementById('twitterLink').value.trim(),
+                linkedinLink: document.getElementById('linkedinLink').value.trim()
+            };
+            
+            try {
+                const response = await apiCall('/api/settings', {
+                    method: 'PUT',
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.success) {
+                    showToast('Footer updated successfully!');
+                } else {
+                    showToast('Failed to update footer', true);
+                }
+            } catch (error) {
+                showToast('Error updating footer', true);
+            }
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        loadSettings();
+
+        // Load admin name
+        const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
+        document.getElementById('adminName').textContent = adminData.name || 'Admin';
+    </script>
+</body>
+</html>
