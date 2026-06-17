@@ -31,6 +31,7 @@ const AdminSchema = new mongoose.Schema({
     pws: { type: String, required: true },
     name: { type: String, default: 'Admin' },
     role: { type: String, default: 'admin' },
+    photo: { type: String, default: '' },
     lastLogin: { type: Date },
     isActive: { type: Boolean, default: true }
 }, { timestamps: true });
