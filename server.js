@@ -90,11 +90,27 @@ const GallerySchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// ============================================
+// SIDEBAR BANNER SCHEMA
+// ============================================
+const SidebarBannerSchema = new mongoose.Schema({
+    banners: [{
+        image: { type: String, required: true },
+        title: { type: String, default: '' },
+        link: { type: String, default: '' },
+        order: { type: Number, default: 0 },
+        isActive: { type: Boolean, default: true },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    updatedAt: { type: Date, default: Date.now }
+});
+
 // Create Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
 const StudyMaterial = mongoose.model('StudyMaterial', StudyMaterialSchema);
 const Gallery = mongoose.model('Gallery', GallerySchema);
+const SidebarBanner = mongoose.model('SidebarBanner', SidebarBannerSchema);
 
 // ============================================
 // DATABASE CONNECTION
@@ -143,6 +159,15 @@ mongoose.connect(MONGO_URI)
                 photos: []
             });
             console.log('✅ Default gallery created');
+        }
+        
+        // Check if sidebar banner exists, if not create default
+        const bannerExists = await SidebarBanner.findOne();
+        if (!bannerExists) {
+            await SidebarBanner.create({
+                banners: []
+            });
+            console.log('✅ Default sidebar banner created');
         }
     })
     .catch(err => {
@@ -932,7 +957,7 @@ app.delete('/api/study-material/video/:id', verifyToken, async (req, res) => {
     }
 });
 
-// ===== ADD PDF NOTE =====
+// ===== ADD PDF NOTE - FAST UPLOAD =====
 app.post('/api/study-material/note', verifyToken, async (req, res) => {
     try {
         const { pdf, title, description } = req.body;
@@ -949,6 +974,7 @@ app.post('/api/study-material/note', verifyToken, async (req, res) => {
             studyMaterial = new StudyMaterial({ videos: [], notes: [] });
         }
         
+        // Direct push without any processing - fast upload
         studyMaterial.notes.push({
             pdf: pdf,
             title: title,
@@ -1178,6 +1204,126 @@ app.put('/api/gallery/photo/:id', verifyToken, async (req, res) => {
             success: true, 
             message: "Photo updated successfully",
             data: gallery
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// SIDEBAR BANNER APIS
+// ============================================
+
+// ===== GET ALL BANNERS =====
+app.get('/api/sidebar-banner', async (req, res) => {
+    try {
+        let banner = await SidebarBanner.findOne();
+        if (!banner) {
+            banner = await SidebarBanner.create({ banners: [] });
+        }
+        res.json({ success: true, data: banner });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== ADD MULTIPLE BANNERS =====
+app.post('/api/sidebar-banner/banners', verifyToken, async (req, res) => {
+    try {
+        const { banners } = req.body; // Array of { image, title, link }
+        
+        if (!banners || !Array.isArray(banners) || banners.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "At least one banner is required" 
+            });
+        }
+        
+        let banner = await SidebarBanner.findOne();
+        if (!banner) {
+            banner = new SidebarBanner({ banners: [] });
+        }
+        
+        const currentOrder = banner.banners.length;
+        for (let i = 0; i < banners.length; i++) {
+            banner.banners.push({
+                image: banners[i].image,
+                title: banners[i].title || '',
+                link: banners[i].link || '',
+                order: currentOrder + i,
+                isActive: true
+            });
+        }
+        
+        banner.updatedAt = new Date();
+        await banner.save();
+        
+        res.json({ 
+            success: true, 
+            message: `${banners.length} banners added successfully`,
+            data: banner
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== DELETE SINGLE BANNER =====
+app.delete('/api/sidebar-banner/banner/:id', verifyToken, async (req, res) => {
+    try {
+        const bannerId = req.params.id;
+        
+        let banner = await SidebarBanner.findOne();
+        if (!banner) {
+            return res.status(404).json({ success: false, message: "Banner not found" });
+        }
+        
+        const bannerIndex = banner.banners.findIndex(b => b._id.toString() === bannerId);
+        if (bannerIndex === -1) {
+            return res.status(404).json({ success: false, message: "Banner not found" });
+        }
+        
+        banner.banners.splice(bannerIndex, 1);
+        banner.updatedAt = new Date();
+        await banner.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Banner deleted successfully",
+            data: banner
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== UPDATE BANNER =====
+app.put('/api/sidebar-banner/banner/:id', verifyToken, async (req, res) => {
+    try {
+        const bannerId = req.params.id;
+        const { title, link, isActive } = req.body;
+        
+        let banner = await SidebarBanner.findOne();
+        if (!banner) {
+            return res.status(404).json({ success: false, message: "Banner not found" });
+        }
+        
+        const bannerItem = banner.banners.id(bannerId);
+        if (!bannerItem) {
+            return res.status(404).json({ success: false, message: "Banner not found" });
+        }
+        
+        if (title !== undefined) bannerItem.title = title;
+        if (link !== undefined) bannerItem.link = link;
+        if (isActive !== undefined) bannerItem.isActive = isActive;
+        
+        banner.updatedAt = new Date();
+        await banner.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Banner updated successfully",
+            data: banner
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
