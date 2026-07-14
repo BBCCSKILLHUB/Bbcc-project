@@ -31,6 +31,24 @@
             overflow-x: hidden;
         }
 
+        /* ===== ANIMATED BACKGROUND LINES ===== */
+        .bg-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-lines canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
         /* ===== HEADER ===== */
         .header {
             background: rgba(11, 14, 26, 0.95);
@@ -158,30 +176,20 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 40px;
+            padding: 30px;
             background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
         }
 
         .banner-slide .banner-overlay h2 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: #fff;
             margin-bottom: 5px;
         }
 
         .banner-slide .banner-overlay p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-        }
-
-        .banner-slide .banner-overlay a {
-            color: #ffd700;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .banner-slide .banner-overlay a:hover {
-            text-decoration: underline;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
         }
 
         .banner-nav {
@@ -208,7 +216,6 @@
         .banner-nav.prev {
             left: 15px;
         }
-
         .banner-nav.next {
             right: 15px;
         }
@@ -237,14 +244,12 @@
             transform: scale(1.2);
         }
 
-        .banner-dot:hover {
-            transform: scale(1.3);
-        }
-
         /* ===== SECTION TITLE ===== */
         .section-title {
             text-align: center;
             padding: 40px 20px 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .section-title h2 {
@@ -267,6 +272,8 @@
             padding: 0 30px 40px;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .videos-grid {
@@ -373,11 +380,13 @@
             padding: 0 30px 40px;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .gallery-slideshow {
             position: relative;
-            height: 400px;
+            height: 450px;
             border-radius: 16px;
             overflow: hidden;
             background: #1a1f35;
@@ -390,11 +399,143 @@
             width: 100%;
             height: 100%;
             opacity: 0;
-            transition: opacity 1s ease;
+            transition: all 1.2s ease;
         }
 
         .gallery-slide.active {
             opacity: 1;
+            z-index: 2;
+        }
+
+        /* Gallery Animation Styles */
+        .gallery-slide.anim-fade {
+            transition: opacity 1.2s ease;
+        }
+
+        .gallery-slide.anim-zoom {
+            transition: all 1.5s ease;
+        }
+
+        .gallery-slide.anim-zoom.active {
+            transform: scale(1);
+        }
+
+        .gallery-slide.anim-zoom {
+            transform: scale(1.1);
+        }
+
+        .gallery-slide.anim-slide-left {
+            transition: all 1s ease;
+        }
+
+        .gallery-slide.anim-slide-left.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-slide-left {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-slide-right {
+            transition: all 1s ease;
+        }
+
+        .gallery-slide.anim-slide-right.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-slide-right {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-rotate {
+            transition: all 1.2s ease;
+        }
+
+        .gallery-slide.anim-rotate.active {
+            transform: rotate(0deg) scale(1);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-rotate {
+            transform: rotate(10deg) scale(0.9);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-blur {
+            transition: all 1.2s ease;
+        }
+
+        .gallery-slide.anim-blur.active {
+            filter: blur(0);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-blur {
+            filter: blur(20px);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-flip {
+            transition: all 1s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .gallery-slide.anim-flip.active {
+            transform: rotateY(0deg);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-flip {
+            transform: rotateY(90deg);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-bounce {
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .gallery-slide.anim-bounce.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-bounce {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-shutter {
+            transition: all 1s ease;
+        }
+
+        .gallery-slide.anim-shutter.active {
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-shutter {
+            clip-path: inset(0 50% 0 50%);
+            opacity: 0;
+        }
+
+        .gallery-slide.anim-wipe {
+            transition: all 1s ease;
+        }
+
+        .gallery-slide.anim-wipe.active {
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+        }
+
+        .gallery-slide.anim-wipe {
+            clip-path: inset(0 0 100% 0);
+            opacity: 0;
         }
 
         .gallery-slide img {
@@ -447,7 +588,6 @@
         .gallery-nav.prev {
             left: 15px;
         }
-
         .gallery-nav.next {
             right: 15px;
         }
@@ -491,6 +631,8 @@
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
+            cursor: pointer;
+            background: transparent;
         }
 
         .gallery-view-all:hover {
@@ -499,15 +641,157 @@
             transform: translateY(-2px);
         }
 
+        /* ===== GALLERY GRID (View All) ===== */
+        .gallery-grid-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gallery-grid-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-grid-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #1a1f35;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-grid-item:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .gallery-grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-grid-item .grid-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .gallery-grid-close {
+            display: block;
+            margin: 15px auto 0;
+            padding: 8px 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-grid-close:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #fff;
+        }
+
         .no-gallery {
-            text-align: center;
-            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             color: rgba(255, 255, 255, 0.3);
         }
 
         .no-gallery i {
             font-size: 48px;
             margin-bottom: 15px;
+        }
+
+        /* ===== VIDEO MODAL ===== */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .video-modal.active {
+            display: flex;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .video-modal-content iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+
+        .video-modal-close {
+            position: absolute;
+            top: -45px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-modal-close:hover {
+            background: rgba(255, 0, 0, 0.6);
+            transform: rotate(90deg);
         }
 
         /* ===== FOOTER ===== */
@@ -518,6 +802,8 @@
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255, 255, 255, 0.02);
             margin-top: auto;
+            position: relative;
+            z-index: 1;
         }
 
         .footer-inner {
@@ -606,60 +892,6 @@
             color: rgba(255, 215, 0, 0.15);
         }
 
-        /* ===== VIDEO MODAL ===== */
-        .video-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .video-modal.active {
-            display: flex;
-        }
-
-        .video-modal-content {
-            position: relative;
-            width: 100%;
-            max-width: 900px;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .video-modal-content iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-        }
-
-        .video-modal-close {
-            position: absolute;
-            top: -45px;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .video-modal-close:hover {
-            background: rgba(255, 0, 0, 0.6);
-            transform: rotate(90deg);
-        }
-
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .header {
@@ -689,10 +921,6 @@
                 font-size: 18px;
             }
 
-            .banner-slide .banner-overlay p {
-                font-size: 12px;
-            }
-
             .videos-section {
                 padding: 0 15px 30px;
             }
@@ -706,15 +934,11 @@
             }
 
             .gallery-slideshow {
-                height: 250px;
+                height: 300px;
             }
 
-            .gallery-slide .gallery-overlay {
-                padding: 20px;
-            }
-
-            .gallery-slide .gallery-overlay h3 {
-                font-size: 16px;
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
 
             .banner-nav,
@@ -735,16 +959,25 @@
             }
 
             .gallery-slideshow {
-                height: 200px;
+                height: 220px;
             }
 
             .video-modal-content iframe {
                 height: 220px;
             }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- ===== ANIMATED BACKGROUND LINES ===== -->
+    <div class="bg-lines">
+        <canvas id="bgCanvas"></canvas>
+    </div>
 
     <!-- ===== HEADER ===== -->
     <header class="header">
@@ -758,7 +991,7 @@
             <div class="header-subtitle" id="headerSubtitle">Empowering Skills, Building Futures</div>
         </div>
         <div class="header-right">
-            <a href="/management" class="header-btn">🔑 Admin</a>
+            <a href="/management" class="header-btn" id="adminBtn" style="display:none;">🔑 Admin</a>
         </div>
     </header>
 
@@ -766,7 +999,6 @@
     <section class="banner-section" id="bannerSection">
         <div class="banner-slides" id="bannerSlides">
             <div class="banner-slide">
-                <img src="" alt="Banner" id="bannerPlaceholder" style="display:none;">
                 <div class="banner-overlay" id="bannerOverlay">
                     <h2 id="bannerTitle">Welcome to BBCC Skill Hub</h2>
                     <p id="bannerDesc">Empowering Skills, Building Futures</p>
@@ -804,7 +1036,11 @@
             <button class="gallery-nav next" id="galleryNext">▶</button>
             <div class="gallery-dots" id="galleryDots"></div>
         </div>
-        <a href="/management" class="gallery-view-all">📷 View All Photos</a>
+        <button class="gallery-view-all" id="galleryViewAllBtn">📷 View All Photos</button>
+        <div class="gallery-grid-container" id="galleryGridContainer">
+            <div class="gallery-grid" id="galleryGrid"></div>
+            <button class="gallery-grid-close" id="galleryGridClose">✕ Close Gallery</button>
+        </div>
     </section>
 
     <!-- ===== FOOTER ===== -->
@@ -863,17 +1099,82 @@
         const API_BASE = window.location.origin + '/api';
 
         // ============================================
-        // STATE
+        // ANIMATED BACKGROUND LINES
         // ============================================
-        let bannerData = [];
-        let currentBannerIndex = 0;
-        let bannerInterval = null;
+        function initBgLines() {
+            const canvas = document.getElementById('bgCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, lines = [];
 
-        let galleryPhotos = [];
-        let currentGalleryIndex = 0;
-        let galleryInterval = null;
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                generateLines();
+            }
 
-        let videosData = [];
+            function generateLines() {
+                lines = [];
+                const count = Math.floor((w * h) / 25000);
+                for (let i = 0; i < count; i++) {
+                    lines.push({
+                        x1: Math.random() * w,
+                        y1: Math.random() * h,
+                        x2: Math.random() * w,
+                        y2: Math.random() * h,
+                        speed: 0.2 + Math.random() * 0.5,
+                        opacity: 0.05 + Math.random() * 0.15,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                const time = Date.now() / 1000;
+
+                for (const line of lines) {
+                    const offsetX = Math.sin(time * line.speed + line.phase) * 30;
+                    const offsetY = Math.cos(time * line.speed * 0.7 + line.phase) * 30;
+
+                    ctx.beginPath();
+                    ctx.moveTo(line.x1 + offsetX, line.y1 + offsetY);
+                    ctx.lineTo(line.x2 - offsetX * 0.5, line.y2 - offsetY * 0.5);
+                    ctx.strokeStyle = `rgba(255, 215, 0, ${line.opacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
+                // Glowing dots at intersections
+                for (let i = 0; i < lines.length; i += 3) {
+                    const l = lines[i];
+                    const x = (l.x1 + l.x2) / 2 + Math.sin(time * l.speed + l.phase) * 20;
+                    const y = (l.y1 + l.y2) / 2 + Math.cos(time * l.speed * 0.8 + l.phase) * 20;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${l.opacity * 0.5})`;
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            animate();
+        }
+
+        // ============================================
+        // CHECK AUTH FOR ADMIN BUTTON
+        // ============================================
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const adminBtn = document.getElementById('adminBtn');
+            if (token) {
+                adminBtn.style.display = 'inline-block';
+            } else {
+                adminBtn.style.display = 'none';
+            }
+        }
 
         // ============================================
         // SET FAVICON
@@ -986,7 +1287,6 @@
                 document.getElementById('headerSubtitle').textContent = data.subTitle;
             }
 
-            // Social Links
             const socialMap = {
                 'whatsappLink': data.whatsappLink,
                 'whatsappChannelLink': data.whatsappChannelLink,
@@ -1037,6 +1337,10 @@
         // ============================================
         // FETCH BANNERS
         // ============================================
+        let bannerData = [];
+        let currentBannerIndex = 0;
+        let bannerInterval = null;
+
         async function fetchBanners() {
             try {
                 const res = await fetch(`${API_BASE}/sidebar-banner`);
@@ -1045,7 +1349,6 @@
                     bannerData = result.data.banners;
                     renderBanners();
                 } else {
-                    // Default banner if no data
                     bannerData = [{
                         image: '',
                         title: 'Welcome to BBCC Skill Hub',
@@ -1090,7 +1393,6 @@
             prevBtn.style.display = 'block';
             nextBtn.style.display = 'block';
 
-            // Build slides
             let slidesHtml = '';
             let dotsHtml = '';
 
@@ -1102,7 +1404,6 @@
                         ${b.image && b.image.length > 50 ? `<img src="${b.image}" alt="${b.title || 'Banner'}">` : ''}
                         <div class="banner-overlay">
                             <h2>${b.title || 'Welcome to BBCC Skill Hub'}</h2>
-                            ${b.link ? `<p><a href="${b.link}" target="_blank">🔗 Visit Link</a></p>` : ''}
                         </div>
                     </div>
                 `;
@@ -1111,10 +1412,8 @@
 
             slidesContainer.innerHTML = slidesHtml;
             dotsContainer.innerHTML = dotsHtml;
-
             currentBannerIndex = 0;
 
-            // Dot click events
             dotsContainer.querySelectorAll('.banner-dot').forEach(dot => {
                 dot.addEventListener('click', function() {
                     const index = parseInt(this.dataset.index);
@@ -1122,25 +1421,20 @@
                 });
             });
 
-            // Start auto-slide
             startBannerSlideshow();
         }
 
         function goToBanner(index) {
             const slides = document.querySelectorAll('.banner-slide');
             const dots = document.querySelectorAll('.banner-dot');
-
             if (index < 0) index = slides.length - 1;
             if (index >= slides.length) index = 0;
-
             slides.forEach((slide, i) => {
                 slide.style.display = i === index ? 'block' : 'none';
             });
-
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
-
             currentBannerIndex = index;
         }
 
@@ -1157,9 +1451,22 @@
             }
         }
 
+        function resetBannerInterval() {
+            if (bannerInterval) {
+                clearInterval(bannerInterval);
+                if (bannerData.length > 1) {
+                    bannerInterval = setInterval(() => {
+                        changeBanner(1);
+                    }, 5000);
+                }
+            }
+        }
+
         // ============================================
         // FETCH VIDEOS
         // ============================================
+        let videosData = [];
+
         async function fetchVideos() {
             try {
                 const res = await fetch(`${API_BASE}/study-material`);
@@ -1180,7 +1487,6 @@
 
         function renderVideos() {
             const grid = document.getElementById('videosGrid');
-
             if (!videosData || videosData.length === 0) {
                 grid.innerHTML = `
                     <div class="no-videos">
@@ -1194,7 +1500,6 @@
             let html = '';
             for (let i = 0; i < videosData.length; i++) {
                 const v = videosData[i];
-                // Extract video ID from YouTube URL
                 let videoId = '';
                 if (v.link) {
                     const match = v.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?#]+)/);
@@ -1220,14 +1525,12 @@
                     </div>
                 `;
             }
-
             grid.innerHTML = html;
         }
 
         function openVideo(videoId, directLink) {
             const modal = document.getElementById('videoModal');
             const frame = document.getElementById('videoFrame');
-
             if (videoId) {
                 frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
             } else if (directLink) {
@@ -1236,7 +1539,6 @@
                 showToast('Video link not available', true);
                 return;
             }
-
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -1250,8 +1552,25 @@
         }
 
         // ============================================
-        // FETCH GALLERY
+        // FETCH GALLERY WITH ANIMATIONS
         // ============================================
+        let galleryPhotos = [];
+        let currentGalleryIndex = 0;
+        let galleryInterval = null;
+        const galleryAnimations = [
+            'anim-fade',
+            'anim-zoom',
+            'anim-slide-left',
+            'anim-slide-right',
+            'anim-rotate',
+            'anim-blur',
+            'anim-flip',
+            'anim-bounce',
+            'anim-shutter',
+            'anim-wipe'
+        ];
+        let currentAnimIndex = 0;
+
         async function fetchGallery() {
             try {
                 const res = await fetch(`${API_BASE}/gallery`);
@@ -1276,15 +1595,14 @@
             const prevBtn = document.getElementById('galleryPrev');
             const nextBtn = document.getElementById('galleryNext');
 
-            // Remove placeholder
             const placeholder = document.getElementById('galleryPlaceholder');
             if (placeholder) placeholder.remove();
 
             if (!galleryPhotos || galleryPhotos.length === 0) {
                 slideshow.innerHTML = `
-                    <div class="no-gallery" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
-                        <i class="fas fa-images" style="font-size:48px;margin-bottom:15px;"></i>
-                        <p style="color:rgba(255,255,255,0.3);">No photos available</p>
+                    <div class="no-gallery">
+                        <i class="fas fa-images"></i>
+                        <p>No photos available</p>
                     </div>
                 `;
                 prevBtn.style.display = 'none';
@@ -1296,15 +1614,18 @@
             prevBtn.style.display = 'block';
             nextBtn.style.display = 'block';
 
-            // Build slides
+            // Randomize animation order
+            const shuffledAnims = [...galleryAnimations].sort(() => Math.random() - 0.5);
+
             let slidesHtml = '';
             let dotsHtml = '';
 
             for (let i = 0; i < galleryPhotos.length; i++) {
                 const p = galleryPhotos[i];
+                const animClass = shuffledAnims[i % shuffledAnims.length];
                 const isActive = i === 0 ? 'active' : '';
                 slidesHtml += `
-                    <div class="gallery-slide ${isActive}">
+                    <div class="gallery-slide ${animClass} ${isActive}">
                         <img src="${p.image}" alt="${p.title || 'Gallery'}" loading="lazy">
                         <div class="gallery-overlay">
                             <h3>${p.title || 'Photo ' + (i + 1)}</h3>
@@ -1315,18 +1636,17 @@
                 dotsHtml += `<span class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`;
             }
 
-            // Clear slideshow and add slides
             slideshow.innerHTML = slidesHtml;
             dotsContainer.innerHTML = dotsHtml;
 
-            // Add nav buttons back
+            // Append nav buttons and dots back
             slideshow.appendChild(prevBtn);
             slideshow.appendChild(nextBtn);
             slideshow.appendChild(dotsContainer);
 
             currentGalleryIndex = 0;
+            currentAnimIndex = 0;
 
-            // Dot click events
             dotsContainer.querySelectorAll('.gallery-dot').forEach(dot => {
                 dot.addEventListener('click', function() {
                     const index = parseInt(this.dataset.index);
@@ -1334,30 +1654,37 @@
                 });
             });
 
-            // Start auto-slide
             startGallerySlideshow();
+            renderGalleryGrid();
         }
 
         function goToGallery(index) {
             const slides = document.querySelectorAll('.gallery-slide');
             const dots = document.querySelectorAll('.gallery-dot');
-
             if (index < 0) index = slides.length - 1;
             if (index >= slides.length) index = 0;
-
             slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
             });
-
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
-
             currentGalleryIndex = index;
         }
 
         function changeGallery(direction) {
             goToGallery(currentGalleryIndex + direction);
+            // Reset animation style for next slide
+            setTimeout(() => {
+                const slides = document.querySelectorAll('.gallery-slide');
+                slides.forEach(slide => {
+                    slide.classList.remove('anim-fade', 'anim-zoom', 'anim-slide-left', 'anim-slide-right',
+                        'anim-rotate', 'anim-blur', 'anim-flip', 'anim-bounce', 'anim-shutter', 'anim-wipe');
+                    // Add random animation
+                    const randomAnim = galleryAnimations[Math.floor(Math.random() * galleryAnimations.length)];
+                    slide.classList.add(randomAnim);
+                });
+            }, 100);
         }
 
         function startGallerySlideshow() {
@@ -1369,10 +1696,78 @@
             }
         }
 
+        function resetGalleryInterval() {
+            if (galleryInterval) {
+                clearInterval(galleryInterval);
+                if (galleryPhotos.length > 1) {
+                    galleryInterval = setInterval(() => {
+                        changeGallery(1);
+                    }, 4000);
+                }
+            }
+        }
+
+        // ============================================
+        // GALLERY GRID (View All)
+        // ============================================
+        function renderGalleryGrid() {
+            const grid = document.getElementById('galleryGrid');
+            if (!galleryPhotos || galleryPhotos.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.3);padding:20px;">No photos available</p>';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < galleryPhotos.length; i++) {
+                const p = galleryPhotos[i];
+                html += `
+                    <div class="gallery-grid-item" onclick="viewFullImage('${p.image}')">
+                        <img src="${p.image}" alt="${p.title || 'Photo'}" loading="lazy">
+                        <div class="grid-overlay">${p.title || 'Photo ' + (i + 1)}</div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function toggleGalleryGrid() {
+            const container = document.getElementById('galleryGridContainer');
+            const btn = document.getElementById('galleryViewAllBtn');
+            if (container.classList.contains('active')) {
+                container.classList.remove('active');
+                btn.textContent = '📷 View All Photos';
+            } else {
+                container.classList.add('active');
+                btn.textContent = '✕ Hide Gallery';
+                renderGalleryGrid();
+                // Scroll to grid
+                setTimeout(() => {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+
+        function viewFullImage(imageSrc) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:3000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:20px;';
+            modal.onclick = function() { this.remove(); };
+            modal.innerHTML = `
+                <img src="${imageSrc}" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <button style="position:absolute;top:20px;right:20px;width:40px;height:40px;border:none;background:rgba(255,255,255,0.1);color:white;border-radius:50%;font-size:24px;cursor:pointer;transition:all 0.3s ease;">✕</button>
+            `;
+            document.body.appendChild(modal);
+        }
+
         // ============================================
         // EVENT LISTENERS
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
+            // Init background lines
+            initBgLines();
+
+            // Check auth for admin button
+            checkAuth();
+
             // Year
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -1402,6 +1797,10 @@
                 resetGalleryInterval();
             });
 
+            // Gallery View All
+            document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
+            document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
+
             // Video modal close
             document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
             document.getElementById('videoModal').addEventListener('click', function(e) {
@@ -1412,6 +1811,11 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeVideoModal();
+                    const grid = document.getElementById('galleryGridContainer');
+                    if (grid.classList.contains('active')) {
+                        grid.classList.remove('active');
+                        document.getElementById('galleryViewAllBtn').textContent = '📷 View All Photos';
+                    }
                 }
                 if (e.key === 'ArrowLeft') {
                     if (document.getElementById('videoModal').classList.contains('active')) return;
@@ -1433,30 +1837,8 @@
             }, 60000);
         });
 
-        function resetBannerInterval() {
-            if (bannerInterval) {
-                clearInterval(bannerInterval);
-                if (bannerData.length > 1) {
-                    bannerInterval = setInterval(() => {
-                        changeBanner(1);
-                    }, 5000);
-                }
-            }
-        }
-
-        function resetGalleryInterval() {
-            if (galleryInterval) {
-                clearInterval(galleryInterval);
-                if (galleryPhotos.length > 1) {
-                    galleryInterval = setInterval(() => {
-                        changeGallery(1);
-                    }, 4000);
-                }
-            }
-        }
-
         // ============================================
-        // TOAST (for errors)
+        // TOAST
         // ============================================
         function showToast(message, isError = false) {
             const existing = document.querySelector('.custom-toast');
