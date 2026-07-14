@@ -1052,20 +1052,26 @@
         }
 
         // ============================================
-        // API HELPER
+        // API HELPER - FIXED
         // ============================================
         async function apiCall(url, options = {}) {
             const headers = {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                ...options.headers
+                'Authorization': `Bearer ${token}`
             };
             
-            const response = await fetch(url, {
-                ...options,
-                headers
-            });
+            // Yeh important hai - body ko yahan stringify karo, options mein nahi
+            const config = {
+                method: options.method || 'GET',
+                headers: headers
+            };
             
+            if (options.body) {
+                // Body ko yahan stringify karo
+                config.body = JSON.stringify(options.body);
+            }
+            
+            const response = await fetch(url, config);
             return await response.json();
         }
 
@@ -1248,10 +1254,10 @@
             try {
                 const data = await apiCall('/api/admin/profile', {
                     method: 'PUT',
-                    body: JSON.stringify({
+                    body: {
                         name: name,
                         photo: adminProfileData.photo || ''
-                    })
+                    }
                 });
                 
                 if (data.success) {
@@ -1334,10 +1340,10 @@
             try {
                 const data = await apiCall('/api/admin/change-password', {
                     method: 'PUT',
-                    body: JSON.stringify({
+                    body: {
                         currentPassword: current,
                         newPassword: newPass
-                    })
+                    }
                 });
                 
                 if (data.success) {
@@ -1388,10 +1394,10 @@
             try {
                 const data = await apiCall('/api/admin/change-id', {
                     method: 'PUT',
-                    body: JSON.stringify({
+                    body: {
                         newAdminID: newID,
                         password: password
-                    })
+                    }
                 });
                 
                 if (data.success) {
@@ -1443,7 +1449,7 @@
         }
 
         // ============================================
-        // LOGO UPLOAD
+        // LOGO UPLOAD - FIXED
         // ============================================
         document.getElementById('logoInput').addEventListener('change', function(e) {
             const file = this.files[0];
@@ -1460,7 +1466,7 @@
                 try {
                     const data = await apiCall('/api/settings', {
                         method: 'PUT',
-                        body: JSON.stringify({ logo: base64 })
+                        body: { logo: base64 }
                     });
                     
                     if (data.success) {
@@ -1477,7 +1483,7 @@
         });
 
         // ============================================
-        // HEADER FORM
+        // HEADER FORM - FIXED
         // ============================================
         document.getElementById('headerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1488,7 +1494,7 @@
             try {
                 const data = await apiCall('/api/settings', {
                     method: 'PUT',
-                    body: JSON.stringify({ title, subTitle })
+                    body: { title, subTitle }
                 });
                 
                 if (data.success) {
@@ -1504,7 +1510,7 @@
         });
 
         // ============================================
-        // FOOTER FORM
+        // FOOTER FORM - FIXED
         // ============================================
         document.getElementById('footerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1523,7 +1529,7 @@
             try {
                 const response = await apiCall('/api/settings', {
                     method: 'PUT',
-                    body: JSON.stringify(data)
+                    body: data
                 });
                 
                 if (response.success) {
