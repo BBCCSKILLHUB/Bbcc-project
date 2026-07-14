@@ -1,5 +1,5 @@
 // ============================================
-// BBCC SKILL HUB SERVER - COMPLETE
+// BBCC SKILL HUB SERVER - COMPLETE (FIXED)
 // ============================================
 
 require('dotenv').config();
@@ -1377,7 +1377,7 @@ app.put('/api/sidebar-banner/banner/:id', verifyToken, async (req, res) => {
 });
 
 // ============================================
-// TUITION CENTER APIS
+// TUITION CENTER APIS - FIXED (NO SETTINGS AFFECT)
 // ============================================
 
 // ===== GET ALL TUITION CENTERS =====
@@ -1444,7 +1444,8 @@ app.post('/api/tuition-centers', verifyToken, async (req, res) => {
     }
 });
 
-// ===== UPDATE TUITION CENTER =====
+// ===== UPDATE TUITION CENTER - FIXED =====
+// ✅ Yeh SIRF TuitionCenter collection ko update karega, Settings ko nahi
 app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.params.id);
@@ -1469,6 +1470,7 @@ app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
         center.updatedAt = new Date();
         await center.save();
         
+        // ✅ SIRF CENTER RETURN KARO - SETTINGS KO AFFECT MAT KARO
         res.json({ success: true, message: "Center updated successfully", data: center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
