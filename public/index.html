@@ -49,6 +49,122 @@
             display: block;
         }
 
+        /* ===== WATERMARK ===== */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: clamp(60px, 12vw, 120px);
+            font-weight: 900;
+            color: rgba(255, 215, 0, 0.04);
+            letter-spacing: 10px;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            text-shadow: 0 0 50px rgba(255, 215, 0, 0.02);
+            user-select: none;
+        }
+
+        /* ===== FLOATING CALL BUTTON ===== */
+        .call-float {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: floatCall 3s ease-in-out infinite;
+        }
+
+        @keyframes floatCall {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .call-float .call-btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .call-float .call-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(37, 211, 102, 0.6);
+        }
+
+        .call-float .call-btn .pulse-ring {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 50%;
+            border: 2px solid rgba(37, 211, 102, 0.3);
+            animation: pulseRing 2s ease-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .call-float .call-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            letter-spacing: 0.05em;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 80px;
+        }
+
+        .call-float .call-tooltip {
+            position: absolute;
+            left: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .call-float .call-btn:hover + .call-tooltip,
+        .call-float .call-tooltip:hover {
+            opacity: 1;
+        }
+
         /* ===== HEADER ===== */
         .header {
             background: rgba(11, 14, 26, 0.95);
@@ -168,7 +284,32 @@
         .banner-slide img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            background: #0b0e1a;
+        }
+
+        /* ===== BANNER SPLIT ANIMATION ===== */
+        .banner-slide {
+            opacity: 0;
+            animation: splitReveal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .banner-slide:nth-child(1) { animation-delay: 0s; }
+        .banner-slide:nth-child(2) { animation-delay: 0.1s; }
+        .banner-slide:nth-child(3) { animation-delay: 0.2s; }
+        .banner-slide:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes splitReveal {
+            0% {
+                opacity: 0;
+                clip-path: inset(50% 0 50% 0);
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                clip-path: inset(0 0 0 0);
+                transform: scale(1);
+            }
         }
 
         .banner-slide .banner-overlay {
@@ -185,11 +326,6 @@
             font-weight: 700;
             color: #fff;
             margin-bottom: 5px;
-        }
-
-        .banner-slide .banner-overlay p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
         }
 
         .banner-nav {
@@ -213,12 +349,8 @@
             background: rgba(255, 215, 0, 0.3);
         }
 
-        .banner-nav.prev {
-            left: 15px;
-        }
-        .banner-nav.next {
-            right: 15px;
-        }
+        .banner-nav.prev { left: 15px; }
+        .banner-nav.next { right: 15px; }
 
         .banner-dots {
             position: absolute;
@@ -411,128 +543,101 @@
         .gallery-slide.anim-fade {
             transition: opacity 1.2s ease;
         }
-
         .gallery-slide.anim-zoom {
             transition: all 1.5s ease;
         }
-
         .gallery-slide.anim-zoom.active {
             transform: scale(1);
         }
-
         .gallery-slide.anim-zoom {
             transform: scale(1.1);
         }
-
         .gallery-slide.anim-slide-left {
             transition: all 1s ease;
         }
-
         .gallery-slide.anim-slide-left.active {
             transform: translateX(0);
             opacity: 1;
         }
-
         .gallery-slide.anim-slide-left {
             transform: translateX(100%);
             opacity: 0;
         }
-
         .gallery-slide.anim-slide-right {
             transition: all 1s ease;
         }
-
         .gallery-slide.anim-slide-right.active {
             transform: translateX(0);
             opacity: 1;
         }
-
         .gallery-slide.anim-slide-right {
             transform: translateX(-100%);
             opacity: 0;
         }
-
         .gallery-slide.anim-rotate {
             transition: all 1.2s ease;
         }
-
         .gallery-slide.anim-rotate.active {
             transform: rotate(0deg) scale(1);
             opacity: 1;
         }
-
         .gallery-slide.anim-rotate {
             transform: rotate(10deg) scale(0.9);
             opacity: 0;
         }
-
         .gallery-slide.anim-blur {
             transition: all 1.2s ease;
         }
-
         .gallery-slide.anim-blur.active {
             filter: blur(0);
             opacity: 1;
         }
-
         .gallery-slide.anim-blur {
             filter: blur(20px);
             opacity: 0;
         }
-
         .gallery-slide.anim-flip {
             transition: all 1s ease;
             transform-style: preserve-3d;
             perspective: 1000px;
         }
-
         .gallery-slide.anim-flip.active {
             transform: rotateY(0deg);
             opacity: 1;
         }
-
         .gallery-slide.anim-flip {
             transform: rotateY(90deg);
             opacity: 0;
         }
-
         .gallery-slide.anim-bounce {
             transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
-
         .gallery-slide.anim-bounce.active {
             transform: scale(1);
             opacity: 1;
         }
-
         .gallery-slide.anim-bounce {
             transform: scale(0.5);
             opacity: 0;
         }
-
         .gallery-slide.anim-shutter {
             transition: all 1s ease;
         }
-
         .gallery-slide.anim-shutter.active {
             clip-path: inset(0 0 0 0);
             opacity: 1;
         }
-
         .gallery-slide.anim-shutter {
             clip-path: inset(0 50% 0 50%);
             opacity: 0;
         }
-
         .gallery-slide.anim-wipe {
             transition: all 1s ease;
         }
-
         .gallery-slide.anim-wipe.active {
             clip-path: inset(0 0 0 0);
             opacity: 1;
         }
-
         .gallery-slide.anim-wipe {
             clip-path: inset(0 0 100% 0);
             opacity: 0;
@@ -585,12 +690,8 @@
             background: rgba(255, 215, 0, 0.3);
         }
 
-        .gallery-nav.prev {
-            left: 15px;
-        }
-        .gallery-nav.next {
-            right: 15px;
-        }
+        .gallery-nav.prev { left: 15px; }
+        .gallery-nav.next { right: 15px; }
 
         .gallery-dots {
             position: absolute;
@@ -641,7 +742,6 @@
             transform: translateY(-2px);
         }
 
-        /* ===== GALLERY GRID (View All) ===== */
         .gallery-grid-container {
             display: none;
             margin-top: 30px;
@@ -657,14 +757,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .gallery-grid {
@@ -844,31 +938,15 @@
             box-shadow: 0 10px 40px rgba(255, 215, 0, 0.05);
         }
 
-        .social-links a:hover .fa-whatsapp {
-            color: #25D366;
-        }
-        .social-links a:hover .fa-youtube {
-            color: #FF0000;
-        }
-        .social-links a:hover .fa-facebook {
-            color: #1877F2;
-        }
-        .social-links a:hover .fa-instagram {
-            color: #E4405F;
-        }
-        .social-links a:hover .fa-telegram {
-            color: #0088cc;
-        }
-        .social-links a:hover .fa-twitter {
-            color: #1DA1F2;
-        }
-        .social-links a:hover .fa-linkedin {
-            color: #0A66C2;
-        }
+        .social-links a:hover .fa-whatsapp { color: #25D366; }
+        .social-links a:hover .fa-youtube { color: #FF0000; }
+        .social-links a:hover .fa-facebook { color: #1877F2; }
+        .social-links a:hover .fa-instagram { color: #E4405F; }
+        .social-links a:hover .fa-telegram { color: #0088cc; }
+        .social-links a:hover .fa-twitter { color: #1DA1F2; }
+        .social-links a:hover .fa-linkedin { color: #0A66C2; }
 
-        .social-links a .fa-whatsapp {
-            color: #25D366;
-        }
+        .social-links a .fa-whatsapp { color: #25D366; }
 
         .whatsapp-number {
             font-size: 0.8rem;
@@ -899,76 +977,30 @@
                 flex-direction: column;
                 align-items: center;
             }
-
-            .header-center {
-                width: 100%;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .banner-section {
-                height: 250px;
-            }
-
-            .banner-slide .banner-overlay {
-                padding: 20px;
-            }
-
-            .banner-slide .banner-overlay h2 {
-                font-size: 18px;
-            }
-
-            .videos-section {
-                padding: 0 15px 30px;
-            }
-
-            .videos-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .gallery-section {
-                padding: 0 15px 30px;
-            }
-
-            .gallery-slideshow {
-                height: 300px;
-            }
-
-            .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
-
-            .banner-nav,
-            .gallery-nav {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
-            }
-
-            .video-modal-content iframe {
-                height: 300px;
-            }
+            .header-center { width: 100%; }
+            .header-right { width: 100%; justify-content: center; }
+            .banner-section { height: 250px; }
+            .banner-slide .banner-overlay { padding: 20px; }
+            .banner-slide .banner-overlay h2 { font-size: 18px; }
+            .videos-section { padding: 0 15px 30px; }
+            .videos-grid { grid-template-columns: 1fr; }
+            .gallery-section { padding: 0 15px 30px; }
+            .gallery-slideshow { height: 300px; }
+            .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .banner-nav, .gallery-nav { width: 35px; height: 35px; font-size: 14px; }
+            .video-modal-content iframe { height: 300px; }
+            .call-float { bottom: 15px; left: 15px; }
+            .call-float .call-btn { width: 55px; height: 55px; font-size: 22px; }
+            .watermark { font-size: 40px; }
         }
 
         @media (max-width: 480px) {
-            .banner-section {
-                height: 200px;
-            }
-
-            .gallery-slideshow {
-                height: 220px;
-            }
-
-            .video-modal-content iframe {
-                height: 220px;
-            }
-
-            .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
+            .banner-section { height: 200px; }
+            .gallery-slideshow { height: 220px; }
+            .video-modal-content iframe { height: 220px; }
+            .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .call-float .call-btn { width: 48px; height: 48px; font-size: 18px; }
+            .call-float .call-label { font-size: 8px; max-width: 60px; }
         }
     </style>
 </head>
@@ -977,6 +1009,19 @@
     <!-- ===== ANIMATED BACKGROUND LINES ===== -->
     <div class="bg-lines">
         <canvas id="bgCanvas"></canvas>
+    </div>
+
+    <!-- ===== WATERMARK ===== -->
+    <div class="watermark">WEBSITE IS UNDER MAINTENANCE</div>
+
+    <!-- ===== FLOATING CALL BUTTON ===== -->
+    <div class="call-float">
+        <a href="https://call.doorvi.co/6a16b16de2dfc9742d223f53" target="_blank" class="call-btn" title="Encrypted Call Without Number">
+            <span class="pulse-ring"></span>
+            <i class="fas fa-phone"></i>
+        </a>
+        <div class="call-tooltip">🔒 Encrypted Call<br>Without Number<br>⏱️ 30 Seconds</div>
+        <span class="call-label">📞 Encrypted Call</span>
     </div>
 
     <!-- ===== HEADER ===== -->
@@ -1144,7 +1189,6 @@
                     ctx.stroke();
                 }
 
-                // Glowing dots at intersections
                 for (let i = 0; i < lines.length; i += 3) {
                     const l = lines[i];
                     const x = (l.x1 + l.x2) / 2 + Math.sin(time * l.speed + l.phase) * 20;
@@ -1399,8 +1443,10 @@
             for (let i = 0; i < bannerData.length; i++) {
                 const b = bannerData[i];
                 const isActive = i === 0 ? 'active' : '';
+                // Split animation classes
+                const splitClass = i === 0 ? 'banner-slide' : 'banner-slide';
                 slidesHtml += `
-                    <div class="banner-slide ${isActive}" style="${i === 0 ? 'display:block;' : 'display:none;'}">
+                    <div class="${splitClass}" style="${i === 0 ? 'display:block;' : 'display:none;'}">
                         ${b.image && b.image.length > 50 ? `<img src="${b.image}" alt="${b.title || 'Banner'}">` : ''}
                         <div class="banner-overlay">
                             <h2>${b.title || 'Welcome to BBCC Skill Hub'}</h2>
@@ -1413,6 +1459,15 @@
             slidesContainer.innerHTML = slidesHtml;
             dotsContainer.innerHTML = dotsHtml;
             currentBannerIndex = 0;
+
+            // Re-apply split animation on first slide
+            const firstSlide = slidesContainer.querySelector('.banner-slide');
+            if (firstSlide) {
+                firstSlide.style.animation = 'none';
+                setTimeout(() => {
+                    firstSlide.style.animation = 'splitReveal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+                }, 50);
+            }
 
             dotsContainer.querySelectorAll('.banner-dot').forEach(dot => {
                 dot.addEventListener('click', function() {
@@ -1431,6 +1486,13 @@
             if (index >= slides.length) index = 0;
             slides.forEach((slide, i) => {
                 slide.style.display = i === index ? 'block' : 'none';
+                // Re-trigger split animation for new slide
+                if (i === index) {
+                    slide.style.animation = 'none';
+                    setTimeout(() => {
+                        slide.style.animation = 'splitReveal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+                    }, 50);
+                }
             });
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
@@ -1614,7 +1676,6 @@
             prevBtn.style.display = 'block';
             nextBtn.style.display = 'block';
 
-            // Randomize animation order
             const shuffledAnims = [...galleryAnimations].sort(() => Math.random() - 0.5);
 
             let slidesHtml = '';
@@ -1639,7 +1700,6 @@
             slideshow.innerHTML = slidesHtml;
             dotsContainer.innerHTML = dotsHtml;
 
-            // Append nav buttons and dots back
             slideshow.appendChild(prevBtn);
             slideshow.appendChild(nextBtn);
             slideshow.appendChild(dotsContainer);
@@ -1674,13 +1734,11 @@
 
         function changeGallery(direction) {
             goToGallery(currentGalleryIndex + direction);
-            // Reset animation style for next slide
             setTimeout(() => {
                 const slides = document.querySelectorAll('.gallery-slide');
                 slides.forEach(slide => {
                     slide.classList.remove('anim-fade', 'anim-zoom', 'anim-slide-left', 'anim-slide-right',
                         'anim-rotate', 'anim-blur', 'anim-flip', 'anim-bounce', 'anim-shutter', 'anim-wipe');
-                    // Add random animation
                     const randomAnim = galleryAnimations[Math.floor(Math.random() * galleryAnimations.length)];
                     slide.classList.add(randomAnim);
                 });
@@ -1740,7 +1798,6 @@
                 container.classList.add('active');
                 btn.textContent = '✕ Hide Gallery';
                 renderGalleryGrid();
-                // Scroll to grid
                 setTimeout(() => {
                     container.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 300);
@@ -1762,22 +1819,15 @@
         // EVENT LISTENERS
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Init background lines
             initBgLines();
-
-            // Check auth for admin button
             checkAuth();
-
-            // Year
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            // Fetch all data
             fetchSettings();
             fetchBanners();
             fetchVideos();
             fetchGallery();
 
-            // Banner navigation
             document.getElementById('bannerPrev').addEventListener('click', function() {
                 changeBanner(-1);
                 resetBannerInterval();
@@ -1787,7 +1837,6 @@
                 resetBannerInterval();
             });
 
-            // Gallery navigation
             document.getElementById('galleryPrev').addEventListener('click', function() {
                 changeGallery(-1);
                 resetGalleryInterval();
@@ -1797,17 +1846,14 @@
                 resetGalleryInterval();
             });
 
-            // Gallery View All
             document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
             document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
 
-            // Video modal close
             document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
             document.getElementById('videoModal').addEventListener('click', function(e) {
                 if (e.target === this) closeVideoModal();
             });
 
-            // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeVideoModal();
@@ -1829,7 +1875,6 @@
                 }
             });
 
-            // Refresh every 60 seconds
             setInterval(() => {
                 fetchBanners();
                 fetchVideos();
@@ -1870,7 +1915,6 @@
             }, 4000);
         }
 
-        // Add animation style
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideUp {
