@@ -31,6 +31,40 @@ async function tuitionApiCall(url, options = {}) {
 }
 
 // ============================================
+// INDEPENDENT TOAST - NO SETTINGS AFFECT
+// ============================================
+function showTuitionToast(message, isError = false) {
+    // Remove existing toast
+    const existing = document.querySelector('.tuition-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'tuition-toast';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: ${isError ? '#e74c3c' : '#2ecc71'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        z-index: 9999;
+        animation: slideUp 0.5s ease;
+        max-width: 400px;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+// ============================================
 // INIT TUITION CENTER
 // ============================================
 function initTuitionCenter() {
@@ -207,7 +241,7 @@ function handleCenterLogo(event) {
         document.getElementById('logoPreviewImg').src = compressedBase64;
         document.getElementById('logoPreviewImg').style.display = 'block';
         document.getElementById('logoPlaceholder').style.display = 'none';
-        showToast('Center logo uploaded successfully!');
+        showTuitionToast('Center logo uploaded successfully!');
     });
 }
 
@@ -221,7 +255,7 @@ function handleDirectorPhoto(event) {
         document.getElementById('directorPhotoImg').src = compressedBase64;
         document.getElementById('directorPhotoImg').style.display = 'block';
         document.getElementById('directorPhotoPlaceholder').style.display = 'none';
-        showToast('Director photo uploaded successfully!');
+        showTuitionToast('Director photo uploaded successfully!');
     });
 }
 
@@ -277,7 +311,7 @@ async function loadCenters() {
             updateCenterCount(centers.length);
         }
     } catch (error) {
-        showToast('Error loading centers', true);
+        showTuitionToast('Error loading centers', true);
     }
 }
 
@@ -396,10 +430,10 @@ async function saveCenter(event) {
     };
     
     // Validation
-    if (!data.centerName) { showToast('Please enter center name', true); return; }
-    if (!data.directorName) { showToast('Please enter director name', true); return; }
-    if (!data.fromClass) { showToast('Please enter from class', true); return; }
-    if (!data.toClass) { showToast('Please enter to class', true); return; }
+    if (!data.centerName) { showTuitionToast('Please enter center name', true); return; }
+    if (!data.directorName) { showTuitionToast('Please enter director name', true); return; }
+    if (!data.fromClass) { showTuitionToast('Please enter from class', true); return; }
+    if (!data.toClass) { showTuitionToast('Please enter to class', true); return; }
     
     try {
         let response;
@@ -416,15 +450,15 @@ async function saveCenter(event) {
         }
         
         if (response.success) {
-            showToast(editId ? 'Center updated successfully!' : 'Center added successfully!');
+            showTuitionToast(editId ? 'Center updated successfully!' : 'Center added successfully!');
             resetCenterForm();
             switchTuitionTab('centers');
             loadCenters();
         } else {
-            showToast(response.message || 'Failed to save center', true);
+            showTuitionToast(response.message || 'Failed to save center', true);
         }
     } catch (error) {
-        showToast('Error saving center', true);
+        showTuitionToast('Error saving center', true);
     }
 }
 
@@ -435,7 +469,7 @@ async function editCenter(centerId) {
     try {
         const data = await tuitionApiCall('/api/tuition-centers/' + centerId);
         if (!data.success) {
-            showToast('Center not found', true);
+            showTuitionToast('Center not found', true);
             return;
         }
         
@@ -473,9 +507,9 @@ async function editCenter(centerId) {
         document.querySelector('#centerForm button[type="submit"]').style.background = '#f39c12';
         
         switchTuitionTab('addcenter');
-        showToast('Edit mode - Update center details');
+        showTuitionToast('Edit mode - Update center details');
     } catch (error) {
-        showToast('Error loading center', true);
+        showTuitionToast('Error loading center', true);
     }
 }
 
@@ -486,7 +520,7 @@ async function viewCenter(centerId) {
     try {
         const data = await tuitionApiCall('/api/tuition-centers/' + centerId);
         if (!data.success) {
-            showToast('Center not found', true);
+            showTuitionToast('Center not found', true);
             return;
         }
         
@@ -568,7 +602,7 @@ async function viewCenter(centerId) {
         `;
         document.body.appendChild(modal);
     } catch (error) {
-        showToast('Error loading center details', true);
+        showTuitionToast('Error loading center details', true);
     }
 }
 
@@ -584,13 +618,13 @@ async function deleteCenter(centerId) {
         });
         
         if (response.success) {
-            showToast('Center deleted successfully!');
+            showTuitionToast('Center deleted successfully!');
             loadCenters();
         } else {
-            showToast('Failed to delete center', true);
+            showTuitionToast('Failed to delete center', true);
         }
     } catch (error) {
-        showToast('Error deleting center', true);
+        showTuitionToast('Error deleting center', true);
     }
 }
 
@@ -746,7 +780,7 @@ async function loadTeachersForCenter(centerId) {
             document.getElementById('teacherCountModal').textContent = `(${teachers.length} teachers)`;
         }
     } catch (error) {
-        showToast('Error loading teachers', true);
+        showTuitionToast('Error loading teachers', true);
     }
 }
 
@@ -795,7 +829,7 @@ function handleTeacherPhoto(event) {
         document.getElementById('teacherPhotoImg').src = compressedBase64;
         document.getElementById('teacherPhotoImg').style.display = 'block';
         document.getElementById('teacherPhotoPlaceholder').style.display = 'none';
-        showToast('Teacher photo uploaded successfully!');
+        showTuitionToast('Teacher photo uploaded successfully!');
     });
 }
 
@@ -812,7 +846,7 @@ async function saveTeacher(event, centerId) {
     const photo = document.getElementById('teacherPhotoImg').src || '';
     
     if (!name || !subject || !classVal) {
-        showToast('Please fill all required fields', true);
+        showTuitionToast('Please fill all required fields', true);
         return;
     }
     
@@ -833,7 +867,7 @@ async function saveTeacher(event, centerId) {
         }
         
         if (response.success) {
-            showToast(editId ? 'Teacher updated!' : 'Teacher added!');
+            showTuitionToast(editId ? 'Teacher updated!' : 'Teacher added!');
             document.getElementById('teacherForm').reset();
             document.getElementById('editTeacherId').value = '';
             document.getElementById('teacherPhotoImg').src = '';
@@ -843,10 +877,10 @@ async function saveTeacher(event, centerId) {
             loadTeachersForCenter(centerId);
             loadCenters();
         } else {
-            showToast(response.message || 'Failed to save teacher', true);
+            showTuitionToast(response.message || 'Failed to save teacher', true);
         }
     } catch (error) {
-        showToast('Error saving teacher', true);
+        showTuitionToast('Error saving teacher', true);
     }
 }
 
@@ -860,7 +894,7 @@ async function editTeacherModal(teacherId) {
         
         const teacher = data.data.teachers.find(t => (t._id || t.id) == teacherId);
         if (!teacher) {
-            showToast('Teacher not found', true);
+            showTuitionToast('Teacher not found', true);
             return;
         }
         
@@ -880,7 +914,7 @@ async function editTeacherModal(teacherId) {
         
         document.getElementById('teacherForm').scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
-        showToast('Error loading teacher', true);
+        showTuitionToast('Error loading teacher', true);
     }
 }
 
@@ -896,14 +930,14 @@ async function deleteTeacherModal(teacherId) {
         });
         
         if (response.success) {
-            showToast('Teacher deleted successfully!');
+            showTuitionToast('Teacher deleted successfully!');
             loadTeachersForCenter(currentCenterId);
             loadCenters();
         } else {
-            showToast('Failed to delete teacher', true);
+            showTuitionToast('Failed to delete teacher', true);
         }
     } catch (error) {
-        showToast('Error deleting teacher', true);
+        showTuitionToast('Error deleting teacher', true);
     }
 }
 
@@ -922,4 +956,17 @@ function resetCenterForm() {
     document.getElementById('centerFormTitle').textContent = 'Add New Coaching Center';
     document.querySelector('#centerForm button[type="submit"]').textContent = '✅ Add Center';
     document.querySelector('#centerForm button[type="submit"]').style.background = '';
+}
+
+// Add slideUp animation style if not exists
+if (!document.querySelector('#tuitionToastStyle')) {
+    const style = document.createElement('style');
+    style.id = 'tuitionToastStyle';
+    style.textContent = `
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
 }
