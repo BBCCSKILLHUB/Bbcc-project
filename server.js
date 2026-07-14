@@ -76,10 +76,25 @@ const StudyMaterialSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// ============================================
+// GALLERY SCHEMA
+// ============================================
+const GallerySchema = new mongoose.Schema({
+    photos: [{
+        image: { type: String, required: true },
+        title: { type: String, default: '' },
+        description: { type: String, default: '' },
+        order: { type: Number, default: 0 },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    updatedAt: { type: Date, default: Date.now }
+});
+
 // Create Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
 const StudyMaterial = mongoose.model('StudyMaterial', StudyMaterialSchema);
+const Gallery = mongoose.model('Gallery', GallerySchema);
 
 // ============================================
 // DATABASE CONNECTION
@@ -119,6 +134,15 @@ mongoose.connect(MONGO_URI)
                 notes: []
             });
             console.log('✅ Default study material created');
+        }
+        
+        // Check if gallery exists, if not create default
+        const galleryExists = await Gallery.findOne();
+        if (!galleryExists) {
+            await Gallery.create({
+                photos: []
+            });
+            console.log('✅ Default gallery created');
         }
     })
     .catch(err => {
@@ -1035,6 +1059,125 @@ app.put('/api/study-material/note/:id', verifyToken, async (req, res) => {
             success: true, 
             message: "PDF note updated successfully",
             data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// GALLERY APIS
+// ============================================
+
+// ===== GET ALL GALLERY PHOTOS =====
+app.get('/api/gallery', async (req, res) => {
+    try {
+        let gallery = await Gallery.findOne();
+        if (!gallery) {
+            gallery = await Gallery.create({ photos: [] });
+        }
+        res.json({ success: true, data: gallery });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== ADD MULTIPLE PHOTOS =====
+app.post('/api/gallery/photos', verifyToken, async (req, res) => {
+    try {
+        const { photos } = req.body; // Array of { image, title, description }
+        
+        if (!photos || !Array.isArray(photos) || photos.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "At least one photo is required" 
+            });
+        }
+        
+        let gallery = await Gallery.findOne();
+        if (!gallery) {
+            gallery = new Gallery({ photos: [] });
+        }
+        
+        // Add photos with order
+        const currentOrder = gallery.photos.length;
+        for (let i = 0; i < photos.length; i++) {
+            gallery.photos.push({
+                image: photos[i].image,
+                title: photos[i].title || '',
+                description: photos[i].description || '',
+                order: currentOrder + i
+            });
+        }
+        
+        gallery.updatedAt = new Date();
+        await gallery.save();
+        
+        res.json({ 
+            success: true, 
+            message: `${photos.length} photos added successfully`,
+            data: gallery
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== DELETE SINGLE PHOTO =====
+app.delete('/api/gallery/photo/:id', verifyToken, async (req, res) => {
+    try {
+        const photoId = req.params.id;
+        
+        let gallery = await Gallery.findOne();
+        if (!gallery) {
+            return res.status(404).json({ success: false, message: "Gallery not found" });
+        }
+        
+        const photoIndex = gallery.photos.findIndex(p => p._id.toString() === photoId);
+        if (photoIndex === -1) {
+            return res.status(404).json({ success: false, message: "Photo not found" });
+        }
+        
+        gallery.photos.splice(photoIndex, 1);
+        gallery.updatedAt = new Date();
+        await gallery.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Photo deleted successfully",
+            data: gallery
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== UPDATE PHOTO DETAILS =====
+app.put('/api/gallery/photo/:id', verifyToken, async (req, res) => {
+    try {
+        const photoId = req.params.id;
+        const { title, description } = req.body;
+        
+        let gallery = await Gallery.findOne();
+        if (!gallery) {
+            return res.status(404).json({ success: false, message: "Gallery not found" });
+        }
+        
+        const photo = gallery.photos.id(photoId);
+        if (!photo) {
+            return res.status(404).json({ success: false, message: "Photo not found" });
+        }
+        
+        if (title !== undefined) photo.title = title;
+        if (description !== undefined) photo.description = description;
+        
+        gallery.updatedAt = new Date();
+        await gallery.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Photo updated successfully",
+            data: gallery
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
