@@ -56,9 +56,30 @@ const SettingsSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// ============================================
+// STUDY MATERIAL SCHEMA
+// ============================================
+const StudyMaterialSchema = new mongoose.Schema({
+    videos: [{
+        thumbnail: { type: String, default: '' },
+        title: { type: String, required: true },
+        link: { type: String, required: true },
+        description: { type: String, default: '' },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    notes: [{
+        pdf: { type: String, required: true },
+        title: { type: String, required: true },
+        description: { type: String, default: '' },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    updatedAt: { type: Date, default: Date.now }
+});
+
 // Create Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
+const StudyMaterial = mongoose.model('StudyMaterial', StudyMaterialSchema);
 
 // ============================================
 // DATABASE CONNECTION
@@ -88,6 +109,16 @@ mongoose.connect(MONGO_URI)
                 subTitle: 'Empowering Skills, Building Futures'
             });
             console.log('✅ Default settings created');
+        }
+        
+        // Check if study material exists, if not create default
+        const studyMaterialExists = await StudyMaterial.findOne();
+        if (!studyMaterialExists) {
+            await StudyMaterial.create({
+                videos: [],
+                notes: []
+            });
+            console.log('✅ Default study material created');
         }
     })
     .catch(err => {
@@ -227,8 +258,9 @@ app.put('/api/settings', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 // ============================================
-// ADMIN PROFILE APIS - ADD THIS TO SERVER.JS
+// ADMIN PROFILE APIS
 // ============================================
 
 // Update Admin Profile (Name, Photo)
@@ -349,6 +381,7 @@ app.put('/api/admin/change-id', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 // ============================================
 // STUDENT MANAGEMENT APIS
 // ============================================
@@ -751,6 +784,7 @@ app.get('/api/students/search/:query', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 // ===== CLOSE CLASS =====
 app.post('/api/students/:id/close-class', verifyToken, async (req, res) => {
     try {
@@ -786,6 +820,227 @@ app.post('/api/students/:id/close-class', verifyToken, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+// ============================================
+// STUDY MATERIAL APIS
+// ============================================
+
+// ===== GET ALL STUDY MATERIAL =====
+app.get('/api/study-material', async (req, res) => {
+    try {
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            studyMaterial = await StudyMaterial.create({
+                videos: [],
+                notes: []
+            });
+        }
+        res.json({ success: true, data: studyMaterial });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== ADD VIDEO =====
+app.post('/api/study-material/video', verifyToken, async (req, res) => {
+    try {
+        const { thumbnail, title, link, description } = req.body;
+        
+        if (!title || !link) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Title and link are required" 
+            });
+        }
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            studyMaterial = new StudyMaterial({ videos: [], notes: [] });
+        }
+        
+        studyMaterial.videos.push({
+            thumbnail: thumbnail || '',
+            title: title,
+            link: link,
+            description: description || ''
+        });
+        
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Video added successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== DELETE VIDEO =====
+app.delete('/api/study-material/video/:id', verifyToken, async (req, res) => {
+    try {
+        const videoId = req.params.id;
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            return res.status(404).json({ success: false, message: "Study material not found" });
+        }
+        
+        // Find and remove video by _id or index
+        const videoIndex = studyMaterial.videos.findIndex(v => v._id.toString() === videoId);
+        if (videoIndex === -1) {
+            return res.status(404).json({ success: false, message: "Video not found" });
+        }
+        
+        studyMaterial.videos.splice(videoIndex, 1);
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Video deleted successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== ADD PDF NOTE =====
+app.post('/api/study-material/note', verifyToken, async (req, res) => {
+    try {
+        const { pdf, title, description } = req.body;
+        
+        if (!pdf || !title) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "PDF and title are required" 
+            });
+        }
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            studyMaterial = new StudyMaterial({ videos: [], notes: [] });
+        }
+        
+        studyMaterial.notes.push({
+            pdf: pdf,
+            title: title,
+            description: description || ''
+        });
+        
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "PDF note added successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== DELETE PDF NOTE =====
+app.delete('/api/study-material/note/:id', verifyToken, async (req, res) => {
+    try {
+        const noteId = req.params.id;
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            return res.status(404).json({ success: false, message: "Study material not found" });
+        }
+        
+        // Find and remove note by _id or index
+        const noteIndex = studyMaterial.notes.findIndex(n => n._id.toString() === noteId);
+        if (noteIndex === -1) {
+            return res.status(404).json({ success: false, message: "PDF note not found" });
+        }
+        
+        studyMaterial.notes.splice(noteIndex, 1);
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "PDF note deleted successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== UPDATE VIDEO =====
+app.put('/api/study-material/video/:id', verifyToken, async (req, res) => {
+    try {
+        const videoId = req.params.id;
+        const { thumbnail, title, link, description } = req.body;
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            return res.status(404).json({ success: false, message: "Study material not found" });
+        }
+        
+        const video = studyMaterial.videos.id(videoId);
+        if (!video) {
+            return res.status(404).json({ success: false, message: "Video not found" });
+        }
+        
+        if (thumbnail !== undefined) video.thumbnail = thumbnail;
+        if (title !== undefined) video.title = title;
+        if (link !== undefined) video.link = link;
+        if (description !== undefined) video.description = description;
+        
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Video updated successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== UPDATE PDF NOTE =====
+app.put('/api/study-material/note/:id', verifyToken, async (req, res) => {
+    try {
+        const noteId = req.params.id;
+        const { pdf, title, description } = req.body;
+        
+        let studyMaterial = await StudyMaterial.findOne();
+        if (!studyMaterial) {
+            return res.status(404).json({ success: false, message: "Study material not found" });
+        }
+        
+        const note = studyMaterial.notes.id(noteId);
+        if (!note) {
+            return res.status(404).json({ success: false, message: "PDF note not found" });
+        }
+        
+        if (pdf !== undefined) note.pdf = pdf;
+        if (title !== undefined) note.title = title;
+        if (description !== undefined) note.description = description;
+        
+        studyMaterial.updatedAt = new Date();
+        await studyMaterial.save();
+        
+        res.json({ 
+            success: true, 
+            message: "PDF note updated successfully",
+            data: studyMaterial
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ============================================
 // SERVE HTML PAGES
 // ============================================
