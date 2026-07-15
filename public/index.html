@@ -67,6 +67,99 @@
             overflow-x: hidden;
         }
 
+        /* ===== SPLASH SCREEN ===== */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0b0e1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .splash-screen.hide {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b0e1a, #1a1f35);
+            border: 4px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffd700;
+            animation: splashPulse 1.5s ease-in-out infinite;
+            position: relative;
+        }
+
+        .splash-logo::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #ffd700, transparent, #ffd700, transparent);
+            animation: ringRotate 2s linear infinite;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #ffd700, #f5a623);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .splash-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.2em;
+            margin-top: 5px;
+        }
+
+        .splash-loader {
+            margin-top: 30px;
+            width: 200px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .splash-loader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffd700, #f5a623);
+            border-radius: 10px;
+            animation: splashLoad 2.5s ease-in-out forwards;
+        }
+
+        @keyframes splashLoad {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
         /* ===== NOTIFICATION POPUP ===== */
         .notification-popup {
             position: fixed;
@@ -580,6 +673,7 @@
             align-items: center;
             gap: 18px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
         }
 
         .partner-card .center-logo {
@@ -679,6 +773,7 @@
             display: flex;
             align-items: center;
             gap: 18px;
+            cursor: pointer;
         }
 
         .partner-card .director-section .director-avatar {
@@ -938,6 +1033,27 @@
         .partner-card .card-social a:hover .fa-linkedin { color: #0A66C2; }
         .partner-card .card-social a:hover .fa-lock { color: #16a34a; }
 
+        .view-details-btn {
+            padding: 8px 20px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 25px;
+            color: #ffd700;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 0 25px 15px;
+            width: calc(100% - 50px);
+        }
+
+        .view-details-btn:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
         .no-partners {
             grid-column: 1/-1;
             text-align: center;
@@ -962,6 +1078,52 @@
             z-index: 1;
         }
 
+        .pdf-notes-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .pdf-search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 8px 18px;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .pdf-search-box:focus-within {
+            border-color: rgba(255, 215, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .pdf-search-box input {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .pdf-search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .pdf-search-box i {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+        }
+
         .pdf-notes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -975,12 +1137,36 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.03), transparent, rgba(255, 215, 0, 0.03), transparent);
+            animation: ringRotate 8s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .note-card:hover::before {
+            opacity: 1;
         }
 
         .note-card:hover {
             transform: translateY(-8px);
             border-color: rgba(255, 215, 0, 0.25);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .note-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .note-card a {
@@ -1017,8 +1203,27 @@
             overflow: hidden;
         }
 
+        .note-card .note-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .note-card .note-size {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
         .note-card .download-btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             padding: 6px 20px;
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1026,12 +1231,68 @@
             color: #ef4444;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card .download-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .note-card .download-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .note-card .download-btn i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .note-card .download-btn:hover i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .note-card .download-btn span {
+            position: relative;
+            z-index: 1;
         }
 
         .note-card:hover .download-btn {
             background: rgba(239, 68, 68, 0.25);
             border-color: #ef4444;
+            transform: scale(1.02);
+        }
+
+        .note-card .note-date {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 8px;
+        }
+
+        .no-notes {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .no-notes i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.1);
         }
 
         /* ===== TEACHERS SECTION ===== */
@@ -1078,6 +1339,7 @@
             min-width: 240px;
             max-width: 240px;
             flex-shrink: 0;
+            cursor: pointer;
         }
 
         .teacher-card:hover {
@@ -1140,6 +1402,13 @@
             margin-bottom: 5px;
         }
 
+        .teacher-card .teacher-divider {
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            margin: 10px auto;
+        }
+
         .teacher-card .teacher-subject {
             font-size: 14px;
             color: rgba(255, 255, 255, 0.5);
@@ -1151,19 +1420,336 @@
             color: rgba(255, 255, 255, 0.3);
         }
 
-        .teacher-card .teacher-divider {
-            width: 50px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
-            margin: 10px auto;
-        }
-
         .no-teachers {
             grid-column: 1/-1;
             text-align: center;
             padding: 40px;
             color: rgba(255, 255, 255, 0.3);
             font-size: 16px;
+        }
+
+        /* ===== TEACHER DETAILS POPUP ===== */
+        .teacher-details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .teacher-details-content {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .teacher-details-content .teacher-popup-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            background: #1a1f35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #ffd700;
+            position: relative;
+        }
+
+        .teacher-details-content .teacher-popup-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #facc15, transparent, #facc15, transparent);
+            animation: ringRotate 3s linear infinite;
+            z-index: -1;
+        }
+
+        .teacher-details-content .teacher-popup-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .teacher-details-content .teacher-popup-avatar span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .teacher-details-content h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .teacher-details-content .teacher-popup-center {
+            color: rgba(255, 215, 0, 0.6);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .teacher-details-content .teacher-popup-info {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .teacher-details-content .teacher-popup-info div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .teacher-details-content .teacher-popup-info div:last-child {
+            border-bottom: none;
+        }
+
+        .teacher-details-content .teacher-popup-info .label {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+
+        .teacher-details-content .teacher-popup-info .value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .teacher-details-content .teacher-popup-close {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 25px;
+            color: #ffd700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .teacher-details-content .teacher-popup-close:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        /* ===== CENTER DETAILS POPUP ===== */
+        .center-details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .center-details-content {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .center-details-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .center-details-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .center-details-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .center-details-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        .center-details-content .center-popup-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 215, 0, 0.2);
+            background: #1a1f35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #ffd700;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .center-details-content .center-popup-logo::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #ffd700, transparent, #ffd700, transparent);
+            animation: ringRotate 3s linear infinite;
+            z-index: -1;
+        }
+
+        .center-details-content .center-popup-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .center-details-content .center-popup-logo span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .popup-social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .popup-social-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-teacher-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .popup-teacher-item:hover {
+            background: rgba(255, 215, 0, 0.03);
+            border-color: rgba(255, 215, 0, 0.08);
+        }
+
+        .popup-teacher-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #1a1f35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffd700;
+            border: 2px solid rgba(255, 215, 0, 0.1);
+            position: relative;
+        }
+
+        .popup-teacher-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #facc15, transparent, #facc15, transparent);
+            animation: ringRotate 2.5s linear infinite;
+            z-index: -1;
+        }
+
+        .popup-teacher-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .popup-teacher-avatar span {
+            position: relative;
+            z-index: 1;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .popup-teacher-info {
+            flex: 1;
+        }
+
+        .popup-teacher-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .popup-teacher-detail {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* ===== VIDEOS SECTION ===== */
@@ -1672,6 +2258,7 @@
             .partner-scroll-track { gap: 15px; }
             .pdf-notes-section { padding: 0 15px 30px; }
             .pdf-notes-grid { grid-template-columns: 1fr; }
+            .pdf-search-box { max-width: 100%; }
             .teachers-section { padding: 0 15px 30px; }
             .teachers-scroll-track { gap: 15px; }
             .teacher-card { min-width: 200px; max-width: 200px; }
@@ -1685,6 +2272,10 @@
             .call-float { bottom: 15px; left: 15px; }
             .call-float .call-btn { width: 55px; height: 55px; font-size: 22px; }
             .notification-popup { max-width: 320px; padding: 15px 20px; top: 15px; right: 15px; }
+            .splash-title { font-size: 24px; }
+            .splash-logo { width: 80px; height: 80px; font-size: 32px; }
+            .center-details-content { padding: 20px; }
+            .teacher-details-content { padding: 20px; }
         }
 
         @media (max-width: 480px) {
@@ -1699,10 +2290,24 @@
             .notification-popup .notif-text { font-size: 12px; }
             .partner-card { min-width: 260px; max-width: 260px; }
             .teacher-card { min-width: 170px; max-width: 170px; }
+            .splash-title { font-size: 20px; }
+            .splash-logo { width: 70px; height: 70px; font-size: 28px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <span>BBCC</span>
+        </div>
+        <div class="splash-title">BBCC Skill Hub</div>
+        <div class="splash-subtitle">Empowering Skills, Building Futures</div>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+    </div>
 
     <!-- ===== NOTIFICATION POPUP ===== -->
     <div class="notification-popup" id="notificationPopup">
@@ -1783,6 +2388,12 @@
         <p>Download free study materials</p>
     </div>
     <section class="pdf-notes-section">
+        <div class="pdf-notes-header">
+            <div class="pdf-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="pdfSearchInput" placeholder="Search PDF notes..." onkeyup="filterPDFNotes(this.value)">
+            </div>
+        </div>
         <div class="pdf-notes-grid" id="pdfNotesContainer">
             <!-- Will be filled by JavaScript -->
         </div>
@@ -1889,9 +2500,17 @@
     <script>
         const API_BASE = window.location.origin + '/api';
 
-        // ============================================
-        // NOTIFICATION POPUP
-        // ============================================
+        // ===== SPLASH SCREEN =====
+        function hideSplash() {
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('hide');
+                setTimeout(() => {
+                    document.getElementById('splashScreen').style.display = 'none';
+                }, 800);
+            }, 3000);
+        }
+
+        // ===== NOTIFICATION POPUP =====
         function initNotification() {
             const popup = document.getElementById('notificationPopup');
             const closeBtn = document.getElementById('notifClose');
@@ -1920,9 +2539,7 @@
         `;
         document.head.appendChild(styleSheet);
 
-        // ============================================
-        // ANIMATED BACKGROUND LINES
-        // ============================================
+        // ===== ANIMATED BACKGROUND LINES =====
         function initBgLines() {
             const canvas = document.getElementById('bgCanvas');
             const ctx = canvas.getContext('2d');
@@ -1984,9 +2601,7 @@
             animate();
         }
 
-        // ============================================
-        // CHECK AUTH FOR ADMIN BUTTON
-        // ============================================
+        // ===== CHECK AUTH FOR ADMIN BUTTON =====
         function checkAuth() {
             const token = localStorage.getItem('token');
             const adminBtn = document.getElementById('adminBtn');
@@ -1997,9 +2612,7 @@
             }
         }
 
-        // ============================================
-        // SET FAVICON
-        // ============================================
+        // ===== SET FAVICON =====
         function setFavicon(logoUrl) {
             if (!logoUrl || logoUrl.trim() === '' || logoUrl.trim().length < 10) {
                 const defaultSvg =
@@ -2073,9 +2686,7 @@
             img.src = logoUrl;
         }
 
-        // ============================================
-        // FETCH SETTINGS
-        // ============================================
+        // ===== FETCH SETTINGS =====
         async function fetchSettings() {
             try {
                 const res = await fetch(`${API_BASE}/settings`);
@@ -2154,9 +2765,10 @@
         }
 
         // ============================================
-        // TEACHERS - AUTO SCROLL LEFT TO RIGHT
+        // TEACHERS - AUTO SCROLL LEFT TO RIGHT WITH DRAG
         // ============================================
         let allTeachers = [];
+        let pdfNotesData = [];
 
         async function fetchTeachers() {
             try {
@@ -2170,7 +2782,13 @@
                                 allTeachers.push({
                                     ...teacher,
                                     centerName: center.centerName,
-                                    centerId: center._id
+                                    centerId: center._id,
+                                    centerLogo: center.clogo,
+                                    centerDirector: center.directorName,
+                                    centerAddress: center.address,
+                                    centerContact: center.contactNumber,
+                                    centerWhatsapp: center.whatsappNumber,
+                                    centerEmail: center.email
                                 });
                             }
                         }
@@ -2209,7 +2827,7 @@
                 const t = items[i];
                 const initial = t.name ? t.name.charAt(0).toUpperCase() : 'T';
                 html += `
-                    <div class="teacher-card">
+                    <div class="teacher-card" onclick='openTeacherDetails(${JSON.stringify(t).replace(/'/g,"&#39;")})'>
                         <div class="teacher-avatar">
                             ${t.photo && t.photo.length > 50 ? 
                                 `<img src="${t.photo}" alt="${t.name}">` : 
@@ -2227,41 +2845,161 @@
             track.innerHTML = html;
             track.style.animation = 'scrollTeachers 35s linear infinite';
             
-            track.addEventListener('mouseenter', () => {
+            // Setup drag for teachers
+            setupTeacherDrag(track);
+        }
+
+        // ===== TEACHER DRAG EVENTS =====
+        function setupTeacherDrag(track) {
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            track.addEventListener('mousedown', (e) => {
+                isDown = true;
                 track.style.animationPlayState = 'paused';
+                startX = e.pageX - track.offsetLeft;
+                scrollLeft = track.scrollLeft || 0;
+                track.style.cursor = 'grabbing';
             });
+
             track.addEventListener('mouseleave', () => {
+                isDown = false;
                 track.style.animationPlayState = 'running';
+                track.style.cursor = 'grab';
+            });
+
+            track.addEventListener('mouseup', () => {
+                isDown = false;
+                track.style.animationPlayState = 'running';
+                track.style.cursor = 'grab';
+            });
+
+            track.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - track.offsetLeft;
+                const walk = (x - startX) * 0.8;
+                const currentTransform = window.getComputedStyle(track).transform;
+                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(', ');
+                    const currentX = parseFloat(values[4]) || 0;
+                    const newX = currentX + walk;
+                    track.style.transform = `translateX(${newX}px)`;
+                }
+                startX = x;
+            });
+
+            track.addEventListener('touchstart', (e) => {
+                isDown = true;
+                track.style.animationPlayState = 'paused';
+                startX = e.touches[0].pageX - track.offsetLeft;
+                const currentTransform = window.getComputedStyle(track).transform;
+                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(', ');
+                    scrollLeft = parseFloat(values[4]) || 0;
+                }
+            }, { passive: true });
+
+            track.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - track.offsetLeft;
+                const walk = (x - startX) * 0.8;
+                const newX = scrollLeft + walk;
+                track.style.transform = `translateX(${newX}px)`;
+            }, { passive: true });
+
+            track.addEventListener('touchend', () => {
+                isDown = false;
+                track.style.animationPlayState = 'running';
+            }, { passive: true });
+        }
+
+        // ===== OPEN TEACHER DETAILS POPUP =====
+        function openTeacherDetails(teacher) {
+            const modal = document.createElement('div');
+            modal.className = 'teacher-details-modal';
+            modal.innerHTML = `
+                <div class="teacher-details-content">
+                    <button onclick="this.closest('.teacher-details-modal').remove()" style="
+                        position: sticky;
+                        top: 0;
+                        float: right;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        border: 1px solid rgba(255,255,255,0.1);
+                        background: rgba(255,255,255,0.05);
+                        color: #fff;
+                        font-size: 20px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                        margin-bottom: 10px;
+                    " onmouseover="this.style.background='rgba(255,0,0,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        ✕
+                    </button>
+
+                    <div class="teacher-popup-avatar">
+                        ${teacher.photo && teacher.photo.length > 50 ? 
+                            `<img src="${teacher.photo}" alt="${teacher.name}">` : 
+                            `<span>${teacher.name ? teacher.name.charAt(0).toUpperCase() : 'T'}</span>`
+                        }
+                    </div>
+
+                    <h2>${teacher.name || 'Teacher'}</h2>
+                    <div class="teacher-popup-center">🏫 ${teacher.centerName || 'Unknown Center'}</div>
+
+                    <div class="teacher-popup-info">
+                        <div><span class="label">📚 Subject</span><span class="value">${teacher.subject || 'N/A'}</span></div>
+                        <div><span class="label">🎯 Class</span><span class="value">${teacher.class || 'N/A'}</span></div>
+                        ${teacher.centerDirector ? `<div><span class="label">👤 Director</span><span class="value">${teacher.centerDirector}</span></div>` : ''}
+                        ${teacher.centerAddress ? `<div><span class="label">📍 Address</span><span class="value">${teacher.centerAddress}</span></div>` : ''}
+                        ${teacher.centerContact ? `<div><span class="label">📞 Contact</span><span class="value">${teacher.centerContact}</span></div>` : ''}
+                        ${teacher.centerEmail ? `<div><span class="label">📧 Email</span><span class="value">${teacher.centerEmail}</span></div>` : ''}
+                    </div>
+
+                    <button class="teacher-popup-close" onclick="this.closest('.teacher-details-modal').remove()">✕ Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) this.remove();
             });
         }
 
-        // ============================================
-        // FETCH PDF NOTES
-        // ============================================
+        // ===== FETCH PDF NOTES =====
         async function fetchPDFNotes() {
             try {
                 const res = await fetch(`${API_BASE}/study-material`);
                 const result = await res.json();
                 if (result.success && result.data && result.data.notes && result.data.notes.length > 0) {
-                    renderPDFNotes(result.data.notes);
+                    pdfNotesData = result.data.notes;
+                    renderPDFNotes(pdfNotesData);
                 } else {
+                    pdfNotesData = [];
                     renderPDFNotes([]);
                 }
             } catch (err) {
                 console.error('❌ PDF Notes fetch failed:', err);
+                pdfNotesData = [];
                 renderPDFNotes([]);
             }
         }
 
+        // ===== RENDER PDF NOTES =====
         function renderPDFNotes(notes) {
             const container = document.getElementById('pdfNotesContainer');
             if (!container) return;
 
             if (!notes || notes.length === 0) {
                 container.innerHTML = `
-                    <div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.3);">
-                        <i class="fas fa-file-pdf" style="font-size:48px; display:block; margin-bottom:15px; color:rgba(255,255,255,0.1);"></i>
-                        No PDF notes available
+                    <div class="no-notes">
+                        <i class="fas fa-file-pdf"></i>
+                        <p>No PDF notes available</p>
                     </div>
                 `;
                 return;
@@ -2270,16 +3008,31 @@
             let html = '';
             for (let i = 0; i < notes.length; i++) {
                 const note = notes[i];
+                // Calculate file size (if base64, approximate)
+                let fileSize = 'Unknown';
+                if (note.pdf && note.pdf.startsWith('data:')) {
+                    const base64 = note.pdf.split(',')[1] || '';
+                    const size = Math.round((base64.length * 3) / 4 / 1024);
+                    if (size < 1024) {
+                        fileSize = size + ' KB';
+                    } else {
+                        fileSize = (size / 1024).toFixed(1) + ' MB';
+                    }
+                }
                 html += `
-                    <div class="note-card">
+                    <div class="note-card" data-title="${(note.title || '').toLowerCase()}">
                         <a href="${note.pdf}" download="${note.title || 'note'}.pdf" target="_blank">
                             <i class="fas fa-file-pdf"></i>
                             <h3>${note.title || 'Untitled'}</h3>
                             ${note.description ? `<p>${note.description}</p>` : ''}
-                            <span class="download-btn">📥 Download PDF</span>
-                            <div style="font-size:11px; color:rgba(255,255,255,0.2); margin-top:8px;">
-                                ${note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ''}
+                            <div class="note-meta">
+                                <span class="note-size">📄 ${fileSize}</span>
+                                <span class="download-btn">
+                                    <i class="fas fa-download"></i>
+                                    <span>Download</span>
+                                </span>
                             </div>
+                            <div class="note-date">${note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ''}</div>
                         </a>
                     </div>
                 `;
@@ -2287,9 +3040,22 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // FETCH BANNERS
-        // ============================================
+        // ===== FILTER PDF NOTES =====
+        function filterPDFNotes(query) {
+            const cards = document.querySelectorAll('.note-card');
+            const search = query.toLowerCase().trim();
+            
+            cards.forEach(card => {
+                const title = card.dataset.title || '';
+                if (search === '' || title.includes(search)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // ===== FETCH BANNERS =====
         let bannerData = [];
         let currentBannerIndex = 0;
         let bannerInterval = null;
@@ -2435,9 +3201,7 @@
             }
         }
 
-        // ============================================
-        // FETCH VIDEOS
-        // ============================================
+        // ===== FETCH VIDEOS =====
         let videosData = [];
 
         async function fetchVideos() {
@@ -2524,9 +3288,7 @@
             document.body.style.overflow = '';
         }
 
-        // ============================================
-        // FETCH GALLERY WITH ANIMATIONS
-        // ============================================
+        // ===== FETCH GALLERY =====
         let galleryPhotos = [];
         let currentGalleryIndex = 0;
         let galleryInterval = null;
@@ -2666,9 +3428,7 @@
             }
         }
 
-        // ============================================
-        // GALLERY GRID (View All)
-        // ============================================
+        // ===== GALLERY GRID =====
         function renderGalleryGrid() {
             const grid = document.getElementById('galleryGrid');
             if (!galleryPhotos || galleryPhotos.length === 0) {
@@ -2718,9 +3478,7 @@
             document.body.appendChild(modal);
         }
 
-        // ============================================
-        // TOAST
-        // ============================================
+        // ===== TOAST =====
         function showToast(message, isError = false) {
             const existing = document.querySelector('.custom-toast');
             if (existing) existing.remove();
@@ -2760,10 +3518,11 @@
         `;
         document.head.appendChild(styleEl);
 
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
+        // ===== EVENT LISTENERS =====
         document.addEventListener('DOMContentLoaded', function() {
+            // Show splash screen first
+            hideSplash();
+            
             initBgLines();
             checkAuth();
             initNotification();
