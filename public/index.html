@@ -67,6 +67,18 @@
             overflow-x: hidden;
         }
 
+        /* ===== SCROLL ANIMATIONS ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* ===== SPLASH SCREEN ===== */
         .splash-screen {
             position: fixed;
@@ -119,6 +131,11 @@
         @keyframes splashPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
+        }
+
+        @keyframes ringRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .splash-title {
@@ -349,6 +366,43 @@
             opacity: 1;
         }
 
+        /* ===== BACK TO TOP BUTTON ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 500;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-to-top:hover {
+            background: rgba(255, 215, 0, 0.25);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+        }
+
+        .back-to-top.show {
+            display: flex;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* ===== HEADER ===== */
         .header {
             background: rgba(11, 14, 26, 0.95);
@@ -363,6 +417,13 @@
             z-index: 100;
             flex-wrap: wrap;
             gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            padding: 10px 30px;
+            background: rgba(11, 14, 26, 0.98);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
         .header-left {
@@ -382,6 +443,12 @@
             background: #0b0e1a;
             border: 2px solid rgba(255, 215, 0, 0.15);
             flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .header-logo {
+            width: 40px;
+            height: 40px;
         }
 
         .header-logo img {
@@ -394,6 +461,11 @@
             font-size: 20px;
             font-weight: 900;
             color: #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .header-logo span {
+            font-size: 16px;
         }
 
         .header-center {
@@ -405,23 +477,64 @@
             font-size: clamp(1.2rem, 2.5vw, 2rem);
             font-weight: 800;
             letter-spacing: 1px;
+            transition: all 0.3s ease;
         }
+
+        .header.scrolled .header-title {
+            font-size: clamp(1rem, 2vw, 1.6rem);
+        }
+
         .header-title .b { color: #3b82f6; }
         .header-title .b2 { color: #ef4444; }
         .header-title .b3 { color: #facc15; }
         .header-title .b4 { color: #22c55e; }
 
         .header-subtitle {
-            font-size: clamp(0.6rem, 1vw, 0.8rem);
+            font-size: clamp(0.5rem, 0.8vw, 0.8rem);
             color: rgba(255, 255, 255, 0.4);
             letter-spacing: 0.2em;
             text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled .header-subtitle {
+            font-size: clamp(0.4rem, 0.6vw, 0.6rem);
         }
 
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
+        }
+
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger-menu span {
+            width: 25px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-menu.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
 
         .header-btn {
@@ -441,6 +554,20 @@
             background: rgba(255, 215, 0, 0.1);
             border-color: #ffd700;
             transform: translateY(-2px);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mobile-menu.active {
+            display: flex;
         }
 
         /* ===== BANNER SECTION ===== */
@@ -701,11 +828,6 @@
             background: conic-gradient(from 0deg, transparent, #ffd700, transparent, #ffd700, transparent);
             animation: ringRotate 3s linear infinite;
             z-index: -1;
-        }
-
-        @keyframes ringRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .partner-card .center-logo img {
@@ -1084,7 +1206,38 @@
             align-items: center;
             justify-content: space-between;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        .pdf-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-btn {
+            padding: 6px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: rgba(255, 215, 0, 0.1);
+            color: #fff;
+        }
+
+        .category-btn.active {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
         }
 
         .pdf-search-box {
@@ -1303,6 +1456,52 @@
             position: relative;
             z-index: 1;
             overflow: hidden;
+        }
+
+        .teachers-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .teachers-filter-bar select,
+        .teachers-filter-bar input {
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .teachers-filter-bar select option {
+            background: #1a1f35;
+            color: #fff;
+        }
+
+        .teachers-filter-bar select:focus,
+        .teachers-filter-bar input:focus {
+            border-color: rgba(255, 215, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .teachers-filter-bar input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .teachers-filter-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
         }
 
         .teachers-scroll-container {
@@ -1992,6 +2191,32 @@
             transform: scale(1.2);
         }
 
+        .gallery-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 20;
+            display: flex;
+            gap: 8px;
+        }
+
+        .gallery-autoplay-btn {
+            padding: 8px 12px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .gallery-autoplay-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.2);
+        }
+
         .gallery-view-all {
             display: block;
             text-align: center;
@@ -2184,6 +2409,13 @@
             gap: 1.2rem;
         }
 
+        .footer-datetime {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.05em;
+            font-family: 'Inter', monospace;
+        }
+
         .social-links {
             display: flex;
             flex-wrap: wrap;
@@ -2250,6 +2482,9 @@
             .header { padding: 12px 15px; flex-direction: column; align-items: center; }
             .header-center { width: 100%; }
             .header-right { width: 100%; justify-content: center; }
+            .hamburger-menu { display: flex; }
+            .header-right .header-btn { display: none; }
+            .mobile-menu .header-btn { display: inline-block; }
             .banner-section { height: 280px; }
             .banner-slide .banner-overlay { padding: 20px; }
             .banner-slide .banner-overlay h2 { font-size: 18px; }
@@ -2258,8 +2493,13 @@
             .partner-scroll-track { gap: 15px; }
             .pdf-notes-section { padding: 0 15px 30px; }
             .pdf-notes-grid { grid-template-columns: 1fr; }
+            .pdf-notes-header { flex-direction: column; align-items: stretch; }
             .pdf-search-box { max-width: 100%; }
+            .pdf-categories { justify-content: center; }
             .teachers-section { padding: 0 15px 30px; }
+            .teachers-filter-bar { flex-direction: column; }
+            .teachers-filter-bar select,
+            .teachers-filter-bar input { width: 100%; min-width: unset; }
             .teachers-scroll-track { gap: 15px; }
             .teacher-card { min-width: 200px; max-width: 200px; }
             .videos-section { padding: 0 15px 30px; }
@@ -2276,6 +2516,7 @@
             .splash-logo { width: 80px; height: 80px; font-size: 32px; }
             .center-details-content { padding: 20px; }
             .teacher-details-content { padding: 20px; }
+            .back-to-top { width: 40px; height: 40px; font-size: 16px; bottom: 15px; right: 15px; }
         }
 
         @media (max-width: 480px) {
@@ -2336,8 +2577,13 @@
         <span class="call-label">📞 Encrypted Call</span>
     </div>
 
+    <!-- ===== BACK TO TOP BUTTON ===== -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- ===== HEADER ===== -->
-    <header class="header">
+    <header class="header" id="header">
         <div class="header-left">
             <div class="header-logo" id="headerLogo">
                 <span>BBCC</span>
@@ -2350,7 +2596,15 @@
             <div class="header-subtitle" id="headerSubtitle">Empowering Skills, Building Futures</div>
         </div>
         <div class="header-right">
+            <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <a href="/management" class="header-btn" id="adminBtn" style="display:none;">🔑 Admin</a>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="/management" class="header-btn" id="mobileAdminBtn" style="display:none;">🔑 Admin</a>
         </div>
     </header>
 
@@ -2370,11 +2624,33 @@
     </section>
 
     <!-- ===== EXPERT TEACHERS - AUTO SCROLL LEFT TO RIGHT ===== -->
-    <div class="section-title">
+    <div class="section-title fade-up">
         <h2>👨‍🏫 Our Expert Teachers</h2>
         <p>Learn from the best educators</p>
     </div>
-    <section class="teachers-section">
+    <section class="teachers-section fade-up">
+        <div class="teachers-filter-bar">
+            <select id="subjectFilter" onchange="filterTeachers()">
+                <option value="">All Subjects</option>
+                <option value="math">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="english">English</option>
+                <option value="hindi">Hindi</option>
+                <option value="gk">GK</option>
+                <option value="computer">Computer</option>
+            </select>
+            <select id="classFilter" onchange="filterTeachers()">
+                <option value="">All Classes</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
+                <option value="11">Class 11</option>
+                <option value="12">Class 12</option>
+            </select>
+            <input type="text" id="teacherSearch" placeholder="🔍 Search teacher..." onkeyup="filterTeachers()">
+        </div>
         <div class="teachers-scroll-container">
             <div class="teachers-scroll-track" id="teachersTrack">
                 <!-- Will be filled by JavaScript -->
@@ -2383,12 +2659,19 @@
     </section>
 
     <!-- ===== PDF NOTES SECTION ===== -->
-    <div class="section-title">
+    <div class="section-title fade-up">
         <h2>📄 PDF Notes & Study Material</h2>
         <p>Download free study materials</p>
     </div>
-    <section class="pdf-notes-section">
+    <section class="pdf-notes-section fade-up">
         <div class="pdf-notes-header">
+            <div class="pdf-categories">
+                <button class="category-btn active" data-category="all" onclick="filterPDFByCategory('all', this)">📚 All</button>
+                <button class="category-btn" data-category="math" onclick="filterPDFByCategory('math', this)">📐 Math</button>
+                <button class="category-btn" data-category="science" onclick="filterPDFByCategory('science', this)">🔬 Science</button>
+                <button class="category-btn" data-category="english" onclick="filterPDFByCategory('english', this)">📖 English</button>
+                <button class="category-btn" data-category="gk" onclick="filterPDFByCategory('gk', this)">🧠 GK</button>
+            </div>
             <div class="pdf-search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" id="pdfSearchInput" placeholder="Search PDF notes..." onkeyup="filterPDFNotes(this.value)">
@@ -2400,22 +2683,22 @@
     </section>
 
     <!-- ===== VIDEOS SECTION ===== -->
-    <div class="section-title">
+    <div class="section-title fade-up">
         <h2>📹 Featured Videos</h2>
         <p>Watch our latest educational content</p>
     </div>
-    <section class="videos-section">
+    <section class="videos-section fade-up">
         <div class="videos-grid" id="videosGrid">
             <div class="no-videos">Loading videos...</div>
         </div>
     </section>
 
     <!-- ===== PARTNER COACHING CENTERS ===== -->
-    <div class="section-title">
+    <div class="section-title fade-up">
         <h2>🤝 Our Partner Coaching Centers</h2>
         <p>Excellence in Education, Together</p>
     </div>
-    <section class="partner-section" id="partnerSection">
+    <section class="partner-section fade-up" id="partnerSection">
         <div class="partner-scroll-container">
             <div class="partner-scroll-track" id="partnerTrack">
                 <!-- opc.js se fill hoga -->
@@ -2424,11 +2707,11 @@
     </section>
 
     <!-- ===== GALLERY SECTION ===== -->
-    <div class="section-title">
+    <div class="section-title fade-up">
         <h2>📸 Photo Gallery</h2>
         <p>Explore our moments</p>
     </div>
-    <section class="gallery-section">
+    <section class="gallery-section fade-up">
         <div class="gallery-slideshow" id="gallerySlideshow">
             <div class="no-gallery" id="galleryPlaceholder">
                 <i class="fas fa-images"></i>
@@ -2437,6 +2720,11 @@
             <button class="gallery-nav prev" id="galleryPrev">◀</button>
             <button class="gallery-nav next" id="galleryNext">▶</button>
             <div class="gallery-dots" id="galleryDots"></div>
+            <div class="gallery-controls">
+                <button class="gallery-autoplay-btn" id="galleryAutoplayBtn" onclick="toggleGalleryAutoplay()">
+                    <i class="fas fa-pause"></i> Auto
+                </button>
+            </div>
         </div>
         <button class="gallery-view-all" id="galleryViewAllBtn">📷 View All Photos</button>
         <div class="gallery-grid-container" id="galleryGridContainer">
@@ -2448,6 +2736,7 @@
     <!-- ===== FOOTER ===== -->
     <footer>
         <div class="footer-inner">
+            <div class="footer-datetime" id="liveDateTime">Loading...</div>
             <div class="social-links" id="socialLinks">
                 <a href="#" id="whatsappLink" target="_blank" title="WhatsApp" style="display:none;">
                     <i class="fab fa-whatsapp"></i>
@@ -2601,14 +2890,55 @@
             animate();
         }
 
+        // ===== HEADER SCROLL EFFECT =====
+        function initHeaderScroll() {
+            const header = document.getElementById('header');
+            const backToTop = document.getElementById('backToTop');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                    backToTop.classList.add('show');
+                } else {
+                    header.classList.remove('scrolled');
+                    backToTop.classList.remove('show');
+                }
+            });
+        }
+
+        // ===== MOBILE MENU =====
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const hamburger = document.getElementById('hamburgerMenu');
+            menu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // ===== SCROLL ANIMATIONS =====
+        function initScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-up');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            elements.forEach(el => observer.observe(el));
+        }
+
         // ===== CHECK AUTH FOR ADMIN BUTTON =====
         function checkAuth() {
             const token = localStorage.getItem('token');
             const adminBtn = document.getElementById('adminBtn');
+            const mobileAdminBtn = document.getElementById('mobileAdminBtn');
             if (token) {
                 adminBtn.style.display = 'inline-block';
+                mobileAdminBtn.style.display = 'inline-block';
             } else {
                 adminBtn.style.display = 'none';
+                mobileAdminBtn.style.display = 'none';
             }
         }
 
@@ -2764,11 +3094,27 @@
             document.getElementById('whatsappNumber').textContent = 'Not available';
         }
 
+        // ===== LIVE DATE/TIME =====
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('liveDateTime').textContent = '🕐 ' + now.toLocaleString('en-IN', options);
+        }
+
         // ============================================
-        // TEACHERS - AUTO SCROLL LEFT TO RIGHT WITH DRAG
+        // TEACHERS - WITH FILTER
         // ============================================
         let allTeachers = [];
         let pdfNotesData = [];
+        let filteredTeachers = [];
 
         async function fetchTeachers() {
             try {
@@ -2793,16 +3139,36 @@
                             }
                         }
                     }
-                    renderTeachersScroll(allTeachers);
+                    filteredTeachers = [...allTeachers];
+                    renderTeachersScroll(filteredTeachers);
                 } else {
                     allTeachers = [];
+                    filteredTeachers = [];
                     renderTeachersScroll([]);
                 }
             } catch (err) {
                 console.error('❌ Teachers fetch failed:', err);
                 allTeachers = [];
+                filteredTeachers = [];
                 renderTeachersScroll([]);
             }
+        }
+
+        function filterTeachers() {
+            const subject = document.getElementById('subjectFilter').value.toLowerCase();
+            const classFilter = document.getElementById('classFilter').value;
+            const search = document.getElementById('teacherSearch').value.toLowerCase();
+
+            filteredTeachers = allTeachers.filter(t => {
+                const matchSubject = !subject || (t.subject && t.subject.toLowerCase().includes(subject));
+                const matchClass = !classFilter || (t.class && t.class.includes(classFilter));
+                const matchSearch = !search || (t.name && t.name.toLowerCase().includes(search)) || 
+                                    (t.subject && t.subject.toLowerCase().includes(search)) ||
+                                    (t.centerName && t.centerName.toLowerCase().includes(search));
+                return matchSubject && matchClass && matchSearch;
+            });
+
+            renderTeachersScroll(filteredTeachers);
         }
 
         function renderTeachersScroll(teachers) {
@@ -2814,7 +3180,7 @@
                     <div class="teacher-card" style="min-width:100%;max-width:100%;">
                         <div style="padding:30px;text-align:center;color:rgba(255,255,255,0.3);">
                             <i class="fas fa-user-graduate" style="font-size:36px;display:block;margin-bottom:10px;"></i>
-                            No expert teachers available
+                            No teachers found matching your filters
                         </div>
                     </div>
                 `;
@@ -2845,7 +3211,6 @@
             track.innerHTML = html;
             track.style.animation = 'scrollTeachers 35s linear infinite';
             
-            // Setup drag for teachers
             setupTeacherDrag(track);
         }
 
@@ -3008,7 +3373,6 @@
             let html = '';
             for (let i = 0; i < notes.length; i++) {
                 const note = notes[i];
-                // Calculate file size (if base64, approximate)
                 let fileSize = 'Unknown';
                 if (note.pdf && note.pdf.startsWith('data:')) {
                     const base64 = note.pdf.split(',')[1] || '';
@@ -3019,8 +3383,9 @@
                         fileSize = (size / 1024).toFixed(1) + ' MB';
                     }
                 }
+                const category = note.category || 'general';
                 html += `
-                    <div class="note-card" data-title="${(note.title || '').toLowerCase()}">
+                    <div class="note-card" data-title="${(note.title || '').toLowerCase()}" data-category="${category}">
                         <a href="${note.pdf}" download="${note.title || 'note'}.pdf" target="_blank">
                             <i class="fas fa-file-pdf"></i>
                             <h3>${note.title || 'Untitled'}</h3>
@@ -3044,15 +3409,25 @@
         function filterPDFNotes(query) {
             const cards = document.querySelectorAll('.note-card');
             const search = query.toLowerCase().trim();
+            const activeCategory = document.querySelector('.category-btn.active');
+            const category = activeCategory ? activeCategory.dataset.category : 'all';
             
             cards.forEach(card => {
                 const title = card.dataset.title || '';
-                if (search === '' || title.includes(search)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                const cardCategory = card.dataset.category || 'general';
+                const matchSearch = search === '' || title.includes(search);
+                const matchCategory = category === 'all' || cardCategory === category;
+                card.style.display = (matchSearch && matchCategory) ? 'block' : 'none';
             });
+        }
+
+        // ===== FILTER PDF BY CATEGORY =====
+        function filterPDFByCategory(category, btn) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            
+            const searchInput = document.getElementById('pdfSearchInput');
+            filterPDFNotes(searchInput.value);
         }
 
         // ===== FETCH BANNERS =====
@@ -3292,6 +3667,7 @@
         let galleryPhotos = [];
         let currentGalleryIndex = 0;
         let galleryInterval = null;
+        let isGalleryAutoplay = true;
         const galleryAnimations = [
             'anim-fade', 'anim-zoom', 'anim-slide-left', 'anim-slide-right',
             'anim-rotate', 'anim-blur', 'anim-flip', 'anim-bounce',
@@ -3410,17 +3786,30 @@
 
         function startGallerySlideshow() {
             if (galleryInterval) clearInterval(galleryInterval);
-            if (galleryPhotos.length > 1) {
+            if (galleryPhotos.length > 1 && isGalleryAutoplay) {
                 galleryInterval = setInterval(() => {
                     changeGallery(1);
                 }, 4000);
             }
         }
 
+        function toggleGalleryAutoplay() {
+            isGalleryAutoplay = !isGalleryAutoplay;
+            const btn = document.getElementById('galleryAutoplayBtn');
+            if (isGalleryAutoplay) {
+                btn.innerHTML = '<i class="fas fa-pause"></i> Auto';
+                startGallerySlideshow();
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i> Auto';
+                clearInterval(galleryInterval);
+                galleryInterval = null;
+            }
+        }
+
         function resetGalleryInterval() {
             if (galleryInterval) {
                 clearInterval(galleryInterval);
-                if (galleryPhotos.length > 1) {
+                if (galleryPhotos.length > 1 && isGalleryAutoplay) {
                     galleryInterval = setInterval(() => {
                         changeGallery(1);
                     }, 4000);
@@ -3520,13 +3909,17 @@
 
         // ===== EVENT LISTENERS =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Show splash screen first
             hideSplash();
-            
             initBgLines();
+            initHeaderScroll();
+            initScrollAnimations();
             checkAuth();
             initNotification();
             document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Live date/time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
 
             fetchSettings();
             fetchBanners();
@@ -3569,6 +3962,11 @@
                         grid.classList.remove('active');
                         document.getElementById('galleryViewAllBtn').textContent = '📷 View All Photos';
                     }
+                    // Close teacher modal
+                    const teacherModal = document.querySelector('.teacher-details-modal');
+                    if (teacherModal) teacherModal.remove();
+                    const centerModal = document.querySelector('.center-details-modal');
+                    if (centerModal) centerModal.remove();
                 }
                 if (e.key === 'ArrowLeft') {
                     if (document.getElementById('videoModal').classList.contains('active')) return;
