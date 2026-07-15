@@ -119,6 +119,7 @@ const TuitionCenterSchema = new mongoose.Schema({
     contactNumber: { type: String, default: '' },
     email: { type: String, default: '' },
     whatsappNumber: { type: String, default: '' },
+    encryptedCallLink: { type: String, default: '' },
     youtubeLink: { type: String, default: '' },
     facebookLink: { type: String, default: '' },
     instagramLink: { type: String, default: '' },
