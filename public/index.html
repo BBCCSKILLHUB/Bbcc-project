@@ -311,11 +311,12 @@
         .header-title {
             font-size: clamp(1.2rem, 2.5vw, 2rem);
             font-weight: 800;
-            background: linear-gradient(135deg, #ffd700 0%, #f5a623 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: 1px;
         }
+        .header-title .b { color: #3b82f6; }  /* blue */
+        .header-title .b2 { color: #ef4444; } /* red */
+        .header-title .b3 { color: #facc15; } /* yellow */
+        .header-title .b4 { color: #22c55e; } /* green */
 
         .header-subtitle {
             font-size: clamp(0.6rem, 1vw, 0.8rem);
@@ -515,7 +516,7 @@
             margin-top: 5px;
         }
 
-        /* ===== PARTNER COACHING CENTERS - UPDATED CARD VIEW WITH AUTO-SCROLL ===== */
+        /* ===== PARTNER COACHING CENTERS - CARDS WITH MANUAL/SLIDE CONTROLS ===== */
         .partner-section {
             padding: 0 30px 40px;
             max-width: 1200px;
@@ -534,11 +535,16 @@
         .partner-scroll-track {
             display: flex;
             gap: 25px;
-            animation: scrollPartners 40s linear infinite;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             width: max-content;
+            will-change: transform;
         }
 
-        .partner-scroll-track:hover {
+        .partner-scroll-track.auto-scroll {
+            animation: scrollPartners 40s linear infinite;
+        }
+
+        .partner-scroll-track.auto-scroll:hover {
             animation-play-state: paused;
         }
 
@@ -621,7 +627,6 @@
             margin-top: 2px;
         }
 
-        /* ===== DIRECTOR SECTION INSIDE CARD ===== */
         .partner-card .director-section {
             padding: 18px 25px;
             background: rgba(255, 215, 0, 0.03);
@@ -670,7 +675,6 @@
             color: #fff;
         }
 
-        /* ===== ENCRYPTED CALL LINK - PRIORITY OVER NUMBER ===== */
         .partner-card .director-section .director-details .director-contact {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.35);
@@ -715,7 +719,6 @@
             50% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.5); }
         }
 
-        /* ===== TEACHERS LIST INSIDE CARD ===== */
         .partner-card .teachers-list {
             padding: 15px 25px 20px;
         }
@@ -802,7 +805,6 @@
             font-style: italic;
         }
 
-        /* ===== SOCIAL LINKS ON CARD ===== */
         .partner-card .card-social {
             padding: 12px 25px 20px;
             display: flex;
@@ -856,19 +858,80 @@
             color: rgba(255, 215, 0, 0.1);
         }
 
-        /* ===== REST OF THE STYLES (Keep existing) ===== */
+        /* partner controls */
+        .partner-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 18px;
+        }
+        .partner-controls button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        .partner-controls button:hover {
+            background: rgba(255,215,0,0.08);
+            color: #ffd700;
+            border-color: rgba(255,215,0,0.2);
+        }
+        .partner-controls .toggle-auto {
+            padding: 8px 22px;
+            border-radius: 30px;
+            width: auto;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            background: rgba(255,215,0,0.06);
+            border-color: rgba(255,215,0,0.1);
+            color: #ffd700;
+        }
+        .partner-controls .toggle-auto:hover {
+            background: rgba(255,215,0,0.12);
+        }
+
+        /* ===== TEACHERS SECTION - AUTO SCROLL LEFT TO RIGHT ===== */
         .teachers-section {
             padding: 0 30px 40px;
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
+            overflow: hidden;
         }
 
-        .teachers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        .teachers-scroll-container {
+            overflow: hidden;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .teachers-scroll-track {
+            display: flex;
             gap: 25px;
+            width: max-content;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .teachers-scroll-track.auto-scroll {
+            animation: scrollTeachers 35s linear infinite;
+        }
+
+        .teachers-scroll-track.auto-scroll:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollTeachers {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         .teacher-card {
@@ -879,6 +942,9 @@
             transition: all 0.4s ease;
             text-align: center;
             padding: 25px 20px;
+            min-width: 240px;
+            max-width: 240px;
+            flex-shrink: 0;
         }
 
         .teacher-card:hover {
@@ -1452,10 +1518,10 @@
             .partner-section { padding: 0 15px 30px; }
             .partner-card { min-width: 280px; max-width: 280px; }
             .partner-scroll-track { gap: 15px; }
+            .teachers-scroll-track { gap: 15px; }
+            .teacher-card { min-width: 200px; max-width: 200px; }
             .videos-section { padding: 0 15px 30px; }
             .videos-grid { grid-template-columns: 1fr; }
-            .teachers-section { padding: 0 15px 30px; }
-            .teachers-grid { grid-template-columns: 1fr; }
             .gallery-section { padding: 0 15px 30px; }
             .gallery-slideshow { height: 300px; }
             .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
@@ -1477,6 +1543,7 @@
             .notification-popup .notif-title { font-size: 14px; }
             .notification-popup .notif-text { font-size: 12px; }
             .partner-card { min-width: 260px; max-width: 260px; }
+            .teacher-card { min-width: 170px; max-width: 170px; }
         }
     </style>
 </head>
@@ -1517,7 +1584,9 @@
             </div>
         </div>
         <div class="header-center">
-            <div class="header-title" id="headerTitle">BBCC Skill Hub</div>
+            <div class="header-title" id="headerTitle">
+                <span class="b">B</span><span class="b2">B</span><span class="b3">C</span><span class="b4">C</span> Skill Hub
+            </div>
             <div class="header-subtitle" id="headerSubtitle">Empowering Skills, Building Futures</div>
         </div>
         <div class="header-right">
@@ -1540,27 +1609,39 @@
         <div class="banner-dots" id="bannerDots"></div>
     </section>
 
-    <!-- ===== PARTNER COACHING CENTERS - AUTO-SCROLL ===== -->
+    <!-- ===== PARTNER COACHING CENTERS - AUTO SCROLL WITH MANUAL CONTROLS ===== -->
     <div class="section-title">
         <h2>🤝 Our Partner Coaching Centers</h2>
         <p>Excellence in Education, Together</p>
     </div>
     <section class="partner-section" id="partnerSection">
         <div class="partner-scroll-container">
-            <div class="partner-scroll-track" id="partnerTrack">
+            <div class="partner-scroll-track auto-scroll" id="partnerTrack">
                 <!-- Will be filled by JavaScript -->
             </div>
         </div>
+        <div class="partner-controls">
+            <button id="partnerPrevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button id="partnerToggleBtn" class="toggle-auto">⏸️ Pause</button>
+            <button id="partnerNextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
     </section>
 
-    <!-- ===== EXPERT TEACHERS SECTION ===== -->
+    <!-- ===== EXPERT TEACHERS - AUTO SCROLL LEFT TO RIGHT ===== -->
     <div class="section-title">
         <h2>👨‍🏫 Our Expert Teachers</h2>
         <p>Learn from the best educators</p>
     </div>
     <section class="teachers-section">
-        <div class="teachers-grid" id="teachersGrid">
-            <div class="no-teachers">Loading teachers...</div>
+        <div class="teachers-scroll-container">
+            <div class="teachers-scroll-track auto-scroll" id="teachersTrack">
+                <!-- Will be filled by JavaScript -->
+            </div>
+        </div>
+        <div class="partner-controls" style="margin-top:12px;">
+            <button id="teachersPrevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button id="teachersToggleBtn" class="toggle-auto">⏸️ Pause</button>
+            <button id="teachersNextBtn"><i class="fas fa-chevron-right"></i></button>
         </div>
     </section>
 
@@ -1863,7 +1944,7 @@
             }
 
             if (data.title) {
-                document.getElementById('headerTitle').textContent = data.title;
+                // title is now static with colored letters, but we keep subtitle dynamic
                 document.getElementById('footerTitle').textContent = data.title;
                 document.title = data.title + ' - Best Coaching Centers & Education Platform';
             }
@@ -1912,16 +1993,18 @@
 
         function fallbackSettings() {
             document.querySelector('.header-logo').innerHTML = `<span>BBCC</span>`;
-            document.getElementById('headerTitle').textContent = 'BBCC Skill Hub';
             document.getElementById('headerSubtitle').textContent = 'Empowering Skills, Building Futures';
             document.getElementById('footerTitle').textContent = 'BBCC Skill Hub';
             document.getElementById('whatsappNumber').textContent = 'Not available';
         }
 
         // ============================================
-        // FETCH PARTNER CENTERS - AUTO-SCROLL WITH ENCRYPTED CALL PRIORITY
+        // PARTNER CENTERS - with manual controls & auto-scroll
         // ============================================
         let partnerCenters = [];
+        let partnerAuto = true;
+        let partnerPos = 0;
+        let partnerStep = 1;
 
         async function fetchPartnerCenters() {
             try {
@@ -1969,60 +2052,34 @@
                 const dirInitials = c.directorName ? c.directorName.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'D';
                 const teacherCount = c.teachers ? c.teachers.length : 0;
 
-                // ===== SOCIAL LINKS - ONLY SHOW IF URL EXISTS =====
                 let socialHtml = '';
                 const socialLinks = [];
 
-                // WhatsApp - only if number exists
                 if (c.whatsappNumber && c.whatsappNumber.trim() !== '') {
-                    socialLinks.push({ 
-                        icon: 'fa-whatsapp', 
-                        url: `https://wa.me/${c.whatsappNumber.replace(/\D/g, '')}`,
-                        title: 'WhatsApp'
-                    });
+                    socialLinks.push({ icon: 'fa-whatsapp', url: `https://wa.me/${c.whatsappNumber.replace(/\D/g, '')}`, title: 'WhatsApp' });
                 }
-
-                // YouTube - only if link exists
                 if (c.youtubeLink && c.youtubeLink.trim() !== '' && c.youtubeLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-youtube', url: c.youtubeLink, title: 'YouTube' });
                 }
-
-                // Facebook - only if link exists
                 if (c.facebookLink && c.facebookLink.trim() !== '' && c.facebookLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-facebook', url: c.facebookLink, title: 'Facebook' });
                 }
-
-                // Instagram - only if link exists
                 if (c.instagramLink && c.instagramLink.trim() !== '' && c.instagramLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-instagram', url: c.instagramLink, title: 'Instagram' });
                 }
-
-                // Telegram - only if link exists
                 if (c.telegramLink && c.telegramLink.trim() !== '' && c.telegramLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-telegram', url: c.telegramLink, title: 'Telegram' });
                 }
-
-                // Twitter - only if link exists
                 if (c.twitterLink && c.twitterLink.trim() !== '' && c.twitterLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-twitter', url: c.twitterLink, title: 'Twitter' });
                 }
-
-                // LinkedIn - only if link exists
                 if (c.linkedinLink && c.linkedinLink.trim() !== '' && c.linkedinLink.trim() !== '#') {
                     socialLinks.push({ icon: 'fa-linkedin', url: c.linkedinLink, title: 'LinkedIn' });
                 }
-
-                // ===== ENCRYPTED CALL LINK - ONLY SHOW IF EXISTS =====
                 if (c.encryptedCallLink && c.encryptedCallLink.trim() !== '' && c.encryptedCallLink.trim() !== '#') {
-                    socialLinks.push({ 
-                        icon: 'fa-lock', 
-                        url: c.encryptedCallLink, 
-                        title: 'Encrypted Call',
-                        isEncrypted: true 
-                    });
+                    socialLinks.push({ icon: 'fa-lock', url: c.encryptedCallLink, title: 'Encrypted Call', isEncrypted: true });
                 }
 
-                // Generate social HTML
                 for (const link of socialLinks) {
                     const isEncrypted = link.isEncrypted || false;
                     socialHtml += `
@@ -2033,7 +2090,6 @@
                     `;
                 }
 
-                // Build teachers tags
                 let teachersHtml = '';
                 if (c.teachers && c.teachers.length > 0) {
                     const displayTeachers = c.teachers.slice(0, 5);
@@ -2061,7 +2117,6 @@
                     teachersHtml = `<span class="no-teachers">No teachers listed</span>`;
                 }
 
-                // ===== DIRECTOR CONTACT - ENCRYPTED CALL PRIORITY =====
                 let directorContactHtml = '';
                 if (c.encryptedCallLink && c.encryptedCallLink.trim() !== '' && c.encryptedCallLink.trim() !== '#') {
                     directorContactHtml = `
@@ -2077,7 +2132,6 @@
 
                 html += `
                     <div class="partner-card">
-                        <!-- Header with Center Logo & Name -->
                         <div class="partner-card-header">
                             <div class="center-logo">
                                 ${c.clogo && c.clogo.length > 50 ? 
@@ -2092,7 +2146,6 @@
                             </div>
                         </div>
 
-                        <!-- Director Section with Photo -->
                         <div class="director-section">
                             <div class="director-avatar">
                                 ${c.directorPhoto && c.directorPhoto.length > 50 ? 
@@ -2107,7 +2160,6 @@
                             </div>
                         </div>
 
-                        <!-- Teachers List -->
                         <div class="teachers-list">
                             <div class="teachers-label">
                                 <i class="fas fa-chalkboard-teacher"></i>
@@ -2118,19 +2170,65 @@
                             </div>
                         </div>
 
-                        <!-- Social Links - Only show if there are social links -->
                         ${socialHtml ? `<div class="card-social">${socialHtml}</div>` : ''}
                     </div>
                 `;
             }
 
             track.innerHTML = html;
+            // reset position
+            partnerPos = 0;
+            updatePartnerTransform();
+        }
+
+        function updatePartnerTransform() {
+            const track = document.getElementById('partnerTrack');
+            if (!track) return;
+            const cardWidth = 320 + 25; // card + gap
+            const totalWidth = partnerCenters.length * cardWidth * 2;
+            const maxPos = totalWidth - track.parentElement.offsetWidth;
+            const pos = Math.min(Math.max(partnerPos, 0), maxPos);
+            track.style.transform = `translateX(-${pos}px)`;
+        }
+
+        function partnerPrev() {
+            const cardWidth = 320 + 25;
+            partnerPos = Math.max(0, partnerPos - cardWidth * 2);
+            updatePartnerTransform();
+        }
+
+        function partnerNext() {
+            const cardWidth = 320 + 25;
+            const track = document.getElementById('partnerTrack');
+            if (!track) return;
+            const totalWidth = partnerCenters.length * cardWidth * 2;
+            const maxPos = totalWidth - track.parentElement.offsetWidth;
+            partnerPos = Math.min(maxPos, partnerPos + cardWidth * 2);
+            updatePartnerTransform();
+        }
+
+        function togglePartnerAuto() {
+            const track = document.getElementById('partnerTrack');
+            const btn = document.getElementById('partnerToggleBtn');
+            if (!track || !btn) return;
+            partnerAuto = !partnerAuto;
+            if (partnerAuto) {
+                track.classList.add('auto-scroll');
+                btn.innerHTML = '⏸️ Pause';
+                btn.style.color = '#ffd700';
+            } else {
+                track.classList.remove('auto-scroll');
+                btn.innerHTML = '▶️ Play';
+                btn.style.color = 'rgba(255,255,255,0.6)';
+            }
         }
 
         // ============================================
-        // FETCH EXPERT TEACHERS
+        // TEACHERS - AUTO SCROLL LEFT TO RIGHT with manual controls
         // ============================================
         let allTeachers = [];
+        let teachersAuto = true;
+        let teachersPos = 0;
 
         async function fetchTeachers() {
             try {
@@ -2149,44 +2247,47 @@
                             }
                         }
                     }
-                    renderTeachers(allTeachers);
+                    renderTeachersScroll(allTeachers);
                 } else {
                     allTeachers = [];
-                    renderTeachers([]);
+                    renderTeachersScroll([]);
                 }
             } catch (err) {
                 console.error('❌ Teachers fetch failed:', err);
                 allTeachers = [];
-                renderTeachers([]);
+                renderTeachersScroll([]);
             }
         }
 
-        function renderTeachers(teachers) {
-            const grid = document.getElementById('teachersGrid');
-            if (!grid) return;
+        function renderTeachersScroll(teachers) {
+            const track = document.getElementById('teachersTrack');
+            if (!track) return;
 
             if (!teachers || teachers.length === 0) {
-                grid.innerHTML = `
-                    <div class="no-teachers">
-                        <i class="fas fa-user-graduate" style="font-size:36px;display:block;margin-bottom:10px;"></i>
-                        No expert teachers available
+                track.innerHTML = `
+                    <div class="teacher-card" style="min-width:100%;max-width:100%;">
+                        <div style="padding:30px;text-align:center;color:rgba(255,255,255,0.3);">
+                            <i class="fas fa-user-graduate" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+                            No expert teachers available
+                        </div>
                     </div>
                 `;
                 return;
             }
 
+            const items = [...teachers, ...teachers];
             let html = '';
-            for (let i = 0; i < teachers.length; i++) {
-                const t = teachers[i];
+            for (let i = 0; i < items.length; i++) {
+                const t = items[i];
                 html += `
                     <div class="teacher-card">
                         <div class="teacher-avatar">
                             ${t.photo && t.photo.length > 50 ? 
                                 `<img src="${t.photo}" alt="${t.name}">` : 
-                                `<span>${t.name.charAt(0).toUpperCase()}</span>`
+                                `<span>${t.name ? t.name.charAt(0).toUpperCase() : 'T'}</span>`
                             }
                         </div>
-                        <div class="teacher-name">${t.name}</div>
+                        <div class="teacher-name">${t.name || 'Teacher'}</div>
                         <div class="teacher-center">🏫 ${t.centerName || 'Unknown Center'}</div>
                         <div class="teacher-divider"></div>
                         <div class="teacher-subject">📚 ${t.subject || 'N/A'}</div>
@@ -2194,8 +2295,51 @@
                     </div>
                 `;
             }
+            track.innerHTML = html;
+            teachersPos = 0;
+            updateTeachersTransform();
+        }
 
-            grid.innerHTML = html;
+        function updateTeachersTransform() {
+            const track = document.getElementById('teachersTrack');
+            if (!track) return;
+            const cardWidth = 240 + 25;
+            const totalWidth = allTeachers.length * cardWidth * 2;
+            const maxPos = totalWidth - track.parentElement.offsetWidth;
+            const pos = Math.min(Math.max(teachersPos, 0), maxPos);
+            track.style.transform = `translateX(-${pos}px)`;
+        }
+
+        function teachersPrev() {
+            const cardWidth = 240 + 25;
+            teachersPos = Math.max(0, teachersPos - cardWidth * 2);
+            updateTeachersTransform();
+        }
+
+        function teachersNext() {
+            const cardWidth = 240 + 25;
+            const track = document.getElementById('teachersTrack');
+            if (!track) return;
+            const totalWidth = allTeachers.length * cardWidth * 2;
+            const maxPos = totalWidth - track.parentElement.offsetWidth;
+            teachersPos = Math.min(maxPos, teachersPos + cardWidth * 2);
+            updateTeachersTransform();
+        }
+
+        function toggleTeachersAuto() {
+            const track = document.getElementById('teachersTrack');
+            const btn = document.getElementById('teachersToggleBtn');
+            if (!track || !btn) return;
+            teachersAuto = !teachersAuto;
+            if (teachersAuto) {
+                track.classList.add('auto-scroll');
+                btn.innerHTML = '⏸️ Pause';
+                btn.style.color = '#ffd700';
+            } else {
+                track.classList.remove('auto-scroll');
+                btn.innerHTML = '▶️ Play';
+                btn.style.color = 'rgba(255,255,255,0.6)';
+            }
         }
 
         // ============================================
@@ -2551,8 +2695,7 @@
                 const slides = document.querySelectorAll('.gallery-slide');
                 slides.forEach(slide => {
                     slide.classList.remove(...galleryAnimations);
-                    const randomAnim = galleryAnimations[Math.floor(Math.random() * galleryAnimations
-                    .length)];
+                    const randomAnim = galleryAnimations[Math.floor(Math.random() * galleryAnimations.length)];
                     slide.classList.add(randomAnim);
                 });
             }, 100);
@@ -2631,78 +2774,6 @@
         }
 
         // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            initBgLines();
-            checkAuth();
-            initNotification();
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-            fetchSettings();
-            fetchBanners();
-            fetchPartnerCenters();
-            fetchTeachers();
-            fetchVideos();
-            fetchGallery();
-
-            document.getElementById('bannerPrev').addEventListener('click', function() {
-                changeBanner(-1);
-                resetBannerInterval();
-            });
-            document.getElementById('bannerNext').addEventListener('click', function() {
-                changeBanner(1);
-                resetBannerInterval();
-            });
-
-            document.getElementById('galleryPrev').addEventListener('click', function() {
-                changeGallery(-1);
-                resetGalleryInterval();
-            });
-            document.getElementById('galleryNext').addEventListener('click', function() {
-                changeGallery(1);
-                resetGalleryInterval();
-            });
-
-            document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
-            document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
-
-            document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
-            document.getElementById('videoModal').addEventListener('click', function(e) {
-                if (e.target === this) closeVideoModal();
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeVideoModal();
-                    const grid = document.getElementById('galleryGridContainer');
-                    if (grid.classList.contains('active')) {
-                        grid.classList.remove('active');
-                        document.getElementById('galleryViewAllBtn').textContent = '📷 View All Photos';
-                    }
-                }
-                if (e.key === 'ArrowLeft') {
-                    if (document.getElementById('videoModal').classList.contains('active')) return;
-                    changeBanner(-1);
-                    resetBannerInterval();
-                }
-                if (e.key === 'ArrowRight') {
-                    if (document.getElementById('videoModal').classList.contains('active')) return;
-                    changeBanner(1);
-                    resetBannerInterval();
-                }
-            });
-
-            setInterval(() => {
-                fetchBanners();
-                fetchPartnerCenters();
-                fetchTeachers();
-                fetchVideos();
-                fetchGallery();
-            }, 60000);
-        });
-
-        // ============================================
         // TOAST
         // ============================================
         function showToast(message, isError = false) {
@@ -2735,14 +2806,113 @@
             }, 4000);
         }
 
-        const style = document.createElement('style');
-        style.textContent = `
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
             @keyframes slideUp {
                 from { opacity: 0; transform: translateY(20px); }
                 to { opacity: 1; transform: translateY(0); }
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(styleEl);
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            initBgLines();
+            checkAuth();
+            initNotification();
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            fetchSettings();
+            fetchBanners();
+            fetchPartnerCenters();
+            fetchTeachers();
+            fetchVideos();
+            fetchGallery();
+
+            // Banner controls
+            document.getElementById('bannerPrev').addEventListener('click', function() {
+                changeBanner(-1);
+                resetBannerInterval();
+            });
+            document.getElementById('bannerNext').addEventListener('click', function() {
+                changeBanner(1);
+                resetBannerInterval();
+            });
+
+            // Gallery controls
+            document.getElementById('galleryPrev').addEventListener('click', function() {
+                changeGallery(-1);
+                resetGalleryInterval();
+            });
+            document.getElementById('galleryNext').addEventListener('click', function() {
+                changeGallery(1);
+                resetGalleryInterval();
+            });
+
+            document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
+            document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
+
+            // Video modal
+            document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
+            document.getElementById('videoModal').addEventListener('click', function(e) {
+                if (e.target === this) closeVideoModal();
+            });
+
+            // Partner controls
+            document.getElementById('partnerPrevBtn').addEventListener('click', function() {
+                if (partnerAuto) togglePartnerAuto();
+                partnerPrev();
+            });
+            document.getElementById('partnerNextBtn').addEventListener('click', function() {
+                if (partnerAuto) togglePartnerAuto();
+                partnerNext();
+            });
+            document.getElementById('partnerToggleBtn').addEventListener('click', togglePartnerAuto);
+
+            // Teachers controls
+            document.getElementById('teachersPrevBtn').addEventListener('click', function() {
+                if (teachersAuto) toggleTeachersAuto();
+                teachersPrev();
+            });
+            document.getElementById('teachersNextBtn').addEventListener('click', function() {
+                if (teachersAuto) toggleTeachersAuto();
+                teachersNext();
+            });
+            document.getElementById('teachersToggleBtn').addEventListener('click', toggleTeachersAuto);
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeVideoModal();
+                    const grid = document.getElementById('galleryGridContainer');
+                    if (grid.classList.contains('active')) {
+                        grid.classList.remove('active');
+                        document.getElementById('galleryViewAllBtn').textContent = '📷 View All Photos';
+                    }
+                }
+                if (e.key === 'ArrowLeft') {
+                    if (document.getElementById('videoModal').classList.contains('active')) return;
+                    changeBanner(-1);
+                    resetBannerInterval();
+                }
+                if (e.key === 'ArrowRight') {
+                    if (document.getElementById('videoModal').classList.contains('active')) return;
+                    changeBanner(1);
+                    resetBannerInterval();
+                }
+            });
+
+            // Auto-refresh every 60s
+            setInterval(() => {
+                fetchBanners();
+                fetchPartnerCenters();
+                fetchTeachers();
+                fetchVideos();
+                fetchGallery();
+            }, 60000);
+        });
     </script>
 
 </body>
