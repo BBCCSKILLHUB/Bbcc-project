@@ -39,7 +39,7 @@ const AdminSchema = new mongoose.Schema({
 // Settings Schema - For all site settings
 const SettingsSchema = new mongoose.Schema({
     // Header Settings
-    logo: { type: String, default: '' },           // Base64 - MAIN WEBSITE LOGO
+    logo: { type: String, default: '' },
     title: { type: String, default: 'BBCC Skill Hub' },
     subTitle: { type: String, default: 'Empowering Skills, Building Futures' },
     
@@ -106,11 +106,11 @@ const SidebarBannerSchema = new mongoose.Schema({
 });
 
 // ============================================
-// TUITION CENTER SCHEMA - FIXED (logo → clogo)
+// TUITION CENTER SCHEMA - FIXED (WITH ENCRYPTED CALL LINK)
 // ============================================
 const TuitionCenterSchema = new mongoose.Schema({
     centerName: { type: String, required: true },
-    clogo: { type: String, default: '' },           // ✅ CENTER LOGO - ALAG FIELD
+    clogo: { type: String, default: '' },
     directorName: { type: String, required: true },
     directorPhoto: { type: String, default: '' },
     fromClass: { type: String, required: true },
@@ -119,7 +119,7 @@ const TuitionCenterSchema = new mongoose.Schema({
     contactNumber: { type: String, default: '' },
     email: { type: String, default: '' },
     whatsappNumber: { type: String, default: '' },
-    encryptedCallLink: { type: String, default: '' },
+    encryptedCallLink: { type: String, default: '' },  // ✅ NEW FIELD
     youtubeLink: { type: String, default: '' },
     facebookLink: { type: String, default: '' },
     instagramLink: { type: String, default: '' },
@@ -213,6 +213,7 @@ mongoose.connect(MONGO_URI)
                 directorName: '',
                 fromClass: '',
                 toClass: '',
+                encryptedCallLink: '',  // ✅ ADDED
                 teachers: []
             });
             console.log('✅ Default tuition center created');
@@ -985,7 +986,6 @@ app.delete('/api/study-material/video/:id', verifyToken, async (req, res) => {
             return res.status(404).json({ success: false, message: "Study material not found" });
         }
         
-        // Find and remove video by _id or index
         const videoIndex = studyMaterial.videos.findIndex(v => v._id.toString() === videoId);
         if (videoIndex === -1) {
             return res.status(404).json({ success: false, message: "Video not found" });
@@ -1005,7 +1005,7 @@ app.delete('/api/study-material/video/:id', verifyToken, async (req, res) => {
     }
 });
 
-// ===== ADD PDF NOTE - FAST UPLOAD =====
+// ===== ADD PDF NOTE =====
 app.post('/api/study-material/note', verifyToken, async (req, res) => {
     try {
         const { pdf, title, description } = req.body;
@@ -1022,7 +1022,6 @@ app.post('/api/study-material/note', verifyToken, async (req, res) => {
             studyMaterial = new StudyMaterial({ videos: [], notes: [] });
         }
         
-        // Direct push without any processing - fast upload
         studyMaterial.notes.push({
             pdf: pdf,
             title: title,
@@ -1052,7 +1051,6 @@ app.delete('/api/study-material/note/:id', verifyToken, async (req, res) => {
             return res.status(404).json({ success: false, message: "Study material not found" });
         }
         
-        // Find and remove note by _id or index
         const noteIndex = studyMaterial.notes.findIndex(n => n._id.toString() === noteId);
         if (noteIndex === -1) {
             return res.status(404).json({ success: false, message: "PDF note not found" });
@@ -1159,7 +1157,7 @@ app.get('/api/gallery', async (req, res) => {
 // ===== ADD MULTIPLE PHOTOS =====
 app.post('/api/gallery/photos', verifyToken, async (req, res) => {
     try {
-        const { photos } = req.body; // Array of { image, title, description }
+        const { photos } = req.body;
         
         if (!photos || !Array.isArray(photos) || photos.length === 0) {
             return res.status(400).json({ 
@@ -1173,7 +1171,6 @@ app.post('/api/gallery/photos', verifyToken, async (req, res) => {
             gallery = new Gallery({ photos: [] });
         }
         
-        // Add photos with order
         const currentOrder = gallery.photos.length;
         for (let i = 0; i < photos.length; i++) {
             gallery.photos.push({
@@ -1278,7 +1275,7 @@ app.get('/api/sidebar-banner', async (req, res) => {
 // ===== ADD MULTIPLE BANNERS =====
 app.post('/api/sidebar-banner/banners', verifyToken, async (req, res) => {
     try {
-        const { banners } = req.body; // Array of { image, title, link }
+        const { banners } = req.body;
         
         if (!banners || !Array.isArray(banners) || banners.length === 0) {
             return res.status(400).json({ 
@@ -1379,7 +1376,7 @@ app.put('/api/sidebar-banner/banner/:id', verifyToken, async (req, res) => {
 });
 
 // ============================================
-// TUITION CENTER APIS - FIXED (clogo - NO SETTINGS AFFECT)
+// TUITION CENTER APIS - FIXED (WITH ENCRYPTED CALL LINK)
 // ============================================
 
 // ===== GET ALL TUITION CENTERS =====
@@ -1405,7 +1402,7 @@ app.get('/api/tuition-centers/:id', async (req, res) => {
     }
 });
 
-// ===== ADD TUITION CENTER =====
+// ===== ADD TUITION CENTER - FIXED =====
 app.post('/api/tuition-centers', verifyToken, async (req, res) => {
     try {
         const data = req.body;
@@ -1420,7 +1417,7 @@ app.post('/api/tuition-centers', verifyToken, async (req, res) => {
         
         const center = new TuitionCenter({
             centerName: data.centerName,
-            clogo: data.clogo || '',                    // ✅ CENTER LOGO
+            clogo: data.clogo || '',
             directorName: data.directorName,
             directorPhoto: data.directorPhoto || '',
             fromClass: data.fromClass,
@@ -1429,6 +1426,7 @@ app.post('/api/tuition-centers', verifyToken, async (req, res) => {
             contactNumber: data.contactNumber || '',
             email: data.email || '',
             whatsappNumber: data.whatsappNumber || '',
+            encryptedCallLink: data.encryptedCallLink || '',  // ✅ ADDED
             youtubeLink: data.youtubeLink || '',
             facebookLink: data.facebookLink || '',
             instagramLink: data.instagramLink || '',
@@ -1447,7 +1445,6 @@ app.post('/api/tuition-centers', verifyToken, async (req, res) => {
 });
 
 // ===== UPDATE TUITION CENTER - FIXED =====
-// ✅ Yeh SIRF TuitionCenter collection ko update karega, Settings ko nahi
 app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.params.id);
@@ -1457,9 +1454,10 @@ app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
         
         const updates = req.body;
         const allowedFields = [
-            'centerName', 'clogo', 'directorName', 'directorPhoto',      // ✅ clogo
+            'centerName', 'clogo', 'directorName', 'directorPhoto',
             'fromClass', 'toClass', 'address', 'contactNumber', 'email',
-            'whatsappNumber', 'youtubeLink', 'facebookLink', 'instagramLink',
+            'whatsappNumber', 'encryptedCallLink',  // ✅ ADDED
+            'youtubeLink', 'facebookLink', 'instagramLink',
             'telegramLink', 'twitterLink', 'linkedinLink', 'description'
         ];
         
@@ -1472,7 +1470,6 @@ app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
         center.updatedAt = new Date();
         await center.save();
         
-        // ✅ SIRF CENTER RETURN KARO - SETTINGS KO AFFECT MAT KARO
         res.json({ success: true, message: "Center updated successfully", data: center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
