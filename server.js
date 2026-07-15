@@ -1,5 +1,5 @@
 // ============================================
-// BBCC SKILL HUB SERVER - COMPLETE (FIXED)
+// BBCC SKILL HUB SERVER - COMPLETE (WITH TRACKING)
 // ============================================
 
 require('dotenv').config();
@@ -119,7 +119,7 @@ const TuitionCenterSchema = new mongoose.Schema({
     contactNumber: { type: String, default: '' },
     email: { type: String, default: '' },
     whatsappNumber: { type: String, default: '' },
-    encryptedCallLink: { type: String, default: '' },  // ✅ NEW FIELD
+    encryptedCallLink: { type: String, default: '' },
     youtubeLink: { type: String, default: '' },
     facebookLink: { type: String, default: '' },
     instagramLink: { type: String, default: '' },
@@ -138,6 +138,36 @@ const TuitionCenterSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// ============================================
+// ===== TRACKING SCHEMA - START =====
+// ===== [DELETE THIS SECTION TO REMOVE TRACKING] =====
+// ============================================
+const TrackingSchema = new mongoose.Schema({
+    trackId: { type: String, required: true, unique: true },
+    imageUrl: { type: String, required: true },
+    visits: [{
+        ip: { type: String, default: 'Unknown' },
+        location: { type: String, default: 'Unknown' },
+        city: { type: String, default: 'Unknown' },
+        region: { type: String, default: 'Unknown' },
+        country: { type: String, default: 'Unknown' },
+        device: { type: String, default: 'Unknown' },
+        browser: { type: String, default: 'Unknown' },
+        os: { type: String, default: 'Unknown' },
+        screen: { type: String, default: 'Unknown' },
+        referrer: { type: String, default: 'Unknown' },
+        userAgent: { type: String, default: 'Unknown' },
+        visitedAt: { type: Date, default: Date.now }
+    }],
+    totalClicks: { type: Number, default: 0 },
+    uniqueVisitors: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+// ============================================
+// ===== TRACKING SCHEMA - END =====
+// ============================================
+
 // Create Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
@@ -145,6 +175,7 @@ const StudyMaterial = mongoose.model('StudyMaterial', StudyMaterialSchema);
 const Gallery = mongoose.model('Gallery', GallerySchema);
 const SidebarBanner = mongoose.model('SidebarBanner', SidebarBannerSchema);
 const TuitionCenter = mongoose.model('TuitionCenter', TuitionCenterSchema);
+const Tracking = mongoose.model('Tracking', TrackingSchema); // TRACKING MODEL
 
 // ============================================
 // DATABASE CONNECTION
@@ -213,7 +244,7 @@ mongoose.connect(MONGO_URI)
                 directorName: '',
                 fromClass: '',
                 toClass: '',
-                encryptedCallLink: '',  // ✅ ADDED
+                encryptedCallLink: '',
                 teachers: []
             });
             console.log('✅ Default tuition center created');
@@ -1426,7 +1457,7 @@ app.post('/api/tuition-centers', verifyToken, async (req, res) => {
             contactNumber: data.contactNumber || '',
             email: data.email || '',
             whatsappNumber: data.whatsappNumber || '',
-            encryptedCallLink: data.encryptedCallLink || '',  // ✅ ADDED
+            encryptedCallLink: data.encryptedCallLink || '',
             youtubeLink: data.youtubeLink || '',
             facebookLink: data.facebookLink || '',
             instagramLink: data.instagramLink || '',
@@ -1456,7 +1487,7 @@ app.put('/api/tuition-centers/:id', verifyToken, async (req, res) => {
         const allowedFields = [
             'centerName', 'clogo', 'directorName', 'directorPhoto',
             'fromClass', 'toClass', 'address', 'contactNumber', 'email',
-            'whatsappNumber', 'encryptedCallLink',  // ✅ ADDED
+            'whatsappNumber', 'encryptedCallLink',
             'youtubeLink', 'facebookLink', 'instagramLink',
             'telegramLink', 'twitterLink', 'linkedinLink', 'description'
         ];
@@ -1577,6 +1608,328 @@ app.delete('/api/tuition-centers/:id/teacher/:tid', verifyToken, async (req, res
 });
 
 // ============================================
+// ===== TRACKING APIs - START =====
+// ===== [DELETE THIS SECTION TO REMOVE TRACKING] =====
+// ============================================
+
+// ===== GENERATE TRACKING LINK =====
+app.post('/api/tracking/generate', async (req, res) => {
+    try {
+        const { imageUrl } = req.body;
+        
+        if (!imageUrl) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Image URL is required" 
+            });
+        }
+
+        // Check if already exists
+        let tracking = await Tracking.findOne({ imageUrl: imageUrl });
+        if (tracking) {
+            return res.json({
+                success: true,
+                message: "Tracking link already exists",
+                data: {
+                    trackId: tracking.trackId,
+                    imageUrl: tracking.imageUrl,
+                    link: `${req.protocol}://${req.get('host')}/track/${tracking.trackId}`,
+                    totalClicks: tracking.totalClicks,
+                    visits: tracking.visits
+                }
+            });
+        }
+
+        // Generate unique track ID
+        const trackId = 'trk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+        
+        // Create new tracking record
+        tracking = new Tracking({
+            trackId: trackId,
+            imageUrl: imageUrl,
+            visits: [],
+            totalClicks: 0,
+            uniqueVisitors: 0
+        });
+
+        await tracking.save();
+
+        res.json({
+            success: true,
+            message: "Tracking link generated successfully",
+            data: {
+                trackId: tracking.trackId,
+                imageUrl: tracking.imageUrl,
+                link: `${req.protocol}://${req.get('host')}/track/${tracking.trackId}`,
+                totalClicks: 0,
+                visits: []
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== TRACK VISITOR - GET IMAGE + SAVE DATA =====
+app.get('/track/:trackId', async (req, res) => {
+    try {
+        const { trackId } = req.params;
+        
+        // Find tracking record
+        const tracking = await Tracking.findOne({ trackId });
+        if (!tracking) {
+            return res.status(404).send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Link Not Found</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            background: #0b0e1a;
+                            color: #fff;
+                            font-family: 'Inter', sans-serif;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                            flex-direction: column;
+                            text-align: center;
+                            padding: 20px;
+                        }
+                        h1 { color: #ffd700; font-size: 32px; }
+                        p { color: rgba(255,255,255,0.5); }
+                    </style>
+                </head>
+                <body>
+                    <h1>🔗 Link Not Found</h1>
+                    <p>This tracking link does not exist or has been removed.</p>
+                </body>
+                </html>
+            `);
+        }
+
+        // Get visitor info from request
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown';
+        const userAgent = req.headers['user-agent'] || 'Unknown';
+        const referrer = req.headers['referer'] || 'Unknown';
+
+        // Parse user agent
+        const deviceInfo = getUserAgentInfo(userAgent);
+
+        // Get location from IP using free API
+        let location = 'Unknown';
+        let city = 'Unknown';
+        let region = 'Unknown';
+        let country = 'Unknown';
+
+        try {
+            const ipRes = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,city,region,country`);
+            const ipData = await ipRes.json();
+            if (ipData.status === 'success') {
+                city = ipData.city || 'Unknown';
+                region = ipData.region || 'Unknown';
+                country = ipData.country || 'Unknown';
+                location = [city, region, country].filter(Boolean).join(', ');
+            }
+        } catch (e) {
+            console.log('IP lookup failed:', e.message);
+        }
+
+        // Create visit record
+        const visit = {
+            ip: ip,
+            location: location,
+            city: city,
+            region: region,
+            country: country,
+            device: deviceInfo.device,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
+            screen: req.query.screen || 'Unknown',
+            referrer: referrer,
+            userAgent: userAgent,
+            visitedAt: new Date()
+        };
+
+        // Check if visitor already exists (by IP)
+        const existingVisitIndex = tracking.visits.findIndex(v => v.ip === ip);
+        if (existingVisitIndex !== -1) {
+            tracking.visits[existingVisitIndex] = visit;
+        } else {
+            tracking.visits.push(visit);
+            tracking.uniqueVisitors = tracking.visits.length;
+        }
+
+        tracking.totalClicks = tracking.visits.length;
+        tracking.updatedAt = new Date();
+        await tracking.save();
+
+        // Return HTML with image
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Tracking Image</title>
+                <style>
+                    body {
+                        margin: 0;
+                        background: #0b0e1a;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 100vh;
+                        font-family: 'Inter', sans-serif;
+                        padding: 20px;
+                    }
+                    .image-container {
+                        max-width: 90vw;
+                        max-height: 90vh;
+                        position: relative;
+                        animation: fadeIn 0.8s ease;
+                    }
+                    .image-container img {
+                        max-width: 100%;
+                        max-height: 85vh;
+                        border-radius: 16px;
+                        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+                        background: #1a1f35;
+                    }
+                    .watermark {
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        color: rgba(255,255,255,0.08);
+                        font-size: 12px;
+                        letter-spacing: 0.1em;
+                        font-family: 'Inter', sans-serif;
+                    }
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: scale(0.95); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="image-container">
+                    <img src="${tracking.imageUrl}" alt="Tracking Image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22500%22 height=%22300%22%3E%3Crect width=%22500%22 height=%22300%22 fill=%22%231a1f35%22/%3E%3Ctext x=%22250%22 y=%22150%22 text-anchor=%22middle%22 fill=%22%23ffd700%22 font-size=%2224%22 font-family=%22sans-serif%22%3E🔗 Image Not Found%3C/text%3E%3C/svg%3E'" />
+                </div>
+                <div class="watermark">🔒 Tracked · BBCC Skill Hub</div>
+            </body>
+            </html>
+        `);
+    } catch (err) {
+        console.error('Tracking error:', err);
+        res.status(500).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Server Error</title>
+                <style>
+                    body {
+                        margin: 0;
+                        background: #0b0e1a;
+                        color: #fff;
+                        font-family: 'Inter', sans-serif;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
+                        flex-direction: column;
+                        text-align: center;
+                        padding: 20px;
+                    }
+                    h1 { color: #ef4444; font-size: 32px; }
+                    p { color: rgba(255,255,255,0.5); }
+                </style>
+            </head>
+            <body>
+                <h1>⚠️ Server Error</h1>
+                <p>Something went wrong. Please try again later.</p>
+            </body>
+            </html>
+        `);
+    }
+});
+
+// ===== GET ALL TRACKING DATA =====
+app.get('/api/tracking/data', async (req, res) => {
+    try {
+        const data = await Tracking.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== CLEAR ALL TRACKING DATA =====
+app.delete('/api/tracking/clear', async (req, res) => {
+    try {
+        await Tracking.deleteMany({});
+        res.json({ success: true, message: "All tracking data cleared" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ===== GET SINGLE TRACKING LINK DATA =====
+app.get('/api/tracking/:trackId', async (req, res) => {
+    try {
+        const tracking = await Tracking.findOne({ trackId: req.params.trackId });
+        if (!tracking) {
+            return res.status(404).json({ success: false, message: "Tracking link not found" });
+        }
+        res.json({ success: true, data: tracking });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// HELPER FUNCTION - Parse User Agent
+// ============================================
+function getUserAgentInfo(userAgent) {
+    const ua = userAgent || '';
+    let device = 'Desktop';
+    let browser = 'Unknown';
+    let os = 'Unknown';
+
+    // Device detection
+    if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) {
+        if (/iPad|Tablet/i.test(ua)) {
+            device = 'Tablet';
+        } else {
+            device = 'Mobile';
+        }
+    }
+
+    // Browser detection
+    if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+    else if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+    else if (ua.includes('Edg')) browser = 'Edge';
+    else if (ua.includes('Opera')) browser = 'Opera';
+
+    // OS detection
+    if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Mac OS')) os = 'macOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+    return { device, browser, os };
+}
+// ============================================
+// ===== TRACKING APIs - END =====
+// ============================================
+
+// ============================================
 // SERVE HTML PAGES
 // ============================================
 app.get('/', (req, res) => {
@@ -1591,6 +1944,10 @@ app.get('/management', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'management.html'));
 });
 
+app.get('/tracking', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'tracking.html'));
+});
+
 // ============================================
 // START SERVER
 // ============================================
@@ -1599,5 +1956,6 @@ app.listen(PORT, () => {
     console.log(`\n✅ BBCC Skill Hub Server Running!`);
     console.log(`🔗 http://localhost:${PORT}`);
     console.log(`🔑 Login: admin / admin123`);
-    console.log(`📊 MongoDB: ${MONGO_URI}\n`);
+    console.log(`📊 MongoDB: ${MONGO_URI}`);
+    console.log(`📌 Tracking Page: http://localhost:${PORT}/tracking\n`);
 });
