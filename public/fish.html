@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🔗 Smart Link Generator - Dashboard</title>
+    <title>📷 Photo Tracker - Dashboard</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
@@ -38,25 +38,15 @@
             margin-top: 5px;
             font-size: 14px;
         }
-        .header .demo-link {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 16px;
-            background: rgba(255,215,0,0.05);
-            border: 1px solid rgba(255,215,0,0.1);
-            border-radius: 20px;
-            color: rgba(255,215,0,0.5);
-            font-size: 12px;
-        }
 
-        .generator-box {
+        .upload-box {
             background: rgba(255,255,255,0.03);
             border-radius: 20px;
             padding: 30px;
             border: 1px solid rgba(255,255,255,0.05);
             margin-bottom: 30px;
         }
-        .generator-box label {
+        .upload-box label {
             display: block;
             font-size: 14px;
             font-weight: 600;
@@ -64,7 +54,6 @@
             margin-bottom: 8px;
         }
 
-        /* ===== UPLOAD AREA ===== */
         .upload-area {
             border: 2px dashed rgba(255,215,0,0.15);
             border-radius: 16px;
@@ -102,7 +91,7 @@
             display: none;
         }
 
-        .btn-generate {
+        .btn-upload {
             padding: 14px 35px;
             background: linear-gradient(135deg, #ffd700, #f5a623);
             border: none;
@@ -115,11 +104,11 @@
             font-family: 'Inter', sans-serif;
             margin-top: 15px;
         }
-        .btn-generate:hover {
+        .btn-upload:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(255,215,0,0.2);
         }
-        .btn-generate:disabled {
+        .btn-upload:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -142,56 +131,46 @@
             object-fit: contain;
         }
 
-        .generated-link-box {
-            background: rgba(255,215,0,0.05);
-            border-radius: 12px;
-            padding: 15px 20px;
-            border: 1px solid rgba(255,215,0,0.1);
-            margin-top: 15px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            animation: fadeIn 0.5s ease;
+        /* ===== VISITOR CARD ===== */
+        .visitor-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .visitor-card .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 10px;
         }
-        .generated-link-box.show { display: flex; }
-        .generated-link-box .link-label {
-            font-size: 11px;
+        .visitor-card .visitor-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .visitor-card .visitor-item {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .visitor-card .visitor-item .label {
+            font-size: 10px;
             color: rgba(255,255,255,0.2);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            width: 100%;
         }
-        .generated-link-box .link-text {
-            color: #ffd700;
+        .visitor-card .visitor-item .value {
             font-size: 14px;
-            word-break: break-all;
-            flex: 1;
-        }
-        .generated-link-box .btn-copy {
-            padding: 8px 20px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
+            font-weight: 600;
             color: #fff;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            transition: all 0.3s ease;
+            margin-top: 3px;
         }
-        .generated-link-box .btn-copy:hover {
-            background: rgba(255,215,0,0.1);
-            border-color: rgba(255,215,0,0.2);
-        }
-        .generated-link-box .btn-copy.copied {
-            background: rgba(34,197,94,0.15);
-            border-color: rgba(34,197,94,0.2);
-            color: #22c55e;
+        .visitor-card .visitor-item .value i {
+            color: #ffd700;
+            margin-right: 5px;
         }
 
         .stats-row {
@@ -360,35 +339,34 @@
 
         @media (max-width: 768px) {
             .header h1 { font-size: 24px; }
-            .generator-box { padding: 20px; }
-            .generated-link-box { flex-direction: column; align-items: stretch; }
+            .upload-box { padding: 20px; }
+            .upload-area { padding: 30px 15px; }
+            .upload-area i { font-size: 40px; }
             .stats-row { grid-template-columns: 1fr 1fr; }
             th, td { padding: 10px 12px; font-size: 12px; }
             .table-header { flex-direction: column; align-items: stretch; }
             .table-header .btn-refresh,
             .table-header .btn-clear { width: 100%; text-align: center; }
-            .upload-area { padding: 30px 15px; }
-            .upload-area i { font-size: 40px; }
+            .visitor-card .visitor-info { grid-template-columns: 1fr 1fr; }
         }
-        @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { 
+            .stats-row { grid-template-columns: 1fr; }
+            .visitor-card .visitor-info { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h1>🔗 Smart Link Generator</h1>
-            <p>Upload photo → Generate tracking link → Share → Auto Track</p>
-            <div class="demo-link">
-                <i class="fas fa-info-circle"></i> 
-                Upload Photo → Tracking Link → Share → Auto Track
-            </div>
+            <h1>📷 Photo Tracker Dashboard</h1>
+            <p>Upload photo → Visitors view on image page → Auto track location & device</p>
         </div>
 
-        <div class="generator-box">
+        <!-- ===== UPLOAD SECTION ===== -->
+        <div class="upload-box">
             <label>📷 Upload Photo</label>
             
-            <!-- ===== UPLOAD AREA ===== -->
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Click or drag & drop photo here</p>
@@ -397,24 +375,25 @@
                 <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)" />
             </div>
 
-            <!-- ===== PHOTO PREVIEW ===== -->
-            <div class="photo-preview" id="photoPreview">
-                <img id="previewImage" src="" alt="Preview" />
-            </div>
-
-            <!-- ===== GENERATE BUTTON ===== -->
-            <button class="btn-generate" id="generateBtn" onclick="generateLink()">
-                <i class="fas fa-link"></i> Generate Tracking Link
+            <button class="btn-upload" id="uploadBtn" onclick="uploadPhoto()">
+                <i class="fas fa-cloud-upload-alt"></i> Upload Photo
             </button>
 
-            <!-- ===== GENERATED LINK ===== -->
-            <div class="generated-link-box" id="generatedLinkBox">
-                <div class="link-label">🔗 Your Tracking Link (Share this)</div>
-                <span class="link-text" id="generatedLink"></span>
-                <button class="btn-copy" id="copyBtn" onclick="copyLink()">
-                    <i class="fas fa-copy"></i> Copy
-                </button>
-                <div class="link-preview" id="linkPreview">📷 Photo will open on image page</div>
+            <div class="photo-preview" id="photoPreview">
+                <img id="previewImage" src="" alt="Preview" />
+                <p style="text-align:center;color:rgba(255,255,255,0.3);font-size:12px;margin-top:5px;">
+                    ✅ Photo saved in database. View at: <span id="viewLink" style="color:#ffd700;"></span>
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== LATEST VISITOR ===== -->
+        <div id="latestVisitorContainer" style="display:none;">
+            <div class="visitor-card">
+                <div class="card-title">🟢 Latest Visitor</div>
+                <div class="visitor-info" id="latestVisitorInfo">
+                    <!-- Will be filled by JavaScript -->
+                </div>
             </div>
         </div>
 
@@ -422,7 +401,7 @@
         <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-number" id="totalClicks">0</div>
-                <div class="stat-label">Total Clicks</div>
+                <div class="stat-label">Total Visitors</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="uniqueVisitors">0</div>
@@ -430,7 +409,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="todayClicks">0</div>
-                <div class="stat-label">Today's Clicks</div>
+                <div class="stat-label">Today's Visitors</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="onlineNow">0</div>
@@ -441,7 +420,7 @@
         <!-- ===== DATA TABLE ===== -->
         <div class="table-container">
             <div class="table-header">
-                <h2>📊 <span>Visitor Data</span></h2>
+                <h2>📊 <span>All Visitor Data</span></h2>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                     <button class="btn-refresh" id="refreshBtn" onclick="fetchData()">
                         <i class="fas fa-sync-alt"></i> Refresh
@@ -461,13 +440,12 @@
                             <th>🌐 IP Address</th>
                             <th>📱 Device</th>
                             <th>🖥️ Browser</th>
-                            <th>📷 Image</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="dataTableBody">
                         <tr>
-                            <td colspan="8">
+                            <td colspan="7">
                                 <div class="no-data">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     <p>Loading data...</p>
@@ -483,6 +461,7 @@
     <script>
         const API_BASE = window.location.origin + '/api';
         let uploadedImageBase64 = null;
+        let currentTrackId = null;
 
         // ============================================
         // FILE UPLOAD HANDLER
@@ -491,7 +470,6 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Check file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('❌ File too large! Max 5MB');
                 return;
@@ -504,10 +482,8 @@
                 document.getElementById('previewImage').src = uploadedImageBase64;
                 document.getElementById('photoPreview').classList.add('show');
                 document.getElementById('uploadArea').style.borderColor = 'rgba(34,197,94,0.3)';
-                showToast(`✅ ${file.name} uploaded successfully!`);
-                
-                // Enable generate button
-                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('uploadBtn').disabled = false;
+                showToast(`✅ ${file.name} uploaded! Click Upload button to save.`);
             };
             reader.readAsDataURL(file);
         }
@@ -542,8 +518,8 @@
                     document.getElementById('previewImage').src = uploadedImageBase64;
                     document.getElementById('photoPreview').classList.add('show');
                     document.getElementById('uploadArea').style.borderColor = 'rgba(34,197,94,0.3)';
-                    showToast(`✅ ${file.name} uploaded successfully!`);
-                    document.getElementById('generateBtn').disabled = false;
+                    document.getElementById('uploadBtn').disabled = false;
+                    showToast(`✅ ${file.name} uploaded! Click Upload button to save.`);
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -552,41 +528,34 @@
         });
 
         // ============================================
-        // GENERATE LINK
+        // UPLOAD PHOTO TO DATABASE
         // ============================================
-        async function generateLink() {
+        async function uploadPhoto() {
             if (!uploadedImageBase64) {
-                showToast('❌ Please upload a photo first');
+                showToast('❌ Please select a photo first');
                 return;
             }
 
-            const btn = document.getElementById('generateBtn');
+            const btn = document.getElementById('uploadBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+            btn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
 
             try {
-                const res = await fetch(`${API_BASE}/tracking/generate`, {
+                const res = await fetch(`${API_BASE}/tracking/upload`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageUrl: uploadedImageBase64 })
+                    body: JSON.stringify({ image: uploadedImageBase64 })
                 });
 
                 const result = await res.json();
 
                 if (result.success) {
-                    const link = result.data.link;
-                    document.getElementById('generatedLink').textContent = link;
-                    document.getElementById('generatedLinkBox').classList.add('show');
-                    document.getElementById('linkPreview').innerHTML = 
-                        `📷 Photo saved in database → Share this link`;
-                    
-                    showToast('✅ Link generated successfully! Photo saved in database');
-                    copyToClipboard(link);
+                    currentTrackId = result.data.trackId;
+                    const viewUrl = `${window.location.origin}/image?id=${currentTrackId}`;
+                    document.getElementById('viewLink').textContent = viewUrl;
+                    document.getElementById('viewLink').style.display = 'inline';
+                    showToast('✅ Photo saved in database!');
                     fetchData();
-                    
-                    const copyBtn = document.getElementById('copyBtn');
-                    copyBtn.classList.remove('copied');
-                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
                 } else {
                     showToast('❌ ' + result.message);
                 }
@@ -595,45 +564,7 @@
             }
 
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-link"></i> Generate Tracking Link';
-        }
-
-        // ============================================
-        // COPY LINK
-        // ============================================
-        function copyLink() {
-            const link = document.getElementById('generatedLink').textContent;
-            const btn = document.getElementById('copyBtn');
-            
-            copyToClipboard(link);
-            
-            btn.classList.add('copied');
-            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            
-            setTimeout(() => {
-                btn.classList.remove('copied');
-                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-            }, 3000);
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('✅ Link copied to clipboard!');
-                }).catch(() => fallbackCopy(text));
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showToast('✅ Link copied to clipboard!');
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Photo';
         }
 
         // ============================================
@@ -651,13 +582,14 @@
                 if (result.success) {
                     renderData(result.data);
                     updateStats(result.data);
+                    updateLatestVisitor(result.data);
                 } else {
                     showToast('❌ Failed to fetch data');
                 }
             } catch (err) {
                 document.getElementById('dataTableBody').innerHTML = `
                     <tr>
-                        <td colspan="8">
+                        <td colspan="7">
                             <div class="no-data">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <p>Failed to load data. Please refresh.</p>
@@ -672,6 +604,61 @@
         }
 
         // ============================================
+        // UPDATE LATEST VISITOR
+        // ============================================
+        function updateLatestVisitor(data) {
+            const container = document.getElementById('latestVisitorContainer');
+            
+            if (!data || data.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let latest = null;
+            let latestTime = null;
+            
+            data.forEach(item => {
+                if (item.visits && item.visits.length > 0) {
+                    const lastVisit = item.visits[item.visits.length - 1];
+                    const time = new Date(lastVisit.visitedAt);
+                    if (!latestTime || time > latestTime) {
+                        latestTime = time;
+                        latest = lastVisit;
+                    }
+                }
+            });
+
+            if (!latest) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            document.getElementById('latestVisitorInfo').innerHTML = `
+                <div class="visitor-item">
+                    <div class="label">📍 Location</div>
+                    <div class="value"><i class="fas fa-map-marker-alt"></i> ${latest.location || 'Unknown'}</div>
+                </div>
+                <div class="visitor-item">
+                    <div class="label">🌐 IP Address</div>
+                    <div class="value">${latest.ip || 'Unknown'}</div>
+                </div>
+                <div class="visitor-item">
+                    <div class="label">📱 Device</div>
+                    <div class="value"><i class="fas ${latest.device === 'Mobile' ? 'fa-mobile-alt' : latest.device === 'Tablet' ? 'fa-tablet-alt' : 'fa-desktop'}"></i> ${latest.device || 'Unknown'}</div>
+                </div>
+                <div class="visitor-item">
+                    <div class="label">🖥️ Browser</div>
+                    <div class="value">${latest.browser || 'Unknown'} <span style="color:rgba(255,255,255,0.2);font-size:12px;">${latest.os || ''}</span></div>
+                </div>
+                <div class="visitor-item">
+                    <div class="label">🕐 Visited At</div>
+                    <div class="value">${new Date(latest.visitedAt).toLocaleString('en-IN')}</div>
+                </div>
+            `;
+        }
+
+        // ============================================
         // RENDER TABLE
         // ============================================
         function renderData(data) {
@@ -680,10 +667,10 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8">
+                        <td colspan="7">
                             <div class="no-data">
                                 <i class="fas fa-inbox"></i>
-                                <p>No visitor data yet. Generate a link and share it!</p>
+                                <p>No visitor data yet. Upload a photo and share the link!</p>
                             </div>
                         </td>
                     </tr>
@@ -693,12 +680,39 @@
 
             let html = '';
             let index = 1;
-            
-            data.forEach(item => {
-                const latestVisit = item.visits && item.visits.length > 0 ? item.visits[item.visits.length - 1] : null;
-                if (!latestVisit) return;
+            let allVisits = [];
 
-                const time = new Date(latestVisit.visitedAt);
+            data.forEach(item => {
+                if (item.visits) {
+                    item.visits.forEach(visit => {
+                        allVisits.push({
+                            ...visit,
+                            imageUrl: item.imageUrl,
+                            trackId: item.trackId
+                        });
+                    });
+                }
+            });
+
+            // Sort by time (latest first)
+            allVisits.sort((a, b) => new Date(b.visitedAt) - new Date(a.visitedAt));
+
+            if (allVisits.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="no-data">
+                                <i class="fas fa-inbox"></i>
+                                <p>No visitor data yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            allVisits.forEach(visit => {
+                const time = new Date(visit.visitedAt);
                 const formattedTime = time.toLocaleString('en-IN', {
                     day: '2-digit',
                     month: 'short',
@@ -708,24 +722,19 @@
                     second: '2-digit'
                 });
 
-                const isOnline = new Date(latestVisit.visitedAt) > new Date(Date.now() - 5 * 60 * 1000);
+                const isOnline = new Date(visit.visitedAt) > new Date(Date.now() - 5 * 60 * 1000);
 
                 html += `
                     <tr>
                         <td>${index}</td>
                         <td>${formattedTime}</td>
-                        <td><i class="fas fa-map-marker-alt" style="color:#ffd700;"></i> ${latestVisit.location || 'Unknown'}</td>
-                        <td><code style="background:rgba(255,255,255,0.03);padding:2px 8px;border-radius:4px;font-size:12px;">${latestVisit.ip || 'Unknown'}</code></td>
+                        <td><i class="fas fa-map-marker-alt" style="color:#ffd700;"></i> ${visit.location || 'Unknown'}</td>
+                        <td><code style="background:rgba(255,255,255,0.03);padding:2px 8px;border-radius:4px;font-size:12px;">${visit.ip || 'Unknown'}</code></td>
                         <td>
-                            <i class="fas ${latestVisit.device === 'Mobile' ? 'fa-mobile-alt' : latestVisit.device === 'Tablet' ? 'fa-tablet-alt' : 'fa-desktop'}"></i>
-                            ${latestVisit.device || 'Unknown'}
+                            <i class="fas ${visit.device === 'Mobile' ? 'fa-mobile-alt' : visit.device === 'Tablet' ? 'fa-tablet-alt' : 'fa-desktop'}"></i>
+                            ${visit.device || 'Unknown'}
                         </td>
-                        <td>${latestVisit.browser || 'Unknown'} <span style="color:rgba(255,255,255,0.2);font-size:11px;">${latestVisit.os || ''}</span></td>
-                        <td>
-                            <a href="${item.imageUrl}" target="_blank" style="color:#ffd700;text-decoration:none;font-size:12px;">
-                                <i class="fas fa-image"></i> View
-                            </a>
-                        </td>
+                        <td>${visit.browser || 'Unknown'} <span style="color:rgba(255,255,255,0.2);font-size:11px;">${visit.os || ''}</span></td>
                         <td>
                             <span class="status-badge ${isOnline ? 'online' : 'offline'}">
                                 ${isOnline ? '🟢 Online' : '⚪ Offline'}
@@ -743,20 +752,18 @@
         // UPDATE STATS
         // ============================================
         function updateStats(data) {
-            const total = data.reduce((sum, item) => sum + (item.totalClicks || 0), 0);
-            document.getElementById('totalClicks').textContent = total;
-
-            const unique = data.reduce((sum, item) => sum + (item.uniqueVisitors || 0), 0);
-            document.getElementById('uniqueVisitors').textContent = unique;
-
-            const today = new Date().toDateString();
+            let total = 0;
+            let unique = new Set();
+            let today = new Date().toDateString();
             let todayClicks = 0;
             let onlineNow = 0;
             const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
 
             data.forEach(item => {
+                total += (item.totalClicks || 0);
                 if (item.visits) {
                     item.visits.forEach(visit => {
+                        if (visit.ip) unique.add(visit.ip);
                         const date = new Date(visit.visitedAt);
                         if (date.toDateString() === today) todayClicks++;
                         if (date > fiveMinAgo) onlineNow++;
@@ -764,6 +771,8 @@
                 }
             });
 
+            document.getElementById('totalClicks').textContent = total;
+            document.getElementById('uniqueVisitors').textContent = unique.size;
             document.getElementById('todayClicks').textContent = todayClicks;
             document.getElementById('onlineNow').textContent = onlineNow;
         }
@@ -813,7 +822,7 @@
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
-            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('uploadBtn').disabled = true;
             setInterval(fetchData, 30000);
         });
     </script>
