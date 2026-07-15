@@ -479,85 +479,293 @@
             margin-top: 5px;
         }
 
-        /* ===== PARTNER COACHING SCROLL ===== */
-        .partner-scroll {
-            overflow: hidden;
-            padding: 20px 0;
-            background: rgba(255, 255, 255, 0.02);
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        /* ===== PARTNER COACHING CENTERS - UPDATED CARD VIEW ===== */
+        .partner-section {
+            padding: 0 30px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
-        .partner-track {
-            display: flex;
-            animation: scrollPartner 30s linear infinite;
-            width: max-content;
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
 
-        .partner-track:hover {
-            animation-play-state: paused;
+        .partner-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
         }
 
-        @keyframes scrollPartner {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .partner-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255, 215, 0, 0.25);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
         }
 
-        .partner-item {
+        .partner-card-header {
+            padding: 25px 25px 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 0 40px;
-            flex-shrink: 0;
-            min-width: 280px;
+            gap: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        .partner-item .partner-logo {
-            width: 60px;
-            height: 60px;
+        .partner-card .center-logo {
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: rgba(255, 215, 0, 0.05);
-            border: 2px solid rgba(255, 215, 0, 0.1);
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 215, 0, 0.15);
+            background: #1a1f35;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 800;
             color: #ffd700;
-            flex-shrink: 0;
-            overflow: hidden;
         }
 
-        .partner-item .partner-logo img {
+        .partner-card .center-logo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .partner-item .partner-info {
+        .partner-card .center-info {
             flex: 1;
+            min-width: 0;
         }
 
-        .partner-item .partner-info .p-name {
-            font-size: 14px;
+        .partner-card .center-info .center-name {
+            font-size: 18px;
             font-weight: 700;
             color: #fff;
+            margin-bottom: 3px;
+            line-height: 1.2;
         }
 
-        .partner-item .partner-info .p-address {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .partner-item .partner-info .p-classes {
-            font-size: 10px;
-            color: rgba(255, 215, 0, 0.4);
+        .partner-card .center-info .center-classes {
+            font-size: 12px;
+            color: rgba(255, 215, 0, 0.5);
             letter-spacing: 0.05em;
         }
 
-        /* ===== EXPERT TEACHERS SECTION ===== */
+        .partner-card .center-info .center-address {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 2px;
+        }
+
+        /* ===== DIRECTOR SECTION INSIDE CARD ===== */
+        .partner-card .director-section {
+            padding: 18px 25px;
+            background: rgba(255, 215, 0, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .partner-card .director-section .director-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 215, 0, 0.12);
+            background: #1a1f35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .partner-card .director-section .director-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .partner-card .director-section .director-details {
+            flex: 1;
+        }
+
+        .partner-card .director-section .director-details .director-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .partner-card .director-section .director-details .director-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .partner-card .director-section .director-details .director-contact {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            margin-top: 2px;
+        }
+
+        .partner-card .director-section .director-details .director-contact i {
+            margin-right: 5px;
+            color: rgba(255, 215, 0, 0.3);
+            font-size: 11px;
+        }
+
+        /* ===== TEACHERS LIST INSIDE CARD ===== */
+        .partner-card .teachers-list {
+            padding: 15px 25px 20px;
+        }
+
+        .partner-card .teachers-list .teachers-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .partner-card .teachers-list .teachers-label i {
+            color: rgba(255, 215, 0, 0.3);
+        }
+
+        .partner-card .teachers-list .teacher-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .partner-card .teachers-list .teacher-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 14px 6px 6px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .partner-card .teachers-list .teacher-tag:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: rgba(255, 215, 0, 0.1);
+        }
+
+        .partner-card .teachers-list .teacher-tag .tag-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #1a1f35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .partner-card .teachers-list .teacher-tag .tag-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .partner-card .teachers-list .teacher-tag .tag-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .partner-card .teachers-list .teacher-tag .tag-info .tag-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .partner-card .teachers-list .teacher-tag .tag-info .tag-subject {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .partner-card .teachers-list .no-teachers {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.2);
+            font-style: italic;
+        }
+
+        /* ===== SOCIAL LINKS ON CARD ===== */
+        .partner-card .card-social {
+            padding: 12px 25px 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .partner-card .card-social a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .partner-card .card-social a:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .partner-card .card-social a:hover .fa-whatsapp { color: #25D366; }
+        .partner-card .card-social a:hover .fa-youtube { color: #FF0000; }
+        .partner-card .card-social a:hover .fa-facebook { color: #1877F2; }
+        .partner-card .card-social a:hover .fa-instagram { color: #E4405F; }
+        .partner-card .card-social a:hover .fa-telegram { color: #0088cc; }
+        .partner-card .card-social a:hover .fa-twitter { color: #1DA1F2; }
+        .partner-card .card-social a:hover .fa-linkedin { color: #0A66C2; }
+
+        .no-partners {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+        }
+
+        .no-partners i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 15px;
+            color: rgba(255, 215, 0, 0.1);
+        }
+
+        /* ===== REST OF THE STYLES (Keep existing) ===== */
         .teachers-section {
             padding: 0 30px 40px;
             max-width: 1200px;
@@ -1150,6 +1358,8 @@
             .banner-section { height: 280px; }
             .banner-slide .banner-overlay { padding: 20px; }
             .banner-slide .banner-overlay h2 { font-size: 18px; }
+            .partner-section { padding: 0 15px 30px; }
+            .partner-grid { grid-template-columns: 1fr; }
             .videos-section { padding: 0 15px 30px; }
             .videos-grid { grid-template-columns: 1fr; }
             .teachers-section { padding: 0 15px 30px; }
@@ -1162,9 +1372,6 @@
             .call-float { bottom: 15px; left: 15px; }
             .call-float .call-btn { width: 55px; height: 55px; font-size: 22px; }
             .notification-popup { max-width: 320px; padding: 15px 20px; top: 15px; right: 15px; }
-            .partner-item { min-width: 200px; padding: 0 20px; }
-            .partner-item .partner-logo { width: 45px; height: 45px; font-size: 16px; }
-            .partner-item .partner-info .p-name { font-size: 12px; }
         }
 
         @media (max-width: 480px) {
@@ -1177,9 +1384,7 @@
             .notification-popup { max-width: 280px; padding: 12px 15px; }
             .notification-popup .notif-title { font-size: 14px; }
             .notification-popup .notif-text { font-size: 12px; }
-            .partner-item { min-width: 160px; padding: 0 15px; }
-            .partner-item .partner-logo { width: 35px; height: 35px; font-size: 12px; }
-            .partner-item .partner-info .p-name { font-size: 11px; }
+            .partner-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1243,13 +1448,13 @@
         <div class="banner-dots" id="bannerDots"></div>
     </section>
 
-    <!-- ===== PARTNER COACHING SCROLL ===== -->
+    <!-- ===== PARTNER COACHING CENTERS - UPDATED CARD VIEW ===== -->
     <div class="section-title">
         <h2>🤝 Our Partner Coaching Centers</h2>
         <p>Excellence in Education, Together</p>
     </div>
-    <section class="partner-scroll" id="partnerScroll">
-        <div class="partner-track" id="partnerTrack">
+    <section class="partner-section" id="partnerSection">
+        <div class="partner-grid" id="partnerGrid">
             <!-- Will be filled by JavaScript -->
         </div>
     </section>
@@ -1620,7 +1825,7 @@
         }
 
         // ============================================
-        // FETCH PARTNER CENTERS - UPDATED WITH clogo
+        // FETCH PARTNER CENTERS - UPDATED CARD VIEW WITH DIRECTOR & PHOTO
         // ============================================
         let partnerCenters = [];
 
@@ -1643,44 +1848,129 @@
         }
 
         function renderPartnerCenters() {
-            const track = document.getElementById('partnerTrack');
-            if (!track) return;
+            const grid = document.getElementById('partnerGrid');
+            if (!grid) return;
 
             if (!partnerCenters || partnerCenters.length === 0) {
-                track.innerHTML = `
-                    <div class="partner-item" style="min-width:100%;justify-content:center;">
-                        <div class="partner-info">
-                            <div class="p-name" style="color:rgba(255,255,255,0.3);">No partner centers available</div>
-                        </div>
+                grid.innerHTML = `
+                    <div class="no-partners">
+                        <i class="fas fa-building"></i>
+                        No partner coaching centers available
                     </div>
                 `;
                 return;
             }
 
-            // Double the items for seamless scroll
-            const items = [...partnerCenters, ...partnerCenters];
             let html = '';
 
-            for (let i = 0; i < items.length; i++) {
-                const c = items[i];
+            for (let i = 0; i < partnerCenters.length; i++) {
+                const c = partnerCenters[i];
                 const initials = c.centerName.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 4)
                     .toUpperCase();
+                
+                // Director initials
+                const dirInitials = c.directorName ? c.directorName.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'D';
+                
+                // Teachers count
+                const teacherCount = c.teachers ? c.teachers.length : 0;
+
+                // Build social links
+                let socialHtml = '';
+                const socialLinks = [
+                    { icon: 'fa-whatsapp', url: c.whatsappNumber ? `https://wa.me/${c.whatsappNumber.replace(/\D/g, '')}` : '' },
+                    { icon: 'fa-youtube', url: c.youtubeLink || '' },
+                    { icon: 'fa-facebook', url: c.facebookLink || '' },
+                    { icon: 'fa-instagram', url: c.instagramLink || '' },
+                    { icon: 'fa-telegram', url: c.telegramLink || '' },
+                    { icon: 'fa-twitter', url: c.twitterLink || '' },
+                    { icon: 'fa-linkedin', url: c.linkedinLink || '' },
+                ];
+
+                for (const link of socialLinks) {
+                    if (link.url && link.url.trim() !== '' && link.url.trim() !== '#') {
+                        socialHtml += `<a href="${link.url}" target="_blank" title="${link.icon.replace('fa-', '')}"><i class="fab ${link.icon}"></i></a>`;
+                    }
+                }
+
+                // Build teachers tags
+                let teachersHtml = '';
+                if (c.teachers && c.teachers.length > 0) {
+                    const displayTeachers = c.teachers.slice(0, 5);
+                    for (const teacher of displayTeachers) {
+                        const tInitials = teacher.name ? teacher.name.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'T';
+                        teachersHtml += `
+                            <div class="teacher-tag">
+                                <div class="tag-avatar">
+                                    ${teacher.photo && teacher.photo.length > 50 ? 
+                                        `<img src="${teacher.photo}" alt="${teacher.name}">` : 
+                                        tInitials
+                                    }
+                                </div>
+                                <div class="tag-info">
+                                    <span class="tag-name">${teacher.name || 'Teacher'}</span>
+                                    <span class="tag-subject">${teacher.subject || ''} ${teacher.class ? '• ' + teacher.class : ''}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (c.teachers.length > 5) {
+                        teachersHtml += `<span style="font-size:12px;color:rgba(255,255,255,0.2);padding:6px 12px;">+${c.teachers.length - 5} more</span>`;
+                    }
+                } else {
+                    teachersHtml = `<span class="no-teachers">No teachers listed</span>`;
+                }
 
                 html += `
-                    <div class="partner-item">
-                        <div class="partner-logo">
-                            ${c.clogo && c.clogo.length > 50 ? `<img src="${c.clogo}" alt="${c.centerName}">` : initials}
+                    <div class="partner-card">
+                        <!-- Header with Center Logo & Name -->
+                        <div class="partner-card-header">
+                            <div class="center-logo">
+                                ${c.clogo && c.clogo.length > 50 ? 
+                                    `<img src="${c.clogo}" alt="${c.centerName}">` : 
+                                    initials
+                                }
+                            </div>
+                            <div class="center-info">
+                                <div class="center-name">${c.centerName}</div>
+                                <div class="center-classes">📚 ${c.fromClass || 'N/A'} - ${c.toClass || 'N/A'}</div>
+                                ${c.address ? `<div class="center-address">📍 ${c.address}</div>` : ''}
+                            </div>
                         </div>
-                        <div class="partner-info">
-                            <div class="p-name">${c.centerName}</div>
-                            <div class="p-address">${c.address || '📍 Location not specified'}</div>
-                            <div class="p-classes">📚 ${c.fromClass || 'N/A'} - ${c.toClass || 'N/A'}</div>
+
+                        <!-- Director Section with Photo -->
+                        <div class="director-section">
+                            <div class="director-avatar">
+                                ${c.directorPhoto && c.directorPhoto.length > 50 ? 
+                                    `<img src="${c.directorPhoto}" alt="${c.directorName || 'Director'}">` : 
+                                    dirInitials
+                                }
+                            </div>
+                            <div class="director-details">
+                                <div class="director-label">👤 Director</div>
+                                <div class="director-name">${c.directorName || 'Not specified'}</div>
+                                ${c.contactNumber ? `<div class="director-contact"><i class="fas fa-phone"></i> ${c.contactNumber}</div>` : ''}
+                                ${c.email ? `<div class="director-contact"><i class="fas fa-envelope"></i> ${c.email}</div>` : ''}
+                            </div>
                         </div>
+
+                        <!-- Teachers List -->
+                        <div class="teachers-list">
+                            <div class="teachers-label">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                Teachers (${teacherCount})
+                            </div>
+                            <div class="teacher-tags">
+                                ${teachersHtml}
+                            </div>
+                        </div>
+
+                        <!-- Social Links -->
+                        ${socialHtml ? `<div class="card-social">${socialHtml}</div>` : ''}
                     </div>
                 `;
             }
 
-            track.innerHTML = html;
+            grid.innerHTML = html;
         }
 
         // ============================================
@@ -1693,7 +1983,6 @@
                 const res = await fetch(`${API_BASE}/tuition-centers`);
                 const result = await res.json();
                 if (result.success && result.data) {
-                    // Collect all teachers from all centers
                     allTeachers = [];
                     for (const center of result.data) {
                         if (center.teachers && center.teachers.length > 0) {
