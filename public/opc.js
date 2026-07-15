@@ -2,9 +2,6 @@
 // OPC.JS - Partner Coaching Centers + PDF Notes Module
 // ============================================
 
-// ❌ REMOVE THIS LINE - Already declared in index.html
-// const API_BASE = window.location.origin + '/api';
-
 let partnerCenters = [];
 
 // ============================================
@@ -75,46 +72,40 @@ function renderPartnerCenters() {
         let socialHtml = '';
         const socialLinks = [];
 
-        // WhatsApp - Center's own WhatsApp number
         if (c.whatsappNumber && c.whatsappNumber.trim() !== '') {
             const cleanNumber = c.whatsappNumber.replace(/\D/g, '');
             socialLinks.push({ icon: 'fa-whatsapp', url: `https://wa.me/${cleanNumber}`, title: 'WhatsApp', color: '#25D366' });
         }
-        // YouTube - Center's own YouTube
         if (c.youtubeLink && c.youtubeLink.trim() !== '' && c.youtubeLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-youtube', url: c.youtubeLink, title: 'YouTube', color: '#FF0000' });
         }
-        // Facebook - Center's own Facebook
         if (c.facebookLink && c.facebookLink.trim() !== '' && c.facebookLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-facebook', url: c.facebookLink, title: 'Facebook', color: '#1877F2' });
         }
-        // Instagram - Center's own Instagram
         if (c.instagramLink && c.instagramLink.trim() !== '' && c.instagramLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-instagram', url: c.instagramLink, title: 'Instagram', color: '#E4405F' });
         }
-        // Telegram - Center's own Telegram
         if (c.telegramLink && c.telegramLink.trim() !== '' && c.telegramLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-telegram', url: c.telegramLink, title: 'Telegram', color: '#0088cc' });
         }
-        // Twitter - Center's own Twitter
         if (c.twitterLink && c.twitterLink.trim() !== '' && c.twitterLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-twitter', url: c.twitterLink, title: 'Twitter', color: '#1DA1F2' });
         }
-        // LinkedIn - Center's own LinkedIn
         if (c.linkedinLink && c.linkedinLink.trim() !== '' && c.linkedinLink.trim() !== '#') {
             socialLinks.push({ icon: 'fa-linkedin', url: c.linkedinLink, title: 'LinkedIn', color: '#0A66C2' });
         }
-        // Encrypted Call - Center's own encrypted call link
         if (c.encryptedCallLink && c.encryptedCallLink.trim() !== '' && c.encryptedCallLink.trim() !== '#') {
-            socialLinks.push({ icon: 'fa-lock', url: c.encryptedCallLink, title: 'Encrypted Call', color: '#16a34a', isEncrypted: true });
+            socialLinks.push({ icon: 'fa-lock', url: c.encryptedCallLink, title: '🔒 Encrypted Call', color: '#16a34a', isEncrypted: true });
         }
 
         for (const link of socialLinks) {
             const isEncrypted = link.isEncrypted || false;
             socialHtml += `
                 <a href="${link.url}" target="_blank" title="${link.title}" 
-                   style="${isEncrypted ? 'background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.2);color:#2563eb;' : ''}">
+                   class="social-icon-link ${isEncrypted ? 'encrypted-link' : ''}"
+                   style="${isEncrypted ? 'background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.3);color:#2563eb;' : ''}">
                     <i class="fab ${link.icon}" style="${!isEncrypted ? `color:${link.color}` : ''}"></i>
+                    ${isEncrypted ? '<span class="encrypted-badge">🔒</span>' : ''}
                 </a>
             `;
         }
@@ -141,7 +132,7 @@ function renderPartnerCenters() {
                 `;
             }
             if (c.teachers.length > 5) {
-                teachersHtml += `<span style="font-size:12px;color:rgba(255,255,255,0.2);padding:6px 12px;">+${c.teachers.length - 5} more</span>`;
+                teachersHtml += `<span class="more-teachers-badge">+${c.teachers.length - 5} more</span>`;
             }
         } else {
             teachersHtml = `<span class="no-teachers">No teachers listed</span>`;
@@ -153,6 +144,7 @@ function renderPartnerCenters() {
             directorContactHtml = `
                 <a href="${c.encryptedCallLink}" target="_blank" class="encrypted-call-btn">
                     <i class="fas fa-lock"></i> Encrypted Call
+                    <span class="call-pulse"></span>
                 </a>
             `;
         } else if (c.contactNumber && c.contactNumber.trim() !== '') {
@@ -163,15 +155,20 @@ function renderPartnerCenters() {
 
         html += `
             <div class="partner-card" data-center-id="${c._id}">
+                <div class="card-glow"></div>
                 <div class="partner-card-header" onclick="openCenterDetails('${c._id}')" style="cursor:pointer;">
                     <div class="center-logo">
                         ${c.clogo && c.clogo.length > 50 ? 
                             `<img src="${c.clogo}" alt="${c.centerName}">` : 
                             `<span>${initials}</span>`
                         }
+                        <div class="logo-ring"></div>
                     </div>
                     <div class="center-info">
-                        <div class="center-name">${c.centerName || 'Unknown Center'}</div>
+                        <div class="center-name">
+                            ${c.centerName || 'Unknown Center'}
+                            <span class="verified-badge" title="Verified Center">✓</span>
+                        </div>
                         ${classHtml}
                         ${c.address ? `<div class="center-address">📍 ${c.address}</div>` : ''}
                     </div>
@@ -183,6 +180,7 @@ function renderPartnerCenters() {
                             `<img src="${c.directorPhoto}" alt="${c.directorName || 'Director'}">` : 
                             `<span>${dirInitials}</span>`
                         }
+                        <div class="director-ring"></div>
                     </div>
                     <div class="director-details">
                         <div class="director-label">👤 Director</div>
@@ -195,6 +193,7 @@ function renderPartnerCenters() {
                     <div class="teachers-label">
                         <i class="fas fa-chalkboard-teacher"></i>
                         Teachers (${teacherCount})
+                        <span class="teacher-count-badge">${teacherCount}</span>
                     </div>
                     <div class="teacher-tags">
                         ${teachersHtml}
@@ -205,7 +204,7 @@ function renderPartnerCenters() {
                 
                 <div style="padding: 0 25px 15px; text-align:center;">
                     <button onclick="openCenterDetails('${c._id}')" class="view-details-btn">
-                        📋 View Full Details
+                        <i class="fas fa-expand"></i> View Full Details
                     </button>
                 </div>
             </div>
@@ -213,9 +212,9 @@ function renderPartnerCenters() {
     }
 
     track.innerHTML = html;
-    track.style.animation = 'scrollPartners 40s linear infinite';
+    track.style.animation = 'scrollPartners 45s linear infinite';
     
-    // Setup manual drag events
+    // Setup manual drag events with improved smoothness
     setupDragEvents(track);
 }
 
@@ -227,32 +226,10 @@ function setupDragEvents(track) {
     let startX = 0;
     let currentTranslate = 0;
     let prevTranslate = 0;
-    let animationID = 0;
-    let initialTransform = 0;
-
-    // Get initial transform value
-    function getInitialTransform() {
-        const style = window.getComputedStyle(track);
-        const transform = style.transform;
-        if (transform && transform !== 'none') {
-            const matrix = transform.match(/matrix.*\((.+)\)/);
-            if (matrix) {
-                const values = matrix[1].split(', ');
-                return parseFloat(values[4]) || 0;
-            }
-        }
-        return 0;
-    }
-
-    // Update transform
-    function setTranslate(x, animate = false) {
-        if (animate) {
-            track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        } else {
-            track.style.transition = 'none';
-        }
-        track.style.transform = `translateX(${x}px)`;
-    }
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let momentumId = null;
 
     // Get current transform X
     function getCurrentTranslate() {
@@ -268,14 +245,93 @@ function setupDragEvents(track) {
         return 0;
     }
 
+    // Update transform with smooth animation
+    function setTranslate(x, animate = false, duration = 300) {
+        if (momentumId) {
+            cancelAnimationFrame(momentumId);
+            momentumId = null;
+        }
+        if (animate) {
+            track.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+        } else {
+            track.style.transition = 'none';
+        }
+        track.style.transform = `translateX(${x}px)`;
+    }
+
+    // Get boundaries
+    function getBoundaries() {
+        const cardWidth = track.querySelector('.partner-card')?.offsetWidth || 320;
+        const gap = 25;
+        const totalWidth = (cardWidth + gap);
+        const trackWidth = track.scrollWidth || (partnerCenters.length * totalWidth);
+        const containerWidth = track.parentElement.offsetWidth;
+        return {
+            max: 0,
+            min: -(trackWidth - containerWidth),
+            trackWidth: trackWidth,
+            containerWidth: containerWidth
+        };
+    }
+
+    // Clamp value
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    // Momentum animation
+    function applyMomentum(velocity, currentPos) {
+        const boundaries = getBoundaries();
+        let pos = currentPos;
+        const friction = 0.92;
+        const minVelocity = 0.5;
+
+        function step() {
+            velocity *= friction;
+            pos += velocity;
+
+            // Bounce effect at edges
+            if (pos > boundaries.max) {
+                pos = boundaries.max;
+                velocity = -velocity * 0.3;
+            } else if (pos < boundaries.min) {
+                pos = boundaries.min;
+                velocity = -velocity * 0.3;
+            }
+
+            setTranslate(pos, true, 50);
+
+            if (Math.abs(velocity) > minVelocity) {
+                momentumId = requestAnimationFrame(step);
+            } else {
+                // Snap to valid position
+                if (pos > -50) {
+                    setTranslate(0, true);
+                } else if (pos < boundaries.min + 50) {
+                    setTranslate(boundaries.min, true);
+                }
+                momentumId = null;
+            }
+        }
+
+        step();
+    }
+
     // Mouse events
     track.addEventListener('mousedown', (e) => {
         isDown = true;
         track.style.animationPlayState = 'paused';
-        track.style.transition = 'none';
+        track.style.cursor = 'grabbing';
         startX = e.pageX;
         prevTranslate = getCurrentTranslate();
-        track.style.cursor = 'grabbing';
+        velocity = 0;
+        lastX = e.pageX;
+        lastTime = Date.now();
+        if (momentumId) {
+            cancelAnimationFrame(momentumId);
+            momentumId = null;
+        }
+        track.style.transition = 'none';
     });
 
     window.addEventListener('mousemove', (e) => {
@@ -283,23 +339,24 @@ function setupDragEvents(track) {
         e.preventDefault();
         const currentX = e.pageX;
         const diff = currentX - startX;
+        const boundaries = getBoundaries();
+        
+        // Calculate velocity
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) {
+            velocity = (currentX - lastX) / dt * 10;
+        }
+        lastX = currentX;
+        lastTime = now;
+        
         currentTranslate = prevTranslate + diff;
         
-        // Get card width + gap for boundary
-        const cardWidth = track.querySelector('.partner-card')?.offsetWidth || 320;
-        const gap = 25;
-        const totalWidth = (cardWidth + gap);
-        const trackWidth = track.scrollWidth || (partnerCenters.length * totalWidth);
-        const containerWidth = track.parentElement.offsetWidth;
-        
-        // Allow dragging both directions with limit
-        const maxTranslate = 0;
-        const minTranslate = -(trackWidth - containerWidth);
-        
-        if (currentTranslate > maxTranslate) {
-            currentTranslate = maxTranslate;
-        } else if (currentTranslate < minTranslate) {
-            currentTranslate = minTranslate;
+        // Overscroll resistance
+        if (currentTranslate > boundaries.max) {
+            currentTranslate = boundaries.max + (currentTranslate - boundaries.max) * 0.2;
+        } else if (currentTranslate < boundaries.min) {
+            currentTranslate = boundaries.min + (currentTranslate - boundaries.min) * 0.2;
         }
         
         setTranslate(currentTranslate, false);
@@ -309,27 +366,22 @@ function setupDragEvents(track) {
         if (isDown) {
             isDown = false;
             track.style.cursor = 'grab';
-            track.style.animationPlayState = 'running';
             
-            // Smooth snap - if dragged significantly, keep position
-            // Otherwise resume auto-scroll
+            const boundaries = getBoundaries();
             const current = getCurrentTranslate();
-            const cardWidth = track.querySelector('.partner-card')?.offsetWidth || 320;
-            const gap = 25;
-            const totalWidth = (cardWidth + gap);
             
-            // Check if near edge
-            const trackWidth = track.scrollWidth || (partnerCenters.length * totalWidth);
-            const containerWidth = track.parentElement.offsetWidth;
-            const minTranslate = -(trackWidth - containerWidth);
-            
-            if (current > -50) {
-                setTranslate(0, true);
-            } else if (current < minTranslate + 50) {
-                setTranslate(minTranslate, true);
+            // Check if momentum should apply
+            if (Math.abs(velocity) > 2) {
+                applyMomentum(velocity, current);
             } else {
-                // Resume auto-scroll from current position
-                track.style.animationPlayState = 'running';
+                // Snap to nearest valid position
+                if (current > -50) {
+                    setTranslate(0, true);
+                } else if (current < boundaries.min + 50) {
+                    setTranslate(boundaries.min, true);
+                } else {
+                    track.style.animationPlayState = 'running';
+                }
             }
         }
     });
@@ -337,57 +389,66 @@ function setupDragEvents(track) {
     // Touch events
     let touchStartX = 0;
     let touchPrevTranslate = 0;
+    let touchLastX = 0;
+    let touchLastTime = 0;
 
     track.addEventListener('touchstart', (e) => {
         isDown = true;
         track.style.animationPlayState = 'paused';
+        track.style.transition = 'none';
         touchStartX = e.touches[0].pageX;
         touchPrevTranslate = getCurrentTranslate();
-        track.style.transition = 'none';
+        touchLastX = e.touches[0].pageX;
+        touchLastTime = Date.now();
+        velocity = 0;
+        if (momentumId) {
+            cancelAnimationFrame(momentumId);
+            momentumId = null;
+        }
     }, { passive: true });
 
     track.addEventListener('touchmove', (e) => {
         if (!isDown) return;
         const currentX = e.touches[0].pageX;
         const diff = currentX - touchStartX;
+        const boundaries = getBoundaries();
+        
+        const now = Date.now();
+        const dt = now - touchLastTime;
+        if (dt > 0) {
+            velocity = (currentX - touchLastX) / dt * 10;
+        }
+        touchLastX = currentX;
+        touchLastTime = now;
+        
         currentTranslate = touchPrevTranslate + diff;
         
-        const cardWidth = track.querySelector('.partner-card')?.offsetWidth || 320;
-        const gap = 25;
-        const totalWidth = (cardWidth + gap);
-        const trackWidth = track.scrollWidth || (partnerCenters.length * totalWidth);
-        const containerWidth = track.parentElement.offsetWidth;
-        
-        const maxTranslate = 0;
-        const minTranslate = -(trackWidth - containerWidth);
-        
-        if (currentTranslate > maxTranslate) {
-            currentTranslate = maxTranslate;
-        } else if (currentTranslate < minTranslate) {
-            currentTranslate = minTranslate;
+        if (currentTranslate > boundaries.max) {
+            currentTranslate = boundaries.max + (currentTranslate - boundaries.max) * 0.2;
+        } else if (currentTranslate < boundaries.min) {
+            currentTranslate = boundaries.min + (currentTranslate - boundaries.min) * 0.2;
         }
         
         setTranslate(currentTranslate, false);
     }, { passive: true });
 
     track.addEventListener('touchend', () => {
-        isDown = false;
-        track.style.animationPlayState = 'running';
-        
-        const current = getCurrentTranslate();
-        const cardWidth = track.querySelector('.partner-card')?.offsetWidth || 320;
-        const gap = 25;
-        const totalWidth = (cardWidth + gap);
-        const trackWidth = track.scrollWidth || (partnerCenters.length * totalWidth);
-        const containerWidth = track.parentElement.offsetWidth;
-        const minTranslate = -(trackWidth - containerWidth);
-        
-        if (current > -50) {
-            setTranslate(0, true);
-        } else if (current < minTranslate + 50) {
-            setTranslate(minTranslate, true);
-        } else {
-            track.style.animationPlayState = 'running';
+        if (isDown) {
+            isDown = false;
+            const boundaries = getBoundaries();
+            const current = getCurrentTranslate();
+            
+            if (Math.abs(velocity) > 2) {
+                applyMomentum(velocity, current);
+            } else {
+                if (current > -50) {
+                    setTranslate(0, true);
+                } else if (current < boundaries.min + 50) {
+                    setTranslate(boundaries.min, true);
+                } else {
+                    track.style.animationPlayState = 'running';
+                }
+            }
         }
     }, { passive: true });
 
@@ -399,7 +460,6 @@ function setupDragEvents(track) {
 // OPEN CENTER DETAILS POPUP
 // ============================================
 function openCenterDetails(centerId) {
-    // Find center data
     const center = partnerCenters.find(c => c._id === centerId);
     if (!center) {
         showToast('Center not found', true);
@@ -433,7 +493,7 @@ function openCenterDetails(centerId) {
         socialLinks.push({ icon: 'fa-linkedin', url: center.linkedinLink, title: 'LinkedIn', color: '#0A66C2' });
     }
     if (center.encryptedCallLink && center.encryptedCallLink.trim() !== '' && center.encryptedCallLink.trim() !== '#') {
-        socialLinks.push({ icon: 'fa-lock', url: center.encryptedCallLink, title: 'Encrypted Call', color: '#16a34a' });
+        socialLinks.push({ icon: 'fa-lock', url: center.encryptedCallLink, title: '🔒 Encrypted Call', color: '#16a34a' });
     }
 
     for (const link of socialLinks) {
@@ -468,7 +528,7 @@ function openCenterDetails(centerId) {
         teachersPopupHtml = `<p style="color:rgba(255,255,255,0.3);text-align:center;">No teachers listed</p>`;
     }
 
-    // Create popup modal
+    // Create popup modal with improved design
     const modal = document.createElement('div');
     modal.className = 'center-details-modal';
     modal.style.cssText = `
@@ -500,40 +560,12 @@ function openCenterDetails(centerId) {
             position: relative;
             box-shadow: 0 30px 80px rgba(0,0,0,0.5);
         ">
-            <button onclick="this.closest('.center-details-modal').remove()" style="
-                position: sticky;
-                top: 0;
-                float: right;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                border: 1px solid rgba(255,255,255,0.1);
-                background: rgba(255,255,255,0.05);
-                color: #fff;
-                font-size: 20px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                z-index: 10;
-                margin-bottom: 10px;
-            " onmouseover="this.style.background='rgba(255,0,0,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+            <button onclick="this.closest('.center-details-modal').remove()" class="popup-close-btn">
                 ✕
             </button>
 
             <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">
-                <div style="
-                    width: 80px;
-                    height: 80px;
-                    border-radius: 50%;
-                    overflow: hidden;
-                    border: 3px solid rgba(255,215,0,0.2);
-                    background: #1a1f35;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 32px;
-                    color: #ffd700;
-                    flex-shrink: 0;
-                ">
+                <div class="popup-center-logo">
                     ${center.clogo && center.clogo.length > 50 ? 
                         `<img src="${center.clogo}" alt="${center.centerName}" style="width:100%;height:100%;object-fit:cover;">` : 
                         `<span>${center.centerName ? center.centerName.charAt(0).toUpperCase() : 'C'}</span>`
@@ -577,16 +609,7 @@ function openCenterDetails(centerId) {
             </div>
 
             <div style="text-align:center;margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.03);">
-                <button onclick="this.closest('.center-details-modal').remove()" style="
-                    padding:10px 30px;
-                    background:rgba(255,215,0,0.1);
-                    border:1px solid rgba(255,215,0,0.2);
-                    border-radius:25px;
-                    color:#ffd700;
-                    font-size:14px;
-                    cursor:pointer;
-                    transition:all 0.3s ease;
-                " onmouseover="this.style.background='rgba(255,215,0,0.2)'" onmouseout="this.style.background='rgba(255,215,0,0.1)'">
+                <button onclick="this.closest('.center-details-modal').remove()" class="popup-close-main">
                     ✕ Close
                 </button>
             </div>
@@ -595,14 +618,10 @@ function openCenterDetails(centerId) {
 
     document.body.appendChild(modal);
 
-    // Close on outside click
     modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.remove();
-        }
+        if (e.target === this) this.remove();
     });
 
-    // Close on Escape key
     const escHandler = function(e) {
         if (e.key === 'Escape') {
             modal.remove();
@@ -650,16 +669,30 @@ function renderPDFNotes(notes) {
     let html = '';
     for (let i = 0; i < notes.length; i++) {
         const note = notes[i];
+        let fileSize = 'Unknown';
+        if (note.pdf && note.pdf.startsWith('data:')) {
+            const base64 = note.pdf.split(',')[1] || '';
+            const size = Math.round((base64.length * 3) / 4 / 1024);
+            if (size < 1024) {
+                fileSize = size + ' KB';
+            } else {
+                fileSize = (size / 1024).toFixed(1) + ' MB';
+            }
+        }
         html += `
-            <div class="note-card">
+            <div class="note-card" data-title="${(note.title || '').toLowerCase()}">
                 <a href="${note.pdf}" download="${note.title || 'note'}.pdf" target="_blank">
                     <i class="fas fa-file-pdf"></i>
                     <h3>${note.title || 'Untitled'}</h3>
                     ${note.description ? `<p>${note.description}</p>` : ''}
-                    <span class="download-btn">📥 Download PDF</span>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.2); margin-top:8px;">
-                        ${note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ''}
+                    <div class="note-meta">
+                        <span class="note-size">📄 ${fileSize}</span>
+                        <span class="download-btn">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </span>
                     </div>
+                    <div class="note-date">${note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ''}</div>
                 </a>
             </div>
         `;
