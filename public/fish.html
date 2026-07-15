@@ -3,21 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🔗 Smart Link Generator - BBCC Skill Hub</title>
+    <title>🔗 Smart Link Generator - Dashboard</title>
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -25,19 +17,14 @@
             color: #ffffff;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
+        
         .header {
             text-align: center;
             padding: 30px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             margin-bottom: 30px;
         }
-
         .header h1 {
             font-size: 32px;
             font-weight: 800;
@@ -46,69 +33,59 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .header p {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255,255,255,0.4);
             margin-top: 5px;
             font-size: 14px;
         }
-
         .header .demo-link {
             display: inline-block;
             margin-top: 10px;
             padding: 6px 16px;
-            background: rgba(255, 215, 0, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.1);
+            background: rgba(255,215,0,0.05);
+            border: 1px solid rgba(255,215,0,0.1);
             border-radius: 20px;
-            color: rgba(255, 215, 0, 0.5);
+            color: rgba(255,215,0,0.5);
             font-size: 12px;
         }
 
         .generator-box {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             border-radius: 20px;
             padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.05);
             margin-bottom: 30px;
         }
-
         .generator-box label {
             display: block;
             font-size: 14px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255,255,255,0.7);
             margin-bottom: 8px;
         }
-
         .generator-box .input-group {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
-
         .generator-box input[type="text"] {
             flex: 1;
             padding: 14px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 12px;
             color: #fff;
             font-size: 16px;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
             min-width: 200px;
         }
-
         .generator-box input[type="text"]:focus {
             outline: none;
-            border-color: rgba(255, 215, 0, 0.3);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255,215,0,0.3);
         }
-
         .generator-box input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255,255,255,0.2);
         }
-
         .generator-box .btn-generate {
             padding: 14px 35px;
             background: linear-gradient(135deg, #ffd700, #f5a623);
@@ -122,23 +99,20 @@
             font-family: 'Inter', sans-serif;
             white-space: nowrap;
         }
-
         .generator-box .btn-generate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.2);
         }
-
         .generator-box .btn-generate:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .generated-link-box {
-            background: rgba(255, 215, 0, 0.05);
+            background: rgba(255,215,0,0.05);
             border-radius: 12px;
             padding: 15px 20px;
-            border: 1px solid rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255,215,0,0.1);
             margin-top: 15px;
             display: none;
             align-items: center;
@@ -147,60 +121,65 @@
             gap: 10px;
             animation: fadeIn 0.5s ease;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .generated-link-box.show {
-            display: flex;
-        }
-
+        .generated-link-box.show { display: flex; }
         .generated-link-box .link-label {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255,255,255,0.2);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             width: 100%;
-            margin-bottom: 2px;
         }
-
         .generated-link-box .link-text {
             color: #ffd700;
             font-size: 14px;
             word-break: break-all;
             flex: 1;
         }
-
         .generated-link-box .link-preview {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.15);
+            color: rgba(255,255,255,0.15);
             width: 100%;
             margin-top: 2px;
         }
-
         .generated-link-box .btn-copy {
             padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             color: #fff;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
+            transition: all 0.3s ease;
         }
-
         .generated-link-box .btn-copy:hover {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: rgba(255, 215, 0, 0.2);
+            background: rgba(255,215,0,0.1);
+            border-color: rgba(255,215,0,0.2);
+        }
+        .generated-link-box .btn-copy.copied {
+            background: rgba(34,197,94,0.15);
+            border-color: rgba(34,197,94,0.2);
+            color: #22c55e;
         }
 
-        .generated-link-box .btn-copy.copied {
-            background: rgba(34, 197, 94, 0.15);
-            border-color: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
+        .photo-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+            display: none;
+        }
+        .photo-preview.show { display: block; }
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: contain;
         }
 
         .stats-row {
@@ -209,134 +188,102 @@
             gap: 15px;
             margin-bottom: 30px;
         }
-
         .stat-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255,255,255,0.03);
             transition: all 0.3s ease;
         }
-
         .stat-card:hover {
-            border-color: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255,215,0,0.1);
             transform: translateY(-2px);
         }
-
         .stat-card .stat-number {
             font-size: 32px;
             font-weight: 800;
             color: #ffd700;
         }
-
         .stat-card .stat-label {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255,255,255,0.3);
             margin-top: 5px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .table-container {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.05);
             overflow: hidden;
         }
-
         .table-header {
             padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             flex-wrap: wrap;
             gap: 10px;
         }
-
         .table-header h2 {
             font-size: 18px;
             font-weight: 700;
         }
-
-        .table-header h2 span {
-            color: #ffd700;
-        }
-
+        .table-header h2 span { color: #ffd700; }
         .table-header .btn-refresh {
             padding: 8px 20px;
-            background: rgba(255, 215, 0, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.1);
+            background: rgba(255,215,0,0.05);
+            border: 1px solid rgba(255,215,0,0.1);
             border-radius: 8px;
             color: #ffd700;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
         }
-
-        .table-header .btn-refresh:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .table-header .btn-refresh:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
+        .table-header .btn-refresh:hover { background: rgba(255,215,0,0.1); }
+        .table-header .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
         .table-header .btn-clear {
             padding: 8px 20px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
             border-radius: 8px;
             color: #ef4444;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
         }
-
-        .table-header .btn-clear:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
+        .table-header .btn-clear:hover { background: rgba(239,68,68,0.2); }
 
         .table-wrapper {
             overflow-x: auto;
             padding: 0 5px 5px 5px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
-
-        thead {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
+        thead { background: rgba(255,255,255,0.02); }
         th {
             padding: 15px 15px;
             text-align: left;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255,255,255,0.4);
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
-
         td {
             padding: 15px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-            color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.8);
             font-size: 13px;
         }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
 
         .status-badge {
             display: inline-block;
@@ -345,62 +292,55 @@
             font-size: 11px;
             font-weight: 600;
         }
-
         .status-badge.online {
-            background: rgba(34, 197, 94, 0.15);
+            background: rgba(34,197,94,0.15);
             color: #22c55e;
         }
-
         .status-badge.offline {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239,68,68,0.15);
             color: #ef4444;
         }
 
         .no-data {
             text-align: center;
             padding: 50px 20px;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255,255,255,0.2);
         }
-
         .no-data i {
             font-size: 48px;
             display: block;
             margin-bottom: 15px;
-            color: rgba(255, 255, 255, 0.05);
+            color: rgba(255,255,255,0.05);
         }
 
         .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255,215,0,0.1);
             border-top-color: #ffd700;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .toast {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: rgba(11, 14, 26, 0.95);
+            background: rgba(11,14,26,0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255,215,0,0.15);
             color: #fff;
             padding: 15px 25px;
             border-radius: 12px;
             font-weight: 600;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             z-index: 99999;
             animation: slideUp 0.5s ease;
             max-width: 400px;
             font-family: 'Inter', sans-serif;
         }
-
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -410,7 +350,7 @@
             .header h1 { font-size: 24px; }
             .generator-box { padding: 20px; }
             .generator-box .input-group { flex-direction: column; }
-            .generator-box .btn-generate { width: 100%; justify-content: center; }
+            .generator-box .btn-generate { width: 100%; }
             .generated-link-box { flex-direction: column; align-items: stretch; }
             .stats-row { grid-template-columns: 1fr 1fr; }
             th, td { padding: 10px 12px; font-size: 12px; }
@@ -418,10 +358,7 @@
             .table-header .btn-refresh,
             .table-header .btn-clear { width: 100%; text-align: center; }
         }
-
-        @media (max-width: 480px) {
-            .stats-row { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -443,6 +380,10 @@
                 <button class="btn-generate" id="generateBtn" onclick="generateLink()">
                     <i class="fas fa-link"></i> Generate Tracking Link
                 </button>
+            </div>
+
+            <div class="photo-preview" id="photoPreview">
+                <img id="previewImage" src="" alt="Preview" />
             </div>
 
             <div class="generated-link-box" id="generatedLinkBox">
@@ -530,12 +471,13 @@
                 return;
             }
 
-            try {
-                new URL(imageUrl);
-            } catch (e) {
+            try { new URL(imageUrl); } catch (e) {
                 showToast('❌ Please enter a valid URL');
                 return;
             }
+
+            document.getElementById('previewImage').src = imageUrl;
+            document.getElementById('photoPreview').classList.add('show');
 
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Generating...';
@@ -553,8 +495,6 @@
                     const link = result.data.link;
                     document.getElementById('generatedLink').textContent = link;
                     document.getElementById('generatedLinkBox').classList.add('show');
-                    
-                    // Preview info
                     document.getElementById('linkPreview').innerHTML = 
                         `📷 <strong>${imageUrl}</strong> → This image will open when someone clicks the link`;
                     
@@ -562,11 +502,9 @@
                     copyToClipboard(link);
                     fetchData();
                     
-                    // Reset copy button
                     const copyBtn = document.getElementById('copyBtn');
                     copyBtn.classList.remove('copied');
                     copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                    
                 } else {
                     showToast('❌ ' + result.message);
                 }
@@ -600,9 +538,7 @@
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
                     showToast('✅ Link copied to clipboard!');
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
+                }).catch(() => fallbackCopy(text));
             } else {
                 fallbackCopy(text);
             }
@@ -619,7 +555,7 @@
         }
 
         // ============================================
-        // FETCH DATA FROM SERVER
+        // FETCH DATA
         // ============================================
         async function fetchData() {
             const btn = document.getElementById('refreshBtn');
@@ -637,7 +573,6 @@
                     showToast('❌ Failed to fetch data');
                 }
             } catch (err) {
-                console.error('Fetch error:', err);
                 document.getElementById('dataTableBody').innerHTML = `
                     <tr>
                         <td colspan="8">
@@ -679,7 +614,6 @@
             
             data.forEach(item => {
                 const latestVisit = item.visits && item.visits.length > 0 ? item.visits[item.visits.length - 1] : null;
-                
                 if (!latestVisit) return;
 
                 const time = new Date(latestVisit.visitedAt);
@@ -698,7 +632,7 @@
                     <tr>
                         <td>${index}</td>
                         <td>${formattedTime}</td>
-                        <td>${latestVisit.location || 'Unknown'}</td>
+                        <td><i class="fas fa-map-marker-alt" style="color:#ffd700;"></i> ${latestVisit.location || 'Unknown'}</td>
                         <td><code style="background:rgba(255,255,255,0.03);padding:2px 8px;border-radius:4px;font-size:12px;">${latestVisit.ip || 'Unknown'}</code></td>
                         <td>
                             <i class="fas ${latestVisit.device === 'Mobile' ? 'fa-mobile-alt' : latestVisit.device === 'Tablet' ? 'fa-tablet-alt' : 'fa-desktop'}"></i>
@@ -742,12 +676,8 @@
                 if (item.visits) {
                     item.visits.forEach(visit => {
                         const date = new Date(visit.visitedAt);
-                        if (date.toDateString() === today) {
-                            todayClicks++;
-                        }
-                        if (date > fiveMinAgo) {
-                            onlineNow++;
-                        }
+                        if (date.toDateString() === today) todayClicks++;
+                        if (date > fiveMinAgo) onlineNow++;
                     });
                 }
             });
@@ -763,9 +693,7 @@
             if (!confirm('⚠️ Are you sure you want to clear ALL tracking data?')) return;
 
             try {
-                const res = await fetch(`${API_BASE}/tracking/clear`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`${API_BASE}/tracking/clear`, { method: 'DELETE' });
                 const result = await res.json();
 
                 if (result.success) {
@@ -780,7 +708,7 @@
         }
 
         // ============================================
-        // TOAST NOTIFICATION
+        // TOAST
         // ============================================
         function showToast(message) {
             const existing = document.querySelector('.toast');
@@ -805,12 +733,9 @@
             fetchData();
 
             document.getElementById('imageUrl').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    generateLink();
-                }
+                if (e.key === 'Enter') generateLink();
             });
 
-            // Auto refresh every 30 seconds
             setInterval(fetchData, 30000);
         });
     </script>
