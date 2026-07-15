@@ -313,10 +313,10 @@
             font-weight: 800;
             letter-spacing: 1px;
         }
-        .header-title .b { color: #3b82f6; }  /* blue */
-        .header-title .b2 { color: #ef4444; } /* red */
-        .header-title .b3 { color: #facc15; } /* yellow */
-        .header-title .b4 { color: #22c55e; } /* green */
+        .header-title .b { color: #3b82f6; }
+        .header-title .b2 { color: #ef4444; }
+        .header-title .b3 { color: #facc15; }
+        .header-title .b4 { color: #22c55e; }
 
         .header-subtitle {
             font-size: clamp(0.6rem, 1vw, 0.8rem);
@@ -516,444 +516,6 @@
             margin-top: 5px;
         }
 
-        /* ===== PARTNER COACHING CENTERS - AUTO SCROLL WITH RING LIGHT ===== */
-        .partner-section {
-            padding: 0 30px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .partner-scroll-container {
-            overflow: hidden;
-            position: relative;
-            padding: 10px 0;
-        }
-
-        .partner-scroll-track {
-            display: flex;
-            gap: 25px;
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            width: max-content;
-            will-change: transform;
-            animation: scrollPartners 40s linear infinite;
-        }
-
-        .partner-scroll-track:hover {
-            animation-play-state: paused;
-        }
-
-        @keyframes scrollPartners {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .partner-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-            min-width: 320px;
-            max-width: 320px;
-            flex-shrink: 0;
-            cursor: grab;
-        }
-
-        .partner-card:active {
-            cursor: grabbing;
-        }
-
-        .partner-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: rgba(255, 215, 0, 0.25);
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
-            z-index: 10;
-        }
-
-        .partner-card-header {
-            padding: 25px 25px 15px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .partner-card .center-logo {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 2px solid rgba(255, 215, 0, 0.15);
-            background: #1a1f35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 800;
-            color: #ffd700;
-            position: relative;
-        }
-
-        .partner-card .center-logo::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, #ffd700, transparent, #ffd700, transparent);
-            animation: ringRotate 3s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes ringRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .partner-card .center-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .center-logo span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .center-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .partner-card .center-info .center-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 3px;
-            line-height: 1.2;
-        }
-
-        .partner-card .center-info .center-classes {
-            font-size: 12px;
-            color: rgba(255, 215, 0, 0.5);
-            letter-spacing: 0.05em;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            max-height: 36px;
-        }
-
-        .partner-card .center-info .center-classes .more-classes {
-            color: rgba(255,215,0,0.4);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 11px;
-            display: inline-block;
-            margin-left: 4px;
-            border-bottom: 1px dashed rgba(255,215,0,0.2);
-        }
-
-        .partner-card .center-info .center-classes .more-classes:hover {
-            color: #ffd700;
-        }
-
-        .partner-card .center-info .center-address {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            margin-top: 2px;
-        }
-
-        .partner-card .director-section {
-            padding: 18px 25px;
-            background: rgba(255, 215, 0, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .partner-card .director-section .director-avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 2px solid rgba(255, 215, 0, 0.12);
-            background: #1a1f35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffd700;
-            position: relative;
-        }
-
-        .partner-card .director-section .director-avatar::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, #facc15, transparent, #facc15, transparent);
-            animation: ringRotate 3s linear infinite reverse;
-            z-index: -1;
-        }
-
-        .partner-card .director-section .director-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .director-section .director-avatar span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .director-section .director-details {
-            flex: 1;
-        }
-
-        .partner-card .director-section .director-details .director-label {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.25);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .partner-card .director-section .director-details .director-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .partner-card .director-section .director-details .director-contact {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.35);
-            margin-top: 2px;
-        }
-
-        .partner-card .director-section .director-details .director-contact i {
-            margin-right: 5px;
-            color: rgba(255, 215, 0, 0.3);
-            font-size: 11px;
-        }
-
-        /* ===== VIP ENCRYPTED CALL BUTTON ===== */
-        .partner-card .director-section .director-details .encrypted-call-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 4px;
-            padding: 5px 18px 5px 14px;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-radius: 30px;
-            color: #facc15;
-            font-size: 12px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(250, 204, 21, 0.3);
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.15);
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 0 8px rgba(250, 204, 21, 0.3);
-        }
-
-        .partner-card .director-section .director-details .encrypted-call-btn::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 30px;
-            background: conic-gradient(from 0deg, #facc15, #ffd700, #facc15, #ffd700, #facc15);
-            animation: ringRotate 2s linear infinite;
-            z-index: -1;
-            opacity: 0.6;
-        }
-
-        .partner-card .director-section .director-details .encrypted-call-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
-            color: #fff;
-            border-color: #ffd700;
-        }
-
-        .partner-card .director-section .director-details .encrypted-call-btn i {
-            font-size: 14px;
-            color: #facc15;
-            filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.4));
-        }
-
-        .partner-card .teachers-list {
-            padding: 15px 25px 20px;
-        }
-
-        .partner-card .teachers-list .teachers-label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.2);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .partner-card .teachers-list .teachers-label i {
-            color: rgba(255, 215, 0, 0.3);
-        }
-
-        .partner-card .teachers-list .teacher-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .partner-card .teachers-list .teacher-tag {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 6px 14px 6px 6px;
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: all 0.3s ease;
-            font-size: 12px;
-        }
-
-        .partner-card .teachers-list .teacher-tag:hover {
-            background: rgba(255, 215, 0, 0.05);
-            border-color: rgba(255, 215, 0, 0.1);
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: #1a1f35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: #ffd700;
-            position: relative;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-avatar::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, #facc15, transparent, #facc15, transparent);
-            animation: ringRotate 2.5s linear infinite;
-            z-index: -1;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-avatar span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-info .tag-name {
-            font-size: 12px;
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .partner-card .teachers-list .teacher-tag .tag-info .tag-subject {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .partner-card .teachers-list .no-teachers {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.2);
-            font-style: italic;
-        }
-
-        .partner-card .card-social {
-            padding: 12px 25px 20px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .partner-card .card-social a {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.25);
-            font-size: 14px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .partner-card .card-social a:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 215, 0, 0.2);
-            color: #ffd700;
-        }
-
-        .partner-card .card-social a:hover .fa-whatsapp { color: #25D366; }
-        .partner-card .card-social a:hover .fa-youtube { color: #FF0000; }
-        .partner-card .card-social a:hover .fa-facebook { color: #1877F2; }
-        .partner-card .card-social a:hover .fa-instagram { color: #E4405F; }
-        .partner-card .card-social a:hover .fa-telegram { color: #0088cc; }
-        .partner-card .card-social a:hover .fa-twitter { color: #1DA1F2; }
-        .partner-card .card-social a:hover .fa-linkedin { color: #0A66C2; }
-        .partner-card .card-social a:hover .fa-lock { color: #16a34a; }
-
-        .no-partners {
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 16px;
-        }
-
-        .no-partners i {
-            font-size: 48px;
-            display: block;
-            margin-bottom: 15px;
-            color: rgba(255, 215, 0, 0.1);
-        }
-
         /* ===== TEACHERS SECTION - AUTO SCROLL LEFT TO RIGHT ===== */
         .teachers-section {
             padding: 0 30px 40px;
@@ -1030,6 +592,11 @@
             background: conic-gradient(from 0deg, transparent, #facc15, transparent, #facc15, transparent);
             animation: ringRotate 3s linear infinite;
             z-index: -1;
+        }
+
+        @keyframes ringRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .teacher-card .teacher-avatar img {
@@ -1587,9 +1154,7 @@
             .banner-section { height: 280px; }
             .banner-slide .banner-overlay { padding: 20px; }
             .banner-slide .banner-overlay h2 { font-size: 18px; }
-            .partner-section { padding: 0 15px 30px; }
-            .partner-card { min-width: 280px; max-width: 280px; }
-            .partner-scroll-track { gap: 15px; }
+            .teachers-section { padding: 0 15px 30px; }
             .teachers-scroll-track { gap: 15px; }
             .teacher-card { min-width: 200px; max-width: 200px; }
             .videos-section { padding: 0 15px 30px; }
@@ -1614,7 +1179,6 @@
             .notification-popup { max-width: 280px; padding: 12px 15px; }
             .notification-popup .notif-title { font-size: 14px; }
             .notification-popup .notif-text { font-size: 12px; }
-            .partner-card { min-width: 260px; max-width: 260px; }
             .teacher-card { min-width: 170px; max-width: 170px; }
         }
     </style>
@@ -1679,19 +1243,6 @@
         <button class="banner-nav prev" id="bannerPrev">◀</button>
         <button class="banner-nav next" id="bannerNext">▶</button>
         <div class="banner-dots" id="bannerDots"></div>
-    </section>
-
-    <!-- ===== PARTNER COACHING CENTERS - AUTO SCROLL WITH DRAG ===== -->
-    <div class="section-title">
-        <h2>🤝 Our Partner Coaching Centers</h2>
-        <p>Excellence in Education, Together</p>
-    </div>
-    <section class="partner-section" id="partnerSection">
-        <div class="partner-scroll-container">
-            <div class="partner-scroll-track" id="partnerTrack">
-                <!-- Will be filled by JavaScript -->
-            </div>
-        </div>
     </section>
 
     <!-- ===== EXPERT TEACHERS - AUTO SCROLL LEFT TO RIGHT ===== -->
@@ -1796,7 +1347,7 @@
         const API_BASE = window.location.origin + '/api';
 
         // ============================================
-        // NOTIFICATION POPUP - Updated
+        // NOTIFICATION POPUP
         // ============================================
         function initNotification() {
             const popup = document.getElementById('notificationPopup');
@@ -2060,273 +1611,6 @@
         }
 
         // ============================================
-        // PARTNER CENTERS - with drag and auto-scroll
-        // ============================================
-        let partnerCenters = [];
-        let partnerPos = 0;
-        let isDragging = false;
-        let startX = 0;
-        let currentTranslate = 0;
-        let prevTranslate = 0;
-        let animationID = 0;
-        let trackWidth = 0;
-
-        async function fetchPartnerCenters() {
-            try {
-                const res = await fetch(`${API_BASE}/tuition-centers`);
-                const result = await res.json();
-                if (result.success && result.data && result.data.length > 0) {
-                    partnerCenters = result.data;
-                    renderPartnerCenters();
-                } else {
-                    partnerCenters = [];
-                    renderPartnerCenters();
-                }
-            } catch (err) {
-                console.error('❌ Partner centers fetch failed:', err);
-                partnerCenters = [];
-                renderPartnerCenters();
-            }
-        }
-
-        function renderPartnerCenters() {
-            const track = document.getElementById('partnerTrack');
-            if (!track) return;
-
-            if (!partnerCenters || partnerCenters.length === 0) {
-                track.innerHTML = `
-                    <div class="partner-card" style="min-width:100%;max-width:100%;">
-                        <div style="padding:40px;text-align:center;color:rgba(255,255,255,0.3);">
-                            <i class="fas fa-building" style="font-size:48px;display:block;margin-bottom:15px;"></i>
-                            No partner coaching centers available
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            const items = [...partnerCenters, ...partnerCenters];
-            let html = '';
-
-            for (let i = 0; i < items.length; i++) {
-                const c = items[i];
-                const initials = c.centerName.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 4).toUpperCase();
-                
-                const dirInitials = c.directorName ? c.directorName.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'D';
-                const teacherCount = c.teachers ? c.teachers.length : 0;
-
-                // Class with "see more" button
-                let classHtml = '';
-                const classes = `${c.fromClass || 'N/A'} - ${c.toClass || 'N/A'}`;
-                if (classes.length > 30) {
-                    classHtml = `
-                        <div class="center-classes">
-                            ${classes.slice(0, 28)}<span class="more-classes" onclick="event.stopPropagation();alert('Full classes: ${classes}')">...see more</span>
-                        </div>
-                    `;
-                } else {
-                    classHtml = `<div class="center-classes">${classes}</div>`;
-                }
-
-                let socialHtml = '';
-                const socialLinks = [];
-
-                if (c.whatsappNumber && c.whatsappNumber.trim() !== '') {
-                    socialLinks.push({ icon: 'fa-whatsapp', url: `https://wa.me/${c.whatsappNumber.replace(/\D/g, '')}`, title: 'WhatsApp' });
-                }
-                if (c.youtubeLink && c.youtubeLink.trim() !== '' && c.youtubeLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-youtube', url: c.youtubeLink, title: 'YouTube' });
-                }
-                if (c.facebookLink && c.facebookLink.trim() !== '' && c.facebookLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-facebook', url: c.facebookLink, title: 'Facebook' });
-                }
-                if (c.instagramLink && c.instagramLink.trim() !== '' && c.instagramLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-instagram', url: c.instagramLink, title: 'Instagram' });
-                }
-                if (c.telegramLink && c.telegramLink.trim() !== '' && c.telegramLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-telegram', url: c.telegramLink, title: 'Telegram' });
-                }
-                if (c.twitterLink && c.twitterLink.trim() !== '' && c.twitterLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-twitter', url: c.twitterLink, title: 'Twitter' });
-                }
-                if (c.linkedinLink && c.linkedinLink.trim() !== '' && c.linkedinLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-linkedin', url: c.linkedinLink, title: 'LinkedIn' });
-                }
-                if (c.encryptedCallLink && c.encryptedCallLink.trim() !== '' && c.encryptedCallLink.trim() !== '#') {
-                    socialLinks.push({ icon: 'fa-lock', url: c.encryptedCallLink, title: 'Encrypted Call', isEncrypted: true });
-                }
-
-                for (const link of socialLinks) {
-                    const isEncrypted = link.isEncrypted || false;
-                    socialHtml += `
-                        <a href="${link.url}" target="_blank" title="${link.title}" 
-                           style="${isEncrypted ? 'background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.2);color:#2563eb;' : ''}">
-                            <i class="fas ${link.icon}"></i>
-                        </a>
-                    `;
-                }
-
-                let teachersHtml = '';
-                if (c.teachers && c.teachers.length > 0) {
-                    const displayTeachers = c.teachers.slice(0, 5);
-                    for (const teacher of displayTeachers) {
-                        const tInitials = teacher.name ? teacher.name.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'T';
-                        teachersHtml += `
-                            <div class="teacher-tag">
-                                <div class="tag-avatar">
-                                    ${teacher.photo && teacher.photo.length > 50 ? 
-                                        `<img src="${teacher.photo}" alt="${teacher.name}">` : 
-                                        `<span>${tInitials}</span>`
-                                    }
-                                </div>
-                                <div class="tag-info">
-                                    <span class="tag-name">${teacher.name || 'Teacher'}</span>
-                                    <span class="tag-subject">${teacher.subject || ''} ${teacher.class ? '• ' + teacher.class : ''}</span>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    if (c.teachers.length > 5) {
-                        teachersHtml += `<span style="font-size:12px;color:rgba(255,255,255,0.2);padding:6px 12px;">+${c.teachers.length - 5} more</span>`;
-                    }
-                } else {
-                    teachersHtml = `<span class="no-teachers">No teachers listed</span>`;
-                }
-
-                let directorContactHtml = '';
-                if (c.encryptedCallLink && c.encryptedCallLink.trim() !== '' && c.encryptedCallLink.trim() !== '#') {
-                    directorContactHtml = `
-                        <a href="${c.encryptedCallLink}" target="_blank" class="encrypted-call-btn">
-                            <i class="fas fa-lock"></i> Encrypted Call
-                        </a>
-                    `;
-                } else if (c.contactNumber && c.contactNumber.trim() !== '') {
-                    directorContactHtml = `
-                        <div class="director-contact"><i class="fas fa-phone"></i> ${c.contactNumber}</div>
-                    `;
-                }
-
-                html += `
-                    <div class="partner-card">
-                        <div class="partner-card-header">
-                            <div class="center-logo">
-                                ${c.clogo && c.clogo.length > 50 ? 
-                                    `<img src="${c.clogo}" alt="${c.centerName}">` : 
-                                    `<span>${initials}</span>`
-                                }
-                            </div>
-                            <div class="center-info">
-                                <div class="center-name">${c.centerName}</div>
-                                ${classHtml}
-                                ${c.address ? `<div class="center-address">📍 ${c.address}</div>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="director-section">
-                            <div class="director-avatar">
-                                ${c.directorPhoto && c.directorPhoto.length > 50 ? 
-                                    `<img src="${c.directorPhoto}" alt="${c.directorName || 'Director'}">` : 
-                                    `<span>${dirInitials}</span>`
-                                }
-                            </div>
-                            <div class="director-details">
-                                <div class="director-label">👤 Director</div>
-                                <div class="director-name">${c.directorName || 'Not specified'}</div>
-                                ${directorContactHtml}
-                            </div>
-                        </div>
-
-                        <div class="teachers-list">
-                            <div class="teachers-label">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                Teachers (${teacherCount})
-                            </div>
-                            <div class="teacher-tags">
-                                ${teachersHtml}
-                            </div>
-                        </div>
-
-                        ${socialHtml ? `<div class="card-social">${socialHtml}</div>` : ''}
-                    </div>
-                `;
-            }
-
-            track.innerHTML = html;
-            track.style.animation = 'scrollPartners 40s linear infinite';
-            
-            // Setup drag events
-            setupDragEvents(track);
-        }
-
-        function setupDragEvents(track) {
-            let isDown = false;
-            let startX = 0;
-            let scrollLeft = 0;
-
-            track.addEventListener('mousedown', (e) => {
-                isDown = true;
-                track.style.animationPlayState = 'paused';
-                startX = e.pageX - track.offsetLeft;
-                scrollLeft = track.scrollLeft || 0;
-                track.style.cursor = 'grabbing';
-            });
-
-            track.addEventListener('mouseleave', () => {
-                isDown = false;
-                track.style.animationPlayState = 'running';
-                track.style.cursor = 'grab';
-            });
-
-            track.addEventListener('mouseup', () => {
-                isDown = false;
-                track.style.animationPlayState = 'running';
-                track.style.cursor = 'grab';
-            });
-
-            track.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - track.offsetLeft;
-                const walk = (x - startX) * 0.8;
-                const currentTransform = window.getComputedStyle(track).transform;
-                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
-                if (matrix) {
-                    const values = matrix[1].split(', ');
-                    const currentX = parseFloat(values[4]) || 0;
-                    const newX = currentX + walk;
-                    track.style.transform = `translateX(${newX}px)`;
-                }
-                startX = x;
-            });
-
-            // Touch events
-            track.addEventListener('touchstart', (e) => {
-                isDown = true;
-                track.style.animationPlayState = 'paused';
-                startX = e.touches[0].pageX - track.offsetLeft;
-                const currentTransform = window.getComputedStyle(track).transform;
-                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
-                if (matrix) {
-                    const values = matrix[1].split(', ');
-                    scrollLeft = parseFloat(values[4]) || 0;
-                }
-            }, { passive: true });
-
-            track.addEventListener('touchmove', (e) => {
-                if (!isDown) return;
-                const x = e.touches[0].pageX - track.offsetLeft;
-                const walk = (x - startX) * 0.8;
-                const newX = scrollLeft + walk;
-                track.style.transform = `translateX(${newX}px)`;
-            }, { passive: true });
-
-            track.addEventListener('touchend', () => {
-                isDown = false;
-                track.style.animationPlayState = 'running';
-            }, { passive: true });
-        }
-
-        // ============================================
         // TEACHERS - AUTO SCROLL LEFT TO RIGHT
         // ============================================
         let allTeachers = [];
@@ -2400,7 +1684,6 @@
             track.innerHTML = html;
             track.style.animation = 'scrollTeachers 35s linear infinite';
             
-            // Pause on hover
             track.addEventListener('mouseenter', () => {
                 track.style.animationPlayState = 'paused';
             });
@@ -2893,12 +2176,10 @@
 
             fetchSettings();
             fetchBanners();
-            fetchPartnerCenters();
             fetchTeachers();
             fetchVideos();
             fetchGallery();
 
-            // Banner controls
             document.getElementById('bannerPrev').addEventListener('click', function() {
                 changeBanner(-1);
                 resetBannerInterval();
@@ -2908,7 +2189,6 @@
                 resetBannerInterval();
             });
 
-            // Gallery controls
             document.getElementById('galleryPrev').addEventListener('click', function() {
                 changeGallery(-1);
                 resetGalleryInterval();
@@ -2921,13 +2201,11 @@
             document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
             document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
 
-            // Video modal
             document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
             document.getElementById('videoModal').addEventListener('click', function(e) {
                 if (e.target === this) closeVideoModal();
             });
 
-            // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeVideoModal();
@@ -2949,16 +2227,14 @@
                 }
             });
 
-            // Auto-refresh every 60s
             setInterval(() => {
                 fetchBanners();
-                fetchPartnerCenters();
                 fetchTeachers();
                 fetchVideos();
                 fetchGallery();
             }, 60000);
         });
     </script>
-
+<script src="/opc.js"></script>
 </body>
 </html>
