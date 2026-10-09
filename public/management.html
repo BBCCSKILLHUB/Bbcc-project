@@ -1547,7 +1547,7 @@
             <div class="sidebar-brand-badge">
                 <div class="badge-icon">🏛️</div>
                 <div class="badge-text">
-                    <h4>BBCC Central Board</h4>
+                    <h4>BBCC Skill Hub</h4>
                     <p>Apex Administrative Console</p>
                 </div>
             </div>
@@ -1562,6 +1562,11 @@
                     <span class="icon">👨‍🎓</span>
                     <span class="tab-label">Student Registry</span>
                     <span class="badge" id="studentCountBadge">0</span>
+                </button>
+                <button class="tab-btn" data-tab="doc-requests">
+                    <span class="icon">📥</span>
+                    <span class="tab-label">Document Requests</span>
+                    <span class="badge" id="docRequestsBadge" style="background:#e11d48;color:white;">0</span>
                 </button>
 
                 <div class="nav-section-title">Academic & Media</div>
@@ -1591,9 +1596,13 @@
                     <span class="tab-label">Footer & Contacts</span>
                 </button>
                 <button class="tab-btn" data-tab="ai-settings">
-                    <span class="icon">🤖</span>
-                    <span class="tab-label">BHARTI AI Assistant</span>
-                    <span class="badge" style="background:#10b981;">AI</span>
+                    <span class="icon">🌸</span>
+                    <span class="tab-label">BHARTI Helpline Team</span>
+                    <span class="badge" style="background:#10b981;">Active</span>
+                </button>
+                <button class="tab-btn" data-tab="system-maintenance">
+                    <span class="icon">⚙️</span>
+                    <span class="tab-label">System & Reset</span>
                 </button>
             </nav>
         </aside>
@@ -1763,9 +1772,152 @@
             </div>
         </div>
 
+        <!-- ===== TAB: DOCUMENT DOWNLOAD REQUESTS (AADHAR APPROVAL) ===== -->
+        <div class="tab-content" id="tab-doc-requests">
+            <div class="card">
+                <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="icon">📥</span>
+                        <span>Student Document Download Requests (Aadhar Card Approvals)</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <select id="docRequestStatusFilter" onchange="loadDownloadRequests(this.value)" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                            <option value="pending">⏳ Pending Approvals Only</option>
+                            <option value="all">📁 All Applications</option>
+                            <option value="approved">✅ Approved</option>
+                            <option value="rejected">❌ Rejected</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="loadDownloadRequests()" style="padding:8px 14px;font-size:13px;">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 18px;margin-bottom:20px;font-size:13px;color:#1e3a8a;display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:24px;">ℹ️</span>
+                    <div>
+                        <strong>Aadhar Verification Workflow:</strong>
+                        Public visitors submit their 12-digit Aadhar Card number and contact information to request protected official documents. Review the requests below and click <strong>Approve</strong>. Once approved, the student visits the homepage, enters their Aadhar number, and immediately downloads the file!
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                        <thead>
+                            <tr style="background:#f1f5f9;color:#334155;text-align:left;border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px 14px;">Date</th>
+                                <th style="padding:12px 14px;">Student Name</th>
+                                <th style="padding:12px 14px;">Mobile</th>
+                                <th style="padding:12px 14px;">Aadhar Number</th>
+                                <th style="padding:12px 14px;">Address</th>
+                                <th style="padding:12px 14px;">Requested Document</th>
+                                <th style="padding:12px 14px;">Status</th>
+                                <th style="padding:12px 14px;text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docRequestsTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:30px;color:#64748b;">
+                                    ⏳ Click Refresh or select filter to load requests...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: SYSTEM MAINTENANCE, ANTI-SLEEP & RESET ===== -->
+        <div class="tab-content" id="tab-system-maintenance">
+            <!-- Render Anti-Sleep Live URL Card -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-title">
+                    <span class="icon">⚡</span>
+                    Render 24/7 Anti-Sleep Keep-Alive Engine
+                </div>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+                    <p style="color:#166534;font-size:13px;margin:0 0 8px;line-height:1.5;">
+                        Render free-tier instances sleep after 15 minutes of inactivity. BBCC Skill Hub has an automated internal background engine that pings <code>/api/ping</code> every 10 minutes to prevent the server from going to sleep.
+                    </p>
+                    <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:#15803d;font-weight:600;">
+                        <span>🟢 Keep-Alive Engine: Running</span>
+                        <span>&bull;</span>
+                        <span id="keepAliveServerStatus">Ping Target: Loaded from Settings / Env</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Live Website URL (Render Hosted Domain)</label>
+                    <div style="display:flex;gap:10px;">
+                        <input type="url" id="liveSiteUrlInput" placeholder="https://your-service.onrender.com" style="flex:1;">
+                        <button class="btn btn-success" onclick="saveRenderLiveUrl()" style="padding:10px 20px;">
+                            💾 Save Live URL
+                        </button>
+                    </div>
+                    <small style="color:#64748b;display:block;margin-top:6px;">
+                        Enter your public Render domain (e.g. <code>https://bbcc-project.onrender.com</code>) so the keep-alive engine automatically pings it 24/7.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Factory Reset & Database Format Card -->
+            <div class="card" style="border:2px solid #ef4444;background:#fffafb;">
+                <div class="card-title" style="color:#b91c1c;">
+                    <span class="icon">⚠️</span>
+                    Master Factory Reset & Database Format (Fresh Launch)
+                </div>
+                <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:14px 18px;margin-bottom:20px;color:#991b1b;font-size:13px;line-height:1.5;">
+                    <strong>DANGER ZONE — COMPLETE DATA CLEAR:</strong>
+                    Yeh option pure database ko wipe kar dega (Students, Coaching Centers, Study Materials, Gallery Photos, Banners, Visitor Tracking aur Logs sab delete ho jayenge).
+                    Website ko fresh launch karne ke liye use karein. Format hone ke baad aapka naya Super Admin ID aur Password ban jayega.
+                </div>
+
+                <button class="btn" onclick="openFormatDatabaseModal()" style="background:#dc2626;color:white;font-weight:700;padding:14px 28px;border-radius:10px;box-shadow:0 4px 12px rgba(220,38,38,0.3);cursor:pointer;">
+                    🗑️ Format & Clear Entire Database
+                </button>
+            </div>
+        </div>
+
             </div> <!-- /content -->
         </div> <!-- /main-viewport -->
     </div> <!-- /dashboard-shell -->
+
+    <!-- ===== FACTORY RESET CONFIRMATION MODAL ===== -->
+    <div id="formatDatabaseModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:#ffffff;border-radius:16px;max-width:500px;width:100%;padding:26px;box-shadow:0 25px 60px rgba(0,0,0,0.4);border:2px solid #ef4444;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:24px;">⚠️</div>
+                <div>
+                    <h3 style="margin:0;color:#991b1b;font-size:18px;">Confirm Master Factory Reset</h3>
+                    <p style="margin:0;color:#64748b;font-size:12px;">Permanent & Irreversible Database Wipe</p>
+                </div>
+            </div>
+
+            <p style="font-size:13px;color:#334155;line-height:1.5;margin-bottom:16px;">
+                Define your <strong>New Super Admin Credentials</strong> for the fresh system:
+            </p>
+
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+                <div>
+                    <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">New Super Admin ID</label>
+                    <input type="text" id="resetNewAdminId" placeholder="e.g. admin" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;" value="admin">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">New Super Admin Password</label>
+                    <input type="password" id="resetNewPassword" placeholder="Enter strong new password" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:700;color:#991b1b;display:block;margin-bottom:4px;">Type <code>FORMAT_ALL_DATA</code> to confirm:</label>
+                    <input type="text" id="resetConfirmText" placeholder="FORMAT_ALL_DATA" style="width:100%;padding:10px;border:2px solid #f87171;border-radius:8px;font-size:13px;font-family:monospace;font-weight:700;">
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:12px;">
+                <button type="button" class="btn btn-secondary" onclick="closeFormatDatabaseModal()" style="padding:10px 18px;">Cancel</button>
+                <button type="button" class="btn" onclick="submitFormatDatabase()" style="background:#dc2626;color:white;font-weight:700;padding:10px 22px;">Confirm & Wipe Database</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
@@ -1897,6 +2049,20 @@
                         if (typeof initTuitionCenter === 'function') {
                             initTuitionCenter();
                         }
+                    }, 100);
+                }
+
+                // Initialize Document Requests
+                if (tabName === 'doc-requests') {
+                    setTimeout(() => {
+                        loadDownloadRequests();
+                    }, 100);
+                }
+
+                // Initialize System Maintenance
+                if (tabName === 'system-maintenance') {
+                    setTimeout(() => {
+                        loadSystemMaintenance();
                     }, 100);
                 }
             });
@@ -2374,21 +2540,23 @@
             const resultBox = document.getElementById('aiTestResult');
             const contentBox = document.getElementById('aiTestContent');
             if (resultBox) resultBox.style.display = 'block';
-            if (contentBox) contentBox.innerHTML = '<span style="color:#667eea;font-weight:600;">⏳ Consulting BHARTI AI Engine...</span>';
+            if (contentBox) contentBox.innerHTML = '<span style="color:#667eea;font-weight:600;">⏳ Consulting BHARTI Academic Counseling Team...</span>';
             try {
                 const res = await fetch('/api/ai/bharti', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        message: "Namaste Bharti, please give a brief overview of BBCC Skill Hub features.",
                         query: "Namaste Bharti, please give a brief overview of BBCC Skill Hub features.",
+                        prompt: "Namaste Bharti, please give a brief overview of BBCC Skill Hub features.",
                         role: "super_admin"
                     })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const engineBadge = data.engine === 'gemini_ai' 
+                    const engineBadge = data.source === 'gemini' 
                         ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Google Gemini AI</span>'
-                        : '<span style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">BBCC Built-In Knowledge Engine</span>';
+                        : '<span style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">BBCC Academic Support Engine</span>';
                     if (contentBox) {
                         contentBox.innerHTML = `
                             <div style="margin-bottom:8px;">Powered by: ${engineBadge}</div>
@@ -2404,11 +2572,250 @@
         }
 
         // ============================================
+        // DOCUMENT DOWNLOAD REQUESTS (AADHAR APPROVALS)
+        // ============================================
+        let downloadRequestsList = [];
+
+        async function loadDownloadRequests(filterStatus) {
+            const tbody = document.getElementById('docRequestsTableBody');
+            if (!tbody) return;
+            const filter = filterStatus || (document.getElementById('docRequestStatusFilter') ? document.getElementById('docRequestStatusFilter').value : 'pending');
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align:center;padding:26px;color:#64748b;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading download requests...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const res = await apiCall(`/api/download-requests?status=${filter}`);
+                if (res.success && Array.isArray(res.data)) {
+                    downloadRequestsList = res.data;
+                    renderDownloadRequests();
+                    
+                    // Update badge
+                    const badge = document.getElementById('docRequestsBadge');
+                    if (badge) {
+                        const pendingCount = (res.counts && res.counts.pending !== undefined) ? res.counts.pending : res.data.filter(r => r.status === 'pending').length;
+                        badge.textContent = pendingCount;
+                        badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:26px;color:#ef4444;">Failed to load requests</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:26px;color:#ef4444;">Error connecting to server</td></tr>`;
+            }
+        }
+
+        function renderDownloadRequests() {
+            const tbody = document.getElementById('docRequestsTableBody');
+            if (!tbody) return;
+
+            if (downloadRequestsList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:36px;color:#94a3b8;">
+                            <div style="font-size:32px;margin-bottom:8px;">📭</div>
+                            No document download requests found for this filter.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            downloadRequestsList.forEach(req => {
+                const dateStr = new Date(req.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                let statusBadge = '';
+                if (req.status === 'approved') {
+                    statusBadge = '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ Approved</span>';
+                } else if (req.status === 'rejected') {
+                    statusBadge = '<span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">❌ Rejected</span>';
+                } else {
+                    statusBadge = '<span style="background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">⏳ Pending</span>';
+                }
+
+                const aadharMasked = req.aadhar ? (req.aadhar.substring(0, 4) + ' ' + req.aadhar.substring(4, 8) + ' ' + req.aadhar.substring(8)) : '-';
+
+                html += `
+                    <tr style="border-bottom:1px solid #e2e8f0;">
+                        <td style="padding:12px 14px;color:#64748b;font-size:12px;">${dateStr}</td>
+                        <td style="padding:12px 14px;font-weight:700;color:#1e293b;">${req.name || '-'}</td>
+                        <td style="padding:12px 14px;color:#3b82f6;"><a href="tel:${req.mobile}" style="color:#2563eb;text-decoration:none;">📞 ${req.mobile || '-'}</a></td>
+                        <td style="padding:12px 14px;font-family:monospace;font-weight:700;color:#0f172a;letter-spacing:1px;">🆔 ${aadharMasked}</td>
+                        <td style="padding:12px 14px;color:#64748b;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${req.address || ''}">${req.address || '-'}</td>
+                        <td style="padding:12px 14px;font-weight:600;color:#0f766e;">📄 ${req.docTitle || 'Study Document'}</td>
+                        <td style="padding:12px 14px;">${statusBadge}</td>
+                        <td style="padding:12px 14px;text-align:center;">
+                            <div style="display:flex;gap:6px;justify-content:center;">
+                                ${req.status !== 'approved' ? `
+                                    <button onclick="updateDownloadRequestStatus('${req._id}', 'approved')" class="btn btn-success" style="padding:5px 10px;font-size:11px;font-weight:700;" title="Approve Student Download">
+                                        ✓ Approve
+                                    </button>
+                                ` : `
+                                    <button onclick="updateDownloadRequestStatus('${req._id}', 'rejected')" class="btn btn-warning" style="padding:5px 10px;font-size:11px;" title="Revoke Approval">
+                                        Revoke
+                                    </button>
+                                `}
+                                ${req.status === 'pending' ? `
+                                    <button onclick="updateDownloadRequestStatus('${req._id}', 'rejected')" class="btn btn-danger" style="padding:5px 10px;font-size:11px;" title="Reject Request">
+                                        ✕
+                                    </button>
+                                ` : ''}
+                                <button onclick="deleteDownloadRequest('${req._id}')" class="btn" style="background:#f1f5f9;color:#64748b;padding:5px 8px;font-size:11px;" title="Delete Record">
+                                    🗑️
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        async function updateDownloadRequestStatus(id, newStatus) {
+            try {
+                const res = await apiCall(`/api/download-requests/${id}/status`, {
+                    method: 'PUT',
+                    body: { status: newStatus }
+                });
+                if (res.success) {
+                    showToast(`Request ${newStatus === 'approved' ? 'Approved! Student can now download with Aadhar.' : 'updated.'}`);
+                    loadDownloadRequests();
+                } else {
+                    showToast(res.message || 'Error updating status', true);
+                }
+            } catch (err) {
+                showToast('Server error updating request', true);
+            }
+        }
+
+        async function deleteDownloadRequest(id) {
+            if (!confirm('Are you sure you want to delete this document request?')) return;
+            try {
+                const res = await apiCall(`/api/download-requests/${id}`, { method: 'DELETE' });
+                if (res.success) {
+                    showToast('Request deleted');
+                    loadDownloadRequests();
+                } else {
+                    showToast(res.message || 'Error deleting request', true);
+                }
+            } catch (err) {
+                showToast('Server error deleting request', true);
+            }
+        }
+
+        // ============================================
+        // SYSTEM MAINTENANCE & FACTORY RESET
+        // ============================================
+        async function loadSystemMaintenance() {
+            try {
+                const settingsData = await apiCall('/api/settings');
+                if (settingsData.success && settingsData.data) {
+                    const input = document.getElementById('liveSiteUrlInput');
+                    if (input) input.value = settingsData.data.liveSiteUrl || '';
+                }
+                const pingRes = await fetch('/api/ping');
+                if (pingRes.ok) {
+                    const serverEl = document.getElementById('keepAliveServerStatus');
+                    if (serverEl) serverEl.textContent = 'Server Ping: Active & Healthy';
+                }
+            } catch (e) {}
+        }
+
+        async function saveRenderLiveUrl() {
+            const url = (document.getElementById('liveSiteUrlInput').value || '').trim();
+            try {
+                const res = await apiCall('/api/settings', {
+                    method: 'PUT',
+                    body: { liveSiteUrl: url }
+                });
+                if (res.success) {
+                    showToast('Render 24/7 Live URL saved successfully! Keep-Alive engine updated.');
+                } else {
+                    showToast(res.message || 'Error saving URL', true);
+                }
+            } catch (err) {
+                showToast('Error saving Live URL', true);
+            }
+        }
+
+        function openFormatDatabaseModal() {
+            const m = document.getElementById('formatDatabaseModal');
+            if (m) {
+                m.style.display = 'flex';
+                document.getElementById('resetConfirmText').value = '';
+                document.getElementById('resetNewPassword').value = '';
+            }
+        }
+
+        function closeFormatDatabaseModal() {
+            const m = document.getElementById('formatDatabaseModal');
+            if (m) m.style.display = 'none';
+        }
+
+        async function submitFormatDatabase() {
+            const newAdminId = (document.getElementById('resetNewAdminId').value || '').trim();
+            const newPassword = (document.getElementById('resetNewPassword').value || '').trim();
+            const confirmText = (document.getElementById('resetConfirmText').value || '').trim();
+            const liveSiteUrl = (document.getElementById('liveSiteUrlInput') ? document.getElementById('liveSiteUrlInput').value : '').trim();
+
+            if (!newAdminId || newAdminId.length < 3) {
+                alert('New Admin ID must be at least 3 characters.');
+                return;
+            }
+            if (!newPassword || newPassword.length < 4) {
+                alert('New Admin Password must be at least 4 characters.');
+                return;
+            }
+            if (confirmText !== 'FORMAT_ALL_DATA') {
+                alert('Confirmation text mismatch! You must type exactly: FORMAT_ALL_DATA');
+                return;
+            }
+
+            if (!confirm(`CRITICAL WARNING: This will PERMANENTLY ERASE all students, centers, study materials, and database records.\n\nNew Admin ID: ${newAdminId}\n\nProceed with format?`)) {
+                return;
+            }
+
+            try {
+                const res = await apiCall('/api/admin/format-database', {
+                    method: 'POST',
+                    body: {
+                        newAdminId: newAdminId,
+                        newPassword: newPassword,
+                        confirmText: confirmText,
+                        liveSiteUrl: liveSiteUrl
+                    }
+                });
+
+                if (res.success) {
+                    alert('✅ Database Formatted Successfully!\n\nPlease log in with your new Super Admin credentials: ' + newAdminId);
+                    localStorage.clear();
+                    window.location.href = '/login';
+                } else {
+                    alert('Format failed: ' + (res.message || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Server error executing database format.');
+            }
+        }
+
+        // ============================================
         // INIT
         // ============================================
         async function init() {
             await loadSettings();
             await loadAdminProfile();
+            
+            // Load download requests count for badge
+            loadDownloadRequests();
             
             // Check if student tab is active
             if (document.getElementById('tab-students').classList.contains('active')) {

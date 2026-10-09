@@ -2825,7 +2825,7 @@
         </div>
         <div style="overflow:hidden;white-space:nowrap;flex:1;position:relative;">
             <div class="ticker-marquee-inner" style="color:#cbd5e1;">
-                📢 <strong>BBCC Central Academic Board</strong> &bull; Admissions for Affiliated Coaching Centers Session 2026-27 are now open &bull; Digital E-Library, Lecture Notes & Video Modules updated &bull; Verified Faculty Database live &bull; Coaching Directors can manage center admissions and teachers via Partner Portal.
+                📢 <strong>BBCC Skill Hub Academic Board</strong> &bull; Admissions for Affiliated Coaching Centers Session 2026-27 are now open &bull; Digital E-Library, Lecture Notes & Video Modules updated &bull; Verified Faculty Database live &bull; Coaching Directors can manage center admissions and teachers via Partner Portal.
             </div>
         </div>
         <div class="ticker-links" style="display:flex;gap:14px;flex-shrink:0;font-size:12px;">
@@ -2896,6 +2896,29 @@
                 <datalist id="pdfSuggestions"></datalist>
             </div>
         </div>
+        <!-- Aadhar Document Download Gateway Banner -->
+        <div style="background:linear-gradient(135deg, #0b0e1a 0%, #1e293b 100%);border:1px solid rgba(255,215,0,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;box-shadow:0 10px 30px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div style="display:flex;align-items:center;gap:16px;max-width:650px;">
+                <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg, #ffd700, #f59e0b);color:#0b0e1a;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">
+                    🆔
+                </div>
+                <div>
+                    <h3 style="color:#ffffff;margin:0 0 4px;font-size:16px;font-weight:700;">Official Study Documents & Aadhar Download Verification</h3>
+                    <p style="color:#94a3b8;margin:0;font-size:12px;line-height:1.4;">
+                        Official syllabus, notes aur model papers download karne ke liye apna application jama karein. Admin verification ke baad aap apna 12-digit Aadhar Card number enter karke turant download unlock kar sakte hain.
+                    </p>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button onclick="openDocApplicationModal()" style="background:linear-gradient(135deg, #ffd700, #f59e0b);color:#0b0e1a;font-weight:700;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(217,119,6,0.35);">
+                    📝 Apply for Document Access
+                </button>
+                <button onclick="openAadharDownloadModal()" style="background:rgba(255,255,255,0.08);color:#ffd700;border:1px solid rgba(255,215,0,0.4);font-weight:700;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;">
+                    🔍 Download with Aadhar
+                </button>
+            </div>
+        </div>
+
         <div class="pdf-notes-grid" id="pdfNotesContainer"></div>
     </section>
 
@@ -2997,6 +3020,86 @@
                 <a href="#" class="download-btn" id="pdfDownloadBtn" download>
                     <i class="fas fa-download"></i> Download PDF
                 </a>
+            </div>
+        </div>
+    <!-- ===== DOCUMENT ACCESS APPLICATION MODAL ===== -->
+    <div class="pdf-modal" id="docApplicationModal">
+        <div class="pdf-modal-content" style="max-width:540px;background:#ffffff;border-radius:20px;overflow:hidden;border:2px solid #ffd700;">
+            <div style="background:linear-gradient(135deg,#0b0e1a 0%,#1e293b 100%);padding:18px 24px;border-bottom:1px solid rgba(255,215,0,0.3);display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">📝</span>
+                    <div>
+                        <h3 style="color:#ffffff;margin:0;font-size:16px;">Document Access Application</h3>
+                        <p style="color:#ffd700;margin:0;font-size:11px;">BBCC Skill Hub Official Verification</p>
+                    </div>
+                </div>
+                <button onclick="closeDocApplicationModal()" style="background:transparent;border:none;color:#cbd5e1;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <form id="docAppForm" onsubmit="submitDocApplication(event)" style="padding:22px 24px;">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Full Name *</label>
+                    <input type="text" id="appStudentName" required placeholder="Enter student full name" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Mobile Number *</label>
+                        <input type="tel" id="appStudentMobile" required placeholder="10-digit Mobile" maxlength="10" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Aadhar Card Number (12 Digits) *</label>
+                        <input type="text" id="appStudentAadhar" required placeholder="12-digit Aadhar" maxlength="14" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;font-family:monospace;font-weight:700;">
+                    </div>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Residential Address / City</label>
+                    <input type="text" id="appStudentAddress" placeholder="Village / Town / City, District, State" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Select Required Document *</label>
+                    <select id="appDocSelect" required style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                        <option value="">-- Choose Study Material Document --</option>
+                    </select>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="button" onclick="closeDocApplicationModal()" style="padding:10px 18px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
+                    <button type="submit" id="docAppSubmitBtn" style="padding:10px 22px;border:none;background:linear-gradient(135deg,#0b0e1a,#1e293b);color:#ffd700;font-weight:700;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid rgba(255,215,0,0.5);">
+                        📤 Submit Application
+                    </button>
+                </div>
+                <div id="docAppMsg" style="margin-top:12px;font-size:12px;display:none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== AADHAR DOWNLOAD VERIFICATION MODAL ===== -->
+    <div class="pdf-modal" id="aadharDownloadModal">
+        <div class="pdf-modal-content" style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;border:2px solid #ffd700;">
+            <div style="background:linear-gradient(135deg,#0b0e1a 0%,#1e293b 100%);padding:18px 24px;border-bottom:1px solid rgba(255,215,0,0.3);display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">🆔</span>
+                    <div>
+                        <h3 style="color:#ffffff;margin:0;font-size:16px;">Download with Aadhar Verification</h3>
+                        <p style="color:#ffd700;margin:0;font-size:11px;">Approved Official Document Access</p>
+                    </div>
+                </div>
+                <button onclick="closeAadharDownloadModal()" style="background:transparent;border:none;color:#cbd5e1;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:22px 24px;">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Enter your 12-digit Aadhar Card Number:</label>
+                    <div style="display:flex;gap:10px;">
+                        <input type="text" id="aadharVerifyInput" placeholder="12-digit Aadhar Number" maxlength="14" style="flex:1;padding:10px 14px;border:2px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;font-family:monospace;font-weight:700;letter-spacing:1px;">
+                        <button onclick="checkAadharDownloads()" id="aadharCheckBtn" style="padding:10px 20px;background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0b0e1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:13px;">
+                            🔍 Check & Download
+                        </button>
+                    </div>
+                </div>
+
+                <div id="aadharResultsContainer" style="margin-top:16px;">
+                    <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">
+                        Enter your 12-digit Aadhar number and click 'Check & Download' to view approved files.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3721,6 +3824,187 @@
             modal.classList.remove('active');
             viewer.src = '';
             document.body.style.overflow = '';
+        }
+
+        // ============================================
+        // AADHAR DOCUMENT DOWNLOAD WORKFLOW
+        // ============================================
+        function openDocApplicationModal(preselectDocId) {
+            const modal = document.getElementById('docApplicationModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            populateDocSelect(preselectDocId);
+        }
+
+        function closeDocApplicationModal() {
+            const modal = document.getElementById('docApplicationModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function populateDocSelect(selectedDocId) {
+            const sel = document.getElementById('appDocSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- Choose Study Material Document --</option>';
+            if (Array.isArray(pdfNotesData) && pdfNotesData.length > 0) {
+                pdfNotesData.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n._id;
+                    opt.textContent = `${n.title} (${n.fileName || 'PDF Document'})`;
+                    if (selectedDocId && n._id.toString() === selectedDocId.toString()) {
+                        opt.selected = true;
+                    }
+                    sel.appendChild(opt);
+                });
+            }
+        }
+
+        async function submitDocApplication(e) {
+            e.preventDefault();
+            const btn = document.getElementById('docAppSubmitBtn');
+            const msgEl = document.getElementById('docAppMsg');
+            const name = document.getElementById('appStudentName').value.trim();
+            const mobile = document.getElementById('appStudentMobile').value.trim();
+            const aadhar = document.getElementById('appStudentAadhar').value.trim();
+            const address = document.getElementById('appStudentAddress').value.trim();
+            const docId = document.getElementById('appDocSelect').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            msgEl.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/download-requests`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, mobile, aadhar, address, docId })
+                });
+                const data = await res.json();
+                msgEl.style.display = 'block';
+                if (data.success) {
+                    msgEl.style.background = '#dcfce7';
+                    msgEl.style.color = '#166534';
+                    msgEl.style.padding = '10px 14px';
+                    msgEl.style.borderRadius = '8px';
+                    msgEl.innerHTML = `✅ <strong>Safal:</strong> ${data.message}`;
+                    setTimeout(() => {
+                        closeDocApplicationModal();
+                        document.getElementById('docAppForm').reset();
+                        openAadharDownloadModal(aadhar);
+                    }, 2200);
+                } else {
+                    msgEl.style.background = '#fee2e2';
+                    msgEl.style.color = '#991b1b';
+                    msgEl.style.padding = '10px 14px';
+                    msgEl.style.borderRadius = '8px';
+                    msgEl.textContent = `❌ ${data.message || 'Error submitting application'}`;
+                }
+            } catch (err) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#fee2e2';
+                msgEl.style.color = '#991b1b';
+                msgEl.style.padding = '10px 14px';
+                msgEl.style.borderRadius = '8px';
+                msgEl.textContent = '❌ Server network error. Kripya punah prayas karein.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📤 Submit Application';
+            }
+        }
+
+        function openAadharDownloadModal(prefillAadhar) {
+            const modal = document.getElementById('aadharDownloadModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (prefillAadhar) {
+                document.getElementById('aadharVerifyInput').value = prefillAadhar;
+                checkAadharDownloads();
+            }
+        }
+
+        function closeAadharDownloadModal() {
+            const modal = document.getElementById('aadharDownloadModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        async function checkAadharDownloads() {
+            const input = document.getElementById('aadharVerifyInput');
+            const container = document.getElementById('aadharResultsContainer');
+            const btn = document.getElementById('aadharCheckBtn');
+            const aadhar = (input.value || '').trim();
+
+            if (!aadhar) {
+                alert('Please enter your 12-digit Aadhar number');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+            container.innerHTML = `<div style="text-align:center;padding:24px;color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Checking Aadhar approval records...</div>`;
+
+            try {
+                const res = await fetch(`${API_BASE}/download-requests/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aadhar })
+                });
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.requests) && data.requests.length > 0) {
+                    let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+                    data.requests.forEach(r => {
+                        const isApproved = r.status === 'approved';
+                        const isPending = r.status === 'pending';
+
+                        html += `
+                            <div style="border:1px solid ${isApproved ? '#bbf7d0' : (isPending ? '#fde68a' : '#fecaca')};background:${isApproved ? '#f0fdf4' : (isPending ? '#fffbeb' : '#fef2f2')};border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                                <div>
+                                    <div style="font-weight:700;color:#0f172a;font-size:14px;margin-bottom:2px;">📄 ${r.docTitle}</div>
+                                    <div style="font-size:11px;color:#64748b;">
+                                        Status: <strong style="color:${isApproved ? '#166534' : (isPending ? '#b45309' : '#dc2626')};">${isApproved ? 'Approved & Ready' : (isPending ? 'Verification Pending' : 'Rejected')}</strong>
+                                        ${r.approvedAt ? ' &bull; Approved on ' + new Date(r.approvedAt).toLocaleDateString('en-IN') : ''}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${isApproved && r.file ? `
+                                        <a href="${r.file}" download="${r.fileName || 'bbcc-study-document.pdf'}" class="btn" style="background:#16a34a;color:white;font-weight:700;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+                                            📥 Download Document
+                                        </a>
+                                    ` : (isPending ? `
+                                        <span style="background:#fef3c7;color:#92400e;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;">
+                                            ⏳ Admin Review In Progress
+                                        </span>
+                                    ` : `
+                                        <button onclick="openDocApplicationModal('${r.docId}')" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;">
+                                            Re-apply
+                                        </button>
+                                    `)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:24px;color:#b91c1c;background:#fef2f2;border-radius:12px;border:1px solid #fecaca;">
+                            <div style="font-size:24px;margin-bottom:6px;">⚠️</div>
+                            <p style="margin:0 0 10px;font-size:13px;">${data.message || 'No applications found for this Aadhar number.'}</p>
+                            <button onclick="openDocApplicationModal()" style="background:linear-gradient(135deg,#0b0e1a,#1e293b);color:#ffd700;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">
+                                📝 Submit Application Now
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;">Connection error. Please try again.</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Check & Download';
+            }
         }
 
         function filterPDFNotes(query) {

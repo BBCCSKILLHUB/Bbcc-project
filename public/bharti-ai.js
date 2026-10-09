@@ -227,6 +227,40 @@
             border-color: rgba(255, 215, 0, 0.4);
         }
 
+        .bharti-voice-bar {
+            padding: 6px 14px;
+            background: rgba(15, 23, 42, 0.98);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .bharti-voice-label {
+            color: #ffd700;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bharti-voice-select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 3px 8px;
+            font-size: 11px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .bharti-voice-select option {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
         /* Messages */
         .bharti-messages {
             flex: 1;
@@ -446,7 +480,7 @@
                 <div class="bharti-header-left">
                     <div class="bharti-hdr-avatar">🌸</div>
                     <div>
-                        <div class="bharti-hdr-title">BHARTI AI <span style="font-size:10px;background:#ffd700;color:#0b0e1a;padding:2px 6px;border-radius:10px;font-weight:800;">LIVE</span></div>
+                        <div class="bharti-hdr-title">BHARTI <span style="font-size:10px;background:#ffd700;color:#0b0e1a;padding:2px 6px;border-radius:10px;font-weight:800;">HELPLINE</span></div>
                         <div class="bharti-hdr-subtitle">${roleLabel}</div>
                     </div>
                 </div>
@@ -460,9 +494,22 @@
                 </div>
             </div>
 
+            <!-- Voice Persona Selector -->
+            <div class="bharti-voice-bar">
+                <span class="bharti-voice-label"><i class="fas fa-microphone-alt"></i> Voice Profile:</span>
+                <select id="bhartiVoiceSelector" class="bharti-voice-select" onchange="changeBhartiVoiceProfile(this.value)" title="Choose Voice Persona">
+                    <option value="Kore">🌸 Kore (Sweet & Gentle Female)</option>
+                    <option value="Aoede">🎶 Aoede (Melodic & Expressive Female)</option>
+                    <option value="Zephyr">🍃 Zephyr (Calm & Clear Female)</option>
+                    <option value="Puck">✨ Puck (Youthful & Lively Female)</option>
+                    <option value="Fenrir">🌟 Fenrir (Warm & Deep Female)</option>
+                    <option value="Orus">🏛️ Orus (Executive Professional Female)</option>
+                </select>
+            </div>
+
             <div class="bharti-messages" id="bhartiMessages">
                 <div class="bharti-msg assistant">
-                    Namaste! Main <strong>BHARTI</strong> hoon, BBCC Skill Hub ki AI Voice Assistant. Aap mujhse bol kar ya likh kar koi bhi sawal pooch sakte hain! 🙏
+                    Namaste! Main <strong>BHARTI</strong> hoon, BBCC Skill Hub Academic Counseling & Support Helpline Team se. Aap mujhse bol kar ya likh kar koi bhi jankari prapt kar sakte hain! 🙏
                 </div>
             </div>
 
@@ -482,7 +529,29 @@
         `;
 
         document.body.appendChild(modal);
+
+        // Set initial selected voice
+        const sel = document.getElementById('bhartiVoiceSelector');
+        if (sel) sel.value = activeVoiceProfile;
     }
+
+    // Voice Profiles & State
+    let activeVoiceProfile = localStorage.getItem('bharti_voice_profile') || 'Kore';
+    const VOICE_PROFILES = {
+        'Kore':   { pitch: 1.15, rate: 0.96, desc: 'Sweet & Gentle' },
+        'Aoede':  { pitch: 1.25, rate: 1.00, desc: 'Melodic & Expressive' },
+        'Zephyr': { pitch: 1.05, rate: 0.98, desc: 'Calm & Clear' },
+        'Puck':   { pitch: 1.28, rate: 1.02, desc: 'Youthful & Lively' },
+        'Fenrir': { pitch: 1.00, rate: 0.92, desc: 'Warm & Deep' },
+        'Orus':   { pitch: 1.10, rate: 0.96, desc: 'Executive Professional' }
+    };
+
+    window.changeBhartiVoiceProfile = function (profile) {
+        if (!VOICE_PROFILES[profile]) profile = 'Kore';
+        activeVoiceProfile = profile;
+        localStorage.setItem('bharti_voice_profile', profile);
+        speakText(`Namaste, main Bharti hoon. Aapki aawaz setting ab ${profile} profile par set ho gayi hai.`);
+    };
 
     // Toggle Modal
     window.toggleBhartiModal = function () {
@@ -516,7 +585,7 @@
         }
     };
 
-    // Speech Synthesis
+    // Sweet Female Speech Synthesis Engine
     function speakText(text) {
         if (!voiceEnabled || !window.speechSynthesis) return;
         stopSpeech();
@@ -524,13 +593,31 @@
         // Clean formatting symbols
         const clean = text.replace(/[*_#`]/g, '').replace(/https?:\/\/\S+/g, '');
         const utterance = new SpeechSynthesisUtterance(clean);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.05;
 
-        // Try Hindi / Indian English voices
+        // Apply Voice Profile tuning
+        const profileConfig = VOICE_PROFILES[activeVoiceProfile] || VOICE_PROFILES['Kore'];
+        utterance.pitch = profileConfig.pitch;
+        utterance.rate = profileConfig.rate;
+
+        // Select Female Indian/Hindi Voice with high priority
         const voices = window.speechSynthesis.getVoices();
-        const inVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India'));
-        if (inVoice) utterance.voice = inVoice;
+        if (voices && voices.length > 0) {
+            const hindiFemale = voices.find(v => (v.lang.includes('hi') || v.lang.includes('IN')) && 
+                (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('swara') || v.name.toLowerCase().includes('heera') || v.name.toLowerCase().includes('kalpana')));
+            
+            const genericFemale = voices.find(v => (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('victoria') || v.name.toLowerCase().includes('kareena')) && 
+                !v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('david') && !v.name.toLowerCase().includes('ravi'));
+            
+            const inVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
+
+            if (hindiFemale) {
+                utterance.voice = hindiFemale;
+            } else if (genericFemale) {
+                utterance.voice = genericFemale;
+            } else if (inVoice) {
+                utterance.voice = inVoice;
+            }
+        }
 
         utterance.onstart = function () { isSpeaking = true; };
         utterance.onend = function () { isSpeaking = false; };
@@ -625,7 +712,10 @@
                 },
                 body: JSON.stringify({
                     message: message,
+                    query: message,
+                    prompt: message,
                     role: currentRole,
+                    voiceProfile: activeVoiceProfile,
                     history: chatHistory.slice(-6)
                 })
             });
@@ -653,7 +743,7 @@
             } else {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'bharti-msg assistant';
-                errorDiv.textContent = data.message || 'Kshama karein, ek technical problem aayi.';
+                errorDiv.textContent = data.message || 'Kshama karein, ek technical samasya aayi.';
                 messagesContainer.appendChild(errorDiv);
             }
         } catch (err) {

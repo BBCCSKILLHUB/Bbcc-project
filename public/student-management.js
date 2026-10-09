@@ -26,13 +26,13 @@ function initStudentManagement() {
     if (!container) return;
     
     container.innerHTML = `
-        <!-- Central Board Notice -->
+        <!-- BBCC Skill Hub Registry Notice -->
         <div style="background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(59,130,246,0.08);">
             <div style="width: 44px; height: 44px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; flex-shrink: 0;">
                 🏛️
             </div>
             <div>
-                <h4 style="margin: 0 0 3px; color: #1e3a8a; font-size: 15px; font-weight: 700;">BBCC Central Board Registry — Global Center Student Rosters</h4>
+                <h4 style="margin: 0 0 3px; color: #1e3a8a; font-size: 15px; font-weight: 700;">BBCC Skill Hub Registry — Global Center Student Rosters</h4>
                 <p style="margin: 0; color: #3b82f6; font-size: 12px; line-height: 1.4;">BBCC Skill Hub does not directly register students. All student enrollments are managed by affiliated Partner Coaching Centers. Use the center filter below to inspect students, track fee records, and verify enrollments.</p>
             </div>
         </div>

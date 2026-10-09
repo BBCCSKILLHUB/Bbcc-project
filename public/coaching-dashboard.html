@@ -612,7 +612,7 @@
                     <i class="fas fa-file-pdf"></i> Study Material
                 </button>
                 <button class="nav-tab-btn" onclick="switchTab('central-materials')">
-                    <i class="fas fa-graduation-cap"></i> Central Board Materials
+                    <i class="fas fa-graduation-cap"></i> BBCC Skill Hub Materials
                 </button>
                 <button class="nav-tab-btn" onclick="switchTab('gallery-banners')">
                     <i class="fas fa-images"></i> Gallery & Banners
@@ -876,17 +876,17 @@
                 </div>
             </div>
 
-            <!-- TAB 5: CENTRAL BOARD STUDY MATERIALS -->
+            <!-- TAB 5: BBCC SKILL HUB STUDY MATERIALS -->
             <div class="tab-panel" id="tab-central-materials">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-graduation-cap"></i> Central Board Study Materials (BBCC Skill Hub)</h2>
+                        <h2><i class="fas fa-graduation-cap"></i> BBCC Skill Hub Academic Materials</h2>
                         <button class="btn btn-gold" onclick="loadCentralStudyMaterials()" style="padding: 6px 14px; font-size: 12px;">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
                     <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 20px;">
-                        Curated study materials, question banks, and notes issued by BBCC Skill Hub Central Board for affiliated partner centers.
+                        Curated study materials, question banks, and notes issued by BBCC Skill Hub for affiliated partner centers.
                     </p>
 
                     <div id="centralMaterialsListContainer">
@@ -1355,8 +1355,10 @@
             } else {
                 showToast(res.message || 'Error recording payment', true);
             }
+        }
+
         // ========================================================
-        // CENTRAL BOARD STUDY MATERIALS (GRANTED ACCESS)
+        // BBCC SKILL HUB STUDY MATERIALS (GRANTED ACCESS)
         // ========================================================
         let centralMaterialsList = [];
 
@@ -1366,7 +1368,7 @@
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
                     <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-                    Fetching Central Board Documents...
+                    Fetching BBCC Skill Hub Documents...
                 </div>
             `;
 
@@ -1379,7 +1381,7 @@
                     container.innerHTML = `<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">No materials available currently</div>`;
                 }
             } catch (err) {
-                container.innerHTML = `<div style="text-align: center; padding: 40px; color: #ef4444;">Failed to load central materials</div>`;
+                container.innerHTML = `<div style="text-align: center; padding: 40px; color: #ef4444;">Failed to load materials</div>`;
             }
         }
 
@@ -1391,7 +1393,7 @@
                 container.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
                         <i class="fas fa-folder-open" style="font-size: 32px; margin-bottom: 10px; display: block; color: rgba(255,215,0,0.5);"></i>
-                        No central board study materials have been assigned to your center yet.
+                        No study materials have been assigned to your center yet.
                     </div>
                 `;
                 return;
