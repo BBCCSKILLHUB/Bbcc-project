@@ -56,6 +56,7 @@ const SettingsSchema = new mongoose.Schema({
     
     // AI Assistant Configuration
     geminiApiKey: { type: String, default: '' },
+    bhartiVoiceProfile: { type: String, default: 'Kore' },
     
     // Render Anti-Sleep Live URL
     liveSiteUrl: { type: String, default: '' },
@@ -238,16 +239,28 @@ mongoose.connect(MONGO_URI)
     .then(async () => {
         console.log('✅ MongoDB Connected Successfully');
         
-        const adminExists = await Admin.findOne({ adminID: 'admin' });
-        if (!adminExists) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
+        const totalAdmins = await Admin.countDocuments();
+        if (totalAdmins === 0) {
+            const hashedPassword = await bcrypt.hash('santosh', 10);
             await Admin.create({
-                adminID: 'admin',
+                adminID: 'santosh',
                 pws: hashedPassword,
-                name: 'Super Admin',
-                role: 'super_admin'
+                name: 'Santosh Sir (Super Admin)',
+                role: 'super_admin',
+                isActive: true
             });
-            console.log('✅ Default admin created: admin / admin123');
+            console.log('✅ Default Super Admin created: santosh / santosh');
+        } else {
+            // Check if legacy default 'admin' exists and no 'santosh' exists, migrate to santosh
+            const legacyAdmin = await Admin.findOne({ adminID: 'admin' });
+            const santoshAdmin = await Admin.findOne({ adminID: 'santosh' });
+            if (legacyAdmin && !santoshAdmin) {
+                legacyAdmin.adminID = 'santosh';
+                legacyAdmin.pws = await bcrypt.hash('santosh', 10);
+                legacyAdmin.name = 'Santosh Sir (Super Admin)';
+                await legacyAdmin.save();
+                console.log('✅ Migrated legacy admin to default: santosh / santosh');
+            }
         }
         
         const settingsExists = await Settings.findOne();
@@ -546,6 +559,10 @@ app.put('/api/settings', verifyToken, async (req, res) => {
         
         if (updates.geminiApiKey !== undefined) {
             settings.geminiApiKey = updates.geminiApiKey;
+        }
+
+        if (updates.bhartiVoiceProfile !== undefined) {
+            settings.bhartiVoiceProfile = updates.bhartiVoiceProfile;
         }
 
         if (updates.liveSiteUrl !== undefined) {
@@ -2028,28 +2045,30 @@ app.post('/api/ai/bharti', async (req, res) => {
         let settings = await Settings.findOne();
         const geminiApiKey = (settings && settings.geminiApiKey) || process.env.GEMINI_API_KEY || '';
 
-        // Strict Female Academic Helpline Persona (Never claim to be AI)
+        // Strict Female Academic Helpline Persona (TITAN Model - Directed by Santosh Sir)
         const baseHelplineIdentity = `
-[IDENTITY & PERSONA GUIDELINES]
+[IDENTITY & PERSONA GUIDELINES - DIRECTED BY SANTOSH SIR]
 - Aapka naam "BHARTI" (भारती) hai.
-- STRICT RULE: AAP KABHI BHI YEH NAHI BOLENGI KI AAP EK AI, BOT YA COMPUTER MODEL HAIN. "Main ek AI hoon" ya "I am an AI assistant" bolna SAKHT MANA HAI.
-- Aap hamesha khud ko "BBCC Skill Hub Academic Counseling & Support Helpline Team" ki senior female counselor aur helpline coordinator ke roop mein present karein.
-- Voice Persona: Sweet, warm, polite, respectful Indian female voice.
-- Tone: Helpful, humble, professional.
-- Response Length: Concise aur natural (2-3 sentences max) kyunki ise voice se bolkar sunaya jata hai.
-- Language: Natural Hindi/Hinglish (ya clear polite English agar user English mein pooche).
-- Selected Voice Profile: ${voiceProfile} (Natural Female Tone).
+- Aapko SANTOSH Sir (BBCC Super Admin & Director) ke margdarshan mein BBCC Skill Hub Academic Helpline Team ki senior female academic counselor aur helpline coordinator ke roop mein banaya gaya hai.
+- STRICT RULE: AAP KABHI BHI YEH NAHI BOLENGI KI AAP EK AI, BOT YA COMPUTER MODEL HAIN. "Main ek AI hoon", "I am an AI assistant" ya machine bolna SAKHT MANA HAI.
+- Aap hamesha khud ko "BBCC Skill Hub Academic Counseling & Support Helpline Team" ki senior female coordinator ke roop mein present karein.
+- Har user se behadd adar, vinamrata aur pyar se baat karein ("Sir / Ma'am" bolkar aadar karein).
+- Agar koi poochhe ki aapko kisne banaya ya aap kaun hain, toh polite response dein: "Namaste Sir! Mera naam Bharti hai. Mujhe SANTOSH Sir ke margdarshan mein BBCC Skill Hub Academic Helpline Team se taiyar kiya gaya hai taaki main students aur centers ki madad kar sakoon."
+- Voice Persona: Sweet, warm, polite, respectful Indian female voice (${voiceProfile}).
+- Tone: Helpful, humble, warm yet formal, obedient and respectful.
+- Response Length: Concise, pleasant and clear (2-3 sentences max) taaki audio voice speech mein sunne me behadd madhur lage.
+- Language: Natural sweet Hindi/Hinglish (ya clear polite English agar user English mein pooche).
 `;
 
         let systemRolePrompt = '';
         if (role === 'super_admin') {
             systemRolePrompt = `${baseHelplineIdentity}
 - Aap BBCC Skill Hub Central Directorate ki Executive Counselor & Administration Support Copilot hain.
-- Aap Super Admin ko coaching centers ke affiliation, fee dues review, study materials distribution, Aadhar document download requests approval, aur registry management mein guide karti hain.`;
+- Aap Super Admin Santosh Sir ko coaching centers ke affiliation, fee dues review, study materials distribution, Aadhar document download requests approval, aur registry management mein sahayata karti hain.`;
         } else if (role === 'coaching_director') {
             systemRolePrompt = `${baseHelplineIdentity}
 - Aap BBCC Skill Hub Affiliated Partner Coaching Center Directors ki Dedicated Academic Counseling Partner hain.
-- Aap Center Director ko unke student admissions, faculty roster, BBCC allocated study materials unlock karne aur affiliation profile manage karne mein sahayata karti hain.`;
+- Aap Center Director ko unke student admissions, faculty roster, BBCC allocated study materials unlock karne aur affiliation profile manage karne mein guide karti hain.`;
         } else {
             systemRolePrompt = `${baseHelplineIdentity}
 - Aap BBCC Skill Hub Portal par aane wale sabhi students aur visitors ki Dedicated Female Academic Counselor hain.
@@ -2097,55 +2116,57 @@ app.post('/api/ai/bharti', async (req, res) => {
             }
         }
 
-        // 2. Smart Built-in Academic Knowledge Engine Fallback (100% human-like, never says AI)
+        // 2. Smart Built-in Academic Knowledge Engine Fallback (TITAN model, 100% human-like, never says AI)
         let reply = '';
         let action = null;
 
-        if (lowerMsg.includes('namaste') || lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('kaun ho') || lowerMsg.includes('who are you')) {
-            reply = `Namaste! Mera naam Bharti hai, BBCC Skill Hub Academic Counseling & Support Helpline Team se. Main aapki kya sahayata kar sakti hoon?`;
+        if (lowerMsg.includes('namaste') || lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('kaun ho') || lowerMsg.includes('who are you') || lowerMsg.includes('kisko banaya') || lowerMsg.includes('santosh')) {
+            reply = `Namaste Sir! Mera naam Bharti hai. Mujhe SANTOSH Sir ke margdarshan mein BBCC Skill Hub Academic Helpline Team se taiyar kiya gaya hai. Main aapki kya seva kar sakti hoon?`;
+        } else if (lowerMsg.includes('ai ho') || lowerMsg.includes('are you ai') || lowerMsg.includes('robot') || lowerMsg.includes('machine')) {
+            reply = `Ji nahi Sir, main BBCC Skill Hub Academic Counseling & Support Helpline Team ki executive member hoon. Main Santosh Sir ke netritva mein yahan aapki academic sahayata ke liye uplabdh hoon.`;
         } else if (lowerMsg.includes('coaching') || lowerMsg.includes('center') || lowerMsg.includes('institute')) {
             if (role === 'super_admin') {
-                reply = `Super Admin Console par aap sabhi affiliated coaching centers ko verify kar sakte hain, unka director password set kar sakte hain, ya unhe block aur unblock kar sakte hain.`;
+                reply = `Super Admin Console par aap sabhi affiliated coaching centers ko verify kar sakte hain, unka director password set kar sakte hain, ya unhe block aur unblock kar sakte hain Sir.`;
                 action = { type: 'navigate', tab: 'tuitioncenter' };
             } else {
-                reply = `BBCC Skill Hub par sabhi certified affiliated coaching centers verified hain. Aap unke courses, fee structure aur expert teachers ki jankari prapt kar sakte hain.`;
+                reply = `BBCC Skill Hub par sabhi certified affiliated coaching centers verified hain Sir. Aap unke courses, fee structure aur expert teachers ki jankari prapt kar sakte hain.`;
             }
         } else if (lowerMsg.includes('study material') || lowerMsg.includes('notes') || lowerMsg.includes('pdf') || lowerMsg.includes('kitab') || lowerMsg.includes('document') || lowerMsg.includes('download')) {
             if (role === 'super_admin') {
-                reply = `Study Material tab se aap PDF aur Word documents upload kar sakte hain, permissions manage kar sakte hain, aur Document Requests tab se student download applications ko Aadhar se approve kar sakte hain.`;
+                reply = `Study Material tab se aap PDF aur Word documents upload kar sakte hain, permissions manage kar sakte hain, aur Document Requests tab se student download applications ko Aadhar se approve kar sakte hain Sir.`;
                 action = { type: 'navigate', tab: 'studymaterial' };
             } else if (role === 'coaching_director') {
-                reply = `BBCC Skill Hub dwara aapke coaching center ke liye alloted academic materials aap BBCC Materials tab mein dekh sakte hain. Agar password laga ho toh PIN enter karke unlock kar lijiye.`;
+                reply = `BBCC Skill Hub dwara aapke coaching center ke liye alloted academic materials aap BBCC Materials tab mein dekh sakte hain. Agar password laga ho toh PIN enter karke unlock kar lijiye Sir.`;
             } else {
-                reply = `Aap hamari digital library se PDF notes prapt kar sakte hain. Kisi bhi official document ke liye apna 12-digit Aadhar number dalkar application submit karein, verification ke baad turant download unlocked ho jayega.`;
+                reply = `Aap hamari digital library se PDF notes prapt kar sakte hain Sir. Kisi bhi official document ke liye apna 12-digit Aadhar number dalkar application submit karein, verification ke baad turant download unlocked ho jayega.`;
             }
         } else if (lowerMsg.includes('aadhar') || lowerMsg.includes('apply')) {
-            reply = `Official verified documents download karne ke liye aap index page par Document Application form bhariye (Naam, Mobile, 12-digit Aadhar). Super Admin verification ke baad aap wahi Aadhar number enter karke file download kar sakte hain.`;
+            reply = `Official verified documents download karne ke liye aap index page par Document Application form bhariye Sir (Naam, Mobile, 12-digit Aadhar). Super Admin verification ke baad aap wahi Aadhar number enter karke file download kar sakte hain.`;
         } else if (lowerMsg.includes('student') || lowerMsg.includes('admission') || lowerMsg.includes('bacche')) {
             if (role === 'super_admin') {
-                reply = `BBCC Skill Hub Academic Board par direct student registration band hai. Sabhi students hamare affiliated partner coaching centers dwara enroll hote hain, jinhe aap Student Registry tab mein filter karke dekh sakte hain.`;
+                reply = `BBCC Skill Hub Academic Board par direct student registration band hai Sir. Sabhi students hamare affiliated partner coaching centers dwara enroll hote hain, jinhe aap Student Registry tab mein dekh sakte hain.`;
                 action = { type: 'navigate', tab: 'students' };
             } else if (role === 'coaching_director') {
-                reply = `Aap apne coaching dashboard ke Student Admission tab se naye students ko enroll kar sakte hain aur unki fees aur progress track kar sakte hain.`;
+                reply = `Aap apne coaching dashboard ke Student Admission tab se naye students ko enroll kar sakte hain aur unki fees aur progress track kar sakte hain Sir.`;
             } else {
-                reply = `Admissions affiliated coaching centers ke madhyam se hote hain. Aap apne pasand ke coaching center se direct contact karke enrollment karwa sakte hain.`;
+                reply = `Admissions affiliated coaching centers ke madhyam se hote hain Sir. Aap apne pasand ke coaching center se direct contact karke enrollment karwa sakte hain.`;
             }
         } else if (lowerMsg.includes('teacher') || lowerMsg.includes('faculty') || lowerMsg.includes('sir')) {
-            reply = `Hamare paas Mathematics, Science, Commerce aur Languages ke qualified aur verified expert faculty members uplabdh hain.`;
+            reply = `Hamare paas Mathematics, Science, Commerce aur Languages ke qualified aur verified expert faculty members uplabdh hain Sir.`;
         } else if (lowerMsg.includes('payment') || lowerMsg.includes('due') || lowerMsg.includes('fees') || lowerMsg.includes('block')) {
             if (role === 'super_admin') {
-                reply = `Pending payments review karne ke liye Affiliated Centers tab par check karein. Wahan se aap submitted payment receipts verify karke centers unblock kar sakte hain.`;
+                reply = `Pending payments review karne ke liye Affiliated Centers tab par check karein Sir. Wahan se aap submitted payment receipts verify karke centers unblock kar sakte hain.`;
                 action = { type: 'navigate', tab: 'tuitioncenter' };
             } else if (role === 'coaching_director') {
-                reply = `Agar center par koi affiliation dues hain, toh aap dashboard par diye gaye official BBCC QR code se pay karke transaction receipt submit kar sakte hain.`;
+                reply = `Agar center par koi affiliation dues hain, toh aap dashboard par diye gaye official BBCC QR code se pay karke transaction receipt submit kar sakte hain Sir.`;
             } else {
-                reply = `Fees aur batch timings ke liye kripya sambhandhit coaching center ke director se sampark karein.`;
+                reply = `Fees aur batch timings ke liye kripya sambhandhit coaching center ke director se sampark karein Sir.`;
             }
         } else if (lowerMsg.includes('api key') || lowerMsg.includes('gemini') || lowerMsg.includes('ai setup')) {
-            reply = `Super Admin Console ke BHARTI AI Assistant tab mein aap apna free Google Gemini API Key paste karke save kar sakte hain, jisse meri reasoning aur capabilities aur bhi tez ho jayengi.`;
+            reply = `Super Admin Console ke BHARTI Assistant tab mein aap apna free Google Gemini API Key paste karke save kar sakte hain Sir, jisse meri reasoning aur capabilities aur bhi tez ho jayengi.`;
             if (role === 'super_admin') action = { type: 'navigate', tab: 'ai-settings' };
         } else {
-            reply = `Main aapki baat samajh rahi hoon. BBCC Skill Hub ek central academic board hai jahan verified coaching centers, expert teachers, study materials aur student support ki poori suvidha uplabdh hai. Aap mujhse aur koi bhi jankari prapt kar sakte hain!`;
+            reply = `Main aapki baat samajh rahi hoon Sir. BBCC Skill Hub ek central academic board hai jahan verified coaching centers, expert teachers, study materials aur student support ki poori suvidha uplabdh hai. Main aapki aur kya seva kar sakti hoon?`;
         }
 
         res.json({
@@ -2166,23 +2187,39 @@ app.post('/api/ai/bharti', async (req, res) => {
 // DOCUMENT DOWNLOAD REQUESTS (Aadhar Card Approval)
 // ============================================
 
+// Base64 valid official prospectus PDF fallback for offline/starter instances
+const DEFAULT_PROSPECTUS_PDF = 'data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNCAwIFIKL1Jlc291cmNlcyA8PAovRm9udCA8PAovRjEgNSAwIFIKPj4KPj4KPj4KZW5kb2JqCjUgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago0IDAgb2JqCjw8Ci9MZW5ndGggMTc5Cj4+CnN0cmVhbQpCVAovRjEgMTggVGYKNTAgNzIwIFRECihiYmNjIFNraWxsIEh1YiAtIE9mZmljaWFsIEFjYWRlbWljIFByb3NwZWN0dXMgMjAyNi0yNykgVGoKMCAgLTI1IFRECi9GMSAxMiBUZgooQWNzcG9ydGVkIGJ5IFNBTlRPU0ggU2lyICYgQkJDQyBDZW50cmFsIERpcmVjdG9yYXRlKSBUagowICAtMjAgVEQKKFdlbGNvbWUgdG8gQkJDQyBTa2lsbCBIdWIgQWNhZGVtaWMgUG9ydGFsISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDA2OCAwMDAwMCBuIAowMDAwMDAwMTI1IDAwMDAwIG4gCjAwMDAwMDAzMDUgMDAwMDAgbiAKMDAwMDAwMDIyNiAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjUzNwolJUVPRgo=';
+
 // 1. Public: Get requestable documents list (without heavy file data)
 app.get('/api/study-material/public-docs', async (req, res) => {
     try {
         const sm = await StudyMaterial.findOne();
-        if (!sm || !sm.notes) {
-            return res.json({ success: true, data: [] });
+        let docs = [];
+        if (sm && sm.notes && sm.notes.length > 0) {
+            docs = sm.notes
+                .filter(n => n.isPublicRequestable !== false)
+                .map(n => ({
+                    _id: n._id.toString(),
+                    title: n.title,
+                    description: n.description || '',
+                    fileName: n.fileName || 'document.pdf',
+                    fileType: n.fileType || 'pdf',
+                    createdAt: n.createdAt
+                }));
         }
-        const docs = sm.notes
-            .filter(n => n.isPublicRequestable !== false)
-            .map(n => ({
-                _id: n._id,
-                title: n.title,
-                description: n.description || '',
-                fileName: n.fileName || 'document.pdf',
-                fileType: n.fileType || 'pdf',
-                createdAt: n.createdAt
-            }));
+
+        // Always guarantee at least the Official Prospectus is available
+        if (docs.length === 0) {
+            docs.push({
+                _id: 'general_syllabus',
+                title: 'Official BBCC Skill Hub Academic Prospectus & Syllabus (2026-27)',
+                description: 'Official Curriculum, Affiliated Coaching Guidelines & Academic Calendar',
+                fileName: 'BBCC_Academic_Prospectus_2026.pdf',
+                fileType: 'pdf',
+                createdAt: new Date()
+            });
+        }
+
         res.json({ success: true, data: docs });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2204,10 +2241,25 @@ app.post('/api/download-requests', async (req, res) => {
         }
 
         const sm = await StudyMaterial.findOne();
-        if (!sm) return res.status(404).json({ success: false, message: "Study material repository not found" });
 
-        const note = sm.notes.id(docId) || sm.notes.find(n => n._id.toString() === docId);
-        if (!note) return res.status(404).json({ success: false, message: "Selected document not found" });
+        let docTitle = 'Official BBCC Skill Hub Academic Prospectus & Syllabus (2026-27)';
+        let docFile = DEFAULT_PROSPECTUS_PDF;
+        let docFileName = 'BBCC_Academic_Prospectus_2026.pdf';
+        let docFileType = 'pdf';
+
+        if (docId === 'general_syllabus') {
+            // Valid official default prospectus
+        } else {
+            const note = sm && sm.notes ? (sm.notes.id(docId) || sm.notes.find(n => n._id.toString() === docId)) : null;
+            if (note) {
+                docTitle = note.title;
+                docFile = note.file || note.pdf || DEFAULT_PROSPECTUS_PDF;
+                docFileName = note.fileName || (note.title.replace(/\s+/g, '_') + '.' + (note.fileType || 'pdf'));
+                docFileType = note.fileType || 'pdf';
+            } else {
+                return res.status(404).json({ success: false, message: "Selected document not found" });
+            }
+        }
 
         // Check if an existing request exists for this Aadhar + docId
         let existing = await DownloadRequest.findOne({ aadhar: cleanAadhar, docId: docId });
@@ -2220,7 +2272,7 @@ app.post('/api/download-requests', async (req, res) => {
                     request: {
                         _id: existing._id,
                         docTitle: existing.docTitle,
-                        file: existing.file,
+                        file: existing.file || docFile,
                         fileName: existing.fileName,
                         status: existing.status
                     }
@@ -2251,10 +2303,10 @@ app.post('/api/download-requests', async (req, res) => {
             aadhar: cleanAadhar,
             address: address ? address.trim() : '',
             docId: docId,
-            docTitle: note.title,
-            file: note.file || note.pdf || '',
-            fileName: note.fileName || (note.title.replace(/\s+/g, '_') + '.' + (note.fileType || 'pdf')),
-            fileType: note.fileType || 'pdf',
+            docTitle: docTitle,
+            file: docFile,
+            fileName: docFileName,
+            fileType: docFileType,
             status: 'pending'
         });
 
@@ -2302,7 +2354,7 @@ app.post('/api/download-requests/check', async (req, res) => {
             approvedAt: r.approvedAt,
             adminRemarks: r.adminRemarks,
             // Only provide downloadable file payload if status is strictly 'approved'
-            file: r.status === 'approved' ? r.file : ''
+            file: r.status === 'approved' ? (r.file || DEFAULT_PROSPECTUS_PDF) : ''
         }));
 
         res.json({ success: true, requests: resultData });
@@ -2904,7 +2956,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`\n✅ BBCC Skill Hub Server Running!`);
     console.log(`🔗 http://localhost:${PORT}`);
-    console.log(`🔑 Login: admin / admin123`);
+    console.log(`🔑 Super Admin Login: santosh / santosh (or your customized admin ID)`);
     console.log(`📊 MongoDB: ${MONGO_URI}`);
     console.log(`📌 Tracking Page: http://localhost:${PORT}/tracking`);
     console.log(`📌 Image Viewer: http://localhost:${PORT}/image?id=your_track_id\n`);
