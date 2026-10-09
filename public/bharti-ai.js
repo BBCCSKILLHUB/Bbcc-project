@@ -509,7 +509,7 @@
 
             <div class="bharti-messages" id="bhartiMessages">
                 <div class="bharti-msg assistant">
-                    Namaste! Main <strong>BHARTI</strong> hoon, BBCC Skill Hub Academic Counseling & Support Helpline Team se. Aap mujhse bol kar ya likh kar koi bhi jankari prapt kar sakte hain! 🙏
+                    Namaste Sir! Main <strong>BHARTI</strong> hoon — Santosh Sir dwara sanchalit BBCC Skill Hub Academic Helpline Team se. Main aapki kya sahayata kar sakti hoon? 🙏
                 </div>
             </div>
 
@@ -533,6 +533,20 @@
         // Set initial selected voice
         const sel = document.getElementById('bhartiVoiceSelector');
         if (sel) sel.value = activeVoiceProfile;
+
+        // Sync with server default if not manually overridden in localStorage
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data && data.data.bhartiVoiceProfile) {
+                    if (!localStorage.getItem('bharti_voice_profile')) {
+                        activeVoiceProfile = data.data.bhartiVoiceProfile;
+                        const vSel = document.getElementById('bhartiVoiceSelector');
+                        if (vSel) vSel.value = activeVoiceProfile;
+                    }
+                }
+            })
+            .catch(() => {});
     }
 
     // Voice Profiles & State
@@ -550,7 +564,7 @@
         if (!VOICE_PROFILES[profile]) profile = 'Kore';
         activeVoiceProfile = profile;
         localStorage.setItem('bharti_voice_profile', profile);
-        speakText(`Namaste, main Bharti hoon. Aapki aawaz setting ab ${profile} profile par set ho gayi hai.`);
+        speakText(`Namaste Sir! Main Bharti hoon. Aapki voice setting ab ${profile} profile par set ho gayi hai.`);
     };
 
     // Toggle Modal

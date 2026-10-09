@@ -713,6 +713,83 @@
             transform: scale(1.2);
         }
 
+        /* ===== UNIVERSITY PILLARS & STATS ===== */
+        .board-stats-section {
+            padding: 28px 20px;
+            background: linear-gradient(180deg, rgba(11, 14, 26, 0.95) 0%, rgba(20, 27, 45, 0.9) 100%);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 5;
+        }
+
+        .board-stats-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 215, 0, 0.22);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.07);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(245, 158, 11, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 900;
+            color: #ffd700;
+            line-height: 1.1;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3px;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
         /* ===== SECTION TITLE ===== */
         .section-title {
             text-align: center;
@@ -1345,7 +1422,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(20px);
-            z-index: 10000;
+            z-index: 999999;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1354,6 +1431,15 @@
 
         .pdf-modal.active {
             display: flex;
+        }
+
+        .pdf-modal input, .pdf-modal select {
+            color: #0b0e1a !important;
+            background: #ffffff !important;
+        }
+
+        .pdf-modal input::placeholder {
+            color: #94a3b8 !important;
         }
 
         .pdf-modal-content {
@@ -2850,6 +2936,52 @@
         <div class="banner-dots" id="bannerDots"></div>
     </section>
 
+    <!-- ===== UNIVERSITY PILLARS & STATS BAR ===== -->
+    <section class="board-stats-section fade-up">
+        <div class="board-stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-info">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Affiliated Centers</span>
+                    <span class="stat-sub">Regulated & Certified</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-info">
+                    <span class="stat-number">12,500+</span>
+                    <span class="stat-label">Enrolled Students</span>
+                    <span class="stat-sub">Across All Academic Streams</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🏫</div>
+                <div class="stat-info">
+                    <span class="stat-number">250+</span>
+                    <span class="stat-label">Verified Faculty</span>
+                    <span class="stat-sub">Certified Experienced Teachers</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📖</div>
+                <div class="stat-info">
+                    <span class="stat-number">1,200+</span>
+                    <span class="stat-label">Digital Study Materials</span>
+                    <span class="stat-sub">Official Syllabi & E-Notes</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🆔</div>
+                <div class="stat-info">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Verified Security</span>
+                    <span class="stat-sub">Aadhar-Approved Downloads</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ===== EXPERT TEACHERS ===== -->
     <div class="section-title fade-up">
         <h2>👨‍🏫 Our Expert Teachers</h2>
@@ -3829,12 +3961,12 @@
         // ============================================
         // AADHAR DOCUMENT DOWNLOAD WORKFLOW
         // ============================================
-        function openDocApplicationModal(preselectDocId) {
+        async function openDocApplicationModal(preselectDocId) {
             const modal = document.getElementById('docApplicationModal');
             if (!modal) return;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            populateDocSelect(preselectDocId);
+            await populateDocSelect(preselectDocId);
         }
 
         function closeDocApplicationModal() {
@@ -3843,20 +3975,51 @@
             document.body.style.overflow = '';
         }
 
-        function populateDocSelect(selectedDocId) {
+        async function populateDocSelect(selectedDocId) {
             const sel = document.getElementById('appDocSelect');
             if (!sel) return;
             sel.innerHTML = '<option value="">-- Choose Study Material Document --</option>';
-            if (Array.isArray(pdfNotesData) && pdfNotesData.length > 0) {
-                pdfNotesData.forEach(n => {
-                    const opt = document.createElement('option');
-                    opt.value = n._id;
-                    opt.textContent = `${n.title} (${n.fileName || 'PDF Document'})`;
-                    if (selectedDocId && n._id.toString() === selectedDocId.toString()) {
-                        opt.selected = true;
-                    }
-                    sel.appendChild(opt);
-                });
+
+            let docs = [];
+            try {
+                const res = await fetch(`${API_BASE}/study-material/public-docs`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                    docs = data.data;
+                }
+            } catch (err) {
+                console.warn('Could not fetch public docs list:', err);
+            }
+
+            // Fallback to in-memory pdfNotesData if public-docs is empty
+            if (docs.length === 0 && Array.isArray(pdfNotesData) && pdfNotesData.length > 0) {
+                docs = pdfNotesData;
+            }
+
+            // Guarantee official default prospectus so the form can ALWAYS be submitted
+            if (docs.length === 0) {
+                docs = [{
+                    _id: 'general_syllabus',
+                    title: 'Official BBCC Skill Hub Academic Prospectus & Syllabus (2026-27)',
+                    fileName: 'BBCC_Academic_Prospectus_2026.pdf'
+                }];
+            }
+
+            docs.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n._id;
+                opt.textContent = `${n.title} (${n.fileName || 'PDF Document'})`;
+                if (selectedDocId && n._id.toString() === selectedDocId.toString()) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            });
+
+            // Auto-select if requested or if only 1 option available
+            if (selectedDocId) {
+                sel.value = selectedDocId;
+            } else if (docs.length > 0) {
+                sel.value = docs[0]._id;
             }
         }
 

@@ -19,12 +19,13 @@
 
         /* ===== HEADER ===== */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0b0e1a 0%, #172033 100%);
+            border-bottom: 2px solid #ffd700;
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -40,12 +41,14 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: white;
+            background: #0b0e1a;
+            border: 2px solid #ffd700;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
             overflow: hidden;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
         }
 
         .header-logo img {
@@ -55,14 +58,17 @@
         }
 
         .header-title {
-            color: white;
+            color: #ffffff;
             font-size: 20px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
         .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: #ffd700;
             font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .header-right {
@@ -72,20 +78,23 @@
         }
 
         .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 20px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 18px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
         /* ===== ADMIN PROFILE IN HEADER ===== */
@@ -94,16 +103,17 @@
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            padding: 5px 12px;
+            padding: 5px 14px;
             border-radius: 30px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             transition: all 0.3s ease;
-            border: 2px solid transparent;
         }
 
         .admin-profile:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 215, 0, 0.18);
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
         .admin-avatar {
@@ -412,12 +422,13 @@
             width: 38px;
             height: 38px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            color: white;
+            color: #0b0e1a;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
         .sidebar-brand-badge .badge-text h4 {
@@ -474,9 +485,10 @@
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
         }
 
         .tab-btn .icon {
@@ -604,8 +616,8 @@
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #ffd700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
         }
 
         .form-group textarea {
@@ -630,13 +642,15 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            font-weight: 700;
+            border: 1px solid rgba(255, 215, 0, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.35);
         }
 
         .btn-primary:disabled {
@@ -763,12 +777,12 @@
         }
 
         .sub-tab-btn:hover {
-            color: #667eea;
+            color: #d97706;
         }
 
         .sub-tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #b45309;
+            border-bottom-color: #f59e0b;
         }
 
         .sub-tab-content {
@@ -800,7 +814,8 @@
 
         .search-bar input:focus,
         .search-bar select:focus {
-            border-color: #667eea;
+            border-color: #ffd700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
         }
 
         /* ===== BUTTON SIZES ===== */
@@ -814,8 +829,9 @@
         }
 
         .btn-sm.btn-primary {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            font-weight: 700;
         }
 
         .btn-sm.btn-warning {
@@ -1409,14 +1425,15 @@
             object-fit: cover;
             margin: 0 auto 8px;
             display: block;
-            border: 3px solid #667eea;
+            border: 3px solid #ffd700;
         }
 
         .teacher-card .teacher-avatar-placeholder {
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0b0e1a 0%, #1e293b 100%);
+            border: 2px solid #ffd700;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1755,9 +1772,24 @@
                         </small>
                     </div>
 
-                    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>Default Voice Persona for BHARTI (Speech Audio Voice)</label>
+                        <select id="bhartiVoiceProfile" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;background:#ffffff;outline:none;">
+                            <option value="Kore">🌸 Kore (Sweet, Warm & Gentle Indian Female - Recommended)</option>
+                            <option value="Aoede">🎶 Aoede (Melodic & Expressive Female Tone)</option>
+                            <option value="Zephyr">🍃 Zephyr (Calm, Clear & Composed Female Tone)</option>
+                            <option value="Puck">✨ Puck (Youthful, Lively & Energetic Female Tone)</option>
+                            <option value="Fenrir">🌟 Fenrir (Warm & Deep Confident Female Tone)</option>
+                            <option value="Orus">🏛️ Orus (Executive Academic Helpline Officer Tone)</option>
+                        </select>
+                        <small style="color:#64748b;display:block;margin-top:4px;">
+                            BHARTI will speak in this voice profile across the portal and academic help widgets.
+                        </small>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
                         <button type="submit" class="btn btn-success" style="padding:12px 24px;">
-                            💾 Save AI Settings
+                            💾 Save AI & Voice Settings
                         </button>
                         <button type="button" class="btn btn-primary" onclick="testBhartiAiConnection()" style="padding:12px 24px;">
                             🎤 Test BHARTI Response
@@ -1900,11 +1932,11 @@
             <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
                 <div>
                     <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">New Super Admin ID</label>
-                    <input type="text" id="resetNewAdminId" placeholder="e.g. admin" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;" value="admin">
+                    <input type="text" id="resetNewAdminId" placeholder="e.g. santosh" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;" value="santosh">
                 </div>
                 <div>
                     <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">New Super Admin Password</label>
-                    <input type="password" id="resetNewPassword" placeholder="Enter strong new password" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;">
+                    <input type="password" id="resetNewPassword" placeholder="Enter new password (e.g. santosh)" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;">
                 </div>
                 <div>
                     <label style="font-size:12px;font-weight:700;color:#991b1b;display:block;margin-bottom:4px;">Type <code>FORMAT_ALL_DATA</code> to confirm:</label>
@@ -2402,6 +2434,9 @@
                     if (document.getElementById('geminiApiKey')) {
                         document.getElementById('geminiApiKey').value = settings.geminiApiKey || '';
                     }
+                    if (document.getElementById('bhartiVoiceProfile')) {
+                        document.getElementById('bhartiVoiceProfile').value = settings.bhartiVoiceProfile || 'Kore';
+                    }
                 }
             } catch (error) {
                 showToast('Error loading settings', true);
@@ -2521,13 +2556,15 @@
         async function saveAiSettings(event) {
             if (event) event.preventDefault();
             const key = (document.getElementById('geminiApiKey').value || '').trim();
+            const voiceProfile = (document.getElementById('bhartiVoiceProfile') ? document.getElementById('bhartiVoiceProfile').value : 'Kore') || 'Kore';
             try {
                 const res = await apiCall('/api/settings', {
                     method: 'PUT',
-                    body: { geminiApiKey: key }
+                    body: { geminiApiKey: key, bhartiVoiceProfile: voiceProfile }
                 });
                 if (res.success) {
-                    showToast(key ? 'Gemini AI API Key saved! BHARTI will now use Gemini AI.' : 'AI settings updated (operating in Offline Knowledge Engine mode)');
+                    localStorage.setItem('bharti_voice_profile', voiceProfile);
+                    showToast('AI & Voice Persona settings saved successfully!');
                 } else {
                     showToast(res.message || 'Failed to save AI settings', true);
                 }
