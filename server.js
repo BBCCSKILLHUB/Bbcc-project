@@ -57,6 +57,9 @@ const SettingsSchema = new mongoose.Schema({
     // AI Assistant Configuration
     geminiApiKey: { type: String, default: '' },
     
+    // Render Anti-Sleep Live URL
+    liveSiteUrl: { type: String, default: '' },
+    
     updatedAt: { type: Date, default: Date.now }
 });
 
@@ -80,10 +83,11 @@ const StudyMaterialSchema = new mongoose.Schema({
         title: { type: String, required: true },
         description: { type: String, default: '' },
         centerId: { type: String, default: '' },
-        accessType: { type: String, default: 'all_centers', enum: ['all_centers', 'selected_centers'] },
+        accessType: { type: String, default: 'all_centers', enum: ['all_centers', 'specific_centers', 'selected_centers'] },
         allowedCenters: [{ type: String }],
         password: { type: String, default: '' },
         isProtected: { type: Boolean, default: false },
+        isPublicRequestable: { type: Boolean, default: true },
         createdAt: { type: Date, default: Date.now }
     }],
     updatedAt: { type: Date, default: Date.now }
@@ -198,6 +202,25 @@ const TrackingSchema = new mongoose.Schema({
 // ===== TRACKING SCHEMA - END =====
 // ============================================
 
+// ============================================
+// DOWNLOAD REQUEST SCHEMA (Public Student Aadhar Approval)
+// ============================================
+const DownloadRequestSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    mobile: { type: String, required: true },
+    aadhar: { type: String, required: true },
+    address: { type: String, default: '' },
+    docId: { type: String, required: true },
+    docTitle: { type: String, default: 'Study Document' },
+    file: { type: String, default: '' },
+    fileName: { type: String, default: '' },
+    fileType: { type: String, default: 'pdf' },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    adminRemarks: { type: String, default: '' },
+    approvedAt: { type: Date },
+    createdAt: { type: Date, default: Date.now }
+});
+
 // Create Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
@@ -206,6 +229,7 @@ const Gallery = mongoose.model('Gallery', GallerySchema);
 const SidebarBanner = mongoose.model('SidebarBanner', SidebarBannerSchema);
 const TuitionCenter = mongoose.model('TuitionCenter', TuitionCenterSchema);
 const Tracking = mongoose.model('Tracking', TrackingSchema);
+const DownloadRequest = mongoose.model('DownloadRequest', DownloadRequestSchema);
 
 // ============================================
 // DATABASE CONNECTION
@@ -522,6 +546,10 @@ app.put('/api/settings', verifyToken, async (req, res) => {
         
         if (updates.geminiApiKey !== undefined) {
             settings.geminiApiKey = updates.geminiApiKey;
+        }
+
+        if (updates.liveSiteUrl !== undefined) {
+            settings.liveSiteUrl = updates.liveSiteUrl;
         }
         
         settings.updatedAt = new Date();
@@ -1983,48 +2011,60 @@ app.post('/api/coaching/banner', verifyCoachingDirector, async (req, res) => {
 });
 
 // ============================================
-// BHARTI AI ASSISTANT API (Voice & Chat)
+// BHARTI ACADEMIC COUNSELING HELPLINE (Voice & Chat)
 // ============================================
 app.post('/api/ai/bharti', async (req, res) => {
     try {
-        const { message, history = [], role = 'visitor', context = {} } = req.body;
-        if (!message || !message.trim()) {
+        const rawMsg = req.body.message || req.body.query || req.body.prompt || req.body.text || '';
+        if (!rawMsg || !rawMsg.trim()) {
             return res.status(400).json({ success: false, message: "Message is required" });
         }
 
-        const userMsg = message.trim();
+        const userMsg = rawMsg.trim();
         const lowerMsg = userMsg.toLowerCase();
+        const { history = [], role = 'visitor', voiceProfile = 'Kore', context = {} } = req.body;
 
         // 1. Fetch settings for Gemini API Key
         let settings = await Settings.findOne();
         const geminiApiKey = (settings && settings.geminiApiKey) || process.env.GEMINI_API_KEY || '';
 
-        // Role-based System Instructions
+        // Strict Female Academic Helpline Persona (Never claim to be AI)
+        const baseHelplineIdentity = `
+[IDENTITY & PERSONA GUIDELINES]
+- Aapka naam "BHARTI" (भारती) hai.
+- STRICT RULE: AAP KABHI BHI YEH NAHI BOLENGI KI AAP EK AI, BOT YA COMPUTER MODEL HAIN. "Main ek AI hoon" ya "I am an AI assistant" bolna SAKHT MANA HAI.
+- Aap hamesha khud ko "BBCC Skill Hub Academic Counseling & Support Helpline Team" ki senior female counselor aur helpline coordinator ke roop mein present karein.
+- Voice Persona: Sweet, warm, polite, respectful Indian female voice.
+- Tone: Helpful, humble, professional.
+- Response Length: Concise aur natural (2-3 sentences max) kyunki ise voice se bolkar sunaya jata hai.
+- Language: Natural Hindi/Hinglish (ya clear polite English agar user English mein pooche).
+- Selected Voice Profile: ${voiceProfile} (Natural Female Tone).
+`;
+
         let systemRolePrompt = '';
         if (role === 'super_admin') {
-            systemRolePrompt = `Aapka naam "BHARTI" (भारती) hai. Aap BBCC Skill Hub (Bharat Board of Coaching & Certification Skill Hub) ki Master Super Admin AI Executive Copilot hain. 
-Aap Administrator ki coaching centers ko manage karne, dues clear karne, study materials password-protect karke deliver karne aur students inspect karne mein sahayata karti hain.
-Baat karne ka tarika: Polite, respectful Hindi/Hinglish (ya English agar user English bole). Jawab chhota aur seedha rakhein (2-3 sentences) kyunki ise voice se bola jayega.`;
+            systemRolePrompt = `${baseHelplineIdentity}
+- Aap BBCC Skill Hub Central Directorate ki Executive Counselor & Administration Support Copilot hain.
+- Aap Super Admin ko coaching centers ke affiliation, fee dues review, study materials distribution, Aadhar document download requests approval, aur registry management mein guide karti hain.`;
         } else if (role === 'coaching_director') {
-            systemRolePrompt = `Aapka naam "BHARTI" (भारती) hai. Aap BBCC Skill Hub se affiliated Partner Coaching Center Director ki AI Assistant hain. 
-Aap Director ki student admissions, teachers management, central study materials unlock karne, aur center profile manage karne mein madad karti hain.
-Baat karne ka tarika: Friendly, supportive Hindi/Hinglish. Jawab chhota aur clear rakhein (2-3 sentences).`;
+            systemRolePrompt = `${baseHelplineIdentity}
+- Aap BBCC Skill Hub Affiliated Partner Coaching Center Directors ki Dedicated Academic Counseling Partner hain.
+- Aap Center Director ko unke student admissions, faculty roster, BBCC allocated study materials unlock karne aur affiliation profile manage karne mein sahayata karti hain.`;
         } else {
-            systemRolePrompt = `Aapka naam "BHARTI" (भारती) hai. Aap BBCC Skill Hub (Bharat Board of Coaching & Certification Skill Hub) ki Official AI Voice & Chat Assistant hain.
-Aap public website visitors aur students ko coaching centers, courses, study material, digital notes, teachers aur admission process ke baare mein samjhati hain.
-Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur clear rakhein (2-3 sentences).`;
+            systemRolePrompt = `${baseHelplineIdentity}
+- Aap BBCC Skill Hub Portal par aane wale sabhi students aur visitors ki Dedicated Female Academic Counselor hain.
+- Aap students ko certified affiliated coaching centers, study materials, Aadhar-approved document download process, courses aur verified teachers ke baare mein guide karti hain.`;
         }
 
         // Try Google Gemini API if Key is present
         if (geminiApiKey) {
             try {
-                // Call Gemini 1.5 Flash (or 2.0 Flash) REST API
                 const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
                 
                 const promptContents = [
                     {
                         role: "user",
-                        parts: [{ text: `${systemRolePrompt}\n\nContext details: ${JSON.stringify(context)}\nUser asks: "${userMsg}"` }]
+                        parts: [{ text: `${systemRolePrompt}\n\nContext details: ${JSON.stringify(context)}\nUser Question: "${userMsg}"` }]
                     }
                 ];
 
@@ -2034,7 +2074,7 @@ Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur 
                     body: JSON.stringify({
                         contents: promptContents,
                         generationConfig: {
-                            temperature: 0.7,
+                            temperature: 0.65,
                             maxOutputTokens: 250
                         }
                     })
@@ -2046,6 +2086,8 @@ Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur 
                     return res.json({
                         success: true,
                         source: 'gemini',
+                        engine: 'gemini_ai',
+                        voiceProfile: voiceProfile,
                         reply: aiReply,
                         audioText: aiReply.replace(/[*_#`]/g, '')
                     });
@@ -2055,39 +2097,41 @@ Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur 
             }
         }
 
-        // 2. Smart Built-in Knowledge Base Fallback (Always reliable, 0 downtime)
+        // 2. Smart Built-in Academic Knowledge Engine Fallback (100% human-like, never says AI)
         let reply = '';
         let action = null;
 
         if (lowerMsg.includes('namaste') || lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('kaun ho') || lowerMsg.includes('who are you')) {
-            reply = `Namaste! Mera naam BHARTI hai, BBCC Skill Hub ki official AI Assistant. Main aapki kya sahayata kar sakti hoon?`;
+            reply = `Namaste! Mera naam Bharti hai, BBCC Skill Hub Academic Counseling & Support Helpline Team se. Main aapki kya sahayata kar sakti hoon?`;
         } else if (lowerMsg.includes('coaching') || lowerMsg.includes('center') || lowerMsg.includes('institute')) {
             if (role === 'super_admin') {
-                reply = `Super Admin Dashboard par aap sabhi affiliated coaching centers ko dekh sakte hain, unka director password set kar sakte hain, ya unhe block aur unblock kar sakte hain.`;
+                reply = `Super Admin Console par aap sabhi affiliated coaching centers ko verify kar sakte hain, unka director password set kar sakte hain, ya unhe block aur unblock kar sakte hain.`;
                 action = { type: 'navigate', tab: 'tuitioncenter' };
             } else {
-                reply = `BBCC Skill Hub par sabhi certified affiliated coaching centers listed hain. Aap unke courses, classes aur expert teachers ki details dekh sakte hain.`;
+                reply = `BBCC Skill Hub par sabhi certified affiliated coaching centers verified hain. Aap unke courses, fee structure aur expert teachers ki jankari prapt kar sakte hain.`;
             }
-        } else if (lowerMsg.includes('study material') || lowerMsg.includes('notes') || lowerMsg.includes('pdf') || lowerMsg.includes('kitab') || lowerMsg.includes('document')) {
+        } else if (lowerMsg.includes('study material') || lowerMsg.includes('notes') || lowerMsg.includes('pdf') || lowerMsg.includes('kitab') || lowerMsg.includes('document') || lowerMsg.includes('download')) {
             if (role === 'super_admin') {
-                reply = `Study Material tab se aap PDF aur Word documents upload kar sakte hain, permission decide kar sakte hain ki kis center ko dena hai, aur unpar password bhi laga sakte hain.`;
+                reply = `Study Material tab se aap PDF aur Word documents upload kar sakte hain, permissions manage kar sakte hain, aur Document Requests tab se student download applications ko Aadhar se approve kar sakte hain.`;
                 action = { type: 'navigate', tab: 'studymaterial' };
             } else if (role === 'coaching_director') {
-                reply = `BBCC Skill Hub dwara aapke coaching center ke liye alloted central study materials aap Central Notes tab mein dekh sakte hain. Agar password laga ho toh code enter karke unlock kar lijiye.`;
+                reply = `BBCC Skill Hub dwara aapke coaching center ke liye alloted academic materials aap BBCC Materials tab mein dekh sakte hain. Agar password laga ho toh PIN enter karke unlock kar lijiye.`;
             } else {
-                reply = `Hamare portal par verified teachers dwara banaye gaye PDF notes aur study materials digital e-library mein uplabdh hain.`;
+                reply = `Aap hamari digital library se PDF notes prapt kar sakte hain. Kisi bhi official document ke liye apna 12-digit Aadhar number dalkar application submit karein, verification ke baad turant download unlocked ho jayega.`;
             }
+        } else if (lowerMsg.includes('aadhar') || lowerMsg.includes('apply')) {
+            reply = `Official verified documents download karne ke liye aap index page par Document Application form bhariye (Naam, Mobile, 12-digit Aadhar). Super Admin verification ke baad aap wahi Aadhar number enter karke file download kar sakte hain.`;
         } else if (lowerMsg.includes('student') || lowerMsg.includes('admission') || lowerMsg.includes('bacche')) {
             if (role === 'super_admin') {
-                reply = `BBCC Central Board par direct student registration band hai. Sabhi students affiliated coaching centers dwara enroll hote hain, jinhe aap Student Management tab mein center-wise filter karke dekh sakte hain.`;
+                reply = `BBCC Skill Hub Academic Board par direct student registration band hai. Sabhi students hamare affiliated partner coaching centers dwara enroll hote hain, jinhe aap Student Registry tab mein filter karke dekh sakte hain.`;
                 action = { type: 'navigate', tab: 'students' };
             } else if (role === 'coaching_director') {
                 reply = `Aap apne coaching dashboard ke Student Admission tab se naye students ko enroll kar sakte hain aur unki fees aur progress track kar sakte hain.`;
             } else {
-                reply = `Admissions affiliated coaching centers ke madhyam se hote hain. Aap apne pasand ke coaching center se direct contact karke admission le sakte hain.`;
+                reply = `Admissions affiliated coaching centers ke madhyam se hote hain. Aap apne pasand ke coaching center se direct contact karke enrollment karwa sakte hain.`;
             }
         } else if (lowerMsg.includes('teacher') || lowerMsg.includes('faculty') || lowerMsg.includes('sir')) {
-            reply = `Hamare paas alag-alag subjects jaise Mathematics, Science, Commerce aur Languages ke qualified aur verified expert teachers uplabdh hain.`;
+            reply = `Hamare paas Mathematics, Science, Commerce aur Languages ke qualified aur verified expert faculty members uplabdh hain.`;
         } else if (lowerMsg.includes('payment') || lowerMsg.includes('due') || lowerMsg.includes('fees') || lowerMsg.includes('block')) {
             if (role === 'super_admin') {
                 reply = `Pending payments review karne ke liye Affiliated Centers tab par check karein. Wahan se aap submitted payment receipts verify karke centers unblock kar sakte hain.`;
@@ -2095,18 +2139,20 @@ Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur 
             } else if (role === 'coaching_director') {
                 reply = `Agar center par koi affiliation dues hain, toh aap dashboard par diye gaye official BBCC QR code se pay karke transaction receipt submit kar sakte hain.`;
             } else {
-                reply = `Fees aur admission details ke liye kripya sambhandhit coaching center ke director se sampark karein.`;
+                reply = `Fees aur batch timings ke liye kripya sambhandhit coaching center ke director se sampark karein.`;
             }
         } else if (lowerMsg.includes('api key') || lowerMsg.includes('gemini') || lowerMsg.includes('ai setup')) {
-            reply = `Super Admin Dashboard ke Settings tab mein aap apna free Google Gemini API Key paste karke save kar sakte hain, jisse mera reasoning aur intelligence aur bhi tez ho jayega!`;
-            if (role === 'super_admin') action = { type: 'navigate', tab: 'settings' };
+            reply = `Super Admin Console ke BHARTI AI Assistant tab mein aap apna free Google Gemini API Key paste karke save kar sakte hain, jisse meri reasoning aur capabilities aur bhi tez ho jayengi.`;
+            if (role === 'super_admin') action = { type: 'navigate', tab: 'ai-settings' };
         } else {
-            reply = `Main aapki baat samajh rahi hoon. BBCC Skill Hub ek central academic board hai jahan coaching centers, expert teachers, study materials aur student management ki poori suvidha uplabdh hai. Aap mujhse aur koi sawal pooch sakte hain!`;
+            reply = `Main aapki baat samajh rahi hoon. BBCC Skill Hub ek central academic board hai jahan verified coaching centers, expert teachers, study materials aur student support ki poori suvidha uplabdh hai. Aap mujhse aur koi bhi jankari prapt kar sakte hain!`;
         }
 
         res.json({
             success: true,
             source: 'built_in_engine',
+            engine: 'built_in_engine',
+            voiceProfile: voiceProfile,
             reply: reply,
             audioText: reply,
             action: action
@@ -2115,6 +2161,341 @@ Baat karne ka tarika: Warm, polite, respectful Hindi/Hinglish. Jawab chhota aur 
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+// ============================================
+// DOCUMENT DOWNLOAD REQUESTS (Aadhar Card Approval)
+// ============================================
+
+// 1. Public: Get requestable documents list (without heavy file data)
+app.get('/api/study-material/public-docs', async (req, res) => {
+    try {
+        const sm = await StudyMaterial.findOne();
+        if (!sm || !sm.notes) {
+            return res.json({ success: true, data: [] });
+        }
+        const docs = sm.notes
+            .filter(n => n.isPublicRequestable !== false)
+            .map(n => ({
+                _id: n._id,
+                title: n.title,
+                description: n.description || '',
+                fileName: n.fileName || 'document.pdf',
+                fileType: n.fileType || 'pdf',
+                createdAt: n.createdAt
+            }));
+        res.json({ success: true, data: docs });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. Public: Submit a new download request
+app.post('/api/download-requests', async (req, res) => {
+    try {
+        const { name, mobile, aadhar, address, docId } = req.body;
+        if (!name || !name.trim()) return res.status(400).json({ success: false, message: "Full Name is required" });
+        if (!mobile || !mobile.trim()) return res.status(400).json({ success: false, message: "Mobile number is required" });
+        if (!aadhar || !aadhar.trim()) return res.status(400).json({ success: false, message: "Aadhar number is required" });
+        if (!docId) return res.status(400).json({ success: false, message: "Please select a document to apply for" });
+
+        const cleanAadhar = aadhar.replace(/[\s-]/g, '').trim();
+        if (cleanAadhar.length !== 12 || isNaN(cleanAadhar)) {
+            return res.status(400).json({ success: false, message: "Aadhar card number must be exactly 12 digits" });
+        }
+
+        const sm = await StudyMaterial.findOne();
+        if (!sm) return res.status(404).json({ success: false, message: "Study material repository not found" });
+
+        const note = sm.notes.id(docId) || sm.notes.find(n => n._id.toString() === docId);
+        if (!note) return res.status(404).json({ success: false, message: "Selected document not found" });
+
+        // Check if an existing request exists for this Aadhar + docId
+        let existing = await DownloadRequest.findOne({ aadhar: cleanAadhar, docId: docId });
+        if (existing) {
+            if (existing.status === 'approved') {
+                return res.json({
+                    success: true,
+                    alreadyApproved: true,
+                    message: "Aapka application already approved hai! Aap turant download kar sakte hain.",
+                    request: {
+                        _id: existing._id,
+                        docTitle: existing.docTitle,
+                        file: existing.file,
+                        fileName: existing.fileName,
+                        status: existing.status
+                    }
+                });
+            } else if (existing.status === 'pending') {
+                return res.json({
+                    success: true,
+                    message: "Aapka application verification ke liye already pending hai. Super Admin approval milte hi Aadhar number enter karke download kar sakein ge."
+                });
+            } else {
+                // If rejected earlier, reset to pending for review
+                existing.name = name.trim();
+                existing.mobile = mobile.trim();
+                existing.address = address ? address.trim() : '';
+                existing.status = 'pending';
+                existing.createdAt = new Date();
+                await existing.save();
+                return res.json({
+                    success: true,
+                    message: "Aapka application punah verification ke liye submit ho gaya hai."
+                });
+            }
+        }
+
+        const newReq = await DownloadRequest.create({
+            name: name.trim(),
+            mobile: mobile.trim(),
+            aadhar: cleanAadhar,
+            address: address ? address.trim() : '',
+            docId: docId,
+            docTitle: note.title,
+            file: note.file || note.pdf || '',
+            fileName: note.fileName || (note.title.replace(/\s+/g, '_') + '.' + (note.fileType || 'pdf')),
+            fileType: note.fileType || 'pdf',
+            status: 'pending'
+        });
+
+        res.json({
+            success: true,
+            message: "Application safaltapoorvak submit ho gayi hai! Super Admin verification ke baad aap apna 12-digit Aadhar number dalkar document download kar payenge.",
+            data: { id: newReq._id, aadhar: cleanAadhar, status: 'pending' }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Public: Check status and download approved documents via Aadhar number
+app.post('/api/download-requests/check', async (req, res) => {
+    try {
+        const { aadhar, docId } = req.body;
+        if (!aadhar || !aadhar.trim()) {
+            return res.status(400).json({ success: false, message: "Please enter your 12-digit Aadhar number" });
+        }
+        const cleanAadhar = aadhar.replace(/[\s-]/g, '').trim();
+        if (cleanAadhar.length !== 12 || isNaN(cleanAadhar)) {
+            return res.status(400).json({ success: false, message: "Please enter a valid 12-digit Aadhar card number" });
+        }
+
+        const query = { aadhar: cleanAadhar };
+        if (docId) query.docId = docId;
+
+        const requests = await DownloadRequest.find(query).sort({ createdAt: -1 });
+        if (!requests || requests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Is Aadhar number par koi application prapt nahi hui. Kripya pehle document application form bharein."
+            });
+        }
+
+        const resultData = requests.map(r => ({
+            _id: r._id,
+            docId: r.docId,
+            docTitle: r.docTitle,
+            fileName: r.fileName,
+            fileType: r.fileType,
+            status: r.status,
+            createdAt: r.createdAt,
+            approvedAt: r.approvedAt,
+            adminRemarks: r.adminRemarks,
+            // Only provide downloadable file payload if status is strictly 'approved'
+            file: r.status === 'approved' ? r.file : ''
+        }));
+
+        res.json({ success: true, requests: resultData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. Super Admin: List all download requests
+app.get('/api/download-requests', verifyToken, async (req, res) => {
+    try {
+        const { status } = req.query;
+        const filter = {};
+        if (status && status !== 'all') {
+            filter.status = status;
+        }
+        // Exclude huge file base64 from list for ultra fast performance
+        const requests = await DownloadRequest.find(filter)
+            .select('-file')
+            .sort({ createdAt: -1 });
+
+        const pendingCount = await DownloadRequest.countDocuments({ status: 'pending' });
+        const totalCount = await DownloadRequest.countDocuments({});
+
+        res.json({
+            success: true,
+            data: requests,
+            counts: { pending: pendingCount, total: totalCount }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. Super Admin: Approve or Reject a download request
+app.put('/api/download-requests/:id/status', verifyToken, async (req, res) => {
+    try {
+        const { status, adminRemarks } = req.body;
+        if (!status || !['approved', 'rejected', 'pending'].includes(status)) {
+            return res.status(400).json({ success: false, message: "Valid status (approved, rejected, pending) is required" });
+        }
+
+        const request = await DownloadRequest.findById(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Download request not found" });
+
+        // If file base64 is missing, fetch from StudyMaterial notes
+        if (status === 'approved' && (!request.file || request.file.length === 0)) {
+            const sm = await StudyMaterial.findOne();
+            if (sm && sm.notes) {
+                const note = sm.notes.id(request.docId) || sm.notes.find(n => n._id.toString() === request.docId);
+                if (note) {
+                    request.file = note.file || note.pdf || '';
+                }
+            }
+        }
+
+        request.status = status;
+        if (status === 'approved') {
+            request.approvedAt = new Date();
+        }
+        if (adminRemarks !== undefined) {
+            request.adminRemarks = adminRemarks;
+        }
+
+        await request.save();
+        res.json({ success: true, message: `Request successfully marked as ${status}`, data: request });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6. Super Admin: Delete download request
+app.delete('/api/download-requests/:id', verifyToken, async (req, res) => {
+    try {
+        const request = await DownloadRequest.findByIdAndDelete(req.params.id);
+        if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+        res.json({ success: true, message: "Download request deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// MASTER DATABASE FACTORY RESET / FORMAT
+// ============================================
+app.post('/api/admin/format-database', verifyToken, async (req, res) => {
+    try {
+        const { newAdminId, newPassword, confirmText, liveSiteUrl } = req.body;
+
+        if (confirmText !== 'FORMAT_ALL_DATA') {
+            return res.status(400).json({
+                success: false,
+                message: "Security confirmation failed. You must enter exact confirmation: 'FORMAT_ALL_DATA'"
+            });
+        }
+
+        if (!newAdminId || newAdminId.trim().length < 3) {
+            return res.status(400).json({ success: false, message: "New Super Admin ID must be at least 3 characters" });
+        }
+        if (!newPassword || newPassword.length < 4) {
+            return res.status(400).json({ success: false, message: "New Super Admin Password must be at least 4 characters" });
+        }
+
+        console.log(`⚠️ MASTER FACTORY RESET INITIATED by Admin: ${req.user ? req.user.adminID : 'SuperAdmin'} at ${new Date().toISOString()}`);
+
+        // Wipe all collections
+        await Promise.all([
+            Student.deleteMany({}),
+            TuitionCenter.deleteMany({}),
+            StudyMaterial.deleteMany({}),
+            Gallery.deleteMany({}),
+            SidebarBanner.deleteMany({}),
+            Tracking.deleteMany({}),
+            DownloadRequest.deleteMany({}),
+            Settings.deleteMany({}),
+            Admin.deleteMany({})
+        ]);
+
+        // Re-create new Super Admin
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await Admin.create({
+            adminID: newAdminId.trim(),
+            pws: hashedPassword,
+            name: 'Super Admin',
+            role: 'super_admin',
+            isActive: true
+        });
+
+        // Re-create clean default settings
+        await Settings.create({
+            title: 'BBCC Skill Hub',
+            subTitle: 'Empowering Skills, Building Futures',
+            liveSiteUrl: (liveSiteUrl || '').trim()
+        });
+
+        // Re-create initial collections
+        await StudyMaterial.create({ videos: [], notes: [] });
+        await Gallery.create({ photos: [] });
+        await SidebarBanner.create({ banners: [] });
+
+        console.log(`✅ DATABASE RESET COMPLETE: New Super Admin ID: ${newAdminId.trim()}`);
+
+        res.json({
+            success: true,
+            message: "Database has been completely formatted and reset to clean state! Please log in with your new Super Admin ID and Password."
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// RENDER 24/7 ANTI-SLEEP KEEP-ALIVE & HEALTH
+// ============================================
+app.get('/api/ping', (req, res) => {
+    res.json({
+        success: true,
+        status: "active",
+        timestamp: Date.now(),
+        message: "BBCC Skill Hub Server is live and active"
+    });
+});
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: "healthy",
+        uptime: Math.round(process.uptime()),
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Self-ping interval to prevent Render free-tier from spinning down (every 10 mins)
+const KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000;
+setInterval(async () => {
+    try {
+        let siteUrl = process.env.RENDER_EXTERNAL_URL;
+        if (!siteUrl) {
+            const currentSettings = await Settings.findOne();
+            if (currentSettings && currentSettings.liveSiteUrl) {
+                siteUrl = currentSettings.liveSiteUrl;
+            }
+        }
+        if (siteUrl && siteUrl.startsWith('http')) {
+            const pingTarget = siteUrl.replace(/\/+$/, '') + '/api/ping';
+            const pingRes = await fetch(pingTarget);
+            if (pingRes.ok) {
+                console.log(`[Anti-Sleep Keep-Alive] Pinged ${pingTarget} at ${new Date().toLocaleTimeString()} - Status: ${pingRes.status}`);
+            }
+        }
+    } catch (err) {
+        console.warn('[Anti-Sleep Keep-Alive] Ping notification:', err.message);
+    }
+}, KEEP_ALIVE_INTERVAL_MS);
 
 // Standard Teachers Routes (Super Admin)
 app.post('/api/tuition-centers/:id/teacher', verifyToken, async (req, res) => {
