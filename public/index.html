@@ -1315,6 +1315,21 @@
                 <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
                 <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class..." class="verify-input" style="width:100%; padding-left:48px;">
             </div>
+
+            <!-- Student Free Notes Unlock Bar -->
+            <div style="background:rgba(56,189,248,0.07); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:10px 18px; max-width:640px; width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#cbd5e1;">
+                    <i class="fas fa-graduation-cap" style="color:#38bdf8; font-size:16px;"></i>
+                    <span>Enrolled in a coaching? Unlock notes for <b style="color:#34d399;">100% FREE</b>:</span>
+                </div>
+                <div style="display:flex; gap:6px; flex:1; max-width:280px;">
+                    <input type="text" id="vaultStudentAadharInput" placeholder="12-digit Aadhar / Roll No" class="verify-input" style="padding:6px 12px; font-size:12px; font-family:monospace; margin:0;" onkeydown="if(event.key==='Enter') unlockStudentNotes()">
+                    <button type="button" onclick="unlockStudentNotes()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; white-space:nowrap;">
+                        <i class="fas fa-unlock"></i> Unlock Free
+                    </button>
+                </div>
+            </div>
+
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
                 <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
                 <button type="button" class="vault-filter-pill" onclick="applyBookFilter('free', this)"><i class="fas fa-gift"></i> Free Notes</button>
@@ -1398,6 +1413,23 @@
                                 <div id="admFeeDisplayBadge" style="padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800; color:var(--aurora-gold); margin-top:5px;">
                                     ₹0 (Select Course)
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Admission Payment Option -->
+                        <div id="admPaymentOptionsWrap" style="margin-top:12px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px;">
+                            <label style="font-size:12px; font-weight:800; color:var(--aurora-gold); display:flex; align-items:center; gap:6px;">
+                                <i class="fas fa-credit-card"></i> Admission Payment Preference
+                            </label>
+                            <div style="display:flex; gap:16px; margin-top:8px; flex-wrap:wrap;">
+                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#ffffff; cursor:pointer;">
+                                    <input type="radio" name="admPayPreference" value="online" checked style="accent-color:var(--aurora-gold);">
+                                    <span>Pay Tuition Fee Online via Razorpay</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#cbd5e1; cursor:pointer;">
+                                    <input type="radio" name="admPayPreference" value="offline" style="accent-color:var(--aurora-gold);">
+                                    <span>Register & Pay Fee at Institute Campus</span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -1718,24 +1750,41 @@
             </div>
 
             <div style="padding:22px 24px;">
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:18px;">
-                    <div id="dockDocTitle" style="font-weight:800; font-size:15px; margin-bottom:6px;">Mathematics Standard Guide</div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:14px;">
+                    <div id="dockDocTitle" style="font-weight:800; font-size:15px; margin-bottom:4px;">Mathematics Standard Guide</div>
+                    <div id="dockCenterBadge" style="margin-bottom:6px; display:none;"></div>
                     <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-slate);">
                         <span id="dockDocSpecs">Subject: Science • Class 10th</span>
                         <span id="dockDocPrice" style="color:var(--aurora-gold); font-weight:800; font-size:15px;">₹49</span>
                     </div>
                 </div>
 
+                <!-- Enrolled Student Instant Free Option -->
+                <div id="dockEnrolledStudentBox" style="background:rgba(56,189,248,0.07); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px; margin-bottom:14px;">
+                    <label style="font-size:12px; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px;">
+                        <i class="fas fa-graduation-cap"></i> Enrolled Student of this Coaching?
+                    </label>
+                    <p style="font-size:11.5px; color:#cbd5e1; margin:3px 0 8px;">Enrolled students get their coaching notes for <b style="color:#34d399;">100% FREE</b>! Enter your Aadhar / Roll No:</p>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="dockStudentQuery" placeholder="12-digit Aadhar or Roll No" class="modal-input-field" style="margin:0; font-family:monospace; font-size:12px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyStudentFreeAccess();}">
+                        <button type="button" onclick="verifyStudentFreeAccess()" class="btn-aurora" style="white-space:nowrap; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:12px; padding:6px 14px;">
+                            <i class="fas fa-unlock"></i> Free Download
+                        </button>
+                    </div>
+                    <div id="dockEnrolledAlert" style="display:none; font-size:11.5px; margin-top:8px;"></div>
+                </div>
+
                 <form id="checkoutPurchaseForm" onsubmit="processDocumentOrder(event)">
                     <input type="hidden" id="dockDocId" value="">
                     <input type="hidden" id="dockDocPriceRaw" value="0">
+                    <input type="hidden" id="dockTargetCenterId" value="">
 
-                    <div style="margin-bottom:14px;">
+                    <div style="margin-bottom:12px;">
                         <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Student / Buyer Name *</label>
                         <input type="text" id="dockPayerName" required placeholder="Enter student full name" class="modal-input-field">
                     </div>
 
-                    <div style="margin-bottom:18px;">
+                    <div style="margin-bottom:16px;">
                         <label style="font-size:12px; font-weight:700; color:var(--text-dim);">WhatsApp / Mobile Number *</label>
                         <input type="tel" id="dockPayerPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" class="modal-input-field">
                     </div>
@@ -1752,8 +1801,8 @@
 
                 <div id="dockSuccessView" style="display:none; text-align:center; padding:15px 0;">
                     <i class="fas fa-circle-check" style="color:#10b981; font-size:42px; margin-bottom:10px;"></i>
-                    <h4>Payment Verified!</h4>
-                    <p style="font-size:13px; color:var(--text-slate); margin-bottom:15px;">Your document download has started directly to your device.</p>
+                    <h4 id="dockSuccessTitle">Payment Verified!</h4>
+                    <p id="dockSuccessDesc" style="font-size:13px; color:var(--text-slate); margin-bottom:15px;">Your document download has started directly to your device.</p>
                     <a id="dockManualDownloadLink" href="#" download class="btn-aurora btn-aurora-gold">
                         <i class="fas fa-download"></i> Click here if download did not start
                     </a>
@@ -2503,6 +2552,111 @@
                     aadharDoc: aadharDocBase64
                 };
 
+                const payPref = document.querySelector('input[name="admPayPreference"]:checked') ? document.querySelector('input[name="admPayPreference"]:checked').value : 'offline';
+                const fee = selectedAdmissionCourseObj ? (mode === 'Online' ? selectedAdmissionCourseObj.onlineFee : selectedAdmissionCourseObj.offlineFee) : 0;
+
+                // If student chose Online Payment and fee > 0 -> Razorpay Gateway
+                if (payPref === 'online' && fee > 0) {
+                    const orderRes = await fetch('/api/pay/create-admission-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ admissionData: payload, amount: fee })
+                    });
+                    const orderData = await orderRes.json();
+
+                    if (!orderData.success) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                        alertBox.style.display = 'block';
+                        alertBox.style.background = 'rgba(239,68,68,0.15)';
+                        alertBox.style.border = '1px solid #ef4444';
+                        alertBox.style.color = '#fca5a5';
+                        alertBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${orderData.message || 'Payment initiation failed. Please try offline option or contact admin.'}`;
+                        return;
+                    }
+
+                    if (orderData.direct) {
+                        showAdmissionSuccess(payload, payload);
+                        return;
+                    }
+
+                    if (typeof Razorpay === 'undefined') {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                        alertBox.style.display = 'block';
+                        alertBox.textContent = 'Razorpay SDK is loading. Please check internet connection.';
+                        return;
+                    }
+
+                    const options = {
+                        key: orderData.keyId,
+                        amount: orderData.amountInPaise,
+                        currency: 'INR',
+                        name: 'BBCC SKILL HUB',
+                        description: `Admission Fee: ${payload.course} (${payload.centerName})`,
+                        order_id: orderData.orderId,
+                        prefill: {
+                            name: payload.name,
+                            contact: payload.mobile
+                        },
+                        theme: { color: '#fbbf24' },
+                        handler: async function(resp) {
+                            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming Admission & Generating ID...';
+                            try {
+                                const verifyRes = await fetch('/api/pay/verify-admission-order', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: resp.razorpay_order_id,
+                                        razorpay_payment_id: resp.razorpay_payment_id,
+                                        razorpay_signature: resp.razorpay_signature,
+                                        admissionData: payload
+                                    })
+                                });
+                                const vData = await verifyRes.json();
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+
+                                if (vData.success && vData.data) {
+                                    showAdmissionSuccess(vData.data, payload);
+                                    openTaxReceiptModal({
+                                        orderId: resp.razorpay_order_id,
+                                        paymentId: resp.razorpay_payment_id,
+                                        payerName: payload.name,
+                                        payerPhone: payload.mobile,
+                                        itemTitle: `Course Admission: ${payload.course}`,
+                                        itemMeta: `${payload.centerName} (${payload.learningMode} Learning Mode)`,
+                                        totalPrice: fee,
+                                        paidDate: new Date()
+                                    });
+                                } else {
+                                    alertBox.style.display = 'block';
+                                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                                    alertBox.style.border = '1px solid #ef4444';
+                                    alertBox.style.color = '#fca5a5';
+                                    alertBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${vData.message || 'Payment verification failed'}`;
+                                }
+                            } catch(e) {
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                                alertBox.style.display = 'block';
+                                alertBox.textContent = 'Verification error: ' + e.message;
+                            }
+                        },
+                        modal: {
+                            ondismiss: function() {
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                            }
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                    return;
+                }
+
+                // Direct Admission Submission (Campus / Offline or Fee=0)
                 const res = await fetch('/api/public/student-admission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2514,14 +2668,7 @@
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
 
                 if (data.success && data.data) {
-                    document.getElementById('studentAdmissionForm').style.display = 'none';
-                    document.getElementById('admSucRollNo').textContent = data.data.rollNo;
-                    document.getElementById('admSucStudentName').textContent = data.data.name;
-                    document.getElementById('admSucCenterName').textContent = data.data.centerName;
-                    document.getElementById('admSucCourseMode').textContent = `${data.data.course} (${data.data.learningMode})`;
-                    const aadharStr = data.data.aadharNumber || payload.aadharNumber;
-                    document.getElementById('admSucAadharMask').textContent = '•••• •••• ' + aadharStr.slice(-4);
-                    document.getElementById('admSuccessView').style.display = 'block';
+                    showAdmissionSuccess(data.data, payload);
                 } else {
                     alertBox.style.display = 'block';
                     alertBox.style.background = 'rgba(239,68,68,0.15)';
@@ -2538,6 +2685,17 @@
                 alertBox.style.color = '#fca5a5';
                 alertBox.textContent = 'Connection error: ' + err.message;
             }
+        }
+
+        function showAdmissionSuccess(stuData, payload) {
+            document.getElementById('studentAdmissionForm').style.display = 'none';
+            document.getElementById('admSucRollNo').textContent = stuData.rollNo;
+            document.getElementById('admSucStudentName').textContent = stuData.name;
+            document.getElementById('admSucCenterName').textContent = stuData.centerName;
+            document.getElementById('admSucCourseMode').textContent = `${stuData.courseName || stuData.course} (${stuData.learningMode || payload.learningMode})`;
+            const aadharStr = stuData.aadharNumber || payload.aadharNumber || '';
+            document.getElementById('admSucAadharMask').textContent = '•••• •••• ' + aadharStr.slice(-4);
+            document.getElementById('admSuccessView').style.display = 'block';
         }
 
         // ============================================
@@ -2735,10 +2893,12 @@
             renderBooks(filtered);
         }
 
-        async function loadBooks() {
+        async function loadBooks(studentQuery) {
             const grid = document.getElementById('booksGrid');
             try {
-                const res = await fetch('/api/public/books');
+                const query = (studentQuery || localStorage.getItem('bbcc_student_aadhar') || '').trim();
+                const url = query ? `/api/public/books?studentQuery=${encodeURIComponent(query)}` : '/api/public/books';
+                const res = await fetch(url);
                 const data = await res.json();
                 if (data.success && data.data && data.data.notes) {
                     allBooks = data.data.notes;
@@ -2752,6 +2912,23 @@
             }
         }
 
+        async function unlockStudentNotes() {
+            const input = document.getElementById('vaultStudentAadharInput');
+            const val = input ? input.value.trim() : '';
+            if (!val) {
+                alert('Please enter your 12-digit Aadhar Number or Roll Number to unlock your coaching notes.');
+                return;
+            }
+            localStorage.setItem('bbcc_student_aadhar', val);
+            await loadBooks(val);
+            const countUnlocked = allBooks.filter(b => b.isEnrolledFree).length;
+            if (countUnlocked > 0) {
+                alert(`🎉 Congratulations! ${countUnlocked} notes unlocked 100% FREE for your coaching institute enrollment!`);
+            } else {
+                alert('Notes refreshed for ID: ' + val + '. If your coaching has uploaded specific notes, they are shown below.');
+            }
+        }
+
         function renderBooks(books) {
             const grid = document.getElementById('booksGrid');
             if (!books || books.length === 0) {
@@ -2760,14 +2937,17 @@
             }
 
             grid.innerHTML = books.map(b => {
-                const price = Number(b.price) || 0;
+                const isEnrolledFree = Boolean(b.isEnrolledFree);
+                const price = isEnrolledFree ? 0 : (Number(b.price) || 0);
+                const originalPrice = Number(b.originalPrice || b.price) || 0;
                 const isPaid = price > 0;
                 const fileType = (b.fileType || 'pdf').toLowerCase();
                 const safeTitle = (b.title || 'Untitled Document').replace(/'/g, "&#39;");
+                const centerName = (b.targetCenterName && b.targetCenterId !== 'all') ? b.targetCenterName : null;
 
                 return `
                     <div class="vault-book-card">
-                        <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
+                        <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}', '${encodeURIComponent(centerName || '')}', '${b.targetCenterId || 'all'}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
                             ${b.thumbnail ? `
                                 <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img">
                             ` : `
@@ -2784,22 +2964,38 @@
                                 </div>
                             `}
                             <div class="price-badge-pill ${isPaid ? 'paid' : 'free'}">
-                                ${isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
+                                ${isEnrolledFree 
+                                    ? `<i class="fas fa-check-circle"></i> FREE (Enrolled)` 
+                                    : (isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`)}
                             </div>
                         </div>
 
                         <div class="book-body">
+                            ${centerName ? `
+                                <div style="margin-bottom:6px;">
+                                    <span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+                                        <i class="fas fa-school"></i> ${centerName}
+                                    </span>
+                                </div>
+                            ` : ''}
+                            ${isEnrolledFree ? `
+                                <div style="margin-bottom:6px;">
+                                    <span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+                                        <i class="fas fa-graduation-cap"></i> Enrolled Free Access
+                                    </span>
+                                </div>
+                            ` : ''}
                             <h4 class="book-meta-title" title="${safeTitle}">${safeTitle}</h4>
                             <p class="book-meta-desc">${b.description || 'Verified academic syllabus & study material.'}</p>
                             <div class="book-meta-specs">
                                 <span><i class="fas ${fileType === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'}"></i> ${fileType.toUpperCase()}</span>
-                                <span style="color:#fbbf24; font-weight:700;">${isPaid ? 'Direct Unlock' : 'Instant Free'}</span>
+                                <span style="color:#fbbf24; font-weight:700;">${isEnrolledFree ? 'Free for Student' : (isPaid ? 'Direct Unlock' : 'Instant Free')}</span>
                             </div>
                         </div>
 
                         <div class="book-action-dock">
                             ${isPaid ? `
-                                <button type="button" onclick="openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
+                                <button type="button" onclick="openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}', '${encodeURIComponent(centerName || '')}', '${b.targetCenterId || 'all'}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
                                     <i class="fas fa-lock"></i> Pay ₹${price} & Download
                                 </button>
                             ` : `
@@ -2813,17 +3009,40 @@
             }).join('');
         }
 
-        function openCheckout(docId, price, encTitle, encSubject, encClass) {
+        function openCheckout(docId, price, encTitle, encSubject, encClass, encCenter, targetCenterId) {
             const title = decodeURIComponent(encTitle || 'Document');
             const sub = decodeURIComponent(encSubject || 'General');
             const cls = decodeURIComponent(encClass || 'All');
+            const center = decodeURIComponent(encCenter || '');
 
             document.getElementById('dockDocId').value = docId;
             document.getElementById('dockDocPriceRaw').value = price;
+            document.getElementById('dockTargetCenterId').value = targetCenterId || 'all';
             document.getElementById('dockDocTitle').textContent = title;
             document.getElementById('dockDocSpecs').textContent = `Subject: ${sub} • Class: ${cls}`;
             document.getElementById('dockDocPrice').textContent = `₹${price}`;
             document.getElementById('dockPayBtnText').textContent = `Pay ₹${price} via Razorpay`;
+
+            const centerBadge = document.getElementById('dockCenterBadge');
+            if (center) {
+                centerBadge.style.display = 'inline-block';
+                centerBadge.innerHTML = `<span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:700;"><i class="fas fa-school"></i> ${center}</span>`;
+            } else {
+                centerBadge.style.display = 'none';
+            }
+
+            // Student enrollment verification box
+            const enrolledBox = document.getElementById('dockEnrolledStudentBox');
+            if (targetCenterId && targetCenterId !== 'all') {
+                enrolledBox.style.display = 'block';
+            } else {
+                enrolledBox.style.display = 'none';
+            }
+
+            const savedAadhar = localStorage.getItem('bbcc_student_aadhar') || '';
+            if (savedAadhar) document.getElementById('dockStudentQuery').value = savedAadhar;
+            const alertBox = document.getElementById('dockEnrolledAlert');
+            if (alertBox) alertBox.style.display = 'none';
 
             const savedName = localStorage.getItem('bbcc_student_name') || '';
             const savedPhone = localStorage.getItem('bbcc_student_phone') || '';
@@ -2837,6 +3056,50 @@
             document.getElementById('docCheckoutDock').style.display = 'flex';
         }
 
+        async function verifyStudentFreeAccess() {
+            const docId = document.getElementById('dockDocId').value;
+            const query = document.getElementById('dockStudentQuery').value.trim();
+            const alertBox = document.getElementById('dockEnrolledAlert');
+            alertBox.style.display = 'block';
+
+            if (!query) {
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Please enter your 12-digit Aadhar or Roll Number.';
+                return;
+            }
+
+            alertBox.style.color = '#38bdf8';
+            alertBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking enrollment records with this institute...';
+
+            try {
+                const res = await fetch('/api/pay/create-document-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        docId: docId,
+                        studentQuery: query,
+                        payerName: 'Enrolled Student',
+                        payerPhone: ''
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success && data.free) {
+                    localStorage.setItem('bbcc_student_aadhar', query);
+                    alertBox.style.color = '#34d399';
+                    alertBox.innerHTML = `<i class="fas fa-check-circle"></i> <b>${data.message || 'Enrolled Student Verified! Free access unlocked.'}</b>`;
+                    triggerDownload(data.file, data.fileName);
+                    showDockSuccess(data.file, data.fileName);
+                } else {
+                    alertBox.style.color = '#fbbf24';
+                    alertBox.innerHTML = `<i class="fas fa-circle-info"></i> No active enrollment found for this institute with provided ID. You can pay via Razorpay to unlock directly.`;
+                }
+            } catch(e) {
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `<i class="fas fa-triangle-exclamation"></i> Verification error: ${e.message}`;
+            }
+        }
+
         function closeCheckoutDock() {
             document.getElementById('docCheckoutDock').style.display = 'none';
         }
@@ -2847,6 +3110,7 @@
             const price = Number(document.getElementById('dockDocPriceRaw').value) || 0;
             const name = document.getElementById('dockPayerName').value.trim();
             const phone = document.getElementById('dockPayerPhone').value.trim();
+            const studentQuery = (document.getElementById('dockStudentQuery') ? document.getElementById('dockStudentQuery').value : '').trim();
 
             if (!name || !phone) return;
             localStorage.setItem('bbcc_student_name', name);
@@ -2855,13 +3119,13 @@
             const btn = document.getElementById('dockPayBtn');
             const btnText = document.getElementById('dockPayBtnText');
             btn.disabled = true;
-            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Gateway...';
 
             try {
                 const res = await fetch('/api/pay/create-document-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ docId, payerName: name, payerPhone: phone })
+                    body: JSON.stringify({ docId, payerName: name, payerPhone: phone, studentQuery: studentQuery })
                 });
 
                 const data = await res.json();
@@ -2895,7 +3159,7 @@
                     prefill: { name: name, contact: phone },
                     theme: { color: '#fbbf24' },
                     handler: async function(resp) {
-                        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Payment...';
                         try {
                             const verifyRes = await fetch('/api/pay/verify-document-payment', {
                                 method: 'POST',

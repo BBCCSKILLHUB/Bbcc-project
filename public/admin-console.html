@@ -437,16 +437,81 @@
                     </form>
                 </div>
 
-                <!-- 2. Full Platform CMS & Gemini Setup -->
-                <div class="card-console">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                <!-- 2. Google Gemini AI Setup (Loving BHARTI AI) -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #06b6d4;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
-                            <h3 style="font-family:'Cinzel',serif; font-size:20px; margin:0;">Global Platform CMS, Gemini AI & Gateway Setup</h3>
-                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Live-edit homepage branding, loving BHARTI Gemini AI key, and Razorpay gateway credentials.</p>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-brain"></i> Google Gemini AI Setup (Loving BHARTI AI Counselor)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Powers Loving BHARTI AI Counselor. Gemini talks to students with deep human emotion, warmth ("beta", "aap"), and direct coaching director escalations.</p>
+                        </div>
+                        <span id="geminiStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(6,182,212,0.15); border:1px solid #06b6d4; color:#38bdf8;">
+                            Checking Gemini...
+                        </span>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Google Gemini API Key (Gemini 1.5 Flash)</label>
+                        <input type="password" id="setGeminiApiKey" placeholder="AIzaSy... (Paste Google Gemini API Key)" class="console-input" style="font-family:monospace; margin-top:6px;">
+                    </div>
+
+                    <div id="geminiTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="button" onclick="saveGeminiKey()" class="btn-aurora btn-gold">
+                            <i class="fas fa-key"></i> Save Gemini API Key
+                        </button>
+                        <button type="button" onclick="testGeminiConnection()" class="btn-aurora" style="background:rgba(6,182,212,0.15); border:1px solid #06b6d4; color:#38bdf8;">
+                            <i class="fas fa-bolt"></i> Test Gemini AI Live
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Razorpay Payment Gateway Setup -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #f59e0b;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-credit-card"></i> Razorpay Payment Gateway Credentials
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Handles instant online student admission fees, coaching affiliation charges, and notes purchases.</p>
                         </div>
                         <span id="rzpStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--admin-gold);">
                             Checking Gateway...
                         </span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key ID *</label>
+                            <input type="text" id="rzpKeyId" placeholder="rzp_live_... or rzp_test_..." class="console-input" style="font-family:monospace; margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key Secret *</label>
+                            <input type="password" id="rzpKeySecret" placeholder="Enter Razorpay Secret (Leave blank to keep existing)" class="console-input" style="font-family:monospace; margin-top:6px;">
+                        </div>
+                    </div>
+
+                    <div id="rzpTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="button" onclick="saveGatewayKeys()" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Gateway Keys
+                        </button>
+                        <button type="button" onclick="testRazorpayConnection()" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
+                            <i class="fas fa-bolt"></i> Test Gateway Connection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. Global Platform CMS & Branding -->
+                <div class="card-console" style="border-left:4px solid #10b981;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#34d399; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-palette"></i> Platform CMS, Branding & Homepage Theme
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize website title, tagline, hero text, logo, breaking news marquee, footer notice, and contact details. Saving CMS will never affect your API keys.</p>
                     </div>
 
                     <form onsubmit="saveGlobalSettings(event)">
@@ -504,7 +569,7 @@
                         </div>
 
                         <!-- Marquee & Affiliation Fee -->
-                        <div style="display:grid; grid-template-columns:3fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div style="display:grid; grid-template-columns:3fr 1fr; gap:14px; margin-bottom:16px;">
                             <div>
                                 <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Running Breaking News Marquee (Homepage Ticker)</label>
                                 <input type="text" id="setNewsMarquee" placeholder="📢 Admissions Open 2026-27 Across All BBCC Certified Centers..." class="console-input">
@@ -515,33 +580,9 @@
                             </div>
                         </div>
 
-                        <!-- Google Gemini API Key -->
-                        <div style="margin-bottom:16px; background:rgba(6, 182, 212, 0.08); border:1px solid rgba(6, 182, 212, 0.3); border-radius:12px; padding:14px;">
-                            <label style="font-size:12.5px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-brain"></i> Google Gemini API Key (Powers Loving BHARTI AI Counselor)
-                            </label>
-                            <p style="font-size:11.5px; color:#cbd5e1; margin:4px 0 8px;">Enables Google Gemini 1.5 Flash to talk to students with deep human emotion, warmth ("beta", "aap"), and direct director escalations.</p>
-                            <input type="password" id="setGeminiApiKey" placeholder="AIzaSy... (Paste Google Gemini API Key)" class="console-input" style="font-family:monospace;">
-                        </div>
-
-                        <!-- Razorpay Gateway Keys -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key ID *</label>
-                                <input type="text" id="rzpKeyId" required placeholder="rzp_live_... or rzp_test_..." class="console-input" style="font-family:monospace;">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key Secret *</label>
-                                <input type="password" id="rzpKeySecret" required placeholder="Enter Razorpay Secret Key" class="console-input" style="font-family:monospace;">
-                            </div>
-                        </div>
-
-                        <div id="rzpTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px;"></div>
-
-                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Full Platform CMS & Gateway Settings</button>
-                            <button type="button" onclick="testRazorpayConnection()" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
-                                <i class="fas fa-bolt"></i> Test Gateway Connection
+                        <div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save Platform CMS & Branding
                             </button>
                         </div>
                     </form>
@@ -1074,91 +1115,207 @@
 
         async function loadSettingsData() {
             try {
-                const res = await fetch('/api/public/config');
-                const data = await res.json();
-                const badge = document.getElementById('rzpStatusBadge');
-                if (data.success && data.data) {
-                    const cfg = data.data;
-                    document.getElementById('setBoardTitle').value = cfg.boardTitle || 'BBCC SKILL HUB';
-                    document.getElementById('setTagline').value = cfg.tagline || 'Digital Skill & Coaching Institute Platform';
-                    document.getElementById('setHeroTitle').value = cfg.heroTitle || 'Empowering Certified Learning & Partner Institutes';
-                    document.getElementById('setHeroDesc').value = cfg.heroDesc || 'Explore authentic textbook syllabus notes, discover verified faculty...';
-                    document.getElementById('setFooterText').value = cfg.footerText || 'BBCC SKILL HUB Digital Platform. Centralized Educational Verification...';
-                    document.getElementById('setAffFee').value = cfg.affiliationFee !== undefined ? cfg.affiliationFee : 999;
-                    document.getElementById('setPhone').value = cfg.phone || '';
-                    document.getElementById('setEmail').value = cfg.email || '';
-                    document.getElementById('setAddress').value = cfg.address || '';
-                    document.getElementById('setNewsMarquee').value = cfg.newsMarquee || '';
-                    if (cfg.geminiConfigured) {
-                        document.getElementById('setGeminiApiKey').placeholder = '•••••••••••••••• (Gemini API Key Active)';
+                let cfg = null;
+                // Prefer Super Admin settings endpoint for masked key status
+                try {
+                    const adminRes = await fetch('/api/admin/settings', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const adminData = await adminRes.json();
+                    if (adminData.success && adminData.data) {
+                        cfg = adminData.data;
                     }
+                } catch(e) {}
 
-                    if (cfg.razorpayConfigured) {
-                        badge.textContent = '✅ ACTIVE & CONFIGURED';
-                        badge.style.background = 'rgba(16,185,129,0.15)';
-                        badge.style.borderColor = '#10b981';
-                        badge.style.color = '#34d399';
-                        document.getElementById('rzpKeyId').value = cfg.razorpayKeyId || '';
-                    } else {
-                        badge.textContent = '⚙️ SETUP REQUIRED';
-                        badge.style.background = 'rgba(245,158,11,0.15)';
-                        badge.style.borderColor = '#f59e0b';
-                        badge.style.color = '#fbbf24';
+                if (!cfg) {
+                    const pubRes = await fetch('/api/public/config');
+                    const pubData = await pubRes.json();
+                    if (pubData.success && pubData.data) cfg = pubData.data;
+                }
+
+                if (!cfg) return;
+
+                // CMS fields
+                document.getElementById('setBoardTitle').value = cfg.boardTitle || 'BBCC SKILL HUB';
+                document.getElementById('setTagline').value = cfg.tagline || 'Digital Skill & Coaching Institute Platform';
+                document.getElementById('setHeroTitle').value = cfg.heroTitle || 'Empowering Certified Learning & Partner Institutes';
+                document.getElementById('setHeroDesc').value = cfg.heroDesc || 'Explore authentic textbook syllabus notes, discover verified faculty...';
+                document.getElementById('setFooterText').value = cfg.footerText || 'BBCC SKILL HUB Digital Platform. Centralized Educational Verification...';
+                document.getElementById('setAffFee').value = cfg.affiliationFee !== undefined ? cfg.affiliationFee : 999;
+                document.getElementById('setPhone').value = cfg.phone || '';
+                document.getElementById('setEmail').value = cfg.email || '';
+                document.getElementById('setAddress').value = cfg.address || '';
+                document.getElementById('setNewsMarquee').value = cfg.newsMarquee || '';
+
+                // Gemini Status
+                const gemBadge = document.getElementById('geminiStatusBadge');
+                const gemInput = document.getElementById('setGeminiApiKey');
+                if (cfg.geminiConfigured) {
+                    if (gemBadge) {
+                        gemBadge.textContent = '✅ ACTIVE & CONFIGURED';
+                        gemBadge.style.background = 'rgba(16,185,129,0.15)';
+                        gemBadge.style.borderColor = '#10b981';
+                        gemBadge.style.color = '#34d399';
+                    }
+                    if (gemInput) {
+                        gemInput.placeholder = cfg.geminiApiKeyMasked ? `•••••••• (${cfg.geminiApiKeyMasked})` : '•••••••• (Gemini API Key Active)';
+                    }
+                } else {
+                    if (gemBadge) {
+                        gemBadge.textContent = '⚙️ NOT CONFIGURED';
+                        gemBadge.style.background = 'rgba(245,158,11,0.15)';
+                        gemBadge.style.borderColor = '#f59e0b';
+                        gemBadge.style.color = '#fbbf24';
+                    }
+                    if (gemInput) {
+                        gemInput.placeholder = 'AIzaSy... (Paste Google Gemini API Key)';
                     }
                 }
-            } catch(e) {}
+
+                // Razorpay Status
+                const rzpBadge = document.getElementById('rzpStatusBadge');
+                const rzpIdInput = document.getElementById('rzpKeyId');
+                const rzpSecretInput = document.getElementById('rzpKeySecret');
+                if (cfg.razorpayConfigured) {
+                    if (rzpBadge) {
+                        rzpBadge.textContent = '✅ ACTIVE & CONFIGURED';
+                        rzpBadge.style.background = 'rgba(16,185,129,0.15)';
+                        rzpBadge.style.borderColor = '#10b981';
+                        rzpBadge.style.color = '#34d399';
+                    }
+                    if (rzpIdInput) rzpIdInput.value = cfg.razorpayKeyId || '';
+                    if (rzpSecretInput) {
+                        rzpSecretInput.placeholder = cfg.razorpayKeySecretMasked ? `•••••••• (${cfg.razorpayKeySecretMasked})` : 'Leave blank to retain active secret';
+                    }
+                } else {
+                    if (rzpBadge) {
+                        rzpBadge.textContent = '⚙️ SETUP REQUIRED';
+                        rzpBadge.style.background = 'rgba(245,158,11,0.15)';
+                        rzpBadge.style.borderColor = '#f59e0b';
+                        rzpBadge.style.color = '#fbbf24';
+                    }
+                    if (rzpIdInput) rzpIdInput.value = cfg.razorpayKeyId || '';
+                    if (rzpSecretInput) rzpSecretInput.placeholder = 'Enter Razorpay Secret Key';
+                }
+            } catch(e) {
+                console.error('loadSettingsData error:', e);
+            }
         }
 
-        async function saveGlobalSettings(e) {
-            e.preventDefault();
-            const bTitle = document.getElementById('setBoardTitle').value.trim();
-            const bTagline = document.getElementById('setTagline').value.trim();
-            const hTitle = document.getElementById('setHeroTitle').value.trim();
-            const hDesc = document.getElementById('setHeroDesc').value.trim();
-            const fText = document.getElementById('setFooterText').value.trim();
-            const phone = document.getElementById('setPhone').value.trim();
-            const email = document.getElementById('setEmail').value.trim();
-            const address = document.getElementById('setAddress').value.trim();
-            const logo = document.getElementById('setBoardLogoBase64').value;
-            const marquee = document.getElementById('setNewsMarquee').value.trim();
-            const affFee = Number(document.getElementById('setAffFee').value) || 0;
-            const geminiKey = document.getElementById('setGeminiApiKey').value.trim();
+        async function saveGeminiKey() {
+            const key = document.getElementById('setGeminiApiKey').value.trim();
+            if (!key) {
+                alert('Please enter a Google Gemini API Key.');
+                return;
+            }
+            const box = document.getElementById('geminiTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(6,182,212,0.1)';
+            box.style.border = '1px solid #06b6d4';
+            box.style.color = '#38bdf8';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validating and saving Gemini API Key...';
+
+            try {
+                const res = await fetch('/api/admin/gemini-key', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ geminiApiKey: key })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+                    document.getElementById('setGeminiApiKey').value = '';
+                    await loadSettingsData();
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(err) {
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error updating Gemini key: ' + err.message;
+            }
+        }
+
+        async function testGeminiConnection() {
+            const box = document.getElementById('geminiTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(6,182,212,0.1)';
+            box.style.border = '1px solid #06b6d4';
+            box.style.color = '#38bdf8';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing Loving BHARTI AI connection with Google Gemini...';
+
+            try {
+                const res = await fetch('/api/admin/test-gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ prompt: 'Namaste BHARTI beta, testing connection.' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> <b>Gemini Live Connected!</b> Response: "${data.reply}"`;
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(err) {
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error testing Gemini: ' + err.message;
+            }
+        }
+
+        async function saveGatewayKeys() {
             const keyId = document.getElementById('rzpKeyId').value.trim();
             const keySecret = document.getElementById('rzpKeySecret').value.trim();
+            if (!keyId) {
+                alert('Please enter Razorpay Key ID.');
+                return;
+            }
+            const box = document.getElementById('rzpTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(56,189,248,0.1)';
+            box.style.border = '1px solid #38bdf8';
+            box.style.color = '#38bdf8';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validating and saving Razorpay Gateway credentials...';
 
-            const payload = {
-                boardTitle: bTitle,
-                tagline: bTagline,
-                heroTitle: hTitle,
-                heroDesc: hDesc,
-                footerText: fText,
-                phone: phone,
-                email: email,
-                address: address,
-                newsMarquee: marquee,
-                affiliationFee: affFee,
-                razorpayKeyId: keyId,
-                razorpayKeySecret: keySecret,
-                razorpayEnabled: true
-            };
-            if (logo) payload.boardLogo = logo;
-            if (geminiKey) payload.geminiApiKey = geminiKey;
-
-            const res = await fetch('/api/admin/settings', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                alert('Platform CMS & Gateway settings saved successfully!');
-                loadSettingsData();
-            } else {
-                alert(data.message || 'Error saving settings');
+            try {
+                const res = await fetch('/api/admin/gateway-keys', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ razorpayKeyId: keyId, razorpayKeySecret: keySecret, razorpayEnabled: true })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+                    document.getElementById('rzpKeySecret').value = '';
+                    await loadSettingsData();
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(err) {
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error saving gateway keys: ' + err.message;
             }
         }
 
@@ -1187,7 +1344,57 @@
                     box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
                 }
             } catch(e) {
-                box.innerHTML = 'Error testing connection';
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error testing connection: ' + e.message;
+            }
+        }
+
+        async function saveGlobalSettings(e) {
+            e.preventDefault();
+            const bTitle = document.getElementById('setBoardTitle').value.trim();
+            const bTagline = document.getElementById('setTagline').value.trim();
+            const hTitle = document.getElementById('setHeroTitle').value.trim();
+            const hDesc = document.getElementById('setHeroDesc').value.trim();
+            const fText = document.getElementById('setFooterText').value.trim();
+            const phone = document.getElementById('setPhone').value.trim();
+            const email = document.getElementById('setEmail').value.trim();
+            const address = document.getElementById('setAddress').value.trim();
+            const logo = document.getElementById('setBoardLogoBase64').value;
+            const marquee = document.getElementById('setNewsMarquee').value.trim();
+            const affFee = Number(document.getElementById('setAffFee').value) || 0;
+
+            const payload = {
+                boardTitle: bTitle,
+                tagline: bTagline,
+                heroTitle: hTitle,
+                heroDesc: hDesc,
+                footerText: fText,
+                phone: phone,
+                email: email,
+                address: address,
+                newsMarquee: marquee,
+                affiliationFee: affFee
+            };
+            if (logo) payload.boardLogo = logo;
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('Platform CMS & Branding saved successfully! API keys remain safe and untouched.');
+                    await loadSettingsData();
+                } else {
+                    alert(data.message || 'Error saving settings');
+                }
+            } catch(err) {
+                alert('Network error saving CMS: ' + err.message);
             }
         }
 

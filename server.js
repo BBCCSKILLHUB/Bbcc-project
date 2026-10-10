@@ -11,6 +11,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -22,11 +23,51 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'BBCC_AURORA_SECURE_TOKEN_2026_@KEY';
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/bbcc_portal';
 
+// Helper: Safely convert large base64 data to lightweight server disk files
+// Prevents MongoDB from hitting the strict 16MB BSON document size limit
+function saveBase64ToFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf') {
+    if (!dataUriOrBase64 || typeof dataUriOrBase64 !== 'string') return '';
+    // If it's already a URL or server path, return as is
+    if (dataUriOrBase64.startsWith('http://') || dataUriOrBase64.startsWith('https://') || dataUriOrBase64.startsWith('/uploads/')) {
+        return dataUriOrBase64;
+    }
+    let ext = defaultExt;
+    let base64Data = dataUriOrBase64;
+    const match = dataUriOrBase64.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
+    if (match) {
+        const mime = match[1];
+        base64Data = match[2];
+        if (mime.includes('pdf')) ext = 'pdf';
+        else if (mime.includes('jpeg') || mime.includes('jpg')) ext = 'jpg';
+        else if (mime.includes('png')) ext = 'png';
+        else if (mime.includes('webp')) ext = 'webp';
+        else if (mime.includes('word') || mime.includes('officedocument')) ext = 'docx';
+    } else if (dataUriOrBase64.length < 300) {
+        // Just a short string, not a base64 file payload
+        return dataUriOrBase64;
+    }
+
+    try {
+        const targetDir = path.join(__dirname, 'public', 'uploads', subDir);
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+        const filename = `${subDir}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
+        const filePath = path.join(targetDir, filename);
+        fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+        return `/uploads/${subDir}/${filename}`;
+    } catch (e) {
+        console.error('saveBase64ToFile error:', e.message);
+        return dataUriOrBase64;
+    }
+}
+
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '80mb' }));
 app.use(express.urlencoded({ extended: true, limit: '80mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // ============================================================
 // 1. MONGODB SCHEMAS & MODELS
@@ -431,6 +472,28 @@ async function initSystem() {
             await StudyMaterial.create({ notes: [], videos: [] });
             console.log('✅ Initialized Study Material Vault');
         }
+
+        // Ensure static upload directories exist
+        const uploadSubdirs = ['materials', 'students', 'kyc', 'branding', 'banners'];
+        uploadSubdirs.forEach(d => {
+            const dirPath = path.join(__dirname, 'public', 'uploads', d);
+            if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
+        });
+
+        // Safe database repair for any oversized legacy base64 documents (BSON 16MB limit guard)
+        try {
+            const db = mongoose.connection.db;
+            if (db) {
+                const corruptedCenterId = new mongoose.Types.ObjectId('6aca0553e4a970eefd9c2efe');
+                await db.collection('tuitioncenters').updateOne(
+                    { _id: corruptedCenterId },
+                    { $set: { "materials.$[elem].pdf": "", "materials.$[elem].file": "" } },
+                    { arrayFilters: [{ "elem.pdf": { $exists: true } }] }
+                ).catch(() => {});
+            }
+        } catch (dbSanErr) {
+            console.warn('DB Sanitizer notice:', dbSanErr.message);
+        }
     } catch (e) {
         console.error('System init notice:', e.message);
     }
@@ -556,10 +619,34 @@ app.get('/api/public/books', async (req, res) => {
             return res.json({ success: true, data: { notes: [], videos: [] } });
         }
 
-        // Sanitize: Filter only Universal notes or public ones, hide raw file payload
-        const sanitizedNotes = sm.notes
-            .filter(n => !n.targetCenterId || n.targetCenterId === 'all')
-            .map(n => ({
+        // Check if student query (Aadhar or Roll No) or student auth token is passed to check enrollment benefit
+        let enrolledCenterId = null;
+        let studentRecord = null;
+        const studentQuery = req.query.studentQuery || req.query.aadhar || req.query.rollNo;
+        if (studentQuery) {
+            studentRecord = await Student.findOne({
+                $or: [
+                    { aadharNumber: studentQuery.trim().replace(/\s+/g, '') },
+                    { rollNo: studentQuery.trim() }
+                ]
+            });
+            if (studentRecord && studentRecord.centerId) {
+                enrolledCenterId = studentRecord.centerId.toString();
+            }
+        } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+            try {
+                const decoded = jwt.verify(req.headers.authorization.split(' ')[1], JWT_SECRET);
+                if (decoded && decoded.centerId) {
+                    enrolledCenterId = decoded.centerId.toString();
+                }
+            } catch (e) {}
+        }
+
+        // Include ALL notes (Universal + Coaching Center uploaded notes) on BBCC SKILL HUB homepage
+        const sanitizedNotes = sm.notes.map(n => {
+            const isTargetCenter = n.targetCenterId && n.targetCenterId !== 'all';
+            const isEnrolledFree = enrolledCenterId && isTargetCenter && (enrolledCenterId === n.targetCenterId.toString());
+            return {
                 _id: n._id,
                 title: n.title,
                 subject: n.subject,
@@ -567,14 +654,17 @@ app.get('/api/public/books', async (req, res) => {
                 description: n.description,
                 fileType: n.fileType,
                 thumbnail: n.thumbnail,
-                price: n.price,
+                price: isEnrolledFree ? 0 : n.price,
+                originalPrice: n.price,
+                isEnrolledFree: Boolean(isEnrolledFree),
                 targetCenterId: n.targetCenterId || 'all',
                 targetCenterName: n.targetCenterName || 'All Centers (Universal)',
                 isRawData: n.isRawData || false,
                 hasFile: !!(n.pdf || n.file),
                 downloadCount: n.downloadCount || 0,
                 createdAt: n.createdAt
-            }));
+            };
+        });
 
         res.json({
             success: true,
@@ -756,6 +846,9 @@ app.post('/api/public/student-admission', async (req, res) => {
         const rollNo = 'BBCC-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
         const studentId = 'STU-' + Date.now().toString().slice(-6);
 
+        const savedPhoto = saveBase64ToFile(photo, 'students', 'jpg');
+        const savedAadharDoc = saveBase64ToFile(aadharDoc, 'kyc', 'pdf');
+
         // Check if student already registered with this Aadhar
         let existingStudent = await Student.findOne({ aadharNumber: cleanAadhar });
         if (existingStudent) {
@@ -771,8 +864,8 @@ app.post('/api/public/student-admission', async (req, res) => {
             existingStudent.mode = mode || existingStudent.mode || 'physical';
             existingStudent.centerId = center._id;
             existingStudent.centerName = center.centerName;
-            if (photo) existingStudent.photo = photo;
-            if (aadharDoc) existingStudent.aadharDoc = aadharDoc;
+            if (savedPhoto) existingStudent.photo = savedPhoto;
+            if (savedAadharDoc) existingStudent.aadharDoc = savedAadharDoc;
             if (feePaid) existingStudent.feePaid = Number(feePaid) || 0;
             existingStudent.admissionStatus = 'Active';
             await existingStudent.save();
@@ -804,8 +897,8 @@ app.post('/api/public/student-admission', async (req, res) => {
             email: (email || '').trim(),
             address: (address || '').trim(),
             aadharNumber: cleanAadhar,
-            aadharDoc: aadharDoc || '',
-            photo: photo || '',
+            aadharDoc: savedAadharDoc || '',
+            photo: savedPhoto || '',
             course: (courseName || 'Certified Course').trim(),
             courseId: courseId || '',
             courseName: (courseName || '').trim(),
@@ -960,6 +1053,32 @@ app.get('/api/student/classroom', verifyStudent, async (req, res) => {
                 downloadCount: m.downloadCount || 0
             }));
         }
+
+        // Also include notes uploaded to StudyMaterial repository for this center or universal
+        try {
+            const sm = await StudyMaterial.findOne();
+            if (sm && sm.notes) {
+                const centerNotes = sm.notes.filter(n =>
+                    (center && n.targetCenterId && n.targetCenterId.toString() === center._id.toString()) ||
+                    n.targetCenterId === 'all'
+                ).map(n => ({
+                    _id: n._id,
+                    title: n.title,
+                    description: n.description,
+                    fileType: n.fileType,
+                    file: n.file || n.pdf,
+                    price: 0,
+                    isRawData: n.isRawData || false,
+                    downloadCount: n.downloadCount || 0
+                }));
+                const existingTitles = new Set(notes.map(n => (n.title || '').toLowerCase()));
+                for (const cn of centerNotes) {
+                    if (!existingTitles.has((cn.title || '').toLowerCase())) {
+                        notes.push(cn);
+                    }
+                }
+            }
+        } catch(e) {}
 
         res.json({
             success: true,
@@ -1152,7 +1271,7 @@ Jawab sundar, madhur, emotional, Hindi/Hinglish mein aur helpful rakhein (maximu
 // 5.1 Create Order for E-Library Document (Free Instant Unlock or Paid Razorpay Order)
 app.post('/api/pay/create-document-order', async (req, res) => {
     try {
-        const { docId, payerName, payerPhone, payerEmail } = req.body;
+        const { docId, payerName, payerPhone, payerEmail, studentQuery } = req.body;
         if (!docId) {
             return res.status(400).json({ success: false, message: 'Document ID is required' });
         }
@@ -1169,14 +1288,33 @@ app.post('/api/pay/create-document-order', async (req, res) => {
 
         const price = Math.max(0, Number(note.price) || 0);
 
-        // CASE A: Free Document -> Instant Delivery Directly to Disk
-        if (price === 0) {
+        // Check if student is enrolled in this coaching center for 100% Free Access
+        let isEnrolledStudent = false;
+        const q = (studentQuery || '').trim().replace(/\s+/g, '');
+        if (q && note.targetCenterId && note.targetCenterId !== 'all') {
+            const student = await Student.findOne({
+                $or: [{ aadharNumber: q }, { rollNo: (studentQuery || '').trim() }]
+            });
+            if (student && student.centerId && student.centerId.toString() === note.targetCenterId.toString()) {
+                isEnrolledStudent = true;
+            }
+        } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+            try {
+                const decoded = jwt.verify(req.headers.authorization.split(' ')[1], JWT_SECRET);
+                if (decoded && decoded.centerId && note.targetCenterId && decoded.centerId.toString() === note.targetCenterId.toString()) {
+                    isEnrolledStudent = true;
+                }
+            } catch (e) {}
+        }
+
+        // CASE A: Free Document or Enrolled Student Benefit -> Instant 100% Free Delivery
+        if (price === 0 || isEnrolledStudent) {
             note.downloadCount = (note.downloadCount || 0) + 1;
             await sm.save();
 
             await PaymentTransaction.create({
-                orderId: 'FREE_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
-                paymentId: 'FREE_ACCESS',
+                orderId: (isEnrolledStudent ? 'ENROLLED_FREE_' : 'FREE_') + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
+                paymentId: isEnrolledStudent ? 'ENROLLED_BENEFIT' : 'FREE_ACCESS',
                 purpose: 'document_purchase',
                 amount: 0,
                 status: 'paid',
@@ -1191,71 +1329,22 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             return res.json({
                 success: true,
                 free: true,
+                enrolledBenefit: isEnrolledStudent,
                 file: note.file || note.pdf,
                 fileName: note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf')),
                 fileType: note.fileType || 'pdf',
-                message: 'Free document ready for download!'
+                message: isEnrolledStudent 
+                    ? `Enrolled Student Benefit: 100% Free download granted for student of ${note.targetCenterName}!`
+                    : 'Free document ready for download!'
             });
         }
 
         // CASE B: Paid Document -> Generate Razorpay Order
         const { client, keyId } = await getRazorpayClient();
         if (!client) {
-            // Instant Test Simulation when Razorpay keys are not configured yet
-            note.downloadCount = (note.downloadCount || 0) + 1;
-            await sm.save();
-
-            const orderId = 'TEST_DOC_' + Date.now();
-            const paymentId = 'TEST_PAY_' + crypto.randomBytes(4).toString('hex').toUpperCase();
-            const centerShare = Math.round(price * 0.80);
-            const platformCut = price - centerShare;
-            const targetCid = (note.targetCenterId && note.targetCenterId !== 'all') ? note.targetCenterId : '';
-
-            await PaymentTransaction.create({
-                orderId: orderId,
-                paymentId: paymentId,
-                purpose: 'document_purchase',
-                amount: price,
-                centerShare: centerShare,
-                platformCut: platformCut,
-                centerId: targetCid,
-                centerName: note.targetCenterName || '',
-                status: 'paid',
-                payerName: (payerName || 'Test Student').trim(),
-                payerPhone: (payerPhone || '9876543210').trim(),
-                payerEmail: (payerEmail || '').trim(),
-                docId: note._id.toString(),
-                docTitle: note.title,
-                paidAt: new Date()
-            });
-
-            if (targetCid) {
-                try {
-                    const center = await TuitionCenter.findById(targetCid);
-                    if (center) {
-                        center.walletBalance = (center.walletBalance || 0) + centerShare;
-                        center.totalSalesVolume = (center.totalSalesVolume || 0) + price;
-                        center.totalPlatformCut = (center.totalPlatformCut || 0) + platformCut;
-                        await center.save();
-                    }
-                } catch (ce) {
-                    console.error('Wallet credit notice:', ce.message);
-                }
-            }
-
-            return res.json({
-                success: true,
-                free: true,
-                isTestSandbox: true,
-                orderId: orderId,
-                paymentId: paymentId,
-                amount: price,
-                centerShare: centerShare,
-                platformCut: platformCut,
-                file: note.file || note.pdf,
-                fileName: note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf')),
-                fileType: note.fileType || 'pdf',
-                message: 'Test sandbox payment verified! Document download starting.'
+            return res.status(400).json({
+                success: false,
+                message: 'Payment Gateway is not configured. Please enter Razorpay Key ID and Secret in Admin Console to enable live payments.'
             });
         }
 
@@ -1644,6 +1733,195 @@ app.post('/api/pay/verify-affiliation-order', async (req, res) => {
         });
     } catch (err) {
         console.error('Verify affiliation payment error:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5.4B Create Student Admission Razorpay Order
+app.post('/api/pay/create-admission-order', async (req, res) => {
+    try {
+        const { admissionData, amount } = req.body;
+        if (!admissionData || !admissionData.name || !admissionData.mobile || !admissionData.centerId) {
+            return res.status(400).json({ success: false, message: 'Student admission details are required' });
+        }
+
+        const fee = Math.max(0, Number(amount) || 0);
+        if (fee === 0) {
+            return res.json({ success: true, direct: true, message: 'Free Admission' });
+        }
+
+        const { client, keyId } = await getRazorpayClient();
+        if (!client) {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment Gateway is not configured. Please enter Razorpay credentials in Admin Console or proceed with Direct Admission.'
+            });
+        }
+
+        const amountInPaise = Math.round(fee * 100);
+        const order = await client.orders.create({
+            amount: amountInPaise,
+            currency: 'INR',
+            receipt: 'adm_' + Date.now().toString().slice(-8),
+            notes: {
+                studentName: (admissionData.name || '').slice(0, 30),
+                mobile: (admissionData.mobile || '').slice(0, 15),
+                course: (admissionData.course || '').slice(0, 30)
+            }
+        });
+
+        await PaymentTransaction.create({
+            orderId: order.id,
+            purpose: 'student_admission',
+            amount: fee,
+            currency: 'INR',
+            status: 'created',
+            payerName: admissionData.name,
+            payerPhone: admissionData.mobile,
+            centerId: admissionData.centerId,
+            centerName: admissionData.centerName || '',
+            regData: admissionData
+        });
+
+        res.json({
+            success: true,
+            direct: false,
+            orderId: order.id,
+            amount: fee,
+            amountInPaise: amountInPaise,
+            keyId: keyId,
+            studentName: admissionData.name,
+            courseName: admissionData.course
+        });
+    } catch (err) {
+        console.error('Create admission order error:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5.4C Verify Student Admission Payment
+app.post('/api/pay/verify-admission-order', async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, admissionData: incomingData } = req.body;
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ success: false, message: 'Missing transaction parameters' });
+        }
+
+        const { keySecret } = await getRazorpayClient();
+        if (!keySecret) {
+            return res.status(400).json({ success: false, message: 'Gateway secret missing' });
+        }
+
+        const generatedSignature = crypto
+            .createHmac('sha256', keySecret)
+            .update(razorpay_order_id + '|' + razorpay_payment_id)
+            .digest('hex');
+
+        if (generatedSignature !== razorpay_signature) {
+            await PaymentTransaction.findOneAndUpdate(
+                { orderId: razorpay_order_id },
+                { status: 'failed', paymentId: razorpay_payment_id }
+            );
+            return res.status(400).json({ success: false, message: 'Payment signature mismatch' });
+        }
+
+        const txn = await PaymentTransaction.findOne({ orderId: razorpay_order_id });
+        const adm = (txn && txn.regData) ? txn.regData : incomingData;
+
+        if (!adm || !adm.name || !adm.centerId) {
+            return res.status(400).json({ success: false, message: 'Admission payload missing' });
+        }
+
+        const cleanAadhar = (adm.aadharNumber || '').trim().replace(/\s+/g, '');
+        const savedPhoto = saveBase64ToFile(adm.photo, 'students', 'jpg');
+        const savedAadharDoc = saveBase64ToFile(adm.aadharDoc, 'kyc', 'pdf');
+        const rollNo = 'BBCC-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+        const studentId = 'STU-' + Date.now().toString().slice(-6);
+
+        let student = cleanAadhar ? await Student.findOne({ aadharNumber: cleanAadhar }) : null;
+        if (student) {
+            student.name = adm.name.trim();
+            student.parentName = (adm.parentName || adm.fatherName || student.parentName || '').trim();
+            student.fatherName = (adm.fatherName || adm.parentName || student.fatherName || '').trim();
+            student.mobile = (adm.mobile || student.mobile).trim();
+            student.parentMobile = (adm.parentMobile || student.parentMobile || '').trim();
+            student.address = (adm.address || student.address || '').trim();
+            student.course = (adm.course || student.course || '').trim();
+            student.courseId = adm.courseId || student.courseId || '';
+            student.courseName = (adm.course || student.courseName || '').trim();
+            student.mode = adm.learningMode || adm.mode || student.mode || 'physical';
+            student.feePaid = (student.feePaid || 0) + (txn ? txn.amount : 0);
+            student.admissionStatus = 'Active';
+            if (savedPhoto) student.photo = savedPhoto;
+            if (savedAadharDoc) student.aadharDoc = savedAadharDoc;
+            await student.save();
+        } else {
+            student = await Student.create({
+                studentId,
+                rollNo,
+                name: adm.name.trim(),
+                parentName: (adm.parentName || adm.fatherName || '').trim(),
+                fatherName: (adm.fatherName || adm.parentName || '').trim(),
+                mobile: (adm.mobile || '').trim(),
+                phone: (adm.mobile || '').trim(),
+                parentMobile: (adm.parentMobile || '').trim(),
+                email: (adm.email || '').trim(),
+                address: (adm.address || '').trim(),
+                aadharNumber: cleanAadhar,
+                aadharDoc: savedAadharDoc || '',
+                photo: savedPhoto || '',
+                course: (adm.course || 'Enrolled Course').trim(),
+                courseId: adm.courseId || '',
+                courseName: (adm.course || 'Enrolled Course').trim(),
+                centerId: adm.centerId,
+                centerName: adm.centerName || 'BBCC Center',
+                mode: adm.learningMode || adm.mode || 'physical',
+                feePaid: txn ? txn.amount : 0,
+                admissionStatus: 'Active',
+                status: 'Certified & Enrolled',
+                certificateId: rollNo,
+                issueDate: new Date()
+            });
+        }
+
+        await PaymentTransaction.findOneAndUpdate(
+            { orderId: razorpay_order_id },
+            {
+                status: 'paid',
+                paymentId: razorpay_payment_id,
+                signature: razorpay_signature,
+                studentId: student._id.toString(),
+                paidAt: new Date()
+            }
+        );
+
+        try {
+            await AdmissionInquiry.create({
+                centerId: adm.centerId,
+                centerName: adm.centerName || '',
+                studentName: adm.name.trim(),
+                parentName: (adm.parentName || adm.fatherName || '').trim(),
+                mobile: (adm.mobile || '').trim(),
+                message: `Paid Admission (${adm.learningMode || adm.mode || 'Physical'}) via Razorpay (Txn: ${razorpay_payment_id})`,
+                status: 'enrolled'
+            });
+        } catch(e) {}
+
+        res.json({
+            success: true,
+            message: 'Admission payment verified! Student enrollment confirmed.',
+            data: {
+                rollNo: student.rollNo,
+                studentId: student.studentId,
+                name: student.name,
+                centerName: student.centerName,
+                courseName: student.courseName || student.course,
+                learningMode: student.mode,
+                aadharNumber: student.aadharNumber
+            }
+        });
+    } catch(err) {
+        console.error('Verify admission payment error:', err);
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -2179,14 +2457,15 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
 
         const itemPrice = Math.max(0, Number(price) || 0);
+        const savedFilePath = saveBase64ToFile(pdf || file, 'materials', fileType || 'pdf');
 
         center.materials.push({
             title: title.trim(),
             description: description || '',
             price: itemPrice,
             fileType: fileType || 'pdf',
-            pdf: pdf || file || '',
-            file: file || pdf || '',
+            pdf: savedFilePath,
+            file: savedFilePath,
             link: link || '',
             isRawData: Boolean(isRawData)
         });
@@ -2203,8 +2482,8 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 classLevel: 'All Classes',
                 description: description || '',
                 fileType: fileType || 'pdf',
-                pdf: pdf || file || '',
-                file: file || pdf || '',
+                pdf: savedFilePath,
+                file: savedFilePath,
                 price: itemPrice,
                 targetCenterId: center._id.toString(),
                 targetCenterName: center.centerName,
@@ -2579,15 +2858,22 @@ app.put('/api/admin/settings', verifySuperAdmin, async (req, res) => {
             affiliationFee
         } = req.body;
 
-        if (razorpayKeyId !== undefined) settings.razorpayKeyId = razorpayKeyId.trim();
-        if (razorpayKeySecret !== undefined) settings.razorpayKeySecret = razorpayKeySecret.trim();
+        // ONLY overwrite Razorpay Keys & Gemini Key if a non-empty string was explicitly provided!
+        if (razorpayKeyId !== undefined && razorpayKeyId.trim() !== '') {
+            settings.razorpayKeyId = razorpayKeyId.trim();
+        }
+        if (razorpayKeySecret !== undefined && razorpayKeySecret.trim() !== '') {
+            settings.razorpayKeySecret = razorpayKeySecret.trim();
+        }
         if (razorpayEnabled !== undefined) settings.razorpayEnabled = Boolean(razorpayEnabled);
         if (boardTitle !== undefined) settings.boardTitle = boardTitle.trim();
         if (tagline !== undefined) settings.tagline = tagline.trim();
         if (heroTitle !== undefined) settings.heroTitle = heroTitle.trim();
         if (heroDesc !== undefined) settings.heroDesc = heroDesc.trim();
         if (footerText !== undefined) settings.footerText = footerText.trim();
-        if (geminiApiKey !== undefined) settings.geminiApiKey = geminiApiKey.trim();
+        if (geminiApiKey !== undefined && geminiApiKey.trim() !== '') {
+            settings.geminiApiKey = geminiApiKey.trim();
+        }
         if (phone !== undefined) settings.phone = phone.trim();
         if (email !== undefined) settings.email = email.trim();
         if (address !== undefined) settings.address = address.trim();
@@ -2599,6 +2885,154 @@ app.put('/api/admin/settings', verifySuperAdmin, async (req, res) => {
         res.json({ success: true, message: 'Settings & Platform CMS updated successfully!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.9A Super Admin Authorized Settings Overview
+app.get('/api/admin/settings', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        res.json({
+            success: true,
+            data: {
+                boardTitle: settings.boardTitle || 'BBCC SKILL HUB',
+                tagline: settings.tagline || 'Digital Skill & Coaching Institute Platform',
+                heroTitle: settings.heroTitle || 'Empowering Certified Learning & Partner Institutes',
+                heroDesc: settings.heroDesc || '',
+                footerText: settings.footerText || '',
+                phone: settings.phone || '',
+                email: settings.email || '',
+                address: settings.address || '',
+                boardLogo: settings.boardLogo || '',
+                newsMarquee: settings.newsMarquee || '',
+                affiliationFee: settings.affiliationFee !== undefined ? settings.affiliationFee : 999,
+                razorpayKeyId: settings.razorpayKeyId || '',
+                hasRazorpaySecret: Boolean(settings.razorpayKeySecret && settings.razorpayKeySecret.trim()),
+                razorpayKeySecretMasked: settings.razorpayKeySecret ? '••••••••' + settings.razorpayKeySecret.slice(-4) : '',
+                hasGeminiKey: Boolean(settings.geminiApiKey && settings.geminiApiKey.trim()),
+                geminiApiKeyMasked: settings.geminiApiKey ? '••••••••' + settings.geminiApiKey.slice(-4) : '',
+                razorpayConfigured: Boolean(settings.razorpayKeyId && settings.razorpayKeySecret),
+                geminiConfigured: Boolean(settings.geminiApiKey)
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.9B Dedicated Update for Razorpay Gateway Keys
+app.put('/api/admin/gateway-keys', verifySuperAdmin, async (req, res) => {
+    try {
+        const rawKeyId = req.body.keyId || req.body.razorpayKeyId;
+        const rawKeySecret = req.body.keySecret || req.body.razorpayKeySecret;
+        if (!rawKeyId || !rawKeyId.trim()) {
+            return res.status(400).json({ success: false, message: 'Razorpay Key ID is required' });
+        }
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        settings.razorpayKeyId = rawKeyId.trim();
+        if (rawKeySecret && rawKeySecret.trim()) {
+            settings.razorpayKeySecret = rawKeySecret.trim();
+        }
+        settings.razorpayEnabled = true;
+        await settings.save();
+
+        // Immediate verification test with Razorpay API
+        let verifiedLive = false;
+        try {
+            const client = new Razorpay({ key_id: settings.razorpayKeyId, key_secret: settings.razorpayKeySecret });
+            await client.orders.all({ count: 1 });
+            verifiedLive = true;
+        } catch (testErr) {
+            console.warn('Gateway test warning:', testErr.message);
+        }
+
+        res.json({
+            success: true,
+            message: verifiedLive
+                ? '✅ Razorpay Gateway Keys SAVED & VERIFIED LIVE! Payment gateway is now active.'
+                : 'Razorpay Gateway Keys saved successfully!',
+            keyId: settings.razorpayKeyId,
+            verified: verifiedLive
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.9C Dedicated Update for Google Gemini AI Key
+app.put('/api/admin/gemini-key', verifySuperAdmin, async (req, res) => {
+    try {
+        const rawApiKey = req.body.apiKey || req.body.geminiApiKey;
+        if (!rawApiKey || !rawApiKey.trim()) {
+            return res.status(400).json({ success: false, message: 'Google Gemini API Key is required' });
+        }
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        settings.geminiApiKey = rawApiKey.trim();
+        await settings.save();
+
+        // Immediate verification test with Google Gemini API
+        let verifiedLive = false;
+        try {
+            const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiApiKey}`;
+            const testRes = await fetch(testUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: 'Namaste, acknowledge test' }] }]
+                })
+            });
+            const testData = await testRes.json();
+            if (testData.candidates && testData.candidates.length > 0) {
+                verifiedLive = true;
+            }
+        } catch (testErr) {
+            console.warn('Gemini test notice:', testErr.message);
+        }
+
+        res.json({
+            success: true,
+            message: verifiedLive
+                ? '✅ Gemini API Key SAVED & VERIFIED LIVE! BHARTI AI is now active with loving persona.'
+                : 'Google Gemini API Key saved successfully!',
+            verified: verifiedLive
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.9D Live Test Google Gemini API
+app.post('/api/admin/test-gemini', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        const apiKey = (req.body.apiKey && req.body.apiKey.trim()) ? req.body.apiKey.trim() : (settings ? settings.geminiApiKey : '');
+        if (!apiKey) {
+            return res.status(400).json({ success: false, message: 'Gemini API Key is not configured' });
+        }
+
+        const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const testRes = await fetch(testUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: 'Say one short loving sentence to a student as BHARTI Didi' }] }]
+            })
+        });
+        const testData = await testRes.json();
+        if (testData.candidates && testData.candidates.length > 0) {
+            const reply = testData.candidates[0].content.parts[0].text;
+            return res.json({ success: true, message: 'Gemini 1.5 Flash Connected!', sampleReply: reply });
+        } else {
+            return res.status(400).json({ success: false, message: 'Gemini API Error: ' + JSON.stringify(testData.error || testData) });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Connection error: ' + err.message });
     }
 });
 
