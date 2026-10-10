@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BBCC SKILL HUB — Central Academic Board & Digital Institute Network</title>
+    <title>BBCC SKILL HUB — Digital Skill & Coaching Institute Platform</title>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,12 +14,12 @@
 
     <style>
         /* ============================================================
-           BBCC SKILL HUB — CELESTIAL AURORA OBSIDIAN DESIGN SYSTEM (v3.1)
+           BBCC SKILL HUB — CELESTIAL AURORA OBSIDIAN DESIGN SYSTEM (v4.0)
            ============================================================ */
         :root {
             --cosmic-bg: #030712;
-            --cosmic-card: rgba(11, 17, 32, 0.85);
-            --cosmic-card-hover: rgba(17, 26, 49, 0.95);
+            --cosmic-card: rgba(11, 17, 32, 0.88);
+            --cosmic-card-hover: rgba(17, 26, 49, 0.98);
             --aurora-gold: #fbbf24;
             --aurora-amber: #f59e0b;
             --aurora-cyan: #38bdf8;
@@ -27,10 +27,11 @@
             --text-pure: #ffffff;
             --text-dim: #cbd5e1;
             --text-slate: #94a3b8;
-            --border-glow: rgba(251, 191, 36, 0.3);
+            --border-glow: rgba(251, 191, 36, 0.35);
             --border-subtle: rgba(255, 255, 255, 0.08);
             --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             --aurora-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #f59e0b 100%);
+            --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         * {
@@ -95,7 +96,7 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* Ambient Top Board Affiliation Bar */
+        /* Top Institutional Affiliation Bar */
         .aurora-topbar {
             background: linear-gradient(90deg, #070c18 0%, #0d172e 100%);
             border-bottom: 1px solid var(--border-glow);
@@ -123,6 +124,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex-wrap: wrap;
         }
 
         .topbar-link {
@@ -140,11 +142,11 @@
 
         /* Master Navbar */
         .aurora-navbar {
-            padding: 16px 32px;
+            padding: 14px 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(3, 7, 18, 0.85);
+            background: rgba(3, 7, 18, 0.88);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-subtle);
             position: sticky;
@@ -201,13 +203,14 @@
         .nav-actions-dock {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn-aurora {
-            padding: 9px 18px;
+            padding: 8px 16px;
             border-radius: 10px;
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 700;
             border: none;
             cursor: pointer;
@@ -241,9 +244,22 @@
             color: var(--aurora-gold);
         }
 
+        .btn-aurora-classroom {
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--aurora-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-aurora-classroom:hover {
+            background: rgba(56, 189, 248, 0.25);
+            color: #ffffff;
+            border-color: var(--aurora-cyan);
+            transform: translateY(-2px);
+        }
+
         /* Hero Directorate Section */
         .hero-universe {
-            padding: 60px 24px 40px;
+            padding: 50px 24px 35px;
             max-width: 1240px;
             margin: 0 auto;
             text-align: center;
@@ -260,41 +276,49 @@
             color: var(--aurora-gold);
             font-size: 12.5px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .hero-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(32px, 5vw, 54px);
+            font-size: clamp(30px, 4.8vw, 52px);
             font-weight: 900;
-            line-height: 1.15;
-            margin-bottom: 20px;
+            line-height: 1.18;
+            margin-bottom: 18px;
             background: linear-gradient(135deg, #ffffff 30%, #fbbf24 80%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero-desc {
-            font-size: clamp(15px, 2vw, 18px);
+            font-size: clamp(14.5px, 1.8vw, 17.5px);
             color: var(--text-dim);
-            max-width: 820px;
-            margin: 0 auto 30px;
+            max-width: 840px;
+            margin: 0 auto 28px;
             line-height: 1.7;
+        }
+
+        .hero-cta-dock {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 35px;
         }
 
         .hero-stats-dock {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 18px;
-            max-width: 960px;
-            margin: 40px auto 0;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .stat-card-elite {
             background: var(--cosmic-card);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 18px 20px;
+            padding: 16px 18px;
             transition: all 0.3s;
         }
 
@@ -305,14 +329,14 @@
 
         .stat-card-elite h3 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--aurora-gold);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .stat-card-elite p {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-slate);
         }
 
@@ -320,301 +344,258 @@
         .universe-section {
             max-width: 1240px;
             margin: 0 auto;
-            padding: 50px 24px;
+            padding: 45px 24px;
         }
 
         .section-header-elite {
             text-align: center;
-            margin-bottom: 36px;
+            margin-bottom: 34px;
         }
 
         .section-header-elite h2 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(26px, 3.5vw, 36px);
+            font-size: clamp(24px, 3.2vw, 34px);
             font-weight: 800;
             color: #ffffff;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .section-header-elite p {
-            font-size: 15px;
+            font-size: 14.5px;
             color: var(--text-slate);
             max-width: 680px;
             margin: 0 auto;
         }
 
         /* ============================================================
-           STUDENT ROLL NUMBER VERIFICATION DESK
+           1. AUTO-PLAYING 30-DAY PROMOTIONAL BANNER SLIDER
            ============================================================ */
-        .verification-desk-box {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(7, 12, 24, 0.95) 100%);
-            border: 2px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 32px 36px;
-            max-width: 860px;
+        .promo-slider-wrapper {
+            position: relative;
+            max-width: 1200px;
             margin: 0 auto 50px;
-            box-shadow: 0 16px 45px rgba(0,0,0,0.6);
-            text-align: center;
-        }
-
-        .verify-input-dock {
-            display: flex;
-            gap: 12px;
-            max-width: 640px;
-            margin: 20px auto 0;
-            flex-wrap: wrap;
-        }
-
-        .verify-input {
-            flex: 1;
-            min-width: 240px;
-            padding: 14px 20px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            font-size: 15px;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: 0.5px;
-        }
-
-        .verify-input:focus {
-            border-color: var(--aurora-gold);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
-        }
-
-        /* ============================================================
-           PROMOTIONAL BANNERS SHOWCASE
-           ============================================================ */
-        .promotional-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-            margin-bottom: 20px;
-        }
-
-        .promo-banner-card {
-            background: var(--cosmic-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .promo-banner-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-5px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-        }
-
-        .promo-banner-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background: #0d1424;
-        }
-
-        .promo-banner-body {
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* ============================================================
-           ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY
-           ============================================================ */
-        .vault-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 26px;
-        }
-
-        .vault-book-card {
-            background: var(--cosmic-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.35s ease;
-        }
-
-        .vault-book-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-6px);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.15);
-        }
-
-        .book-stage {
-            height: 250px;
-            background: linear-gradient(145deg, #070d1d 0%, #030712 100%);
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 20px;
-            cursor: pointer;
-        }
-
-        .book-stage-custom-img {
-            max-height: 210px;
-            max-width: 85%;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: -8px 10px 25px rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            transition: transform 0.3s;
-        }
-
-        .vault-book-card:hover .book-stage-custom-img {
-            transform: scale(1.05) rotate(-1deg);
-        }
-
-        .book-spine-3d {
-            width: 150px;
-            height: 200px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 6px 14px 14px 6px;
             border: 2px solid var(--border-glow);
-            box-shadow: -10px 14px 30px rgba(0, 0, 0, 0.8), inset 4px 0 8px rgba(251, 191, 36, 0.3);
+            background: var(--cosmic-card);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        }
+
+        .promo-slider-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .promo-slide-item {
+            min-width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 16px 12px;
-            text-align: center;
             position: relative;
         }
 
-        .book-title-embossed {
-            font-family: 'Cinzel', serif;
-            font-size: 13px;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-height: 1.3;
+        @media(min-width: 820px) {
+            .promo-slide-item {
+                flex-direction: row;
+                height: 380px;
+            }
+            .promo-slide-media {
+                width: 55%;
+                height: 100%;
+                position: relative;
+                overflow: hidden;
+            }
+            .promo-slide-content {
+                width: 45%;
+                padding: 36px 32px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background: linear-gradient(135deg, rgba(11, 17, 32, 0.95) 0%, rgba(5, 8, 17, 0.98) 100%);
+            }
         }
 
-        .price-badge-pill {
+        @media(max-width: 819px) {
+            .promo-slide-media {
+                width: 100%;
+                height: 220px;
+            }
+            .promo-slide-content {
+                padding: 24px;
+            }
+        }
+
+        .promo-slide-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .promo-slide-item:hover .promo-slide-img {
+            transform: scale(1.03);
+        }
+
+        .slider-btn-prev, .slider-btn-next {
             position: absolute;
-            top: 14px;
-            right: 14px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-            display: inline-flex;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(3, 7, 18, 0.75);
+            border: 1px solid var(--border-glow);
+            color: var(--aurora-gold);
+            display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.25s;
             backdrop-filter: blur(8px);
         }
 
-        .price-badge-pill.free {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid #10b981;
-            color: #34d399;
+        .slider-btn-prev:hover, .slider-btn-next:hover {
+            background: var(--gold-gradient);
+            color: #050811;
+            transform: translateY(-50%) scale(1.1);
         }
 
-        .price-badge-pill.paid {
-            background: rgba(251, 191, 36, 0.2);
-            border: 1px solid var(--aurora-gold);
-            color: var(--aurora-gold);
-        }
+        .slider-btn-prev { left: 16px; }
+        .slider-btn-next { right: 16px; }
 
-        .book-body {
-            padding: 18px 20px 14px;
-            flex: 1;
+        .slider-dots-dock {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
         }
 
-        .book-meta-title {
-            font-size: 15.5px;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.35;
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.25s;
         }
 
-        .book-meta-desc {
-            font-size: 12.5px;
-            color: var(--text-slate);
-            margin-bottom: 14px;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .book-meta-specs {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: auto;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .book-action-dock {
-            padding: 0 20px 18px;
+        .slider-dot.active {
+            width: 28px;
+            border-radius: 10px;
+            background: var(--aurora-gold);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
         }
 
         /* ============================================================
-           PARTNER COACHING INSTITUTES SHOWCASE
+           2. COURSE EXPLORER & BEST CHOICE FINDER
+           ============================================================ */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 22px;
+            margin-bottom: 20px;
+        }
+
+        .course-card-elite {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .course-card-elite:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+        }
+
+        .course-mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .mode-online { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .mode-physical { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .mode-both { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .fee-compare-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 14px 0;
+            text-align: center;
+        }
+
+        .fee-item-title {
+            font-size: 11px;
+            color: var(--text-slate);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .fee-item-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        /* ============================================================
+           3. PARTNER INSTITUTES SHOWCASE (LOGOS & NAMES - NO BANNERS)
            ============================================================ */
         .institutes-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 22px;
         }
 
         .institute-card-elite {
             background: var(--cosmic-card);
             border: 1px solid var(--border-subtle);
             border-radius: 20px;
-            padding: 24px;
+            padding: 22px;
             transition: all 0.3s;
-            cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .institute-card-elite:hover {
-            transform: translateY(-6px);
             border-color: var(--border-glow);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 25px rgba(251, 191, 36, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
         }
 
         .inst-header-dock {
             display: flex;
-            gap: 16px;
-            margin-bottom: 18px;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
         .inst-logo-box {
             width: 58px;
             height: 58px;
             border-radius: 14px;
-            background: rgba(251, 191, 36, 0.1);
-            border: 1px solid var(--border-glow);
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-glow);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -631,35 +612,37 @@
         }
 
         .inst-info-dock h4 {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 800;
             color: #ffffff;
+            line-height: 1.25;
             margin-bottom: 4px;
         }
 
         .inst-director-dock {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 12px 14px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-subtle);
         }
 
         .director-avatar-box {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 1px solid var(--border-glow);
-            overflow: hidden;
+            border: 1.5px solid var(--aurora-gold);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--aurora-gold);
-            background: #0d1424;
+            font-size: 16px;
+            overflow: hidden;
             flex-shrink: 0;
+            background: #0d1424;
         }
 
         .director-avatar-box img {
@@ -669,187 +652,181 @@
         }
 
         /* ============================================================
-           FLOATING BHARTI AI HELPLINE ASSISTANT
+           4. STUDENT ROLL NUMBER & AADHAR VERIFICATION DESK
            ============================================================ */
-        .bharti-bubble-launcher {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 9999;
-            background: var(--gold-gradient);
-            color: #050811;
-            padding: 12px 20px;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45);
-            transition: all 0.3s;
-            border: 2px solid #ffffff;
-        }
-
-        .bharti-bubble-launcher:hover {
-            transform: scale(1.05);
-            box-shadow: 0 14px 40px rgba(245, 158, 11, 0.6);
-        }
-
-        .bharti-avatar-pulse {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #050811;
-            color: var(--aurora-gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-        }
-
-        .bharti-chat-panel {
-            display: none;
-            position: fixed;
-            bottom: 90px;
-            right: 28px;
-            width: min(420px, calc(100vw - 36px));
-            height: 560px;
-            background: linear-gradient(155deg, #0b1120 0%, #050811 100%);
+        .verification-desk-box {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.92) 0%, rgba(7, 12, 24, 0.98) 100%);
             border: 2px solid var(--border-glow);
             border-radius: 24px;
-            z-index: 10000;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            flex-direction: column;
-            overflow: hidden;
+            padding: 32px 36px;
+            max-width: 860px;
+            margin: 0 auto;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.6);
+            text-align: center;
         }
 
-        .bharti-chat-header {
-            background: linear-gradient(90deg, #1e1b4b 0%, #0d172e 100%);
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-glow);
+        .verify-input-dock {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            gap: 12px;
+            max-width: 640px;
+            margin: 20px auto 0;
+            flex-wrap: wrap;
         }
 
-        .bharti-chat-body {
+        .verify-input {
             flex: 1;
-            padding: 18px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .bharti-msg {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 16px;
-            font-size: 13.5px;
-            line-height: 1.5;
-        }
-
-        .bharti-msg-ai {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-subtle);
-            color: #ffffff;
-            border-bottom-left-radius: 4px;
-        }
-
-        .bharti-msg-user {
-            align-self: flex-end;
-            background: var(--gold-gradient);
-            color: #050811;
-            font-weight: 600;
-            border-bottom-right-radius: 4px;
-        }
-
-        .bharti-action-card {
-            background: rgba(251, 191, 36, 0.08);
-            border: 1px solid var(--border-glow);
+            min-width: 240px;
+            padding: 13px 20px;
             border-radius: 12px;
-            padding: 12px;
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .bharti-chat-input-bar {
-            padding: 14px 16px;
-            background: rgba(4, 7, 16, 0.95);
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Modal Overlays */
-        .aurora-modal-dock {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(3, 7, 18, 0.88);
-            backdrop-filter: blur(14px);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-        }
-
-        .modal-body-panel {
-            background: linear-gradient(145deg, #0b1120 0%, #060a14 100%);
-            border: 2px solid var(--border-glow);
-            border-radius: 24px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
-            overflow: hidden;
-            animation: modalFade 0.25s ease-out;
-        }
-
-        @keyframes modalFade {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-head-bar {
-            padding: 18px 24px;
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .modal-input-field {
-            width: 100%;
-            padding: 11px 14px;
-            border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            font-size: 13.5px;
+            font-size: 14.5px;
             outline: none;
-            margin-top: 5px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 0.5px;
         }
 
-        .modal-input-field:focus {
+        .verify-input:focus {
             border-color: var(--aurora-gold);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
         }
 
-        /* Footer */
-        .aurora-footer {
-            background: #02040a;
-            border-top: 1px solid var(--border-subtle);
-            padding: 40px 24px;
+        /* ============================================================
+           5. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY
+           ============================================================ */
+        .vault-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .vault-book-card {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s ease;
+        }
+
+        .vault-book-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.15);
+        }
+
+        .book-stage {
+            position: relative;
+            height: 220px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .book-stage-custom-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .vault-book-card:hover .book-stage-custom-img {
+            transform: scale(1.05);
+        }
+
+        .book-spine-3d {
+            width: 130px;
+            height: 175px;
+            background: linear-gradient(145deg, #1e293b 0%, #090d16 100%);
+            border-radius: 6px 14px 14px 6px;
+            border: 1.5px solid rgba(251, 191, 36, 0.35);
+            box-shadow: -8px 8px 20px rgba(0,0,0,0.8), inset 4px 0 8px rgba(255,255,255,0.15);
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             text-align: center;
-            font-size: 13px;
-            color: var(--text-slate);
+            position: relative;
         }
 
-        /* E-Library Search Filter Pills */
+        .book-spine-3d::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(251, 191, 36, 0.4);
+        }
+
+        .price-badge-pill {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .price-badge-pill.paid {
+            background: var(--gold-gradient);
+            color: #050811;
+        }
+
+        .price-badge-pill.free {
+            background: var(--emerald-gradient);
+            color: #ffffff;
+        }
+
+        .book-body {
+            padding: 18px 20px 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .book-meta-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        .book-meta-desc {
+            font-size: 12px;
+            color: var(--text-slate);
+            margin-bottom: 12px;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-meta-specs {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: var(--text-slate);
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 10px;
+        }
+
+        .book-action-dock {
+            padding: 0 20px 18px;
+        }
+
         .vault-filter-pill {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-subtle);
@@ -870,7 +847,7 @@
             box-shadow: 0 4px 15px rgba(251, 191, 36, 0.25);
         }
 
-        /* Campus & Felicitation Photo Gallery */
+        /* Photo Gallery */
         .gallery-mosaic-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -882,7 +859,6 @@
             border: 1px solid var(--border-subtle);
             border-radius: 18px;
             overflow: hidden;
-            position: relative;
             transition: all 0.35s ease;
         }
 
@@ -906,11 +882,174 @@
 
         .gallery-card-caption {
             padding: 12px 16px;
-            font-size: 13.5px;
+            font-size: 13px;
             color: #ffffff;
             font-weight: 600;
             background: rgba(11, 17, 32, 0.95);
             border-top: 1px solid var(--border-subtle);
+        }
+
+        /* ============================================================
+           MODALS (AESTHETIC OBSIDIAN DOCK)
+           ============================================================ */
+        .aurora-modal-dock {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-body-panel {
+            background: linear-gradient(145deg, #0b1120 0%, #060a14 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+            animation: modalFade 0.25s ease-out;
+        }
+
+        @keyframes modalFade {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-head-bar {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .modal-input-field {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .modal-input-field:focus {
+            border-color: var(--aurora-gold);
+        }
+
+        /* Floating BHARTI AI */
+        .bharti-bubble-launcher {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: var(--gold-gradient);
+            color: #050811;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45);
+            transition: all 0.3s;
+            border: 2px solid #ffffff;
+        }
+
+        .bharti-chat-panel {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 28px;
+            width: min(440px, calc(100vw - 36px));
+            height: 560px;
+            background: linear-gradient(155deg, #0b1120 0%, #050811 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            z-index: 10000;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.85);
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .bharti-chat-header {
+            background: linear-gradient(90deg, #1e1b4b 0%, #0d172e 100%);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bharti-chat-body {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .bharti-msg {
+            max-width: 86%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .bharti-msg-ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+        }
+
+        .bharti-msg-user {
+            align-self: flex-end;
+            background: var(--gold-gradient);
+            color: #050811;
+            font-weight: 600;
+        }
+
+        .bharti-action-card {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bharti-chat-input-bar {
+            padding: 12px 16px;
+            background: rgba(4, 7, 16, 0.95);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Footer */
+        .aurora-footer {
+            background: #02040a;
+            border-top: 1px solid var(--border-subtle);
+            padding: 45px 24px 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-slate);
         }
 
         @media print {
@@ -932,13 +1071,18 @@
         </div>
     </div>
 
-    <!-- 2. Ambient Top Institutional Affiliation Header -->
+    <!-- 2. Institutional Top Bar -->
     <header class="aurora-topbar">
         <div class="topbar-badge">
-            <i class="fas fa-certificate"></i> BBCC Central Academic Board & Institutional Network
+            <i class="fas fa-certificate"></i> BBCC SKILL HUB — Digital Skill & Coaching Institute Platform
         </div>
         <div class="topbar-actions">
-            <a href="#verify" class="topbar-link"><i class="fas fa-user-check"></i> Student Verification</a>
+            <a href="/classroom" class="topbar-link" style="color:var(--aurora-cyan); font-weight:700;">
+                <i class="fas fa-desktop"></i> Student Classroom Login
+            </a>
+            <a href="/about" class="topbar-link">
+                <i class="fas fa-circle-info"></i> About Platform
+            </a>
             <a href="javascript:void(0)" onclick="openSelfRegistrationModal()" class="topbar-link" style="color:var(--aurora-gold); font-weight:700;">
                 <i class="fas fa-bolt"></i> Register Institute Online
             </a>
@@ -954,43 +1098,55 @@
             </div>
             <div class="brand-title-dock">
                 <h1 id="brandNameDisplay">BBCC SKILL HUB</h1>
-                <p>Central Academic Directorate</p>
+                <p>Digital Skill & Coaching Institute Platform</p>
             </div>
         </a>
 
         <div class="nav-actions-dock">
+            <a href="#courses" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            </a>
             <a href="#vault" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-book-bookmark"></i> E-Library
             </a>
             <a href="#institutes" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-school"></i> Partner Centers
+                <i class="fas fa-school"></i> Partner Institutes
             </a>
-            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold">
-                <i class="fas fa-file-signature"></i> Open Coaching Center
+            <a href="/about" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-circle-info"></i> About
+            </a>
+            <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold">
+                <i class="fas fa-user-plus"></i> Direct Admission
             </button>
+            <a href="/classroom" class="btn-aurora btn-aurora-classroom">
+                <i class="fas fa-desktop"></i> Classroom Portal
+            </a>
         </div>
     </nav>
 
     <!-- 4. Hero Section -->
     <section class="hero-universe">
         <div class="hero-tag">
-            <i class="fas fa-shield-halved"></i> Officially Recognized Academic Directorate
+            <i class="fas fa-shield-halved"></i> Officially Recognized Digital Institute Network
         </div>
         <h2 class="hero-title" id="heroTagline">Empowering Certified Learning & Partner Institutes</h2>
-        <p class="hero-desc">
-            Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.
+        <p class="hero-desc" id="heroDescriptionDisplay">
+            Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, compare courses and fees, and take direct admissions online.
         </p>
 
-        <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
-            <a href="#vault" class="btn-aurora btn-aurora-gold" style="padding:12px 26px; font-size:14.5px;">
-                <i class="fas fa-book-open-reader"></i> Explore E-Library Vault
+        <div class="hero-cta-dock">
+            <a href="#courses" class="btn-aurora btn-aurora-gold" style="padding:12px 24px; font-size:14px;">
+                <i class="fas fa-compass"></i> Explore Courses & Batches
             </a>
-            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="padding:12px 26px; font-size:14.5px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; box-shadow:0 4px 16px rgba(16,185,129,0.35);">
-                <i class="fas fa-bolt"></i> Instant Coaching Registration (<span id="btnHeroAffFee">₹999</span>)
+            <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold" style="padding:12px 24px; font-size:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; box-shadow:0 4px 16px rgba(16,185,129,0.35);">
+                <i class="fas fa-id-card"></i> Direct Student Self-Admission
             </button>
-            <a href="#verify" class="btn-aurora btn-aurora-outline" style="padding:12px 24px; font-size:14.5px;">
-                <i class="fas fa-id-card-clip"></i> Verify Student Roll No
+            <a href="/classroom" class="btn-aurora btn-aurora-classroom" style="padding:12px 24px; font-size:14px;">
+                <i class="fas fa-desktop"></i> Student Classroom Login
             </a>
+            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-outline" style="padding:12px 22px; font-size:14px;">
+                <i class="fas fa-school"></i> Register Coaching (<span id="btnHeroAffFee">₹999</span>)
+            </button>
         </div>
 
         <div class="hero-stats-dock">
@@ -999,12 +1155,16 @@
                 <p>Affiliated Institutes</p>
             </div>
             <div class="stat-card-elite">
+                <h3 id="statCoursesCount">0+</h3>
+                <p>Active Courses & Batches</p>
+            </div>
+            <div class="stat-card-elite">
                 <h3 id="statBooksCount">0+</h3>
                 <p>Study Materials</p>
             </div>
             <div class="stat-card-elite">
-                <h3>100%</h3>
-                <p>Digital Verification</p>
+                <h3>80/20</h3>
+                <p>Fair Revenue Split</p>
             </div>
             <div class="stat-card-elite">
                 <h3>24/7</h3>
@@ -1013,7 +1173,111 @@
         </div>
     </section>
 
-    <!-- 5. STUDENT ROLL NUMBER & DIGITAL CERTIFICATE VERIFICATION DESK -->
+    <!-- ============================================================
+         5. AUTO-PLAYING 30-DAY PROMOTIONAL BANNER SLIDER
+         ============================================================ -->
+    <section class="universe-section" style="padding-top:10px; padding-bottom:30px;">
+        <div class="section-header-elite" style="margin-bottom:20px;">
+            <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-bullhorn"></i> Featured Institute Highlights
+            </span>
+            <h2 style="margin-top:10px;">Promotional Banners & Announcements</h2>
+            <p>Live 30-day announcements, festival discount offers, and scholarship alerts from BBCC verified partner centers.</p>
+        </div>
+
+        <div class="promo-slider-wrapper" id="promoSliderWrapper">
+            <button class="slider-btn-prev" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn-next" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+
+            <div class="promo-slider-track" id="promoSliderTrack">
+                <div class="promo-slide-item">
+                    <div class="promo-slide-media">
+                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1000&auto=format&fit=crop" class="promo-slide-img" alt="BBCC Skill Hub">
+                    </div>
+                    <div class="promo-slide-content">
+                        <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:4px 12px; border-radius:12px; font-size:11.5px; font-weight:800; display:inline-block; margin-bottom:12px; width:fit-content;">
+                            <i class="fas fa-certificate"></i> BBCC SKILL HUB OFFICIAL
+                        </span>
+                        <h3 style="font-size:24px; font-weight:900; color:#ffffff; margin-bottom:10px; font-family:'Cinzel',serif;">
+                            Admissions Open Session 2026-27
+                        </h3>
+                        <p style="color:var(--text-dim); font-size:13.5px; margin-bottom:20px;">
+                            Join top rated certified coaching institutes. Complete online live interactive classes via Google Meet / Zoom or study at physical campuses.
+                        </p>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold" style="font-size:13px;">
+                                <i class="fas fa-user-plus"></i> Take Direct Admission
+                            </button>
+                            <a href="#courses" class="btn-aurora btn-aurora-outline" style="font-size:13px;">
+                                <i class="fas fa-graduation-cap"></i> View Courses
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-dots-dock" id="promoSliderDots"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         6. COURSE EXPLORER & BEST CHOICE FINDER
+         ============================================================ -->
+    <section class="universe-section" id="courses">
+        <div class="section-header-elite">
+            <span style="background:rgba(56,189,248,0.12); color:var(--aurora-cyan); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-compass"></i> Find Your Ideal Course
+            </span>
+            <h2 style="margin-top:10px;">Course Explorer & Best Choice Finder</h2>
+            <p>Compare course curriculum, batch timings, and Online vs Physical fees across our certified partner coaching institutes.</p>
+        </div>
+
+        <!-- Filter bar -->
+        <div style="margin-bottom:30px; display:flex; flex-direction:column; gap:14px; align-items:center;">
+            <div style="position:relative; width:100%; max-width:640px;">
+                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
+                <input type="text" id="courseSearchInput" oninput="filterCoursesList()" placeholder="Search course name, subject, or institute name..." class="verify-input" style="width:100%; padding-left:48px;">
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button type="button" class="vault-filter-pill active" onclick="applyCourseFilter('all', this)">All Courses</button>
+                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('online', this)"><i class="fas fa-video"></i> Online Mode</button>
+                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('physical', this)"><i class="fas fa-building"></i> Physical Campus</button>
+                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('class 10', this)">Class 10th</button>
+                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('class 12', this)">Class 12th</button>
+            </div>
+        </div>
+
+        <div class="courses-grid" id="coursesGrid">
+            <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:10px;">Loading courses from affiliated centers...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         7. PARTNER INSTITUTES PROMOTIONAL SHOWCASE (LOGOS & NAMES)
+         ============================================================ -->
+    <section class="universe-section" id="institutes">
+        <div class="section-header-elite">
+            <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-award"></i> Verified Center Network
+            </span>
+            <h2 style="margin-top:10px;">Partner Institutes Promotional Showcase</h2>
+            <p>Certified coaching institutes affiliated with BBCC SKILL HUB. Visit independent center websites, review faculties, and enroll directly.</p>
+        </div>
+
+        <div class="institutes-grid" id="institutesGrid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:12px;">Loading partner institutes...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         8. STUDENT ROLL NUMBER & DIGITAL CERTIFICATE VERIFICATION
+         ============================================================ -->
     <section class="universe-section" id="verify" style="padding-top:20px;">
         <div class="verification-desk-box">
             <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:5px 14px; border-radius:20px; font-size:12px; font-weight:800; text-transform:uppercase;">
@@ -1027,7 +1291,7 @@
             </p>
 
             <form onsubmit="verifyStudentRollNo(event)" class="verify-input-dock">
-                <input type="text" id="verifyQueryInput" required placeholder="Enter Student Roll Number or ID (e.g. BBCC-102948)..." class="verify-input">
+                <input type="text" id="verifyQueryInput" required placeholder="Enter Student Roll Number or 12-digit Aadhar..." class="verify-input">
                 <button type="submit" id="btnVerifySubmit" class="btn-aurora btn-aurora-gold" style="padding:14px 24px; font-size:14px;">
                     <i class="fas fa-search"></i> Verify Credential
                 </button>
@@ -1036,33 +1300,20 @@
         </div>
     </section>
 
-    <!-- 6. FEATURED PROMOTIONAL BANNERS SHOWCASE (COACHING & BOARD) -->
-    <section class="universe-section" id="showcase">
-        <div class="section-header-elite">
-            <h2>Partner Institutes Promotional Showcase</h2>
-            <p>Prominent announcements, scholarships, and academic programs from BBCC recognized coaching institutes.</p>
-        </div>
-
-        <div class="promotional-grid" id="promotionalGrid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-slate);">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p style="margin-top:10px;">Loading partner institute announcements...</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 7. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY -->
+    <!-- ============================================================
+         9. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY
+         ============================================================ -->
     <section class="universe-section" id="vault">
         <div class="section-header-elite">
             <h2>Central E-Library Digital Repository</h2>
-            <p>Protected academic notes and syllabus guides. Strictly book cover previews — zero browser PDF rendering. Paid documents unlock via Razorpay and download directly to your disk.</p>
+            <p>Curated textbook syllabus notes and exam guides. 3D covers only — zero in-browser raw PDF rendering. 80% revenue credited directly to center directors.</p>
         </div>
 
         <!-- Live Search & Category Filter Bar -->
         <div style="margin-bottom:32px; display:flex; flex-direction:column; gap:16px; align-items:center;">
             <div style="position:relative; width:100%; max-width:640px;">
                 <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
-                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class (10th, 12th)..." class="verify-input" style="width:100%; padding-left:48px;">
+                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class..." class="verify-input" style="width:100%; padding-left:48px;">
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
                 <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
@@ -1082,25 +1333,12 @@
         </div>
     </section>
 
-    <!-- 8. PARTNER COACHING INSTITUTES NETWORK -->
-    <section class="universe-section" id="institutes">
-        <div class="section-header-elite">
-            <h2>Affiliated Partner Coaching Institutes</h2>
-            <p>Click on any coaching center card to visit their dedicated independent institute website, meet verified faculty, and submit direct admission inquiries.</p>
-        </div>
-
-        <div class="institutes-grid" id="institutesGrid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p style="margin-top:12px;">Loading partner institutes...</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 8.5 BOARD CAMPUS & FELICITATION PHOTO GALLERY -->
+    <!-- ============================================================
+         10. CAMPUS & FELICITATION PHOTO GALLERY
+         ============================================================ -->
     <section class="universe-section" id="gallery">
         <div class="section-header-elite">
-            <h2>Board Campus & Academic Felicitation Gallery</h2>
+            <h2>Campus & Academic Felicitation Gallery</h2>
             <p>Glimpses of academic conventions, student awards, state conferences, and certified partner institute campuses across the nation.</p>
         </div>
 
@@ -1113,14 +1351,166 @@
     </section>
 
     <!-- ============================================================
-         MODAL 1: SELF-SERVICE COACHING REGISTRATION WITH ADMIN FEE
+         MODAL 1: DIRECT STUDENT SELF-ADMISSION DESK (FULL KYC WITH AADHAR)
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="studentAdmissionModalDock">
+        <div class="modal-body-panel" style="max-width:680px;">
+            <div class="modal-head-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-user-graduate" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Student Self-Admission Desk (Full KYC)</h3>
+                </div>
+                <button type="button" onclick="closeDirectAdmissionModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="padding:22px 24px; max-height:82vh; overflow-y:auto;">
+                <form id="studentAdmissionForm" onsubmit="processStudentAdmission(event)">
+                    <!-- Step 1: Center & Course Selection -->
+                    <div style="background:rgba(251,191,36,0.08); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:18px;">
+                        <span style="font-size:11.5px; font-weight:800; color:var(--aurora-gold); text-transform:uppercase; display:block; margin-bottom:8px;">
+                            <i class="fas fa-school"></i> 1. Select Coaching Institute & Target Course
+                        </span>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Coaching Institute *</label>
+                                <select id="admCenterSelect" required onchange="onAdmissionCenterChange()" class="modal-input-field">
+                                    <option value="">-- Choose Institute --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Available Course *</label>
+                                <select id="admCourseSelect" required onchange="onAdmissionCourseChange()" class="modal-input-field">
+                                    <option value="">-- Select Center First --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Learning Mode *</label>
+                                <select id="admModeSelect" required onchange="updateAdmissionFeeDisplay()" class="modal-input-field">
+                                    <option value="Online">Online Class (Live Meet / Zoom)</option>
+                                    <option value="Physical">Physical Campus (Classroom)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Course Tuition Fee</label>
+                                <div id="admFeeDisplayBadge" style="padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800; color:var(--aurora-gold); margin-top:5px;">
+                                    ₹0 (Select Course)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Student Identity & KYC -->
+                    <div style="margin-bottom:16px;">
+                        <span style="font-size:11.5px; font-weight:800; color:var(--aurora-cyan); text-transform:uppercase; display:block; margin-bottom:10px;">
+                            <i class="fas fa-id-card"></i> 2. Student Identity & Government Aadhar KYC
+                        </span>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Student Full Name *</label>
+                                <input type="text" id="admStudentName" required placeholder="Full Name as per Aadhar" class="modal-input-field">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Parent / Guardian Name *</label>
+                                <input type="text" id="admParentName" required placeholder="Father / Mother Name" class="modal-input-field">
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Student Mobile Number *</label>
+                                <input type="tel" id="admStudentMobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit Mobile" class="modal-input-field">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Parent Mobile Number *</label>
+                                <input type="tel" id="admParentMobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit Parent Mobile" class="modal-input-field">
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">12-Digit Aadhar Card Number *</label>
+                                <input type="text" id="admAadharNumber" required pattern="[0-9]{12}" maxlength="12" placeholder="XXXX XXXX XXXX" class="modal-input-field" style="font-family:'Space Grotesk',sans-serif; letter-spacing:1px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Passport Photo *</label>
+                                <input type="file" id="admPhotoFile" accept="image/*" required class="modal-input-field" style="padding:7px 10px;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Upload Aadhar Document (Photo / PDF) *</label>
+                            <input type="file" id="admAadharDocFile" accept="image/*,application/pdf" required class="modal-input-field" style="padding:7px 10px;">
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Full Residential Address *</label>
+                            <textarea id="admAddress" required rows="2" placeholder="House no, Street, Landmark, City, State, PIN" class="modal-input-field" style="resize:vertical;"></textarea>
+                        </div>
+
+                        <!-- Terms & Conditions Checkbox -->
+                        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                            <input type="checkbox" id="admTermsAgree" required style="margin-top:3px; accent-color:var(--aurora-gold); width:16px; height:16px; cursor:pointer;">
+                            <label for="admTermsAgree" style="font-size:12.5px; color:var(--text-dim); cursor:pointer;">
+                                I agree to the <a href="javascript:void(0)" onclick="openTermsModal()" style="color:var(--aurora-gold); text-decoration:underline; font-weight:700;">Platform & Center Terms & Conditions</a>. I verify that the provided Aadhar KYC and details are genuine.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="admAlertBox" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:12.5px;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" onclick="closeDirectAdmissionModal()" class="btn-aurora btn-aurora-outline">Cancel</button>
+                        <button type="submit" id="btnSubmitAdmission" class="btn-aurora btn-aurora-gold" style="flex:1; justify-content:center;">
+                            <i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Admission Success View -->
+                <div id="admSuccessView" style="display:none; text-align:center; padding:15px 0;">
+                    <i class="fas fa-circle-check" style="color:#10b981; font-size:48px; margin-bottom:12px;"></i>
+                    <h3 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin-bottom:6px;">Admission Successfully Registered!</h3>
+                    <p style="font-size:13.5px; color:var(--text-dim); margin-bottom:18px;">
+                        Your admission is officially recorded. You can now access your classroom using your 12-digit Aadhar number.
+                    </p>
+
+                    <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border-glow); border-radius:16px; padding:18px; margin-bottom:20px; text-align:left;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+                            <span style="font-size:12px; color:var(--text-slate);">Assigned Roll Number:</span>
+                            <span id="admSucRollNo" style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:900; color:var(--aurora-gold);">-</span>
+                        </div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Student Name:</strong> <span id="admSucStudentName">-</span></div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Coaching Center:</strong> <span id="admSucCenterName">-</span></div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Course / Mode:</strong> <span id="admSucCourseMode">-</span></div>
+                        <div style="font-size:12px; color:var(--aurora-cyan); margin-top:8px;">
+                            <i class="fas fa-key"></i> <strong>Classroom Login Key:</strong> Use your 12-digit Aadhar Card Number (<span id="admSucAadharMask">XXXX-XXXX-XXXX</span>)
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                        <a href="/classroom" class="btn-aurora btn-aurora-gold" style="padding:11px 22px; font-size:14px;">
+                            <i class="fas fa-desktop"></i> Enter Student Classroom Now &rarr;
+                        </a>
+                        <button type="button" onclick="closeDirectAdmissionModal()" class="btn-aurora btn-aurora-outline">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: SELF-SERVICE COACHING REGISTRATION WITH ADMIN FEE
          ============================================================ -->
     <div class="aurora-modal-dock" id="selfRegModalDock">
         <div class="modal-body-panel" style="max-width:620px;">
             <div class="modal-head-bar">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <i class="fas fa-school" style="color:var(--aurora-gold); font-size:20px;"></i>
-                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Open & Register Coaching Center Online</h3>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Register Coaching Center Online</h3>
                 </div>
                 <button type="button" onclick="closeSelfRegistrationModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
             </div>
@@ -1128,7 +1518,7 @@
             <div style="padding:22px 24px; max-height:80vh; overflow-y:auto;">
                 <div style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <strong style="color:var(--aurora-gold); font-size:14px;">Instant Board Affiliation & Microsite</strong>
+                        <strong style="color:var(--aurora-gold); font-size:14px;">Instant Platform Affiliation & Microsite</strong>
                         <div style="font-size:12px; color:var(--text-dim);">Center goes live immediately upon payment verification!</div>
                     </div>
                     <div style="text-align:right;">
@@ -1182,9 +1572,17 @@
                         </div>
                     </div>
 
-                    <div style="margin-bottom:16px;">
+                    <div style="margin-bottom:14px;">
                         <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Campus Address / City *</label>
                         <input type="text" id="srAddress" required placeholder="Campus location, City, State" class="modal-input-field">
+                    </div>
+
+                    <!-- Affiliation Terms Checkbox -->
+                    <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                        <input type="checkbox" id="srTermsAgree" required style="margin-top:3px; accent-color:var(--aurora-gold); width:16px; height:16px; cursor:pointer;">
+                        <label for="srTermsAgree" style="font-size:12.5px; color:var(--text-dim); cursor:pointer;">
+                            I accept the <a href="javascript:void(0)" onclick="openTermsModal()" style="color:var(--aurora-gold); text-decoration:underline; font-weight:700;">BBCC Institute Affiliation Terms</a>, including the 80/20 digital note revenue sharing model.
+                        </label>
                     </div>
 
                     <div id="selfRegAlertBox" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:12.5px;"></div>
@@ -1207,7 +1605,7 @@
                     <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border-glow); border-radius:14px; padding:16px; margin-bottom:20px; text-align:left;">
                         <div style="font-size:13px; margin-bottom:6px;"><strong>Center Name:</strong> <span id="sucCenterName">-</span></div>
                         <div style="font-size:13px; margin-bottom:6px;"><strong>Director Username:</strong> <span id="sucUsername" style="font-family:monospace; color:var(--aurora-gold);">-</span></div>
-                        <div style="font-size:12px; color:var(--text-slate);">You can immediately log in to the Director Studio to manage teachers, banners & certificates.</div>
+                        <div style="font-size:12px; color:var(--text-slate);">You can immediately log in to the Director Studio to manage courses, bank details, and banners.</div>
                     </div>
 
                     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
@@ -1224,7 +1622,39 @@
     </div>
 
     <!-- ============================================================
-         MODAL 2: STUDENT ROLL NUMBER VERIFICATION CREDENTIAL DISPLAY
+         MODAL 3: PLATFORM TERMS & CONDITIONS MODAL
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="termsConditionsModalDock">
+        <div class="modal-body-panel" style="max-width:620px;">
+            <div class="modal-head-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-scale-balanced" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Platform Terms & Code of Conduct</h3>
+                </div>
+                <button type="button" onclick="closeTermsModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:22px 24px; max-height:75vh; overflow-y:auto; font-size:13px; color:var(--text-dim); line-height:1.7;">
+                <h4 style="color:var(--aurora-gold); margin-bottom:8px;">1. Digital Skill & Institute Affiliation</h4>
+                <p style="margin-bottom:14px;">BBCC SKILL HUB acts as a centralized digital technology and infrastructure platform empowering independent coaching centers and students across India.</p>
+
+                <h4 style="color:var(--aurora-gold); margin-bottom:8px;">2. Student Admission & KYC Integrity</h4>
+                <p style="margin-bottom:14px;">Students submitting self-admission certify that their name, parent details, and 12-digit Aadhar document are authentic. The Aadhar number serves as the primary credential for logging into the digital classroom.</p>
+
+                <h4 style="color:var(--aurora-gold); margin-bottom:8px;">3. 80/20 Marketplace Revenue Model</h4>
+                <p style="margin-bottom:14px;">For all verified study notes and materials uploaded by coaching directors, 80% of sales are credited directly to the center wallet for payout to registered bank accounts, while 20% supports platform server bandwidth and Gemini AI maintenance.</p>
+
+                <h4 style="color:var(--aurora-gold); margin-bottom:8px;">4. 30-Day Promotional Banners</h4>
+                <p style="margin-bottom:16px;">Promotional banners published by institutes run actively on the homepage slider for a strict duration of 30 days and auto-expire to ensure fresh, authentic announcements.</p>
+
+                <button type="button" onclick="closeTermsModal()" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
+                    <i class="fas fa-check"></i> I Understand & Agree
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 4: STUDENT ROLL NUMBER VERIFICATION CREDENTIAL DISPLAY
          ============================================================ -->
     <div class="aurora-modal-dock" id="studentVerifyModalDock">
         <div class="modal-body-panel" style="max-width:560px;">
@@ -1265,7 +1695,7 @@
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-slate); border-top:1px solid var(--border-subtle); padding-top:14px;">
-                    <span>Official Directorate Seal: <strong style="color:#10b981;">VERIFIED</strong></span>
+                    <span>Official Platform Seal: <strong style="color:#10b981;">VERIFIED</strong></span>
                     <button type="button" onclick="window.print()" class="btn-aurora btn-aurora-outline" style="padding:6px 14px; font-size:12px;">
                         <i class="fas fa-print"></i> Print Transcript
                     </button>
@@ -1275,7 +1705,7 @@
     </div>
 
     <!-- ============================================================
-         MODAL 3: IN-APP RAZORPAY CHECKOUT DOCK FOR E-LIBRARY
+         MODAL 5: IN-APP RAZORPAY CHECKOUT DOCK FOR E-LIBRARY
          ============================================================ -->
     <div class="aurora-modal-dock" id="docCheckoutDock">
         <div class="modal-body-panel">
@@ -1333,7 +1763,7 @@
     </div>
 
     <!-- ============================================================
-         MODAL 4: OFFICIAL DIGITAL TAX INVOICE & PAYMENT RECEIPT MODAL
+         MODAL 6: OFFICIAL DIGITAL TAX INVOICE & RECEIPT MODAL
          ============================================================ -->
     <div class="aurora-modal-dock" id="taxReceiptModalDock">
         <div class="modal-body-panel" style="max-width:580px; background:#070c18; border-color:var(--border-glow);">
@@ -1346,12 +1776,11 @@
             </div>
 
             <div style="padding:28px 30px;" id="printableInvoiceContent">
-                <!-- Header with Board Crest -->
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--aurora-gold); padding-bottom:14px; margin-bottom:18px;">
                     <div>
                         <h2 style="font-family:'Cinzel',serif; font-size:20px; color:#ffffff; margin:0;">BBCC SKILL HUB</h2>
-                        <div style="font-size:11px; color:#cbd5e1; text-transform:uppercase; letter-spacing:1px;">Central Academic Board & Directorate</div>
-                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">GSTIN: 07AAACB1234F1Z8 • Reg: Central Directorate, New Delhi</div>
+                        <div style="font-size:11px; color:#cbd5e1; text-transform:uppercase; letter-spacing:1px;">Digital Skill & Coaching Institute Platform</div>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">GSTIN: 07AAACB1234F1Z8 • Reg: Platform Directorate, New Delhi</div>
                     </div>
                     <div style="text-align:right;">
                         <span style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;">
@@ -1361,7 +1790,6 @@
                     </div>
                 </div>
 
-                <!-- Invoice Details Grid -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; font-size:12.5px; background:rgba(255,255,255,0.03); padding:14px; border-radius:12px; border:1px solid var(--border-subtle);">
                     <div>
                         <span style="color:#94a3b8; display:block; font-size:11px;">Billed To (Payer):</span>
@@ -1375,7 +1803,6 @@
                     </div>
                 </div>
 
-                <!-- Itemized Breakdown Table -->
                 <table style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:18px;">
                     <thead>
                         <tr style="border-bottom:1px solid var(--border-subtle); color:#94a3b8; text-align:left;">
@@ -1404,13 +1831,12 @@
                     </tbody>
                 </table>
 
-                <!-- Bottom Seal & Print Bar -->
                 <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:14px;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <i class="fas fa-stamp" style="color:var(--aurora-gold); font-size:22px;"></i>
-                        <span style="font-size:11px; color:#94a3b8;">BBCC Central Directorate Authenticated Digital Seal</span>
+                        <span style="font-size:11px; color:#94a3b8;">BBCC Authenticated Digital Seal</span>
                     </div>
-                    <div class="no-print" style="display:flex; gap:10px;">
+                    <div class="no-print">
                         <button type="button" onclick="window.print()" class="btn-aurora btn-aurora-gold" style="padding:6px 16px; font-size:12px;">
                             <i class="fas fa-print"></i> Print Receipt
                         </button>
@@ -1424,9 +1850,19 @@
          FLOATING BHARTI AI HELPLINE INTERACTIVE WIDGET
          ============================================================ -->
     <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
-        <div class="bharti-avatar-pulse"><i class="fas fa-headset"></i></div>
+        <i class="fas fa-heart" style="color:#ef4444; animation:heartbeat 1.5s infinite;"></i>
         <span>BHARTI AI Helpline</span>
     </div>
+
+    <style>
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+    </style>
 
     <div class="bharti-chat-panel" id="bhartiChatPanel">
         <div class="bharti-chat-header">
@@ -1436,7 +1872,7 @@
                 </div>
                 <div>
                     <h4 style="font-size:14px; margin:0; color:#ffffff;">BHARTI Academic AI</h4>
-                    <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Helpline Active</span>
+                    <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Caring Counseling</span>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -1449,23 +1885,22 @@
 
         <div class="bharti-chat-body" id="bhartiChatMessages">
             <div class="bharti-msg bharti-msg-ai">
-                Namaste! I am <strong>BHARTI AI</strong>, your 24/7 BBCC Academic & Center Helpline Assistant. 
-                Ask me about admission inquiries, syllabus guides, or connect directly with coaching center directors!
+                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ, आपकी अपनी पढ़ाई और करियर मार्गदर्शिका। घबराइए मत, आपकी जो भी समस्या या सवाल हो—चाहे कोचिंग एडमिशन हो या नोट्स, मुझसे खुलकर पूछिए बेटा!
             </div>
         </div>
 
         <!-- Quick Prompt Chips -->
         <div style="padding:6px 14px; background:rgba(255,255,255,0.02); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; border-top:1px solid var(--border-subtle);">
-            <button onclick="sendQuickPrompt('Find best coaching center for Class 10')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Class 10 Coaching</button>
-            <button onclick="sendQuickPrompt('Connect me with a center director')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Director Contact</button>
-            <button onclick="sendQuickPrompt('How do I download study materials?')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">E-Library Notes</button>
+            <button onclick="sendQuickPrompt('मुझे क्लास 10th के लिए बेस्ट कोचिंग बताइए')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Class 10 Coaching</button>
+            <button onclick="sendQuickPrompt('मुझे कोचिंग डायरेक्टर सर से बात करनी है')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Director Contact</button>
+            <button onclick="sendQuickPrompt('ऑनलाइन क्लासरूम कैसे जॉइन करूँ?')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Online Classroom</button>
         </div>
 
         <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
             <button type="button" id="btnMicToggle" onclick="toggleSpeechRecognition()" title="Voice Microphone Input" style="background:none; border:none; color:#cbd5e1; font-size:16px; cursor:pointer; padding:0 8px;">
                 <i class="fas fa-microphone"></i>
             </button>
-            <input type="text" id="bhartiUserInput" required placeholder="Type or speak your academic question..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
+            <input type="text" id="bhartiUserInput" required placeholder="Type or speak your question beta..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
             <button type="submit" id="btnBhartiSend" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -1474,14 +1909,20 @@
 
     <!-- Master Institutional Footer -->
     <footer class="aurora-footer">
-        <p style="margin-bottom:12px;">
-            © 2026 <strong>BBCC SKILL HUB</strong> Academic Board. Centralized Educational Verification & Digital Institute Network.
+        <p id="footerCustomTextDisplay" style="margin-bottom:12px; font-size:13.5px; color:#e2e8f0;">
+            © 2026 <strong>BBCC SKILL HUB</strong>. Digital Skill & Coaching Institute Platform.
         </p>
-        <div style="display:flex; justify-content:center; gap:18px; flex-wrap:wrap; font-size:12.5px;">
+        <div style="display:flex; justify-content:center; gap:18px; flex-wrap:wrap; font-size:12.5px; margin-bottom:14px;">
+            <a href="/classroom" style="color:var(--aurora-cyan); text-decoration:none;"><i class="fas fa-desktop"></i> Student Classroom Login</a>
+            <a href="/about" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-circle-info"></i> About Platform</a>
+            <a href="javascript:void(0)" onclick="openTermsModal()" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-file-contract"></i> Terms & Conditions</a>
             <a href="/login" style="color:var(--aurora-gold); text-decoration:none;"><i class="fas fa-lock"></i> Director / Admin Portal</a>
             <a href="javascript:void(0)" onclick="openSelfRegistrationModal()" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-school"></i> Open Coaching Center</a>
             <a href="#verify" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-id-card"></i> Student Verification</a>
             <a href="#vault" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-book"></i> E-Library Vault</a>
+        </div>
+        <div style="font-size:11.5px; color:var(--text-slate);">
+            Empowering coaching institutes with digital management, online/physical courses & transparent 80/20 marketplace revenue.
         </div>
     </footer>
 
@@ -1490,12 +1931,17 @@
         let publicConfig = null;
         let allBooks = [];
         let allCenters = [];
+        let allCourses = [];
+        let promotionalBanners = [];
+        let currentSlideIdx = 0;
+        let sliderInterval = null;
 
         async function initPortal() {
             await loadConfig();
             await loadPromotionalBanners();
-            await loadBooks();
+            await loadCourses();
             await loadCenters();
+            await loadBooks();
         }
 
         async function loadConfig() {
@@ -1506,12 +1952,22 @@
                     publicConfig = data.data;
                     if (publicConfig.boardTitle) {
                         document.getElementById('brandNameDisplay').textContent = publicConfig.boardTitle;
+                        document.title = `${publicConfig.boardTitle} — Digital Skill & Coaching Institute Platform`;
                     }
-                    if (publicConfig.tagline) {
-                        document.getElementById('heroTagline').textContent = publicConfig.tagline;
+                    if (publicConfig.heroTitle || publicConfig.tagline) {
+                        document.getElementById('heroTagline').textContent = publicConfig.heroTitle || publicConfig.tagline;
+                    }
+                    if (publicConfig.heroDesc) {
+                        document.getElementById('heroDescriptionDisplay').textContent = publicConfig.heroDesc;
                     }
                     if (publicConfig.newsMarquee) {
                         document.getElementById('newsMarqueeText').textContent = publicConfig.newsMarquee;
+                    }
+                    if (publicConfig.footerText) {
+                        document.getElementById('footerCustomTextDisplay').innerHTML = `© 2026 <strong>${publicConfig.boardTitle || 'BBCC SKILL HUB'}</strong>. ${publicConfig.footerText}`;
+                    }
+                    if (publicConfig.boardLogo) {
+                        document.getElementById('brandEmblemBox').innerHTML = `<img src="${publicConfig.boardLogo}" alt="Logo">`;
                     }
                     if (publicConfig.affiliationFee !== undefined) {
                         const feeStr = publicConfig.affiliationFee > 0 ? `₹${publicConfig.affiliationFee}` : 'FREE';
@@ -1537,7 +1993,7 @@
             }
             grid.innerHTML = items.map(img => `
                 <div class="gallery-card">
-                    <img src="${img.image}" alt="${img.title || 'Board Campus Photo'}">
+                    <img src="${img.image}" alt="${img.title || 'Campus Photo'}">
                     <div class="gallery-card-caption">
                         <i class="fas fa-camera-retro" style="color:var(--aurora-gold); margin-right:6px;"></i> ${img.title || 'Campus Event'}
                     </div>
@@ -1545,166 +2001,255 @@
             `).join('');
         }
 
-        let currentFilterTag = 'all';
-
-        function applyBookFilter(tag, btn) {
-            currentFilterTag = tag.toLowerCase();
-            document.querySelectorAll('.vault-filter-pill').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            filterVaultBooks();
-        }
-
-        function filterVaultBooks() {
-            const query = (document.getElementById('vaultSearchInput') ? document.getElementById('vaultSearchInput').value : '').trim().toLowerCase();
-            let filtered = allBooks;
-
-            if (currentFilterTag === 'free') {
-                filtered = filtered.filter(b => (Number(b.price) || 0) === 0);
-            } else if (currentFilterTag === 'class 10') {
-                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('10'));
-            } else if (currentFilterTag === 'class 12') {
-                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('12'));
-            } else if (currentFilterTag === 'science') {
-                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('science'));
-            } else if (currentFilterTag === 'math') {
-                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('math'));
-            }
-
-            if (query) {
-                filtered = filtered.filter(b =>
-                    (b.title || '').toLowerCase().includes(query) ||
-                    (b.subject || '').toLowerCase().includes(query) ||
-                    (b.classLevel || '').toLowerCase().includes(query) ||
-                    (b.description || '').toLowerCase().includes(query)
-                );
-            }
-
-            renderBooks(filtered);
-        }
-
+        // ============================================
+        // 1. AUTO-PLAYING 30-DAY PROMOTIONAL BANNER SLIDER
+        // ============================================
         async function loadPromotionalBanners() {
-            const grid = document.getElementById('promotionalGrid');
             try {
                 const res = await fetch('/api/public/promotional-banners');
                 const data = await res.json();
                 if (data.success && data.data && data.data.length > 0) {
-                    grid.innerHTML = data.data.map(b => `
-                        <div class="promo-banner-card">
-                            <img src="${b.image}" alt="${b.title}" class="promo-banner-img">
-                            <div class="promo-banner-body">
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                                        <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">
-                                            <i class="fas fa-certificate"></i> ${b.centerName}
-                                        </span>
-                                    </div>
-                                    <h4 style="font-size:16px; font-weight:800; color:#ffffff; margin-bottom:4px;">${b.title}</h4>
-                                    <p style="font-size:12.5px; color:var(--text-slate); margin-bottom:14px;">${b.subtitle || 'Academic Program & Admissions'}</p>
-                                </div>
-                                <a href="${b.link || `/center/${b.username}`}" class="btn-aurora btn-aurora-gold" style="justify-content:center; text-decoration:none; padding:8px 14px; font-size:12.5px;">
-                                    <i class="fas fa-university"></i> Visit Institute &rarr;
-                                </a>
-                            </div>
-                        </div>
-                    `).join('');
+                    promotionalBanners = data.data;
+                    renderBannerSlider(promotionalBanners);
                 } else {
-                    grid.innerHTML = `
-                        <div style="grid-column:1/-1; text-align:center; padding:30px; background:var(--cosmic-card); border-radius:16px; border:1px solid var(--border-subtle);">
-                            <i class="fas fa-bullhorn" style="color:var(--aurora-gold); font-size:26px; margin-bottom:10px;"></i>
-                            <h4 style="color:#ffffff;">Direct Institute Affiliation Open 2026-27</h4>
-                            <p style="color:var(--text-slate); font-size:13px; margin:6px auto 14px; max-width:500px;">
-                                Coaching centers can register their institute directly and feature their promotional banners here.
-                            </p>
-                            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="font-size:13px;">
-                                <i class="fas fa-bolt"></i> Register Your Center Now
+                    setupDefaultBannerSlider();
+                }
+            } catch(e) {
+                setupDefaultBannerSlider();
+            }
+        }
+
+        function setupDefaultBannerSlider() {
+            promotionalBanners = [
+                {
+                    title: "New Session 2026-27 Admissions Open",
+                    subtitle: "Enroll in Premier Certified Coaching Institutes",
+                    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop",
+                    centerName: "BBCC SKILL HUB",
+                    daysLeft: 30,
+                    link: "#courses"
+                },
+                {
+                    title: "Live Interactive Hybrid Classrooms",
+                    subtitle: "1-Click Google Meet & Zoom Class Access with Curated Notes",
+                    image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=1200&auto=format&fit=crop",
+                    centerName: "Digital Classrooms",
+                    daysLeft: 28,
+                    link: "/classroom"
+                }
+            ];
+            renderBannerSlider(promotionalBanners);
+        }
+
+        function renderBannerSlider(banners) {
+            const track = document.getElementById('promoSliderTrack');
+            const dots = document.getElementById('promoSliderDots');
+            if (!track || !banners || banners.length === 0) return;
+
+            track.innerHTML = banners.map(b => `
+                <div class="promo-slide-item">
+                    <div class="promo-slide-media">
+                        <img src="${b.image}" class="promo-slide-img" alt="${b.title}">
+                    </div>
+                    <div class="promo-slide-content">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                            <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:3px 10px; border-radius:12px; font-size:11px; font-weight:800;">
+                                <i class="fas fa-certificate"></i> ${b.centerName || 'Verified Institute'}
+                            </span>
+                            ${b.daysLeft !== undefined ? `
+                                <span style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">
+                                    <i class="fas fa-clock"></i> ⏳ ${b.daysLeft} Days Left
+                                </span>
+                            ` : ''}
+                        </div>
+                        <h3 style="font-size:22px; font-weight:900; color:#ffffff; margin-bottom:8px; font-family:'Cinzel',serif; line-height:1.25;">
+                            ${b.title}
+                        </h3>
+                        <p style="color:var(--text-dim); font-size:13px; margin-bottom:18px;">
+                            ${b.subtitle || 'Official promotional announcement and scholarship opportunity.'}
+                        </p>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button onclick="openDirectAdmissionModal('${b.centerId || ''}')" class="btn-aurora btn-aurora-gold" style="font-size:12.5px; padding:8px 16px;">
+                                <i class="fas fa-user-plus"></i> Take Direct Admission
                             </button>
+                            <a href="${b.link || (b.username ? `/center/${b.username}` : '#institutes')}" class="btn-aurora btn-aurora-outline" style="font-size:12.5px; padding:8px 14px;">
+                                <i class="fas fa-school"></i> Visit Center &rarr;
+                            </a>
                         </div>
-                    `;
-                }
-            } catch(e) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Promotional announcements will update shortly.</div>';
-            }
+                    </div>
+                </div>
+            `).join('');
+
+            dots.innerHTML = banners.map((_, i) => `
+                <div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>
+            `).join('');
+
+            currentSlideIdx = 0;
+            startSliderAutoPlay();
         }
 
-        async function loadBooks() {
-            const grid = document.getElementById('booksGrid');
+        function startSliderAutoPlay() {
+            if (sliderInterval) clearInterval(sliderInterval);
+            sliderInterval = setInterval(() => {
+                nextSlide();
+            }, 5000);
+        }
+
+        function goToSlide(idx) {
+            const track = document.getElementById('promoSliderTrack');
+            const dots = document.querySelectorAll('.slider-dot');
+            if (!track || promotionalBanners.length === 0) return;
+            currentSlideIdx = (idx + promotionalBanners.length) % promotionalBanners.length;
+            track.style.transform = `translateX(-${currentSlideIdx * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlideIdx));
+        }
+
+        function nextSlide() {
+            goToSlide(currentSlideIdx + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentSlideIdx - 1);
+        }
+
+        // ============================================
+        // 2. COURSE EXPLORER & BEST CHOICE FINDER
+        // ============================================
+        let currentCourseFilter = 'all';
+
+        async function loadCourses() {
+            const grid = document.getElementById('coursesGrid');
             try {
-                const res = await fetch('/api/public/books');
+                const res = await fetch('/api/public/courses');
                 const data = await res.json();
-                if (data.success && data.data && data.data.notes) {
-                    allBooks = data.data.notes;
-                    document.getElementById('statBooksCount').textContent = allBooks.length + '+';
-                    filterVaultBooks();
+                if (data.success && data.data) {
+                    allCourses = data.data;
+                    document.getElementById('statCoursesCount').textContent = allCourses.length + '+';
+                    filterCoursesList();
                 } else {
-                    renderBooks([]);
+                    renderCourses([]);
                 }
             } catch(e) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Study materials will be updated shortly.</div>';
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Courses will be updated shortly.</div>';
             }
         }
 
-        function renderBooks(books) {
-            const grid = document.getElementById('booksGrid');
-            if (!books || books.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">No books available in repository at the moment.</div>';
+        function applyCourseFilter(tag, btn) {
+            currentCourseFilter = tag.toLowerCase();
+            document.querySelectorAll('#courses .vault-filter-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterCoursesList();
+        }
+
+        function filterCoursesList() {
+            const query = (document.getElementById('courseSearchInput') ? document.getElementById('courseSearchInput').value : '').trim().toLowerCase();
+            let filtered = allCourses;
+
+            if (currentCourseFilter === 'online') {
+                filtered = filtered.filter(c => (c.mode === 'Online' || c.mode === 'Both'));
+            } else if (currentCourseFilter === 'physical') {
+                filtered = filtered.filter(c => (c.mode === 'Physical' || c.mode === 'Both'));
+            } else if (currentCourseFilter === 'class 10') {
+                filtered = filtered.filter(c => (c.classLevel || '').toLowerCase().includes('10'));
+            } else if (currentCourseFilter === 'class 12') {
+                filtered = filtered.filter(c => (c.classLevel || '').toLowerCase().includes('12'));
+            }
+
+            if (query) {
+                filtered = filtered.filter(c =>
+                    (c.courseName || '').toLowerCase().includes(query) ||
+                    (c.subject || '').toLowerCase().includes(query) ||
+                    (c.centerName || '').toLowerCase().includes(query) ||
+                    (c.classLevel || '').toLowerCase().includes(query)
+                );
+            }
+
+            renderCourses(filtered);
+        }
+
+        function renderCourses(courses) {
+            const grid = document.getElementById('coursesGrid');
+            if (!courses || courses.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:35px; background:var(--cosmic-card); border-radius:18px; border:1px solid var(--border-subtle);">
+                        <i class="fas fa-graduation-cap" style="color:var(--aurora-gold); font-size:32px; margin-bottom:12px;"></i>
+                        <h4 style="color:#ffffff;">No Courses Found</h4>
+                        <p style="color:var(--text-slate); font-size:13px; max-width:420px; margin:6px auto 14px;">Coaching institutes add their batch schedules from their Director Portals.</p>
+                        <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="font-size:13px;">
+                            <i class="fas fa-school"></i> Register Coaching Center
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
-            grid.innerHTML = books.map(b => {
-                const price = Number(b.price) || 0;
-                const isPaid = price > 0;
-                const fileType = (b.fileType || 'pdf').toLowerCase();
-                const safeTitle = (b.title || 'Untitled Document').replace(/'/g, "&#39;");
-
+            grid.innerHTML = courses.map(c => {
+                const modeClass = c.mode === 'Online' ? 'mode-online' : (c.mode === 'Physical' ? 'mode-physical' : 'mode-both');
+                const modeIcon = c.mode === 'Online' ? 'fa-video' : (c.mode === 'Physical' ? 'fa-building' : 'fa-network-wired');
                 return `
-                    <div class="vault-book-card">
-                        <!-- Book Stage: Strictly 3D Textbook Cover or Custom Image (ZERO Raw PDF) -->
-                        <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
-                            ${b.thumbnail ? `
-                                <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img">
-                            ` : `
-                                <div class="book-spine-3d">
-                                    <div class="spine-ribbon"></div>
-                                    <div class="bookmark-tag"></div>
-                                    <div class="embossed-gold-seal">
-                                        <i class="fas ${fileType === 'pdf' ? 'fa-book-bookmark' : 'fa-file-lines'}"></i>
+                    <div class="course-card-elite">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                        ${c.centerLogo ? `<img src="${c.centerLogo}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fas fa-school" style="color:var(--aurora-gold);"></i>`}
                                     </div>
-                                    <div class="book-title-embossed">${safeTitle}</div>
-                                    <div style="font-size:10.5px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
-                                        ${b.subject || 'General'} • ${b.classLevel || 'All'}
+                                    <div>
+                                        <div style="font-size:11px; color:var(--text-slate); text-transform:uppercase;">${c.centerName}</div>
+                                        <h4 style="font-size:16px; font-weight:800; color:#ffffff; margin:0;">${c.courseName}</h4>
                                     </div>
                                 </div>
-                            `}
-                            <div class="price-badge-pill ${isPaid ? 'paid' : 'free'}">
-                                ${isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
+                                <span class="course-mode-badge ${modeClass}">
+                                    <i class="fas ${modeIcon}"></i> ${c.mode}
+                                </span>
+                            </div>
+
+                            <div style="display:flex; gap:8px; margin-bottom:12px; font-size:12px;">
+                                <span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; color:#cbd5e1;">
+                                    <i class="fas fa-book" style="color:var(--aurora-gold);"></i> ${c.subject || 'All Subjects'}
+                                </span>
+                                <span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; color:#cbd5e1;">
+                                    <i class="fas fa-layer-group" style="color:var(--aurora-cyan);"></i> ${c.classLevel || 'General'}
+                                </span>
+                            </div>
+
+                            <p style="font-size:12.5px; color:var(--text-slate); line-height:1.45; margin-bottom:12px;">
+                                ${c.description || 'Comprehensive curriculum with scheduled tests and structured notes.'}
+                            </p>
+
+                            <!-- Mode & Fee Comparison -->
+                            <div class="fee-compare-box">
+                                <div>
+                                    <span class="fee-item-title"><i class="fas fa-video"></i> Online Fee</span>
+                                    <span class="fee-item-val" style="color:var(--aurora-cyan);">₹${c.onlineFee || 0}</span>
+                                </div>
+                                <div>
+                                    <span class="fee-item-title"><i class="fas fa-building"></i> Physical Fee</span>
+                                    <span class="fee-item-val" style="color:var(--aurora-gold);">₹${c.offlineFee || 0}</span>
+                                </div>
+                            </div>
+
+                            <div style="font-size:12px; color:var(--text-slate); margin-bottom:16px;">
+                                <i class="fas fa-clock" style="color:var(--aurora-gold); margin-right:6px;"></i> Batch Timings: <strong>${c.batchTimings || 'Morning / Evening'}</strong>
                             </div>
                         </div>
 
-                        <div class="book-body">
-                            <h4 class="book-meta-title" title="${safeTitle}">${safeTitle}</h4>
-                            <p class="book-meta-desc">${b.description || 'Verified academic syllabus & study material by BBCC Board.'}</p>
-                            <div class="book-meta-specs">
-                                <span><i class="fas ${fileType === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'}"></i> ${fileType.toUpperCase()}</span>
-                                <span style="color:#fbbf24; font-weight:700;">${isPaid ? 'Direct Unlock' : 'Instant Free'}</span>
-                            </div>
-                        </div>
-
-                        <div class="book-action-dock">
-                            ${isPaid ? `
-                                <button type="button" onclick="openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
-                                    <i class="fas fa-lock"></i> Pay ₹${price} & Download
-                                </button>
-                            ` : `
-                                <button type="button" onclick="downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')" class="btn-aurora btn-aurora-outline" style="width:100%; justify-content:center; color:#10b981; border-color:rgba(16,185,129,0.3);">
-                                    <i class="fas fa-download"></i> Free Download
-                                </button>
-                            `}
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="openDirectAdmissionModal('${c.centerId}', '${c._id}')" class="btn-aurora btn-aurora-gold" style="flex:1; justify-content:center; font-size:13px;">
+                                <i class="fas fa-user-plus"></i> Take Admission
+                            </button>
+                            <a href="/center/${c.centerUsername || c.centerId}" class="btn-aurora btn-aurora-outline" title="View Institute" style="padding:8px 12px;">
+                                <i class="fas fa-globe"></i>
+                            </a>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
+        // ============================================
+        // 3. PARTNER INSTITUTES SHOWCASE (LOGOS & NAMES)
+        // ============================================
         async function loadCenters() {
             const grid = document.getElementById('institutesGrid');
             try {
@@ -1714,6 +2259,7 @@
                     allCenters = data.data;
                     document.getElementById('statCentersCount').textContent = allCenters.length + '+';
                     renderCenters(allCenters);
+                    populateAdmissionCentersDropdown();
                 } else {
                     renderCenters([]);
                 }
@@ -1730,7 +2276,7 @@
             }
 
             grid.innerHTML = centers.map(c => `
-                <div class="institute-card-elite" onclick="window.location.href='/center/${c._id}'">
+                <div class="institute-card-elite">
                     <div>
                         <div class="inst-header-dock">
                             <div class="inst-logo-box">
@@ -1747,25 +2293,30 @@
                                 ${c.directorPhoto ? `<img src="${c.directorPhoto}" alt="${c.directorName}">` : `<i class="fas fa-user-tie"></i>`}
                             </div>
                             <div>
-                                <div style="font-size:11px; color:var(--text-slate); text-transform:uppercase;">Director</div>
-                                <div style="font-size:13.5px; font-weight:700; color:#ffffff;">${c.directorName}</div>
+                                <div style="font-size:10.5px; color:var(--text-slate); text-transform:uppercase;">Director</div>
+                                <div style="font-size:13px; font-weight:700; color:#ffffff;">${c.directorName}</div>
                             </div>
                         </div>
 
-                        <p style="font-size:12.5px; color:var(--text-slate); margin-bottom:14px; line-height:1.4;">
+                        <p style="font-size:12px; color:var(--text-slate); margin-bottom:14px; line-height:1.4;">
                             <i class="fas fa-location-dot" style="color:#fbbf24;"></i> ${c.address || 'Academic Campus'}
                         </p>
                     </div>
 
-                    <a href="/center/${c._id}" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center; text-decoration:none;">
-                        <i class="fas fa-university"></i> Visit Center Website &rarr;
-                    </a>
+                    <div style="display:flex; gap:8px;">
+                        <a href="/center/${c._id}" class="btn-aurora btn-aurora-gold" style="flex:1; justify-content:center; text-decoration:none; font-size:12.5px;">
+                            <i class="fas fa-university"></i> Visit Center
+                        </a>
+                        <button onclick="openDirectAdmissionModal('${c._id}')" class="btn-aurora btn-aurora-outline" style="font-size:12.5px;" title="Direct Admission">
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
 
         // ============================================
-        // STUDENT ROLL NUMBER VERIFICATION DESK LOGIC
+        // 4. STUDENT ROLL NUMBER & AADHAR VERIFICATION
         // ============================================
         async function verifyStudentRollNo(e) {
             e.preventDefault();
@@ -1790,7 +2341,7 @@
                     document.getElementById('verRollNo').textContent = stu.rollNo;
                     document.getElementById('verCourse').textContent = stu.course;
                     document.getElementById('verClass').textContent = stu.classLevel;
-                    document.getElementById('verGrade').textContent = stu.marksGrade || 'A+ (Passed)';
+                    document.getElementById('verGrade').textContent = stu.marksGrade || 'A+ (Active Enrolled)';
                     document.getElementById('verCenterName').textContent = stu.centerName;
 
                     document.getElementById('studentVerifyModalDock').style.display = 'flex';
@@ -1799,7 +2350,7 @@
                     alertBox.style.background = 'rgba(239,68,68,0.15)';
                     alertBox.style.border = '1px solid #ef4444';
                     alertBox.style.color = '#fca5a5';
-                    alertBox.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message || 'No credential record found for this roll number.'}`;
+                    alertBox.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message || 'No credential record found for this roll number or Aadhar.'}`;
                 }
             } catch(err) {
                 btn.disabled = false;
@@ -1817,7 +2368,180 @@
         }
 
         // ============================================
-        // SELF-SERVICE COACHING REGISTRATION WITH FEE
+        // 5. DIRECT STUDENT SELF-ADMISSION DESK (FULL KYC)
+        // ============================================
+        let selectedAdmissionCourseObj = null;
+
+        function populateAdmissionCentersDropdown() {
+            const sel = document.getElementById('admCenterSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- Choose Institute --</option>' +
+                allCenters.map(c => `<option value="${c._id}">${c.centerName}</option>`).join('');
+        }
+
+        function openDirectAdmissionModal(preCenterId = '', preCourseId = '') {
+            populateAdmissionCentersDropdown();
+            document.getElementById('studentAdmissionForm').reset();
+            document.getElementById('studentAdmissionForm').style.display = 'block';
+            document.getElementById('admSuccessView').style.display = 'none';
+            document.getElementById('admAlertBox').style.display = 'none';
+
+            if (preCenterId) {
+                const sel = document.getElementById('admCenterSelect');
+                sel.value = preCenterId;
+                onAdmissionCenterChange(preCourseId);
+            }
+
+            document.getElementById('studentAdmissionModalDock').style.display = 'flex';
+        }
+
+        function closeDirectAdmissionModal() {
+            document.getElementById('studentAdmissionModalDock').style.display = 'none';
+        }
+
+        function onAdmissionCenterChange(targetCourseId = '') {
+            const centerId = document.getElementById('admCenterSelect').value;
+            const courseSel = document.getElementById('admCourseSelect');
+            courseSel.innerHTML = '<option value="">-- Select Target Course --</option>';
+
+            if (!centerId) {
+                updateAdmissionFeeDisplay();
+                return;
+            }
+
+            const centerCourses = allCourses.filter(c => c.centerId === centerId);
+            if (centerCourses.length === 0) {
+                courseSel.innerHTML = '<option value="general">General Coaching Admission</option>';
+            } else {
+                courseSel.innerHTML += centerCourses.map(c => `
+                    <option value="${c._id}" data-online="${c.onlineFee || 0}" data-offline="${c.offlineFee || 0}" data-mode="${c.mode}" data-class="${c.classLevel || ''}" data-name="${c.courseName}">${c.courseName} (${c.classLevel || 'General'})</option>
+                `).join('');
+            }
+
+            if (targetCourseId) {
+                courseSel.value = targetCourseId;
+            }
+            onAdmissionCourseChange();
+        }
+
+        function onAdmissionCourseChange() {
+            const courseSel = document.getElementById('admCourseSelect');
+            const selectedOpt = courseSel.options[courseSel.selectedIndex];
+            if (!selectedOpt || !selectedOpt.value) {
+                selectedAdmissionCourseObj = null;
+            } else {
+                selectedAdmissionCourseObj = {
+                    id: selectedOpt.value,
+                    name: selectedOpt.getAttribute('data-name') || selectedOpt.text,
+                    onlineFee: Number(selectedOpt.getAttribute('data-online')) || 0,
+                    offlineFee: Number(selectedOpt.getAttribute('data-offline')) || 0,
+                    mode: selectedOpt.getAttribute('data-mode') || 'Both',
+                    classLevel: selectedOpt.getAttribute('data-class') || ''
+                };
+            }
+            updateAdmissionFeeDisplay();
+        }
+
+        function updateAdmissionFeeDisplay() {
+            const mode = document.getElementById('admModeSelect').value;
+            const badge = document.getElementById('admFeeDisplayBadge');
+            if (!selectedAdmissionCourseObj) {
+                badge.textContent = '₹0 (Select Course)';
+                return;
+            }
+            const fee = mode === 'Online' ? selectedAdmissionCourseObj.onlineFee : selectedAdmissionCourseObj.offlineFee;
+            badge.textContent = `₹${fee} (${mode} Mode)`;
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processStudentAdmission(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAdmission');
+            const alertBox = document.getElementById('admAlertBox');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing KYC & Enrollment...';
+            alertBox.style.display = 'none';
+
+            try {
+                const centerId = document.getElementById('admCenterSelect').value;
+                const center = allCenters.find(c => c._id === centerId);
+                const courseSel = document.getElementById('admCourseSelect');
+                const courseName = selectedAdmissionCourseObj ? selectedAdmissionCourseObj.name : courseSel.value;
+                const classLevel = selectedAdmissionCourseObj ? selectedAdmissionCourseObj.classLevel : 'General';
+                const mode = document.getElementById('admModeSelect').value;
+
+                const photoFile = document.getElementById('admPhotoFile').files[0];
+                const aadharFile = document.getElementById('admAadharDocFile').files[0];
+
+                let photoBase64 = '';
+                let aadharDocBase64 = '';
+
+                if (photoFile) photoBase64 = await fileToBase64(photoFile);
+                if (aadharFile) aadharDocBase64 = await fileToBase64(aadharFile);
+
+                const payload = {
+                    centerId: centerId,
+                    centerName: center ? center.centerName : 'BBCC Center',
+                    course: courseName,
+                    classLevel: classLevel,
+                    learningMode: mode,
+                    name: document.getElementById('admStudentName').value.trim(),
+                    parentName: document.getElementById('admParentName').value.trim(),
+                    mobile: document.getElementById('admStudentMobile').value.trim(),
+                    parentMobile: document.getElementById('admParentMobile').value.trim(),
+                    aadharNumber: document.getElementById('admAadharNumber').value.trim(),
+                    address: document.getElementById('admAddress').value.trim(),
+                    photo: photoBase64,
+                    aadharDoc: aadharDocBase64
+                };
+
+                const res = await fetch('/api/public/student-admission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+
+                if (data.success && data.data) {
+                    document.getElementById('studentAdmissionForm').style.display = 'none';
+                    document.getElementById('admSucRollNo').textContent = data.data.rollNo;
+                    document.getElementById('admSucStudentName').textContent = data.data.name;
+                    document.getElementById('admSucCenterName').textContent = data.data.centerName;
+                    document.getElementById('admSucCourseMode').textContent = `${data.data.course} (${data.data.learningMode})`;
+                    const aadharStr = data.data.aadharNumber || payload.aadharNumber;
+                    document.getElementById('admSucAadharMask').textContent = '•••• •••• ' + aadharStr.slice(-4);
+                    document.getElementById('admSuccessView').style.display = 'block';
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${data.message || 'Admission registration failed.'}`;
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.textContent = 'Connection error: ' + err.message;
+            }
+        }
+
+        // ============================================
+        // 6. SELF-SERVICE COACHING REGISTRATION WITH FEE
         // ============================================
         function openSelfRegistrationModal() {
             document.getElementById('selfRegForm').style.display = 'block';
@@ -1864,14 +2588,12 @@
                     return;
                 }
 
-                // If Direct / Free Activation
                 if (data.direct) {
                     showSelfRegSuccess(data.centerName, data.username);
                     await loadCenters();
                     return;
                 }
 
-                // Razorpay Payment Flow
                 if (typeof Razorpay === 'undefined') {
                     btn.disabled = false;
                     btnText.textContent = 'Pay Affiliation Fee & Activate Live';
@@ -1913,7 +2635,7 @@
                                     paymentId: resp.razorpay_payment_id,
                                     payerName: payload.directorName,
                                     payerPhone: payload.contactNumber,
-                                    itemTitle: `Board Affiliation Certification: ${payload.centerName}`,
+                                    itemTitle: `Affiliation Certification: ${payload.centerName}`,
                                     itemMeta: 'Institutional Recognition & Dedicated Microsite License',
                                     totalPrice: data.amount || 999,
                                     paidDate: new Date()
@@ -1964,8 +2686,133 @@
         }
 
         // ============================================
-        // IN-APP RAZORPAY CHECKOUT LOGIC FOR E-LIBRARY
+        // 7. TERMS & CONDITIONS MODAL
         // ============================================
+        function openTermsModal() {
+            document.getElementById('termsConditionsModalDock').style.display = 'flex';
+        }
+        function closeTermsModal() {
+            document.getElementById('termsConditionsModalDock').style.display = 'none';
+        }
+
+        // ============================================
+        // 8. E-LIBRARY SEARCH & CHECKOUT
+        // ============================================
+        let currentFilterTag = 'all';
+
+        function applyBookFilter(tag, btn) {
+            currentFilterTag = tag.toLowerCase();
+            document.querySelectorAll('#vault .vault-filter-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterVaultBooks();
+        }
+
+        function filterVaultBooks() {
+            const query = (document.getElementById('vaultSearchInput') ? document.getElementById('vaultSearchInput').value : '').trim().toLowerCase();
+            let filtered = allBooks;
+
+            if (currentFilterTag === 'free') {
+                filtered = filtered.filter(b => (Number(b.price) || 0) === 0);
+            } else if (currentFilterTag === 'class 10') {
+                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('10'));
+            } else if (currentFilterTag === 'class 12') {
+                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('12'));
+            } else if (currentFilterTag === 'science') {
+                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('science'));
+            } else if (currentFilterTag === 'math') {
+                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('math'));
+            }
+
+            if (query) {
+                filtered = filtered.filter(b =>
+                    (b.title || '').toLowerCase().includes(query) ||
+                    (b.subject || '').toLowerCase().includes(query) ||
+                    (b.classLevel || '').toLowerCase().includes(query) ||
+                    (b.description || '').toLowerCase().includes(query)
+                );
+            }
+
+            renderBooks(filtered);
+        }
+
+        async function loadBooks() {
+            const grid = document.getElementById('booksGrid');
+            try {
+                const res = await fetch('/api/public/books');
+                const data = await res.json();
+                if (data.success && data.data && data.data.notes) {
+                    allBooks = data.data.notes;
+                    document.getElementById('statBooksCount').textContent = allBooks.length + '+';
+                    filterVaultBooks();
+                } else {
+                    renderBooks([]);
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Study materials will be updated shortly.</div>';
+            }
+        }
+
+        function renderBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            if (!books || books.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">No documents available in repository at the moment.</div>';
+                return;
+            }
+
+            grid.innerHTML = books.map(b => {
+                const price = Number(b.price) || 0;
+                const isPaid = price > 0;
+                const fileType = (b.fileType || 'pdf').toLowerCase();
+                const safeTitle = (b.title || 'Untitled Document').replace(/'/g, "&#39;");
+
+                return `
+                    <div class="vault-book-card">
+                        <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
+                            ${b.thumbnail ? `
+                                <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img">
+                            ` : `
+                                <div class="book-spine-3d">
+                                    <div class="spine-ribbon"></div>
+                                    <div class="bookmark-tag"></div>
+                                    <div class="embossed-gold-seal">
+                                        <i class="fas ${fileType === 'pdf' ? 'fa-book-bookmark' : 'fa-file-lines'}"></i>
+                                    </div>
+                                    <div class="book-title-embossed">${safeTitle}</div>
+                                    <div style="font-size:10.5px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
+                                        ${b.subject || 'General'} • ${b.classLevel || 'All'}
+                                    </div>
+                                </div>
+                            `}
+                            <div class="price-badge-pill ${isPaid ? 'paid' : 'free'}">
+                                ${isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
+                            </div>
+                        </div>
+
+                        <div class="book-body">
+                            <h4 class="book-meta-title" title="${safeTitle}">${safeTitle}</h4>
+                            <p class="book-meta-desc">${b.description || 'Verified academic syllabus & study material.'}</p>
+                            <div class="book-meta-specs">
+                                <span><i class="fas ${fileType === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'}"></i> ${fileType.toUpperCase()}</span>
+                                <span style="color:#fbbf24; font-weight:700;">${isPaid ? 'Direct Unlock' : 'Instant Free'}</span>
+                            </div>
+                        </div>
+
+                        <div class="book-action-dock">
+                            ${isPaid ? `
+                                <button type="button" onclick="openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
+                                    <i class="fas fa-lock"></i> Pay ₹${price} & Download
+                                </button>
+                            ` : `
+                                <button type="button" onclick="downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')" class="btn-aurora btn-aurora-outline" style="width:100%; justify-content:center; color:#10b981; border-color:rgba(16,185,129,0.3);">
+                                    <i class="fas fa-download"></i> Free Download
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function openCheckout(docId, price, encTitle, encSubject, encClass) {
             const title = decodeURIComponent(encTitle || 'Document');
             const sub = decodeURIComponent(encSubject || 'General');
@@ -2151,7 +2998,7 @@
         }
 
         // ============================================
-        // DIGITAL TAX INVOICE & PAYMENT RECEIPT MODAL
+        // 9. TAX INVOICE RECEIPT MODAL
         // ============================================
         function openTaxReceiptModal(info) {
             if (!info) return;
@@ -2164,7 +3011,7 @@
             document.getElementById('rcptPayerName').textContent = info.payerName || 'Student / Center Partner';
             document.getElementById('rcptPayerPhone').textContent = info.payerPhone || '';
             document.getElementById('rcptItemTitle').textContent = info.itemTitle || 'Academic Curriculum Document';
-            document.getElementById('rcptItemMeta').textContent = info.itemMeta || 'Verified Central Board Learning Resource';
+            document.getElementById('rcptItemMeta').textContent = info.itemMeta || 'Verified Central Learning Resource';
             document.getElementById('rcptBasePrice').textContent = `₹${basePrice}`;
             document.getElementById('rcptGstPrice').textContent = `₹${gst}`;
             document.getElementById('rcptTotalPrice').textContent = `₹${price.toFixed(2)}`;
@@ -2178,7 +3025,7 @@
         }
 
         // ============================================
-        // BHARTI AI HELPLINE VOICE & INTERACTIVE ASSISTANT
+        // 10. BHARTI AI HELPLINE VOICE & INTERACTIVE ASSISTANT
         // ============================================
         let isVoiceEnabled = true;
         let recognition = null;
@@ -2207,14 +3054,14 @@
                 utter.pitch = 1.05;
                 window.speechSynthesis.speak(utter);
             } catch(e) {
-                console.warn('Speech synthesis error:', e);
+                console.warn('Speech synthesis notice:', e);
             }
         }
 
         function toggleSpeechRecognition() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRec) {
-                alert('Microphone voice recognition is not supported in this browser. Please type your question.');
+                alert('Microphone voice recognition is not supported in this browser. Please type your question beta.');
                 return;
             }
             const micBtn = document.getElementById('btnMicToggle');
@@ -2292,7 +3139,7 @@
             // Loading AI bubble
             const loadBubble = document.createElement('div');
             loadBubble.className = 'bharti-msg bharti-msg-ai';
-            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> BHARTI is thinking...';
+            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भारती सोच रही हैं बेटा...';
             chatBody.appendChild(loadBubble);
             chatBody.scrollTop = chatBody.scrollHeight;
 
@@ -2308,28 +3155,25 @@
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'bharti-msg bharti-msg-ai';
 
-                let html = `<div>${data.reply || 'Namaste! How may I assist you further?'}</div>`;
+                let html = `<div>${data.reply || 'नमस्ते बेटा! मैं आपकी सहायता के लिए हमेशा उपस्थित हूँ।'}</div>`;
 
-                // CRITICAL REQUIREMENT:
-                // First: Encrypted Call Link
-                // Second: Director Direct Phone & WhatsApp
                 if (data.encryptedCallLink || data.directorPhone) {
                     html += `
                         <div class="bharti-action-card">
                             <span style="font-size:11px; color:var(--aurora-gold); font-weight:800; text-transform:uppercase;">
-                                <i class="fas fa-headset"></i> Direct Assistance Desk: ${data.centerName || 'BBCC Center'}
+                                <i class="fas fa-headset"></i> डायरेक्ट सहायता केंद्र: ${data.centerName || 'BBCC सेंटर'}
                             </span>
 
                             ${data.encryptedCallLink ? `
                                 <a href="${data.encryptedCallLink}" target="_blank" class="btn-aurora btn-aurora-gold" style="font-size:12px; padding:7px 12px; text-decoration:none; justify-content:center;">
-                                    <i class="fas fa-lock"></i> 1. Connect via Encrypted Call Link
+                                    <i class="fas fa-lock"></i> 1. सिक्योर एन्क्रिप्टेड कॉल लिंक से जुड़ें
                                 </a>
                             ` : ''}
 
                             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
                                 ${data.directorPhone ? `
                                     <a href="tel:${data.directorPhone}" class="btn-aurora btn-aurora-outline" style="flex:1; font-size:12px; padding:7px 10px; text-decoration:none; justify-content:center;">
-                                        <i class="fas fa-phone"></i> 2. Call: ${data.directorPhone}
+                                        <i class="fas fa-phone"></i> 2. कॉल: ${data.directorPhone}
                                     </a>
                                 ` : ''}
 
@@ -2347,12 +3191,11 @@
                 chatBody.appendChild(aiBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
 
-                // Voice audio speech
                 if (data.reply) {
                     speakBhartiReply(data.reply);
                 }
             } catch(err) {
-                loadBubble.innerHTML = '<span style="color:#fca5a5;">Bharti AI connection timeout. Please check your network.</span>';
+                loadBubble.innerHTML = '<span style="color:#fca5a5;">भारती AI से संपर्क करने में समस्या हुई। कृपया दोबारा प्रयास करें बेटा।</span>';
             }
         }
 

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Classroom Portal | BBCC SKILL HUB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-obsidian: #080c14;
+            --bg-card: #0f172a;
+            --bg-card-light: #162036;
+            --border-gold: rgba(245, 158, 11, 0.28);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold: #f59e0b;
+            --gold-light: #fbbf24;
+            --gold-glow: rgba(245, 158, 11, 0.2);
+            --emerald: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.25);
+            --cyan: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Cinzel', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.08), transparent),
+                radial-gradient(circle at 10% 30%, rgba(6, 182, 212, 0.04), transparent),
+                radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.04), transparent);
+            background-attachment: fixed;
+        }
+
+        /* Top Header */
+        header {
+            background: rgba(11, 16, 28, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #080c14;
+            font-weight: 800;
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffffff, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover {
+            color: var(--gold);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #080c14;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px var(--gold-glow);
+            transition: all 0.2s;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Container */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 36px 20px 60px;
+        }
+
+        /* Login Card */
+        .login-section {
+            max-width: 480px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px var(--gold-glow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #06b6d4, #10b981);
+        }
+
+        .login-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--border-gold);
+            padding: 6px 14px;
+            border-radius: 50px;
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .login-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            font-size: 16px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            background: var(--bg-obsidian);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 14px var(--gold-glow);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            text-align: left;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .btn-submit-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #080c14;
+            font-size: 15px;
+            font-weight: 800;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 18px var(--gold-glow);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+        }
+
+        .login-footer-text {
+            margin-top: 22px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .login-footer-text a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .login-footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Classroom Dashboard UI */
+        .dashboard-section {
+            display: none;
+        }
+
+        .student-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 20px var(--gold-glow);
+            background: var(--bg-obsidian);
+        }
+
+        .student-info h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge-mode {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-online {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge-physical {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .student-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .student-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .student-meta strong {
+            color: #ffffff;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Mode Banner & Live Class Desk */
+        .live-class-card {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.12);
+        }
+
+        .live-class-card.physical-mode {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border-color: rgba(16, 185, 129, 0.35);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+        }
+
+        .live-class-content h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-pulse {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #ef4444;
+            animation: pulseAnim 1.4s infinite;
+        }
+
+        @keyframes pulseAnim {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .live-class-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .btn-live-launch {
+            background: linear-gradient(135deg, #06b6d4, #0284c7);
+            color: #ffffff;
+            padding: 16px 30px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-live-launch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(6, 182, 212, 0.6);
+        }
+
+        .btn-physical-desk {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            padding: 16px 26px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* 2-Column Dashboard Grid */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 28px;
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .dash-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .dash-card-header h4 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dash-card-header h4 i {
+            color: var(--gold);
+        }
+
+        /* Materials List */
+        .materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .material-item {
+            background: var(--bg-obsidian);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            transition: all 0.2s;
+        }
+
+        .material-item:hover {
+            border-color: var(--border-gold);
+            transform: translateX(4px);
+        }
+
+        .material-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .material-meta h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .material-meta p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .btn-download-sm {
+            background: var(--bg-card-light);
+            color: var(--gold);
+            border: 1px solid var(--border-gold);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-download-sm:hover {
+            background: var(--gold);
+            color: #080c14;
+        }
+
+        /* Institute Info Card */
+        .institute-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .inst-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid var(--border-gold);
+            background: var(--bg-obsidian);
+        }
+
+        .inst-details h5 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .inst-details p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .info-pill-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .info-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-obsidian);
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .info-pill span {
+            color: var(--text-muted);
+        }
+
+        .info-pill strong {
+            color: #ffffff;
+        }
+
+        /* ID Card Modal / Printable Area */
+        #printableIdCard {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableIdCard, #printableIdCard * {
+                visibility: visible;
+            }
+            #printableIdCard {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #ffffff;
+                color: #000000;
+                padding: 20px;
+            }
+        }
+
+        /* Toast Notice */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            border: 1px solid var(--border-gold);
+            color: #ffffff;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        /* Responsive */
+        @media (max-width: 868px) {
+            .student-hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .student-avatar {
+                margin: 0 auto;
+            }
+            .student-meta {
+                justify-content: center;
+            }
+            .live-class-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="/" class="header-logo">
+            <div class="logo-icon">B</div>
+            <div class="logo-text">
+                <h1 id="headerBoardTitle">BBCC SKILL HUB</h1>
+                <p>Digital Student Classroom</p>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="/about" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+            <button id="logoutBtn" class="btn-outline" style="display:none;" onclick="handleStudentLogout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- 1. LOGIN SECTION -->
+        <section id="loginSection" class="login-section">
+            <div class="login-badge">
+                <i class="fas fa-id-card"></i> Central KYC Login
+            </div>
+            <h2 class="login-title">Student Classroom</h2>
+            <p class="login-desc">Enter your 12-Digit Aadhar Card Number or verified Central Roll Number to access your live lectures and digital coursework.</p>
+
+            <form id="studentLoginForm" onsubmit="handleStudentLogin(event)">
+                <div class="input-group">
+                    <label for="studentLoginQuery">Aadhar Number / Roll Number</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-fingerprint"></i>
+                        <input type="text" id="studentLoginQuery" class="input-field" placeholder="e.g. 1234 5678 9012 or BBCC-2026-..." required autofocus>
+                    </div>
+                </div>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" id="rememberAadhar">
+                    <span>Remember my Aadhar Number on this device</span>
+                </label>
+
+                <button type="submit" class="btn-submit-login" id="loginSubmitBtn">
+                    <i class="fas fa-sign-in-alt"></i> Unlock My Classroom
+                </button>
+            </form>
+
+            <div class="login-footer-text">
+                Not enrolled yet? <a href="/#coursesSection">Browse Courses & Direct Admission</a>
+            </div>
+        </section>
+
+        <!-- 2. CLASSROOM DASHBOARD -->
+        <section id="dashboardSection" class="dashboard-section">
+
+            <!-- Student Profile Hero Banner -->
+            <div class="student-hero">
+                <img id="stuPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%2394a3b8'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='40' r='20'/><circle cx='50' cy='90' r='35'/></svg>" alt="Student Photo" class="student-avatar">
+
+                <div class="student-info">
+                    <h2>
+                        <span id="stuName">Student Name</span>
+                        <span id="stuModeBadge" class="badge-mode badge-online">Online Mode</span>
+                    </h2>
+                    <div class="student-meta">
+                        <span><i class="fas fa-hashtag text-gold"></i> Roll No: <strong id="stuRollNo">BBCC-2026-000000</strong></span>
+                        <span><i class="fas fa-id-badge text-gold"></i> ID: <strong id="stuStudentId">STU-000000</strong></span>
+                        <span><i class="fas fa-fingerprint text-gold"></i> Aadhar: <strong id="stuAadhar">XXXX-XXXX-0000</strong></span>
+                        <span><i class="fas fa-graduation-cap text-gold"></i> Course: <strong id="stuCourse">Academic Excellence</strong></span>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn-gold" onclick="printIdCard()">
+                        <i class="fas fa-print"></i> Print ID Card
+                    </button>
+                    <button class="btn-outline" onclick="contactDirectorHelp()">
+                        <i class="fas fa-phone"></i> Center Helpdesk
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode Action Card: Live Class for Online OR Campus Schedule for Physical -->
+            <div id="liveClassCard" class="live-class-card">
+                <div class="live-class-content">
+                    <h3 id="modeTitle">
+                        <span class="live-pulse"></span> Live Interactive Lecture Desk
+                    </h3>
+                    <p id="modeDesc">Connect directly to your faculty's live classroom via Google Meet or Zoom. Please join with your official BBCC student name.</p>
+                    <div style="margin-top: 10px; font-size: 13px; color: #cbd5e1;">
+                        <i class="fas fa-clock text-gold"></i> Batch Timings: <strong id="batchTimingText">Daily 09:00 AM - 11:00 AM</strong>
+                    </div>
+                </div>
+                <div>
+                    <a id="liveClassActionBtn" href="#" target="_blank" class="btn-live-launch">
+                        <i class="fas fa-video"></i> Join Live Lecture Now
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2-Column Details Grid -->
+            <div class="dash-grid">
+
+                <!-- Left Column: Study Materials & Syllabus -->
+                <div>
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h4><i class="fas fa-book-reader"></i> Course Study Material & Notes</h4>
+                            <span id="materialsCountBadge" style="font-size: 12px; color: var(--gold); font-weight: 700;">0 Notes</span>
+                        </div>
+                        <div id="materialsList" class="materials-list">
+                            <div style="text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;">
+                                <i class="fas fa-folder-open" style="font-size: 32px; color: #475569; margin-bottom: 10px; display: block;"></i>
+                                No study materials uploaded yet by center faculty.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Coaching Institute & Counselor Profile -->
+                <div>
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h4><i class="fas fa-university"></i> Partner Coaching Institute</h4>
+                        </div>
+                        <div class="institute-card-inner">
+                            <img id="instLogo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' fill='%2394a3b8'><rect width='60' height='60' fill='%231e293b'/><text x='30' y='35' fill='%23f59e0b' text-anchor='middle'>B</text></svg>" alt="Institute Logo" class="inst-logo">
+                            <div class="inst-details">
+                                <h5 id="instName">Institute Name</h5>
+                                <p id="instDirector">Director: Not Assigned</p>
+                            </div>
+                        </div>
+                        <div class="info-pill-row">
+                            <div class="info-pill">
+                                <span><i class="fas fa-map-marker-alt"></i> Campus Location</span>
+                                <strong id="instAddress">Main Campus</strong>
+                            </div>
+                            <div class="info-pill">
+                                <span><i class="fas fa-phone-alt"></i> Helpdesk Line</span>
+                                <strong id="instPhone">+91 98765 43210</strong>
+                            </div>
+                            <div class="info-pill">
+                                <span><i class="fas fa-lock"></i> Encrypted Call</span>
+                                <a id="instCallLink" href="#" target="_blank" style="color: var(--cyan); text-decoration: none; font-weight: 700;">Connect Link <i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admission & Fee Summary Card -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h4><i class="fas fa-receipt"></i> Admission Status</h4>
+                        </div>
+                        <div class="info-pill-row">
+                            <div class="info-pill">
+                                <span>Status</span>
+                                <strong id="admStatus" style="color: var(--emerald);">Active Verified</strong>
+                            </div>
+                            <div class="info-pill">
+                                <span>Parent / Guardian</span>
+                                <strong id="stuParent">Parent Name</strong>
+                            </div>
+                            <div class="info-pill">
+                                <span>Contact Mobile</span>
+                                <strong id="stuMobile">9876543210</strong>
+                            </div>
+                            <div class="info-pill">
+                                <span>Enrollment Date</span>
+                                <strong id="stuIssueDate">Oct 2026</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Printable Student ID Card Modal Container -->
+    <div id="printableIdCard">
+        <div style="max-width: 500px; margin: 40px auto; border: 2px solid #000; padding: 25px; border-radius: 12px; font-family: sans-serif; background: #fff;">
+            <div style="text-align: center; border-bottom: 2px solid #f59e0b; padding-bottom: 12px; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-size: 20px; color: #1e293b;" id="printBoardTitle">BBCC SKILL HUB</h2>
+                <p style="margin: 4px 0 0; font-size: 11px; text-transform: uppercase; color: #64748b;">Official Student Digital Identity Card</p>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 18px;">
+                <img id="printPhoto" src="" style="width: 80px; height: 90px; object-fit: cover; border: 1px solid #ccc; border-radius: 6px;">
+                <div style="font-size: 13px; line-height: 1.6;">
+                    <div style="font-size: 16px; font-weight: bold; color: #0f172a;" id="printName">Student Name</div>
+                    <div><strong>Roll No:</strong> <span id="printRoll">BBCC-2026-000000</span></div>
+                    <div><strong>Course:</strong> <span id="printCourse">Certified Course</span></div>
+                    <div><strong>Mode:</strong> <span id="printMode">Physical / Online</span></div>
+                    <div><strong>Institute:</strong> <span id="printCenter">Partner Center</span></div>
+                </div>
+            </div>
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; font-size: 11px; color: #64748b;">
+                <div>Aadhar: <span id="printAadhar">XXXX-XXXX-0000</span></div>
+                <div>Authorized Digital Credential</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notice -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle" style="color: var(--emerald);"></i>
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+    <script>
+        let currentStudentData = null;
+
+        // On Load Check
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedAadhar = localStorage.getItem('bbcc_remembered_aadhar');
+            if (savedAadhar) {
+                document.getElementById('studentLoginQuery').value = savedAadhar;
+                document.getElementById('rememberAadhar').checked = true;
+            }
+
+            const token = localStorage.getItem('bbcc_student_token');
+            if (token) {
+                loadClassroomData(token);
+            }
+        });
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.style.borderColor = isError ? '#ef4444' : 'var(--border-gold)';
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        async function handleStudentLogin(e) {
+            e.preventDefault();
+            const query = document.getElementById('studentLoginQuery').value.trim();
+            const remember = document.getElementById('rememberAadhar').checked;
+            const btn = document.getElementById('loginSubmitBtn');
+
+            if (!query) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+            try {
+                const res = await fetch('/api/public/student-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aadharNumber: query, query: query })
+                });
+                const data = await res.json();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('bbcc_student_token', data.token);
+                    if (remember) {
+                        localStorage.setItem('bbcc_remembered_aadhar', query);
+                    } else {
+                        localStorage.removeItem('bbcc_remembered_aadhar');
+                    }
+                    showToast('Welcome back, ' + data.student.name + '!');
+                    loadClassroomData(data.token);
+                } else {
+                    showToast(data.message || 'Login failed. Please check your credentials.', true);
+                }
+            } catch (err) {
+                showToast('Network error during login: ' + err.message, true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Unlock My Classroom';
+            }
+        }
+
+        async function loadClassroomData(token) {
+            try {
+                const res = await fetch('/api/student/classroom', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const result = await res.json();
+
+                if (result.success && result.data) {
+                    currentStudentData = result.data;
+                    renderClassroom(result.data);
+                } else {
+                    // Invalid/expired token
+                    localStorage.removeItem('bbcc_student_token');
+                    document.getElementById('loginSection').style.display = 'block';
+                    document.getElementById('dashboardSection').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Failed to load classroom:', err);
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('dashboardSection').style.display = 'none';
+            }
+        }
+
+        function renderClassroom(data) {
+            const { student, center, course, liveClassLink, materials } = data;
+
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'inline-flex';
+
+            // Student Meta
+            document.getElementById('stuName').innerText = student.name;
+            document.getElementById('stuRollNo').innerText = student.rollNo;
+            document.getElementById('stuStudentId').innerText = student.studentId;
+            const aadharMask = student.aadharNumber ? ('XXXX-XXXX-' + student.aadharNumber.slice(-4)) : 'Verified KYC';
+            document.getElementById('stuAadhar').innerText = aadharMask;
+            document.getElementById('stuCourse').innerText = student.courseName || student.course;
+            document.getElementById('stuParent').innerText = student.parentName;
+            document.getElementById('stuMobile').innerText = student.mobile;
+            document.getElementById('stuIssueDate').innerText = new Date(student.issueDate).toLocaleDateString();
+
+            if (student.photo) {
+                document.getElementById('stuPhoto').src = student.photo;
+            }
+
+            // Mode
+            const isOnline = (student.mode || 'physical').toLowerCase() === 'online';
+            const badge = document.getElementById('stuModeBadge');
+            badge.innerText = isOnline ? 'Online Live Mode' : 'Physical Campus Mode';
+            badge.className = 'badge-mode ' + (isOnline ? 'badge-online' : 'badge-physical');
+
+            // Live Class or Physical Campus Card
+            const liveCard = document.getElementById('liveClassCard');
+            const modeTitle = document.getElementById('modeTitle');
+            const modeDesc = document.getElementById('modeDesc');
+            const actionBtn = document.getElementById('liveClassActionBtn');
+            const batchTiming = (course && course.batchTiming) ? course.batchTiming : 'Regular Batch';
+            document.getElementById('batchTimingText').innerText = batchTiming;
+
+            if (isOnline) {
+                liveCard.className = 'live-class-card';
+                modeTitle.innerHTML = '<span class="live-pulse"></span> Live Interactive Lecture Desk';
+                modeDesc.innerText = 'Tap below to launch your Google Meet / Zoom classroom with verified faculty. Keep your study materials ready!';
+                actionBtn.className = 'btn-live-launch';
+                actionBtn.innerHTML = '<i class="fas fa-video"></i> Join Live Lecture Now';
+                actionBtn.href = liveClassLink || '#';
+                if (!liveClassLink) {
+                    actionBtn.onclick = (e) => {
+                        e.preventDefault();
+                        showToast('Class link not updated yet by teacher. Please contact director.');
+                    };
+                }
+            } else {
+                liveCard.className = 'live-class-card physical-mode';
+                modeTitle.innerHTML = '<i class="fas fa-school text-emerald"></i> Physical Classroom Campus Desk';
+                modeDesc.innerText = `Attend lectures physically at ${center ? center.centerName : 'Partner Campus'}. View campus address and batch timings below.`;
+                actionBtn.className = 'btn-physical-desk';
+                actionBtn.innerHTML = '<i class="fas fa-map-marked-alt"></i> View Campus Location';
+                actionBtn.href = center ? `https://maps.google.com/?q=${encodeURIComponent(center.address || center.centerName)}` : '#';
+            }
+
+            // Center details
+            if (center) {
+                document.getElementById('instName').innerText = center.centerName;
+                document.getElementById('instDirector').innerText = 'Director: ' + center.directorName;
+                document.getElementById('instAddress').innerText = center.address || 'Certified Center Campus';
+                document.getElementById('instPhone').innerText = center.contactNumber || '+91 98765 43210';
+                if (center.clogo) document.getElementById('instLogo').src = center.clogo;
+                const callLink = center.encryptedCallLink || `https://meet.bbccskillhub.org/call/${center.username || 'center'}`;
+                document.getElementById('instCallLink').href = callLink;
+            }
+
+            // Materials
+            const matList = document.getElementById('materialsList');
+            const matCountBadge = document.getElementById('materialsCountBadge');
+            matCountBadge.innerText = (materials && materials.length) ? (materials.length + ' Materials Available') : '0 Notes';
+
+            if (materials && materials.length > 0) {
+                matList.innerHTML = materials.map(m => `
+                    <div class="material-item">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="material-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="material-meta">
+                                <h5>${escapeHtml(m.title)}</h5>
+                                <p>${escapeHtml(m.description || 'Curriculum Syllabus Notes')}</p>
+                            </div>
+                        </div>
+                        <a href="${m.file || '#'}" download="${escapeHtml(m.title)}.pdf" class="btn-download-sm" ${!m.file ? 'onclick="showToast(\'File being uploaded\'); return false;"' : ''}>
+                            <i class="fas fa-download"></i> Download Note
+                        </a>
+                    </div>
+                `).join('');
+            } else {
+                matList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;">
+                        <i class="fas fa-folder-open" style="font-size: 32px; color: #475569; margin-bottom: 10px; display: block;"></i>
+                        No notes uploaded yet for this course. Your instructor will upload them shortly.
+                    </div>
+                `;
+            }
+        }
+
+        function handleStudentLogout() {
+            localStorage.removeItem('bbcc_student_token');
+            currentStudentData = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            showToast('Logged out successfully');
+        }
+
+        function contactDirectorHelp() {
+            if (currentStudentData && currentStudentData.center) {
+                const phone = currentStudentData.center.contactNumber || '9876543210';
+                window.open(`https://wa.me/91${phone.replace(/[^0-9]/g, '').slice(-10)}?text=Namaste Director, I need assistance with my student classroom.`, '_blank');
+            } else {
+                showToast('Helpline contact unavailable');
+            }
+        }
+
+        function printIdCard() {
+            if (!currentStudentData) return;
+            const { student, center } = currentStudentData;
+            document.getElementById('printName').innerText = student.name;
+            document.getElementById('printRoll').innerText = student.rollNo;
+            document.getElementById('printCourse').innerText = student.courseName || student.course;
+            document.getElementById('printMode').innerText = (student.mode || 'physical').toUpperCase() + ' MODE';
+            document.getElementById('printCenter').innerText = center ? center.centerName : 'BBCC Certified Center';
+            document.getElementById('printAadhar').innerText = student.aadharNumber ? ('XXXX-XXXX-' + student.aadharNumber.slice(-4)) : 'Verified';
+            if (student.photo) document.getElementById('printPhoto').src = student.photo;
+
+            window.print();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

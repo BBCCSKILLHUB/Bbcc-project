@@ -18,6 +18,7 @@
             --border-glow: rgba(251, 191, 36, 0.35);
             --border-subtle: rgba(255, 255, 255, 0.08);
             --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --cyan: #06b6d4;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -77,7 +78,7 @@
             border: 1px solid var(--border-subtle);
             border-radius: 12px;
             padding: 4px;
-            margin: 24px 0;
+            margin: 22px 0 18px;
             gap: 4px;
         }
 
@@ -116,6 +117,24 @@
             border-color: var(--aurora-gold);
         }
 
+        .remember-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 13px;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+
+        .remember-checkbox-row input[type="checkbox"] {
+            accent-color: var(--aurora-gold);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
         .btn-submit-auth {
             width: 100%;
             padding: 13px;
@@ -132,10 +151,29 @@
             gap: 8px;
             box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
             transition: transform 0.2s;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .btn-submit-auth:hover { transform: translateY(-2px); }
+
+        .student-direct-link {
+            display: block;
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px dashed rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .student-direct-link:hover {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: var(--cyan);
+        }
 
         .return-link {
             display: inline-flex;
@@ -144,7 +182,7 @@
             color: #94a3b8;
             text-decoration: none;
             font-size: 13px;
-            margin-top: 24px;
+            margin-top: 20px;
             transition: color 0.2s;
         }
 
@@ -158,7 +196,7 @@
             <i class="fas fa-shield-halved"></i>
         </div>
         <h2 class="auth-title">BBCC SKILL HUB</h2>
-        <p style="font-size:12.5px; color:#cbd5e1;">Authorized Directorate Portal Sign In</p>
+        <p style="font-size:12.5px; color:#cbd5e1;">Director & Admin Management Portal</p>
 
         <!-- Role Switcher -->
         <div class="role-switch-dock">
@@ -171,8 +209,13 @@
         </div>
 
         <form onsubmit="handlePortalLogin(event)">
-            <input type="text" id="loginUsername" required placeholder="Center Username / Admin ID" class="auth-input-field">
+            <input type="text" id="loginUsername" required placeholder="Coaching Center Username" class="auth-input-field">
             <input type="password" id="loginPassword" required placeholder="Security Password" class="auth-input-field">
+
+            <label class="remember-checkbox-row">
+                <input type="checkbox" id="rememberCreds">
+                <span>Remember my ID & Password on this device</span>
+            </label>
 
             <div id="authAlert" style="display:none; padding:10px; border-radius:10px; margin-bottom:14px; font-size:12.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;"></div>
 
@@ -181,13 +224,32 @@
             </button>
         </form>
 
+        <!-- Direct Student Link -->
+        <a href="/classroom" class="student-direct-link">
+            <i class="fas fa-fingerprint"></i> Are you a Student? Click here for Aadhar Login
+        </a>
+
         <a href="/" class="return-link">
-            <i class="fas fa-arrow-left"></i> Return to BBCC Board Homepage
+            <i class="fas fa-arrow-left"></i> Return to BBCC Platform Homepage
         </a>
     </div>
 
     <script>
         let selectedRole = 'director';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isRemembered = localStorage.getItem('bbcc_remember_creds') === 'true';
+            if (isRemembered) {
+                const savedRole = localStorage.getItem('bbcc_saved_role') || 'director';
+                const savedUser = localStorage.getItem('bbcc_saved_username') || '';
+                const savedPass = localStorage.getItem('bbcc_saved_password') || '';
+
+                selectRole(savedRole);
+                document.getElementById('loginUsername').value = savedUser;
+                document.getElementById('loginPassword').value = savedPass;
+                document.getElementById('rememberCreds').checked = true;
+            }
+        });
 
         function selectRole(role) {
             selectedRole = role;
@@ -213,6 +275,7 @@
 
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
+            const rememberMe = document.getElementById('rememberCreds').checked;
 
             try {
                 const res = await fetch('/api/auth/login', {
@@ -228,6 +291,19 @@
                 if (data.success && data.token) {
                     localStorage.setItem('bbcc_token', data.token);
                     localStorage.setItem('bbcc_role', data.role);
+
+                    if (rememberMe) {
+                        localStorage.setItem('bbcc_remember_creds', 'true');
+                        localStorage.setItem('bbcc_saved_role', selectedRole);
+                        localStorage.setItem('bbcc_saved_username', username);
+                        localStorage.setItem('bbcc_saved_password', password);
+                    } else {
+                        localStorage.removeItem('bbcc_remember_creds');
+                        localStorage.removeItem('bbcc_saved_role');
+                        localStorage.removeItem('bbcc_saved_username');
+                        localStorage.removeItem('bbcc_saved_password');
+                    }
+
                     window.location.replace(data.redirect || (data.role === 'superadmin' ? '/admin-console.html' : '/director-portal.html'));
                 } else {
                     alertBox.style.display = 'block';

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="instPageTitle">Coaching Center — Registered by BBCC SKILL HUB</title>
+    <title id="instPageTitle">Coaching Center — Affiliated by BBCC SKILL HUB</title>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@
             --border-glow: rgba(251, 191, 36, 0.35);
             --border-subtle: rgba(255, 255, 255, 0.08);
             --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --aurora-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #f59e0b 100%);
         }
 
         * {
@@ -83,11 +84,11 @@
 
         /* Institute Master Navbar */
         .inst-navbar {
-            padding: 16px 28px;
+            padding: 14px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(4, 7, 17, 0.85);
+            background: rgba(4, 7, 17, 0.88);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-subtle);
             position: sticky;
@@ -103,8 +104,8 @@
         }
 
         .inst-emblem-box {
-            width: 52px;
-            height: 52px;
+            width: 50px;
+            height: 50px;
             border-radius: 14px;
             background: var(--gold-gradient);
             display: flex;
@@ -125,7 +126,7 @@
 
         .inst-brand-text h1 {
             font-family: 'Cinzel', serif;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 900;
             background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
             -webkit-background-clip: text;
@@ -152,6 +153,7 @@
             font-size: 13px;
             text-decoration: none;
             transition: all 0.25s ease;
+            cursor: pointer;
         }
 
         .btn-return-bbcc:hover {
@@ -182,7 +184,7 @@
         .inst-hero {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 50px 24px 30px;
+            padding: 45px 24px 25px;
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
             gap: 40px;
@@ -191,7 +193,7 @@
 
         .inst-hero-left h2 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(28px, 4vw, 44px);
+            font-size: clamp(26px, 3.8vw, 42px);
             font-weight: 900;
             color: #ffffff;
             line-height: 1.2;
@@ -199,9 +201,9 @@
         }
 
         .inst-hero-left p {
-            font-size: 15px;
+            font-size: 14.5px;
             color: #cbd5e1;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             line-height: 1.6;
         }
 
@@ -209,7 +211,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
-            margin-bottom: 26px;
+            margin-bottom: 24px;
         }
 
         .inst-badge-box {
@@ -237,23 +239,23 @@
             background: var(--inst-card);
             border: 2px solid var(--border-glow);
             border-radius: 24px;
-            padding: 30px 24px;
+            padding: 28px 24px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .inst-director-photo {
-            width: 105px;
-            height: 105px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 3px solid var(--inst-gold);
-            margin: 0 auto 16px;
+            margin: 0 auto 14px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--inst-gold);
-            font-size: 42px;
+            font-size: 40px;
             background: #0b1120;
             box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
         }
@@ -266,17 +268,17 @@
 
         .inst-director-name {
             font-family: 'Cinzel', serif;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             color: #ffffff;
             margin-bottom: 4px;
         }
 
         .inst-director-tag {
-            font-size: 12.5px;
+            font-size: 12px;
             color: var(--inst-gold);
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .inst-contact-dock {
@@ -324,11 +326,75 @@
 
         .inst-section-title {
             font-family: 'Cinzel', serif;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
             color: #ffffff;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             text-align: center;
+        }
+
+        /* Courses Grid */
+        .inst-courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 20px;
+        }
+
+        .inst-course-card {
+            background: var(--inst-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 22px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .inst-course-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+        }
+
+        .course-mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .mode-online { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .mode-physical { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .mode-both { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .fee-compare-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .fee-item-title {
+            font-size: 10.5px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .fee-item-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
         }
 
         .inst-faculty-grid {
@@ -400,11 +466,44 @@
             font-size: 13.5px;
             outline: none;
             margin-top: 5px;
+            box-sizing: border-box;
             transition: border-color 0.2s;
         }
 
         .inst-input:focus {
             border-color: var(--inst-gold);
+        }
+
+        /* Direct Admission Modal */
+        .aurora-modal-dock {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-body-panel {
+            background: linear-gradient(145deg, #0b1120 0%, #060a14 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .modal-head-bar {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         /* Floating BHARTI AI */
@@ -496,11 +595,11 @@
         }
 
         .bharti-chat-input-bar {
-            padding: 14px 16px;
+            padding: 12px 16px;
             background: rgba(4, 7, 16, 0.95);
             border-top: 1px solid var(--border-subtle);
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         @media (max-width: 900px) {
@@ -521,12 +620,11 @@
     <div class="inst-affiliation-strip">
         <div>
             <i class="fas fa-certificate" style="color:var(--inst-gold);"></i>
-            Officially Affiliated with <strong>BBCC SKILL HUB Academic Board</strong>
+            Officially Affiliated with <strong>BBCC SKILL HUB — Digital Skill & Coaching Institute Platform</strong>
         </div>
-        <div>
-            <a href="/" title="Return to BBCC SKILL HUB Main Board Website">
-                <i class="fas fa-house-chimney"></i> <span>BBCC Main Portal &rarr;</span>
-            </a>
+        <div style="display:flex; gap:12px;">
+            <a href="/classroom" style="color:var(--inst-cyan);"><i class="fas fa-desktop"></i> Student Classroom</a>
+            <a href="/" title="Return to BBCC SKILL HUB Main Platform"><i class="fas fa-house-chimney"></i> BBCC Main Portal &rarr;</a>
         </div>
     </div>
 
@@ -538,25 +636,28 @@
             </div>
             <div class="inst-brand-text">
                 <h1 id="instNavName">Partner Coaching Center</h1>
-                <p><i class="fas fa-shield-halved"></i> Registered Academic Partner</p>
+                <p><i class="fas fa-shield-halved"></i> Certified Educational Institute</p>
             </div>
         </a>
 
         <div style="display:flex; align-items:center; gap:14px;">
-            <a href="/" class="btn-return-bbcc">
-                <i class="fas fa-house-chimney"></i> <span>BBCC Portal Home</span>
-            </a>
-
             <nav class="inst-nav-links">
+                <a href="#courses" class="inst-nav-link">Courses & Batches</a>
                 <a href="#about" class="inst-nav-link">About Institute</a>
                 <a href="#faculty" class="inst-nav-link">Faculty</a>
                 <a href="#materials" class="inst-nav-link">Study Notes</a>
-                <a href="#inquiry" class="inst-nav-link" style="color:var(--inst-gold); font-weight:700;">Student Admission</a>
             </nav>
+
+            <button onclick="openDirectAdmissionModal()" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811;">
+                <i class="fas fa-user-plus"></i> Take Admission
+            </button>
+            <a href="/" class="btn-return-bbcc">
+                <i class="fas fa-house-chimney"></i> <span>Main Portal</span>
+            </a>
         </div>
     </header>
 
-    <!-- 3. Promotional Banners Slider/Grid (if center uploaded any) -->
+    <!-- 3. Promotional Banners Section (if center has active banners) -->
     <div id="instBannersSection" class="inst-section-wrap" style="display:none; padding-bottom:10px;">
         <div id="instBannersGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;"></div>
     </div>
@@ -565,7 +666,7 @@
     <section class="inst-hero" id="about">
         <div class="inst-hero-left">
             <div style="display:inline-flex; align-items:center; gap:8px; padding:4px 14px; border-radius:20px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#34d399; font-size:12px; font-weight:700; margin-bottom:14px;">
-                <i class="fas fa-circle-check"></i> Certified Board Affiliation Active
+                <i class="fas fa-circle-check"></i> Certified Institute Affiliation Active
             </div>
             <h2 id="instHeroName">Coaching Center Name</h2>
             <p id="instHeroDesc">Empowering student success with exceptional coaching, qualified faculty, and curriculum excellence backed by BBCC SKILL HUB.</p>
@@ -586,11 +687,11 @@
             </div>
 
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                <a href="#inquiry" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811;">
-                    <i class="fas fa-user-plus"></i> Apply for Admission
-                </a>
-                <a href="/" class="btn-return-bbcc">
-                    <i class="fas fa-house-chimney"></i> Return to BBCC Board
+                <button onclick="openDirectAdmissionModal()" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811;">
+                    <i class="fas fa-user-plus"></i> Take Direct Admission (Aadhar KYC)
+                </button>
+                <a href="#courses" class="btn-return-bbcc">
+                    <i class="fas fa-graduation-cap"></i> View Courses & Fees
                 </a>
             </div>
         </div>
@@ -608,7 +709,22 @@
         </div>
     </section>
 
-    <!-- 5. Faculty Showcase -->
+    <!-- 5. Available Courses & Batches Section -->
+    <section class="inst-section-wrap" id="courses">
+        <h3 class="inst-section-title">Available Courses & Batches</h3>
+        <p style="text-align:center; color:#94a3b8; font-size:14px; max-width:600px; margin:-14px auto 26px;">
+            Structured learning curriculum with flexible Online live classes (Google Meet / Zoom) and Physical campus batches.
+        </p>
+
+        <div class="inst-courses-grid" id="instCoursesGrid">
+            <div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:10px;">Loading courses offered by this institute...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Faculty Showcase -->
     <section class="inst-section-wrap" id="faculty">
         <h3 class="inst-section-title">Certified Teaching Faculty</h3>
         <div class="inst-faculty-grid" id="facultyGrid">
@@ -616,20 +732,20 @@
         </div>
     </section>
 
-    <!-- 6. Study Notes / Materials -->
+    <!-- 7. Study Notes / Materials -->
     <section class="inst-section-wrap" id="materials" style="background:rgba(255,255,255,0.01); border-radius:24px;">
-        <h3 class="inst-section-title">Curated Institute Study Materials & Syllabus</h3>
+        <h3 class="inst-section-title">Curated Institute Study Materials & Notes</h3>
         <div class="inst-faculty-grid" id="materialsGrid">
             <div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Study materials will be added soon.</div>
         </div>
     </section>
 
-    <!-- 7. Student Admission Inquiry Desk -->
+    <!-- 8. Student Quick Admission Inquiry Desk -->
     <section class="inst-section-wrap" id="inquiry">
         <div class="inst-inquiry-box">
             <div style="text-align:center; margin-bottom:24px;">
-                <h3 style="font-family:'Cinzel', serif; font-size:22px; margin-bottom:6px;">Student Admission Inquiry</h3>
-                <p style="font-size:13px; color:#cbd5e1;">Fill out this form to request seat reservation, syllabus overview, and batch timings directly from the center director.</p>
+                <h3 style="font-family:'Cinzel', serif; font-size:22px; margin-bottom:6px;">Direct Admission Inquiry</h3>
+                <p style="font-size:13px; color:#cbd5e1;">Submit a quick seat reservation inquiry directly to Director desk.</p>
             </div>
 
             <form onsubmit="submitAdmissionInquiry(event)">
@@ -657,19 +773,159 @@
 
                 <div style="margin-bottom:18px;">
                     <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Inquiry Message / Questions</label>
-                    <textarea id="iqMessage" rows="2" placeholder="Subject focus, timings, etc." class="inst-input" style="resize:vertical;"></textarea>
+                    <textarea id="iqMessage" rows="2" placeholder="Batch timing questions, etc." class="inst-input" style="resize:vertical;"></textarea>
                 </div>
 
                 <div id="iqFeedback" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
 
                 <button type="submit" id="iqSubmitBtn" class="btn-return-bbcc" style="width:100%; justify-content:center; background:var(--gold-gradient); color:#050811; padding:12px;">
-                    <i class="fas fa-paper-plane"></i> Submit Admission Request
+                    <i class="fas fa-paper-plane"></i> Submit Inquiry Request
                 </button>
             </form>
         </div>
     </section>
 
-    <!-- 8. Footer -->
+    <!-- MODAL: DIRECT STUDENT ADMISSION (KYC) -->
+    <div class="aurora-modal-dock" id="studentAdmissionModalDock">
+        <div class="modal-body-panel" style="max-width:640px;">
+            <div class="modal-head-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-user-graduate" style="color:var(--inst-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Direct Self-Admission (Full KYC)</h3>
+                </div>
+                <button type="button" onclick="closeDirectAdmissionModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="padding:22px 24px; max-height:82vh; overflow-y:auto;">
+                <form id="centerAdmissionForm" onsubmit="processCenterAdmission(event)">
+                    <!-- Course & Mode Selection -->
+                    <div style="background:rgba(251,191,36,0.08); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:18px;">
+                        <span style="font-size:11.5px; font-weight:800; color:var(--inst-gold); text-transform:uppercase; display:block; margin-bottom:8px;">
+                            <i class="fas fa-graduation-cap"></i> Select Course & Learning Mode
+                        </span>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Target Course *</label>
+                                <select id="admCourseSelect" required onchange="onCourseSelectChange()" class="inst-input">
+                                    <option value="">-- Choose Course --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Learning Mode *</label>
+                                <select id="admModeSelect" required onchange="updateFeeBadge()" class="inst-input">
+                                    <option value="Online">Online Class (Live Google Meet/Zoom)</option>
+                                    <option value="Physical">Physical Campus Batch</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Tuition Fee</label>
+                            <div id="admFeeDisplayBadge" style="padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800; color:var(--inst-gold); margin-top:5px;">
+                                ₹0
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KYC Details -->
+                    <div style="margin-bottom:16px;">
+                        <span style="font-size:11.5px; font-weight:800; color:var(--inst-cyan); text-transform:uppercase; display:block; margin-bottom:10px;">
+                            <i class="fas fa-id-card"></i> Student Identity & Aadhar Verification
+                        </span>
+
+                        <div class="inst-form-grid">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Student Full Name *</label>
+                                <input type="text" id="admStudentName" required placeholder="Name on Aadhar" class="inst-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Parent / Guardian Name *</label>
+                                <input type="text" id="admParentName" required placeholder="Father / Mother Name" class="inst-input">
+                            </div>
+                        </div>
+
+                        <div class="inst-form-grid">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Student Mobile Number *</label>
+                                <input type="tel" id="admStudentMobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit Mobile" class="inst-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Parent Mobile Number *</label>
+                                <input type="tel" id="admParentMobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit Parent Mobile" class="inst-input">
+                            </div>
+                        </div>
+
+                        <div class="inst-form-grid">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">12-Digit Aadhar Card Number *</label>
+                                <input type="text" id="admAadharNumber" required pattern="[0-9]{12}" maxlength="12" placeholder="12-digit Aadhar" class="inst-input" style="font-family:'Space Grotesk',sans-serif; letter-spacing:1px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Passport Photo *</label>
+                                <input type="file" id="admPhotoFile" accept="image/*" required class="inst-input" style="padding:7px 10px;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Upload Aadhar Document (Photo / PDF) *</label>
+                            <input type="file" id="admAadharDocFile" accept="image/*,application/pdf" required class="inst-input" style="padding:7px 10px;">
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Full Address *</label>
+                            <textarea id="admAddress" required rows="2" placeholder="Complete address, City, PIN" class="inst-input" style="resize:vertical;"></textarea>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                            <input type="checkbox" id="admTermsAgree" required style="margin-top:3px; accent-color:var(--inst-gold); width:16px; height:16px; cursor:pointer;">
+                            <label for="admTermsAgree" style="font-size:12.5px; color:#cbd5e1; cursor:pointer;">
+                                I agree to the platform terms and institute rules. I certify that my 12-digit Aadhar information is genuine.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="admAlertBox" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:12.5px;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" onclick="closeDirectAdmissionModal()" class="btn-return-bbcc">Cancel</button>
+                        <button type="submit" id="btnSubmitAdmission" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811; flex:1; justify-content:center;">
+                            <i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Success View -->
+                <div id="admSuccessView" style="display:none; text-align:center; padding:15px 0;">
+                    <i class="fas fa-circle-check" style="color:#10b981; font-size:48px; margin-bottom:12px;"></i>
+                    <h3 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin-bottom:6px;">Admission Successfully Registered!</h3>
+                    <p style="font-size:13.5px; color:#cbd5e1; margin-bottom:18px;">
+                        Your admission is officially recorded. You can now access your classroom using your 12-digit Aadhar number.
+                    </p>
+
+                    <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border-glow); border-radius:16px; padding:18px; margin-bottom:20px; text-align:left;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+                            <span style="font-size:12px; color:#94a3b8;">Assigned Roll Number:</span>
+                            <span id="admSucRollNo" style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:900; color:var(--inst-gold);">-</span>
+                        </div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Student Name:</strong> <span id="admSucStudentName">-</span></div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Course / Mode:</strong> <span id="admSucCourseMode">-</span></div>
+                        <div style="font-size:12px; color:var(--inst-cyan); margin-top:8px;">
+                            <i class="fas fa-key"></i> <strong>Classroom Login Key:</strong> Log in using your 12-digit Aadhar Number!
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                        <a href="/classroom" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811;">
+                            <i class="fas fa-desktop"></i> Enter Student Classroom Now &rarr;
+                        </a>
+                        <button type="button" onclick="closeDirectAdmissionModal()" class="btn-return-bbcc">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Footer -->
     <footer style="text-align:center; padding:40px 20px 20px; font-size:13px; color:#94a3b8; border-top:1px solid var(--border-subtle);">
         <p id="instCustomFooterText" style="margin-bottom:12px; color:#cbd5e1; font-size:13.5px; font-style:italic; display:none;"></p>
         <p style="margin-bottom:12px;">
@@ -677,12 +933,13 @@
             <a href="/" style="color:var(--inst-gold); font-weight:700; text-decoration:none;">BBCC SKILL HUB</a>
         </p>
         <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+            <a href="/classroom" style="color:var(--inst-cyan); text-decoration:none;"><i class="fas fa-desktop"></i> Student Classroom Portal</a>
             <a href="/" style="color:var(--inst-gold); text-decoration:none;"><i class="fas fa-house-chimney"></i> BBCC SKILL HUB Main Portal</a>
             <a href="/#institutes" style="color:#cbd5e1; text-decoration:none;"><i class="fas fa-school"></i> All Partner Centers</a>
         </div>
     </footer>
 
-    <!-- 9. Floating BHARTI AI Helpline Assistant Scoped to This Institute -->
+    <!-- 10. Floating BHARTI AI Helpline -->
     <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
         <i class="fas fa-headset"></i>
         <span>Helpdesk AI</span>
@@ -709,7 +966,7 @@
 
         <div class="bharti-chat-body" id="bhartiChatMessages">
             <div class="bharti-msg bharti-msg-ai" id="bhartiGreetingMsg">
-                Namaste! I am <strong>BHARTI AI</strong>, academic helpline assistant for this institute. How can I help you today?
+                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ, आपकी शैक्षणिक मार्गदर्शिका। इस कोचिंग सेंटर के कोर्सेस, फीस या डायरेक्टर सर से बात करने के लिए मुझसे पूछिए बेटा!
             </div>
         </div>
 
@@ -728,6 +985,7 @@
     <script>
         let currentCenterId = null;
         let currentCenter = null;
+        let centerCourses = [];
 
         function getCenterParamId() {
             const params = new URLSearchParams(window.location.search);
@@ -771,6 +1029,7 @@
                 if (data.success && data.data) {
                     currentCenter = data.data;
                     renderInstituteData(currentCenter);
+                    await loadCenterCourses(currentCenter._id);
                 } else {
                     document.body.innerHTML = `
                         <div style="text-align:center; padding:100px 20px;">
@@ -819,7 +1078,7 @@
             document.getElementById('instAddressText').textContent = c.address || 'Academic Campus';
             document.getElementById('instAffIdText').textContent = c.affiliationCertificateId || ('BBCC-AFF-' + c._id.toString().slice(-6).toUpperCase());
 
-            // Promotional Banners
+            // Promotional Banners (30-day active)
             if (c.promotionalBanners && c.promotionalBanners.length > 0) {
                 const bSection = document.getElementById('instBannersSection');
                 const bGrid = document.getElementById('instBannersGrid');
@@ -878,9 +1137,198 @@
             }
 
             document.getElementById('bhartiGreetingMsg').innerHTML = `
-                Namaste! I am <strong>BHARTI AI</strong>, academic helpline assistant for <strong>${c.centerName}</strong> under Director <strong>${c.directorName}</strong>. 
-                Ask me about courses, fees, or connect directly with the director!
+                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ, आपकी सहायता के लिए उपस्थित हूँ। <strong>${c.centerName}</strong> के कोर्सेस, ऑनलाइन/ऑफलाइन फीस या डायरेक्टर <strong>${c.directorName}</strong> से बात करने के लिए मुझसे पूछिए बेटा!
             `;
+        }
+
+        async function loadCenterCourses(centerId) {
+            const grid = document.getElementById('instCoursesGrid');
+            try {
+                const res = await fetch(`/api/public/courses?centerId=${centerId}`);
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    centerCourses = data.data;
+                    renderCenterCourses(centerCourses);
+                    populateCourseModalDropdown();
+                } else {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Batches will be published soon by the Director. You can submit an inquiry below!</div>';
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Could not load course list.</div>';
+            }
+        }
+
+        function renderCenterCourses(courses) {
+            const grid = document.getElementById('instCoursesGrid');
+            grid.innerHTML = courses.map(c => {
+                const modeClass = c.mode === 'Online' ? 'mode-online' : (c.mode === 'Physical' ? 'mode-physical' : 'mode-both');
+                const modeIcon = c.mode === 'Online' ? 'fa-video' : (c.mode === 'Physical' ? 'fa-building' : 'fa-network-wired');
+
+                return `
+                    <div class="inst-course-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                                <div>
+                                    <span style="font-size:11px; color:#fbbf24; font-weight:700; text-transform:uppercase;">${c.subject || 'All Subjects'}</span>
+                                    <h4 style="font-size:17px; font-weight:800; color:#ffffff; margin:2px 0 0;">${c.courseName}</h4>
+                                </div>
+                                <span class="course-mode-badge ${modeClass}"><i class="fas ${modeIcon}"></i> ${c.mode}</span>
+                            </div>
+
+                            <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:12px; line-height:1.45;">
+                                ${c.description || 'Full curriculum syllabus preparation with tests.'}
+                            </p>
+
+                            <div class="fee-compare-box">
+                                <div>
+                                    <span class="fee-item-title"><i class="fas fa-video"></i> Online</span>
+                                    <span class="fee-item-val" style="color:var(--inst-cyan);">₹${c.onlineFee || 0}</span>
+                                </div>
+                                <div>
+                                    <span class="fee-item-title"><i class="fas fa-building"></i> Physical</span>
+                                    <span class="fee-item-val" style="color:var(--inst-gold);">₹${c.offlineFee || 0}</span>
+                                </div>
+                            </div>
+
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:16px;">
+                                <i class="fas fa-clock" style="color:var(--inst-gold); margin-right:6px;"></i> Timings: <strong>${c.batchTimings || 'Regular Batch'}</strong>
+                            </div>
+                        </div>
+
+                        <button onclick="openDirectAdmissionModal('${c._id}')" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811; width:100%; justify-content:center;">
+                            <i class="fas fa-user-plus"></i> Take Direct Admission
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Direct Admission Modal Logic
+        function populateCourseModalDropdown() {
+            const sel = document.getElementById('admCourseSelect');
+            sel.innerHTML = '<option value="">-- Choose Course --</option>' +
+                centerCourses.map(c => `
+                    <option value="${c._id}" data-online="${c.onlineFee || 0}" data-offline="${c.offlineFee || 0}" data-name="${c.courseName}" data-class="${c.classLevel || 'General'}">
+                        ${c.courseName} (${c.classLevel || 'General'})
+                    </option>
+                `).join('');
+        }
+
+        function openDirectAdmissionModal(preCourseId = '') {
+            populateCourseModalDropdown();
+            document.getElementById('centerAdmissionForm').reset();
+            document.getElementById('centerAdmissionForm').style.display = 'block';
+            document.getElementById('admSuccessView').style.display = 'none';
+            document.getElementById('admAlertBox').style.display = 'none';
+
+            if (preCourseId) {
+                document.getElementById('admCourseSelect').value = preCourseId;
+            }
+            onCourseSelectChange();
+            document.getElementById('studentAdmissionModalDock').style.display = 'flex';
+        }
+
+        function closeDirectAdmissionModal() {
+            document.getElementById('studentAdmissionModalDock').style.display = 'none';
+        }
+
+        function onCourseSelectChange() {
+            updateFeeBadge();
+        }
+
+        function updateFeeBadge() {
+            const sel = document.getElementById('admCourseSelect');
+            const mode = document.getElementById('admModeSelect').value;
+            const badge = document.getElementById('admFeeDisplayBadge');
+            const opt = sel.options[sel.selectedIndex];
+
+            if (!opt || !opt.value) {
+                badge.textContent = '₹0';
+                return;
+            }
+            const fee = mode === 'Online' ? (opt.getAttribute('data-online') || 0) : (opt.getAttribute('data-offline') || 0);
+            badge.textContent = `₹${fee} (${mode} Mode)`;
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processCenterAdmission(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAdmission');
+            const alertBox = document.getElementById('admAlertBox');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering Admission...';
+            alertBox.style.display = 'none';
+
+            try {
+                const courseSel = document.getElementById('admCourseSelect');
+                const opt = courseSel.options[courseSel.selectedIndex];
+                const courseName = opt ? (opt.getAttribute('data-name') || opt.text) : 'General Coaching';
+                const classLevel = opt ? (opt.getAttribute('data-class') || 'General') : 'General';
+                const mode = document.getElementById('admModeSelect').value;
+
+                const photoFile = document.getElementById('admPhotoFile').files[0];
+                const aadharFile = document.getElementById('admAadharDocFile').files[0];
+
+                let photoBase64 = '';
+                let aadharDocBase64 = '';
+                if (photoFile) photoBase64 = await fileToBase64(photoFile);
+                if (aadharFile) aadharDocBase64 = await fileToBase64(aadharFile);
+
+                const payload = {
+                    centerId: currentCenter._id,
+                    centerName: currentCenter.centerName,
+                    course: courseName,
+                    classLevel: classLevel,
+                    learningMode: mode,
+                    name: document.getElementById('admStudentName').value.trim(),
+                    parentName: document.getElementById('admParentName').value.trim(),
+                    mobile: document.getElementById('admStudentMobile').value.trim(),
+                    parentMobile: document.getElementById('admParentMobile').value.trim(),
+                    aadharNumber: document.getElementById('admAadharNumber').value.trim(),
+                    address: document.getElementById('admAddress').value.trim(),
+                    photo: photoBase64,
+                    aadharDoc: aadharDocBase64
+                };
+
+                const res = await fetch('/api/public/student-admission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+
+                if (data.success && data.data) {
+                    document.getElementById('centerAdmissionForm').style.display = 'none';
+                    document.getElementById('admSucRollNo').textContent = data.data.rollNo;
+                    document.getElementById('admSucStudentName').textContent = data.data.name;
+                    document.getElementById('admSucCourseMode').textContent = `${data.data.course} (${data.data.learningMode})`;
+                    document.getElementById('admSuccessView').style.display = 'block';
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = data.message || 'Registration failed.';
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.textContent = 'Connection error: ' + err.message;
+            }
         }
 
         async function submitAdmissionInquiry(e) {
@@ -907,7 +1355,7 @@
                 });
                 const data = await res.json();
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Admission Request';
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Inquiry Request';
 
                 if (data.success) {
                     feedback.style.display = 'block';
@@ -925,7 +1373,7 @@
                 }
             } catch(err) {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Admission Request';
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Inquiry Request';
                 alert('Connection error');
             }
         }
@@ -1032,7 +1480,7 @@
 
             const loadBubble = document.createElement('div');
             loadBubble.className = 'bharti-msg bharti-msg-ai';
-            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> BHARTI is responding...';
+            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भारती सोच रही हैं बेटा...';
             chatBody.appendChild(loadBubble);
             chatBody.scrollTop = chatBody.scrollHeight;
 
@@ -1047,9 +1495,8 @@
 
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'bharti-msg bharti-msg-ai';
-                let html = `<div>${data.reply || 'Namaste! How may I assist you further?'}</div>`;
+                let html = `<div>${data.reply || 'नमस्ते बेटा! मैं आपकी पूरी सहायता करूँगी।'}</div>`;
 
-                // Encrypted call first, then Director phone & WhatsApp
                 if (data.encryptedCallLink || data.directorPhone) {
                     html += `
                         <div class="bharti-action-card">
@@ -1084,7 +1531,6 @@
                 chatBody.appendChild(aiBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
 
-                // Voice audio speech
                 if (data.reply) {
                     speakBhartiReply(data.reply);
                 }

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | BBCC SKILL HUB Digital Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-obsidian: #080c14;
+            --bg-card: #0f172a;
+            --bg-card-light: #162036;
+            --border-gold: rgba(245, 158, 11, 0.28);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold: #f59e0b;
+            --gold-light: #fbbf24;
+            --gold-glow: rgba(245, 158, 11, 0.2);
+            --emerald: #10b981;
+            --cyan: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Cinzel', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.08), transparent),
+                radial-gradient(circle at 10% 30%, rgba(6, 182, 212, 0.04), transparent),
+                radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.04), transparent);
+            background-attachment: fixed;
+        }
+
+        /* Header */
+        header {
+            background: rgba(11, 16, 28, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #080c14;
+            font-weight: 800;
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffffff, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--gold);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #080c14;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px var(--gold-glow);
+            transition: all 0.2s;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 70px 20px 50px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--border-gold);
+            padding: 6px 16px;
+            border-radius: 50px;
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff 40%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        /* Pillars Section */
+        .section-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+            width: 100%;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-heading h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .section-heading p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .pillar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pillar-card:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .pillar-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .pillar-card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .pillar-card p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Revenue Split Highlight */
+        .revenue-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 50px auto;
+            max-width: 900px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 25px var(--gold-glow);
+        }
+
+        .split-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .split-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .split-number {
+            font-size: 52px;
+            font-weight: 900;
+            font-family: var(--font-display);
+        }
+
+        .split-item.center .split-number {
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .split-item.board .split-number {
+            color: var(--cyan);
+        }
+
+        .split-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #cbd5e1;
+            margin-top: 6px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        .stat-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        footer {
+            background: #060911;
+            border-top: 1px solid var(--border-subtle);
+            padding: 40px 20px;
+            margin-top: auto;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        footer p {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .split-display { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <a href="/" class="header-logo">
+            <div class="logo-icon">B</div>
+            <div class="logo-text">
+                <h1>BBCC SKILL HUB</h1>
+                <p>Digital Skill & Coaching Institute Platform</p>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="/about" class="nav-link active"><i class="fas fa-info-circle"></i> About</a>
+            <a href="/classroom" class="nav-link"><i class="fas fa-laptop-code"></i> Classroom</a>
+            <a href="/login" class="btn-gold"><i class="fas fa-sign-in-alt"></i> Portal Login</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <i class="fas fa-shield-alt"></i> Verified Educational Network
+        </div>
+        <h1>Bridging Coaching Centers & Students with Modern Digital Excellence</h1>
+        <p>BBCC SKILL HUB is an all-in-one digital platform empowering local coaching centers, academies, and teachers across India. We deliver verified institutional affiliation, centralized syllabus notes marketplace with transparent 80/20 revenue sharing, Aadhar KYC authenticated roll numbers, and live hybrid classrooms.</p>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <a href="/#affiliationSection" class="btn-gold">
+                <i class="fas fa-university"></i> Register Coaching Institute
+            </a>
+            <a href="/classroom" class="nav-link" style="padding: 10px 18px; border: 1px solid var(--border-subtle); border-radius: 10px;">
+                <i class="fas fa-id-card"></i> Student Classroom Login
+            </a>
+        </div>
+    </section>
+
+    <!-- Platform Pillars -->
+    <div class="section-container">
+        <div class="section-heading">
+            <h2>Why BBCC SKILL HUB Leads The Future</h2>
+            <p>Built with enterprise speed, cryptographic data verification, and genuine care for students.</p>
+        </div>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-certificate"></i></div>
+                <h3>Instant Institutional Affiliation</h3>
+                <p>Coaching centers register seamlessly online. Super Admin sets standard affiliation fees. Once confirmed, institutes receive official wall certificates and a dedicated live microsite immediately.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3>80/20 Notes Marketplace Split</h3>
+                <p>Coaching faculty publish study notes and syllabus books with customized MRP. 80% goes directly to the center's verified bank account and wallet, while BBCC retains 20% platform sustainability fee.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <h3>Hybrid Classroom Engine</h3>
+                <p>Supports both Online Live Classes (1-click Google Meet & Zoom launches) and Physical Campus Schedules. Students access notes, batch timings, and teacher updates from one central dashboard.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-fingerprint"></i></div>
+                <h3>Aadhar KYC & Central Roll Numbers</h3>
+                <p>Every student is verified with Aadhar KYC and assigned a tamper-proof central roll number. Students authenticate directly into their classroom portal using their Aadhar number without complex passwords.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-heart"></i></div>
+                <h3>BHARTI AI Caring Counselor</h3>
+                <p>Powered by Google Gemini with deep human empathy, BHARTI AI chats with loving Indian warmth, listens to student stress, and provides encrypted confidential helplines and direct director contacts.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon"><i class="fas fa-bullhorn"></i></div>
+                <h3>Festive Promotional Banners</h3>
+                <p>Partner centers broadcast promotional festival offers directly on the homepage slider. Banners auto-expire after 30 days, keeping the promotional showcase fresh and effective.</p>
+            </div>
+        </div>
+
+        <!-- 80/20 Revenue Split Visual Showcase -->
+        <div class="revenue-box">
+            <h2 style="font-size: 26px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">Transparent 80/20 Revenue Sharing Model</h2>
+            <p style="font-size: 14px; color: var(--text-muted); max-width: 600px; margin: 0 auto;">We believe in fair compensation for educators. When a student purchases course notes or digital curriculum:</p>
+
+            <div class="split-display">
+                <div class="split-item center">
+                    <span class="split-number">80%</span>
+                    <span class="split-label">Coaching Institute Share</span>
+                </div>
+                <div style="font-size: 28px; color: #475569; font-weight: 300;">+</div>
+                <div class="split-item board">
+                    <span class="split-number">20%</span>
+                    <span class="split-label">BBCC Platform Cut</span>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #cbd5e1;">Coaching Directors link their Bank Account (Account No, IFSC, UPI ID) in their portal for automated sales ledger accounting and payouts.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>150+</h4>
+                <p>Verified Institutes</p>
+            </div>
+            <div class="stat-card">
+                <h4>50,000+</h4>
+                <p>Certified Students</p>
+            </div>
+            <div class="stat-card">
+                <h4>99.9%</h4>
+                <p>Verification Accuracy</p>
+            </div>
+            <div class="stat-card">
+                <h4>24/7</h4>
+                <p>BHARTI AI Helpline</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p><strong>BBCC SKILL HUB</strong> — Digital Skill & Coaching Institute Platform</p>
+        <p style="color: #64748b;">Centralized Educational Verification & Partner Institute Network. All Rights Reserved &copy; 2026-27.</p>
+    </footer>
+
+</body>
+</html>
