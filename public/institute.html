@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="instPageTitle">Coaching Center — Registered by BBCC SKILL HUB</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --inst-bg: #030712;
+            --inst-card: rgba(11, 17, 32, 0.88);
+            --inst-gold: #fbbf24;
+            --inst-amber: #f59e0b;
+            --inst-cyan: #38bdf8;
+            --border-glow: rgba(251, 191, 36, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--inst-bg);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 40%);
+            background-attachment: fixed;
+            padding-bottom: 75px;
+        }
+
+        /* Top Institutional Affiliation Header */
+        .inst-affiliation-strip {
+            background: linear-gradient(90deg, #070c18 0%, #0d172e 100%);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 8px 24px;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .inst-affiliation-strip a {
+            color: var(--inst-gold);
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Institute Master Navbar */
+        .inst-navbar {
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(4, 7, 17, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 37px;
+            z-index: 999;
+        }
+
+        .inst-brand-dock {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .inst-emblem-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #050811;
+            font-size: 24px;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
+        }
+
+        .inst-emblem-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .inst-brand-text h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 19px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .inst-brand-text p {
+            font-size: 11.5px;
+            color: var(--inst-gold);
+            font-weight: 600;
+        }
+
+        /* Prominent Return Button (Visible on both Desktop and Mobile) */
+        .btn-return-bbcc {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid var(--border-glow);
+            color: var(--inst-gold);
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-return-bbcc:hover {
+            background: var(--gold-gradient);
+            color: #050811;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+        }
+
+        .inst-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .inst-nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .inst-nav-link:hover {
+            color: var(--inst-gold);
+        }
+
+        /* Hero Section */
+        .inst-hero {
+            padding: 50px 24px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        .inst-hero-left h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .inst-hero-left p {
+            font-size: 15px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .inst-hero-badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .inst-badge-box {
+            background: var(--inst-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+
+        .inst-badge-box span {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+        }
+
+        .inst-badge-box strong {
+            font-size: 14px;
+            color: #ffffff;
+            margin-top: 2px;
+            display: block;
+        }
+
+        /* Director Profile Card */
+        .inst-director-card {
+            background: var(--inst-card);
+            border: 2px solid var(--border-glow);
+            border-radius: 22px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+        }
+
+        .inst-director-photo {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid var(--inst-gold);
+            margin: 0 auto 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: var(--inst-gold);
+            background: #090e1a;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35);
+        }
+
+        .inst-director-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .inst-director-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .inst-director-tag {
+            font-size: 12px;
+            color: var(--inst-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .inst-contact-dock {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inst-contact-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-call { background: #2563eb; color: #ffffff; }
+        .btn-wa { background: #16a34a; color: #ffffff; }
+        .btn-enc { background: #9333ea; color: #ffffff; }
+
+        /* Sections */
+        .inst-section-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 24px;
+        }
+
+        .inst-section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .inst-faculty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .inst-faculty-card {
+            background: var(--inst-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .inst-faculty-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+        }
+
+        .faculty-avatar-box {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid var(--border-glow);
+            margin: 0 auto 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--inst-gold);
+            font-size: 26px;
+            background: #090e1a;
+        }
+
+        .faculty-avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Admission Inquiry Card */
+        .inst-inquiry-box {
+            background: var(--inst-card);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        }
+
+        .inst-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .inst-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+            margin-top: 5px;
+            transition: border-color 0.2s;
+        }
+
+        .inst-input:focus {
+            border-color: var(--inst-gold);
+        }
+
+        /* Persistent Mobile Sticky Dock */
+        .inst-mobile-dock {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .inst-hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 35px 18px;
+            }
+            .inst-nav-links { display: none; }
+            .inst-form-grid { grid-template-columns: 1fr; }
+
+            .inst-mobile-dock {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 62px;
+                background: rgba(6, 10, 20, 0.96);
+                backdrop-filter: blur(16px);
+                border-top: 1px solid var(--border-glow);
+                z-index: 9999;
+                align-items: center;
+                justify-content: space-around;
+                padding: 0 8px;
+                box-shadow: 0 -4px 25px rgba(0,0,0,0.7);
+            }
+
+            .inst-dock-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 10.5px;
+                font-weight: 600;
+                flex: 1;
+            }
+
+            .inst-dock-item i { font-size: 16px; }
+            .inst-dock-item.highlight { color: var(--inst-gold); font-weight: 700; }
+            .inst-dock-item.cta { color: #10b981; font-weight: 700; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Institutional Affiliation Bar -->
+    <div class="inst-affiliation-strip">
+        <div>
+            <i class="fas fa-certificate" style="color:var(--inst-gold);"></i>
+            Officially Affiliated with <strong>BBCC SKILL HUB Academic Board</strong>
+        </div>
+        <div>
+            <a href="/" title="Return to BBCC SKILL HUB Main Board Website">
+                <i class="fas fa-house-chimney"></i> <span>BBCC Main Portal &rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Institute Master Navbar -->
+    <header class="inst-navbar">
+        <a href="#about" class="inst-brand-dock">
+            <div class="inst-emblem-box" id="instNavLogo">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="inst-brand-text">
+                <h1 id="instNavName">Partner Coaching Center</h1>
+                <p><i class="fas fa-shield-halved"></i> Registered Academic Partner</p>
+            </div>
+        </a>
+
+        <div style="display:flex; align-items:center; gap:14px;">
+            <!-- Prominent Return Button (Desktop & Mobile) -->
+            <a href="/" class="btn-return-bbcc">
+                <i class="fas fa-house-chimney"></i> <span>BBCC Portal Home</span>
+            </a>
+
+            <nav class="inst-nav-links">
+                <a href="#about" class="inst-nav-link">About Institute</a>
+                <a href="#faculty" class="inst-nav-link">Faculty</a>
+                <a href="#materials" class="inst-nav-link">Study Notes</a>
+                <a href="#inquiry" class="inst-nav-link" style="color:var(--inst-gold); font-weight:700;">Student Admission</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 3. Institute Hero Section -->
+    <section class="inst-hero" id="about">
+        <div class="inst-hero-left">
+            <div style="display:inline-flex; align-items:center; gap:8px; padding:4px 14px; border-radius:20px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#34d399; font-size:12px; font-weight:700; margin-bottom:14px;">
+                <i class="fas fa-circle-check"></i> Certified Center Registration Verified
+            </div>
+            <h2 id="instHeroName">Coaching Center Name</h2>
+            <p id="instHeroDesc">Empowering student success with exceptional coaching, qualified faculty, and curriculum excellence backed by BBCC SKILL HUB.</p>
+
+            <div class="inst-hero-badge-grid">
+                <div class="inst-badge-box">
+                    <span>Classes Offered</span>
+                    <strong id="instClassesOffered">Class 6th to 12th</strong>
+                </div>
+                <div class="inst-badge-box">
+                    <span>Academic Campus</span>
+                    <strong id="instAddressText">Campus Address</strong>
+                </div>
+                <div class="inst-badge-box">
+                    <span>Affiliation Board</span>
+                    <strong>BBCC SKILL HUB</strong>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <a href="#inquiry" class="btn-return-bbcc" style="background:var(--gold-gradient); color:#050811;">
+                    <i class="fas fa-user-plus"></i> Apply for Admission
+                </a>
+                <a href="/" class="btn-return-bbcc">
+                    <i class="fas fa-house-chimney"></i> Return to BBCC Board
+                </a>
+            </div>
+        </div>
+
+        <!-- Director Card -->
+        <div class="inst-director-card">
+            <div class="inst-director-photo" id="instDirectorPhoto">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <h3 class="inst-director-name" id="instDirectorName">Center Director</h3>
+            <p class="inst-director-tag">Managing Director & Academic Head</p>
+            <div class="inst-contact-dock" id="instContactDock">
+                <!-- Dynamic Call / WhatsApp buttons -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Faculty Showcase -->
+    <section class="inst-section-wrap" id="faculty">
+        <h3 class="inst-section-title">Certified Teaching Faculty</h3>
+        <div class="inst-faculty-grid" id="facultyGrid">
+            <div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Faculty profiles will be published shortly.</div>
+        </div>
+    </section>
+
+    <!-- 5. Study Notes / Materials -->
+    <section class="inst-section-wrap" id="materials" style="background:rgba(255,255,255,0.01); border-radius:24px;">
+        <h3 class="inst-section-title">Curated Institute Study Materials</h3>
+        <div class="inst-faculty-grid" id="materialsGrid">
+            <div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Study materials will be added soon.</div>
+        </div>
+    </section>
+
+    <!-- 6. Student Admission Inquiry Desk -->
+    <section class="inst-section-wrap" id="inquiry">
+        <div class="inst-inquiry-box">
+            <div style="text-align:center; margin-bottom:24px;">
+                <h3 style="font-family:'Cinzel', serif; font-size:22px; margin-bottom:6px;">Student Admission Inquiry</h3>
+                <p style="font-size:13px; color:#cbd5e1;">Fill out this form to request seat reservation, syllabus overview, and batch timings directly from the center director.</p>
+            </div>
+
+            <form onsubmit="submitAdmissionInquiry(event)">
+                <div class="inst-form-grid">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Student Full Name *</label>
+                        <input type="text" id="iqStudentName" required placeholder="Enter student name" class="inst-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Parent / Guardian Name</label>
+                        <input type="text" id="iqParentName" placeholder="Enter parent name" class="inst-input">
+                    </div>
+                </div>
+
+                <div class="inst-form-grid">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Contact / WhatsApp No. *</label>
+                        <input type="tel" id="iqMobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile" class="inst-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Target Class / Course</label>
+                        <input type="text" id="iqClass" placeholder="e.g. Class 10th Board" class="inst-input">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Inquiry Message / Questions</label>
+                    <textarea id="iqMessage" rows="2" placeholder="Subject focus, timings, etc." class="inst-input" style="resize:vertical;"></textarea>
+                </div>
+
+                <div id="iqFeedback" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                <button type="submit" id="iqSubmitBtn" class="btn-return-bbcc" style="width:100%; justify-content:center; background:var(--gold-gradient); color:#050811; padding:12px;">
+                    <i class="fas fa-paper-plane"></i> Submit Admission Request
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 7. Footer -->
+    <footer style="text-align:center; padding:40px 20px 20px; font-size:13px; color:#94a3b8; border-top:1px solid var(--border-subtle);">
+        <p style="margin-bottom:12px;">
+            © 2026 <span id="instFooterName">Partner Coaching Center</span> • Affiliated with 
+            <a href="/" style="color:var(--inst-gold); font-weight:700; text-decoration:none;">BBCC SKILL HUB</a>
+        </p>
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+            <a href="/" style="color:var(--inst-gold); text-decoration:none;"><i class="fas fa-house-chimney"></i> BBCC SKILL HUB Main Portal</a>
+            <a href="/#institutes" style="color:#cbd5e1; text-decoration:none;"><i class="fas fa-school"></i> All Partner Centers</a>
+        </div>
+    </footer>
+
+    <!-- 8. Mobile Sticky Navigation Dock -->
+    <nav class="inst-mobile-dock">
+        <a href="/" class="inst-dock-item highlight">
+            <i class="fas fa-house-chimney"></i>
+            <span>BBCC Home</span>
+        </a>
+        <a href="#about" class="inst-dock-item">
+            <i class="fas fa-school"></i>
+            <span>About</span>
+        </a>
+        <a href="#faculty" class="inst-dock-item">
+            <i class="fas fa-user-tie"></i>
+            <span>Faculty</span>
+        </a>
+        <a href="#materials" class="inst-dock-item">
+            <i class="fas fa-book"></i>
+            <span>Notes</span>
+        </a>
+        <a href="#inquiry" class="inst-dock-item cta">
+            <i class="fas fa-user-plus"></i>
+            <span>Admission</span>
+        </a>
+    </nav>
+
+    <!-- Client Script -->
+    <script>
+        let currentCenterId = null;
+        let currentCenter = null;
+
+        function getCenterParamId() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('id');
+            if (q) return q;
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            if (parts.length >= 2 && (parts[0] === 'center' || parts[0] === 'institute')) {
+                return parts[1];
+            }
+            return null;
+        }
+
+        async function initInstitute() {
+            currentCenterId = getCenterParamId();
+
+            if (!currentCenterId) {
+                // Graceful Auto-Fallback: Fetch first active institute
+                try {
+                    const listRes = await fetch('/api/public/centers');
+                    const listData = await listRes.json();
+                    if (listData.success && listData.data && listData.data.length > 0) {
+                        currentCenterId = listData.data[0]._id;
+                        window.history.replaceState({}, '', `/institute?id=${currentCenterId}`);
+                    }
+                } catch(e) {}
+            }
+
+            if (!currentCenterId) {
+                document.body.innerHTML = `
+                    <div style="text-align:center; padding:100px 20px;">
+                        <h2 style="font-family:'Cinzel',serif; margin-bottom:14px;">Institute Portal</h2>
+                        <p style="color:#94a3b8; margin-bottom:20px;">No partner center specified. Please choose a partner institute from the BBCC portal.</p>
+                        <a href="/" class="btn-return-bbcc"><i class="fas fa-house-chimney"></i> Return to BBCC SKILL HUB</a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/public/center/${currentCenterId}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    currentCenter = data.data;
+                    renderInstituteData(currentCenter);
+                } else {
+                    document.body.innerHTML = `
+                        <div style="text-align:center; padding:100px 20px;">
+                            <h2 style="font-family:'Cinzel',serif; margin-bottom:14px;">Center Profile Not Found</h2>
+                            <p style="color:#94a3b8; margin-bottom:20px;">This institute profile may have been updated.</p>
+                            <a href="/" class="btn-return-bbcc"><i class="fas fa-house-chimney"></i> Return to BBCC SKILL HUB</a>
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                console.error('Fetch center error:', e);
+            }
+        }
+
+        function renderInstituteData(c) {
+            document.getElementById('instPageTitle').textContent = `${c.centerName} — Affiliated by BBCC SKILL HUB`;
+            document.getElementById('instNavName').textContent = c.centerName;
+            document.getElementById('instHeroName').textContent = c.centerName;
+            document.getElementById('instFooterName').textContent = c.centerName;
+            document.getElementById('instDirectorName').textContent = c.directorName || 'Director';
+
+            if (c.clogo) {
+                document.getElementById('instNavLogo').innerHTML = `<img src="${c.clogo}" alt="${c.centerName}">`;
+            }
+            if (c.directorPhoto) {
+                document.getElementById('instDirectorPhoto').innerHTML = `<img src="${c.directorPhoto}" alt="${c.directorName}">`;
+            }
+            if (c.description) {
+                document.getElementById('instHeroDesc').textContent = c.description;
+            }
+
+            document.getElementById('instClassesOffered').textContent = `${c.fromClass || 'Class 6th'} to ${c.toClass || 'Class 12th'}`;
+            document.getElementById('instAddressText').textContent = c.address || 'Academic Campus';
+
+            // Contact Dock
+            const contactDock = document.getElementById('instContactDock');
+            let contactHtml = '';
+            if (c.contactNumber) {
+                contactHtml += `<a href="tel:${c.contactNumber}" class="inst-contact-btn btn-call"><i class="fas fa-phone"></i> Call</a>`;
+            }
+            if (c.whatsappNumber) {
+                const clean = c.whatsappNumber.replace(/\D/g, '');
+                contactHtml += `<a href="https://wa.me/${clean.startsWith('91') ? clean : '91' + clean}" target="_blank" class="inst-contact-btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+            }
+            if (c.encryptedCallLink) {
+                contactHtml += `<a href="${c.encryptedCallLink}" target="_blank" class="inst-contact-btn btn-enc"><i class="fas fa-lock"></i> Encrypted Call</a>`;
+            }
+            contactDock.innerHTML = contactHtml;
+
+            // Faculty
+            const fGrid = document.getElementById('facultyGrid');
+            if (c.teachers && c.teachers.length > 0) {
+                fGrid.innerHTML = c.teachers.map(t => `
+                    <div class="inst-faculty-card">
+                        <div class="faculty-avatar-box">
+                            ${t.photo ? `<img src="${t.photo}" alt="${t.name}">` : `<i class="fas fa-chalkboard-user"></i>`}
+                        </div>
+                        <h4 style="font-size:16px; margin-bottom:4px;">${t.name}</h4>
+                        <div style="font-size:12.5px; color:#fbbf24; font-weight:700;">${t.subject}</div>
+                        <div style="font-size:11.5px; color:#94a3b8;">${t.qualification} • ${t.experience}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Materials
+            const mGrid = document.getElementById('materialsGrid');
+            if (c.materials && c.materials.length > 0) {
+                mGrid.innerHTML = c.materials.map(m => `
+                    <div class="inst-faculty-card" style="text-align:left;">
+                        <h4 style="font-size:15px; margin-bottom:6px;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i> ${m.title}</h4>
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">${m.description || 'Verified center study guide'}</p>
+                        ${m.pdf ? `<a href="${m.pdf}" download="${m.title}.pdf" class="btn-return-bbcc" style="width:100%; justify-content:center; font-size:12px;"><i class="fas fa-download"></i> Download Notes</a>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function submitAdmissionInquiry(e) {
+            e.preventDefault();
+            const btn = document.getElementById('iqSubmitBtn');
+            const feedback = document.getElementById('iqFeedback');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            const payload = {
+                centerId: currentCenterId,
+                studentName: document.getElementById('iqStudentName').value.trim(),
+                parentName: document.getElementById('iqParentName').value.trim(),
+                mobile: document.getElementById('iqMobile').value.trim(),
+                targetClass: document.getElementById('iqClass').value.trim(),
+                message: document.getElementById('iqMessage').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/public/inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Admission Request';
+
+                if (data.success) {
+                    feedback.style.display = 'block';
+                    feedback.style.background = 'rgba(16,185,129,0.15)';
+                    feedback.style.border = '1px solid #10b981';
+                    feedback.style.color = '#86efac';
+                    feedback.innerHTML = '<i class="fas fa-check-circle"></i> Admission inquiry submitted successfully! The center director has received your request.';
+                    e.target.reset();
+                } else {
+                    feedback.style.display = 'block';
+                    feedback.style.background = 'rgba(239,68,68,0.15)';
+                    feedback.style.border = '1px solid #ef4444';
+                    feedback.style.color = '#fca5a5';
+                    feedback.textContent = data.message || 'Submission error';
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Admission Request';
+                alert('Connection error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initInstitute);
+    </script>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Command Console — BBCC SKILL HUB</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --admin-bg: #030712;
+            --admin-card: rgba(11, 17, 32, 0.9);
+            --admin-gold: #fbbf24;
+            --admin-amber: #f59e0b;
+            --border-glow: rgba(251, 191, 36, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background-color: var(--admin-bg);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: rgba(7, 12, 24, 0.95);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            min-height: calc(100vh - 71px);
+        }
+
+        .admin-sidebar {
+            background: rgba(5, 8, 16, 0.95);
+            border-right: 1px solid var(--border-subtle);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .admin-nav-btn {
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: #cbd5e1;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .admin-nav-btn:hover, .admin-nav-btn.active {
+            background: rgba(251, 191, 36, 0.12);
+            border-color: var(--border-glow);
+            color: var(--admin-gold);
+        }
+
+        .admin-content {
+            padding: 32px 36px;
+            overflow-y: auto;
+        }
+
+        .admin-tab { display: none; }
+        .admin-tab.active { display: block; }
+
+        .card-console {
+            background: var(--admin-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+
+        .btn-aurora {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #050811;
+        }
+
+        .btn-gold:hover { transform: translateY(-2px); }
+
+        .console-input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+            margin-top: 5px;
+        }
+
+        .console-input:focus { border-color: var(--admin-gold); }
+
+        .console-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        .console-table th {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-glow);
+            color: var(--admin-gold);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .console-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 860px) {
+            .admin-layout { grid-template-columns: 1fr; }
+            .admin-sidebar { display: flex; flex-direction: row; overflow-x: auto; padding: 12px; }
+            .admin-content { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="admin-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:#050811; font-size:20px;">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div>
+                <h1 style="font-family:'Cinzel',serif; font-size:17px; margin:0;">BBCC Super Admin Console</h1>
+                <p style="font-size:11px; color:var(--admin-gold); margin:0;">Central Directorate Command</p>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="/" target="_blank" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--admin-gold);">
+                <i class="fas fa-house-chimney"></i> Main Board Portal
+            </a>
+            <button onclick="logoutAdmin()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                <i class="fas fa-power-off"></i> Exit Console
+            </button>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <button class="admin-nav-btn active" onclick="switchAdminTab('centers')">
+                <i class="fas fa-school"></i> Partner Coaching Centers
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('vault')">
+                <i class="fas fa-book-bookmark"></i> E-Library Vault
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('razorpay')">
+                <i class="fas fa-credit-card"></i> Razorpay Gateway Settings
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('affiliations')">
+                <i class="fas fa-handshake"></i> Center Affiliations Desk
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('transactions')">
+                <i class="fas fa-receipt"></i> Payment Transactions
+            </button>
+        </aside>
+
+        <main class="admin-content">
+
+            <!-- TAB 1: COACHING CENTERS -->
+            <div class="admin-tab active" id="tab-centers">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Register New Partner Coaching Center</h3>
+                    <form onsubmit="registerCenter(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Center Name *</label>
+                            <input type="text" id="acName" required placeholder="e.g. Apex Science Academy" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Name *</label>
+                            <input type="text" id="acDirector" required placeholder="e.g. Prof. R. K. Sharma" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Username *</label>
+                            <input type="text" id="acUsername" required placeholder="e.g. apex" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Password *</label>
+                            <input type="text" id="acPassword" required placeholder="Password for login" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Contact Number</label>
+                            <input type="tel" id="acPhone" placeholder="10-digit mobile" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
+                            <input type="text" id="acAddress" placeholder="City, State" class="console-input">
+                        </div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Register Institute</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Registered Partner Institutes</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Center Name</th>
+                                    <th>Username</th>
+                                    <th>Director</th>
+                                    <th>Status</th>
+                                    <th>Dues (₹)</th>
+                                    <th>Actions / Suspension</th>
+                                </tr>
+                            </thead>
+                            <tbody id="centersTbody">
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">Loading centers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: E-LIBRARY VAULT -->
+            <div class="admin-tab" id="tab-vault">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Document Note to E-Library Vault</h3>
+                    <form onsubmit="publishVaultBook(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Document Title *</label>
+                                <input type="text" id="vbTitle" required placeholder="e.g. Complete Organic Chemistry Notes" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Subject Category</label>
+                                <input type="text" id="vbSubject" placeholder="e.g. Chemistry" class="console-input">
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
+                                <input type="text" id="vbClass" placeholder="e.g. Class 12th" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Price in ₹ (0 = Free Download) *</label>
+                                <input type="number" id="vbPrice" required min="0" value="0" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">File Format</label>
+                                <select id="vbType" class="console-input">
+                                    <option value="pdf">PDF Document</option>
+                                    <option value="docx">Word Document</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; color:#cbd5e1;">Custom Thumbnail Image (Optional — if blank, 3D Book Cover auto-generates)</label>
+                            <input type="file" id="vbThumbInput" accept="image/*" class="console-input">
+                        </div>
+
+                        <div style="margin-bottom:18px;">
+                            <label style="font-size:12px; color:#cbd5e1;">Document File (Base64 Encoded for secure delivery) *</label>
+                            <input type="file" id="vbFileInput" required accept=".pdf,.doc,.docx" class="console-input">
+                        </div>
+
+                        <button type="submit" id="vbSubmitBtn" class="btn-aurora btn-gold"><i class="fas fa-upload"></i> Publish to E-Library Vault</button>
+                    </form>
+                </div>
+
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Central Repository Documents</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Subject</th>
+                                    <th>Class</th>
+                                    <th>Price</th>
+                                    <th>Downloads</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="booksTbody">
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: RAZORPAY GATEWAY SETTINGS -->
+            <div class="admin-tab" id="tab-razorpay">
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:20px; margin:0;">Razorpay Payment Gateway Setup</h3>
+                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Configure Key ID & Secret for online document sales & coaching center unblocking.</p>
+                        </div>
+                        <span id="rzpStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--admin-gold);">
+                            Checking Gateway...
+                        </span>
+                    </div>
+
+                    <form onsubmit="saveRazorpaySettings(event)">
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key ID *</label>
+                            <input type="text" id="rzpKeyId" required placeholder="rzp_live_... or rzp_test_..." class="console-input" style="font-family:monospace;">
+                        </div>
+
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key Secret *</label>
+                            <input type="password" id="rzpKeySecret" required placeholder="Enter Razorpay Secret Key" class="console-input" style="font-family:monospace;">
+                        </div>
+
+                        <div id="rzpTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px;"></div>
+
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Gateway Credentials</button>
+                            <button type="button" onclick="testRazorpayConnection()" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
+                                <i class="fas fa-bolt"></i> Test Gateway Connection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 4: AFFILIATIONS -->
+            <div class="admin-tab" id="tab-affiliations">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Coaching Center Affiliation Applications</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Center Name</th>
+                                    <th>Director</th>
+                                    <th>Mobile</th>
+                                    <th>Address</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="affTbody">
+                                <tr><td colspan="5" style="text-align:center; padding:20px;">Loading applications...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: TRANSACTIONS -->
+            <div class="admin-tab" id="tab-transactions">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Payment Transactions & Revenue Ledger</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Payment ID</th>
+                                    <th>Purpose</th>
+                                    <th>Amount</th>
+                                    <th>Payer / Center</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="txnsTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading transactions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Client Script -->
+    <script>
+        const token = localStorage.getItem('bbcc_token');
+        if (!token) window.location.replace('/login');
+
+        function switchAdminTab(tId) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if (tId === 'centers') loadCentersList();
+            if (tId === 'vault') loadVaultBooks();
+            if (tId === 'affiliations') loadAffiliations();
+            if (tId === 'transactions') loadTransactions();
+        }
+
+        async function initAdminConsole() {
+            await loadGatewayConfig();
+            await loadCentersList();
+        }
+
+        async function loadGatewayConfig() {
+            try {
+                const res = await fetch('/api/public/config');
+                const data = await res.json();
+                const badge = document.getElementById('rzpStatusBadge');
+                if (data.success && data.data && data.data.razorpayConfigured) {
+                    badge.textContent = '✅ ACTIVE & CONFIGURED';
+                    badge.style.background = 'rgba(16,185,129,0.15)';
+                    badge.style.borderColor = '#10b981';
+                    badge.style.color = '#34d399';
+                    document.getElementById('rzpKeyId').value = data.data.razorpayKeyId || '';
+                } else {
+                    badge.textContent = '⚙️ SETUP REQUIRED';
+                    badge.style.background = 'rgba(245,158,11,0.15)';
+                    badge.style.borderColor = '#f59e0b';
+                    badge.style.color = '#fbbf24';
+                }
+            } catch(e) {}
+        }
+
+        async function saveRazorpaySettings(e) {
+            e.preventDefault();
+            const keyId = document.getElementById('rzpKeyId').value.trim();
+            const keySecret = document.getElementById('rzpKeySecret').value.trim();
+
+            const res = await fetch('/api/admin/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ razorpayKeyId: keyId, razorpayKeySecret: keySecret, razorpayEnabled: true })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Razorpay credentials saved successfully!');
+                loadGatewayConfig();
+            } else {
+                alert(data.message || 'Error saving settings');
+            }
+        }
+
+        async function testRazorpayConnection() {
+            const box = document.getElementById('rzpTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(56,189,248,0.1)';
+            box.style.border = '1px solid #38bdf8';
+            box.style.color = '#38bdf8';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing live connection with Razorpay...';
+
+            try {
+                const res = await fetch('/api/admin/test-razorpay', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(e) {
+                box.innerHTML = 'Error testing connection';
+            }
+        }
+
+        async function loadCentersList() {
+            try {
+                const res = await fetch('/api/public/centers');
+                const data = await res.json();
+                const tbody = document.getElementById('centersTbody');
+                if (data.success && data.data) {
+                    tbody.innerHTML = data.data.map(c => `
+                        <tr>
+                            <td><strong>${c.centerName}</strong></td>
+                            <td><code>${c.username}</code></td>
+                            <td>${c.directorName}</td>
+                            <td>
+                                <span style="color:${c.isBlocked ? '#ef4444' : '#10b981'}; font-weight:700;">
+                                    ${c.isBlocked ? 'Blocked' : 'Active'}
+                                </span>
+                            </td>
+                            <td>₹${c.dueAmount || 0}</td>
+                            <td>
+                                <button onclick="toggleBlockCenter('${c._id}', ${!c.isBlocked})" style="padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; border:none; cursor:pointer; background:${c.isBlocked ? '#10b981' : '#ef4444'}; color:#ffffff;">
+                                    ${c.isBlocked ? 'Unblock' : 'Suspend / Set Dues'}
+                                </button>
+                                <a href="/center/${c._id}" target="_blank" style="color:var(--admin-gold); margin-left:8px; text-decoration:none;">View</a>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function registerCenter(e) {
+            e.preventDefault();
+            const payload = {
+                centerName: document.getElementById('acName').value.trim(),
+                directorName: document.getElementById('acDirector').value.trim(),
+                username: document.getElementById('acUsername').value.trim(),
+                password: document.getElementById('acPassword').value.trim(),
+                contactNumber: document.getElementById('acPhone').value.trim(),
+                address: document.getElementById('acAddress').value.trim()
+            };
+
+            const res = await fetch('/api/admin/centers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Institute registered successfully!');
+                e.target.reset();
+                loadCentersList();
+            } else {
+                alert(data.message || 'Error creating center');
+            }
+        }
+
+        async function toggleBlockCenter(id, block) {
+            let reason = '';
+            let dueAmount = 0;
+            if (block) {
+                reason = prompt('Enter suspension reason:', 'Outstanding fees dues') || 'Suspended by admin';
+                dueAmount = Number(prompt('Enter payable due amount (₹):', '5000')) || 0;
+            }
+
+            const res = await fetch(`/api/admin/centers/${id}/block`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ isBlocked: block, blockReason: reason, dueAmount: dueAmount })
+            });
+
+            const data = await res.json();
+            if (data.success) loadCentersList();
+        }
+
+        async function loadVaultBooks() {
+            try {
+                const res = await fetch('/api/public/books');
+                const data = await res.json();
+                const tbody = document.getElementById('booksTbody');
+                if (data.success && data.data && data.data.notes) {
+                    tbody.innerHTML = data.data.notes.map(b => `
+                        <tr>
+                            <td><strong>${b.title}</strong></td>
+                            <td>${b.subject || '-'}</td>
+                            <td>${b.classLevel || '-'}</td>
+                            <td>${b.price > 0 ? `₹${b.price}` : '<span style="color:#10b981;">FREE</span>'}</td>
+                            <td>${b.downloadCount || 0}</td>
+                            <td>
+                                <button onclick="deleteVaultBook('${b._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function publishVaultBook(e) {
+            e.preventDefault();
+            const btn = document.getElementById('vbSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Encoding File & Uploading...';
+
+            const title = document.getElementById('vbTitle').value.trim();
+            const subject = document.getElementById('vbSubject').value.trim();
+            const classLevel = document.getElementById('vbClass').value.trim();
+            const price = Number(document.getElementById('vbPrice').value) || 0;
+            const fileType = document.getElementById('vbType').value;
+            const fileInput = document.getElementById('vbFileInput');
+            const thumbInput = document.getElementById('vbThumbInput');
+
+            let fileBase64 = '';
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                fileBase64 = reader.result;
+            }
+
+            let thumbBase64 = '';
+            if (thumbInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(thumbInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                thumbBase64 = reader.result;
+            }
+
+            const res = await fetch('/api/admin/books', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title, subject, classLevel, price, fileType,
+                    file: fileBase64,
+                    thumbnail: thumbBase64,
+                    fileName: fileInput.files[0] ? fileInput.files[0].name : `${title}.pdf`
+                })
+            });
+
+            const data = await res.json();
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-upload"></i> Publish to E-Library Vault';
+
+            if (data.success) {
+                alert('Document published to E-Library Vault successfully!');
+                e.target.reset();
+                loadVaultBooks();
+            } else {
+                alert(data.message || 'Error publishing document');
+            }
+        }
+
+        async function deleteVaultBook(id) {
+            if (!confirm('Delete this document from vault?')) return;
+            const res = await fetch(`/api/admin/books/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) loadVaultBooks();
+        }
+
+        async function loadAffiliations() {
+            try {
+                const res = await fetch('/api/admin/affiliations', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('affTbody');
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No applications yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(a => `
+                        <tr>
+                            <td><strong>${a.centerName}</strong></td>
+                            <td>${a.directorName}</td>
+                            <td><a href="tel:${a.contactNumber}" style="color:var(--admin-gold); text-decoration:none;">${a.contactNumber}</a></td>
+                            <td>${a.address}</td>
+                            <td>${new Date(a.appliedAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function loadTransactions() {
+            try {
+                const res = await fetch('/api/admin/transactions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('txnsTbody');
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No transactions recorded.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(x => `
+                        <tr>
+                            <td><code>${x.orderId}</code></td>
+                            <td><code>${x.paymentId || '-'}</code></td>
+                            <td>${x.purpose}</td>
+                            <td><strong style="color:var(--admin-gold);">₹${x.amount}</strong></td>
+                            <td>${x.payerName || x.centerName || '-'}</td>
+                            <td>
+                                <span style="color:${x.status === 'paid' ? '#10b981' : (x.status === 'failed' ? '#ef4444' : '#f59e0b')}; font-weight:700;">
+                                    ${x.status.toUpperCase()}
+                                </span>
+                            </td>
+                            <td>${new Date(x.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('bbcc_token');
+            window.location.replace('/login');
+        }
+
+        document.addEventListener('DOMContentLoaded', initAdminConsole);
+    </script>
+</body>
+</html>

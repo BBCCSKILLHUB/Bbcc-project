@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Director Studio — BBCC SKILL HUB</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        :root {
+            --cosmic-bg: #030712;
+            --cosmic-card: rgba(11, 17, 32, 0.88);
+            --aurora-gold: #fbbf24;
+            --aurora-cyan: #38bdf8;
+            --border-glow: rgba(251, 191, 36, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background-color: var(--cosmic-bg);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        .studio-topbar {
+            background: rgba(7, 12, 24, 0.9);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(14px);
+        }
+
+        .studio-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .studio-brand-emblem {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #050811;
+            font-size: 20px;
+        }
+
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: calc(100vh - 71px);
+        }
+
+        .studio-sidebar {
+            background: rgba(5, 8, 16, 0.95);
+            border-right: 1px solid var(--border-subtle);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .studio-nav-btn {
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .studio-nav-btn:hover, .studio-nav-btn.active {
+            background: rgba(251, 191, 36, 0.12);
+            border-color: var(--border-glow);
+            color: var(--aurora-gold);
+        }
+
+        .studio-content {
+            padding: 32px 36px;
+            overflow-y: auto;
+        }
+
+        .studio-tab-view {
+            display: none;
+        }
+
+        .studio-tab-view.active {
+            display: block;
+        }
+
+        .studio-card {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+
+        /* Lockout Suspension Card */
+        .dues-lockout-banner {
+            background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(15,23,42,0.95) 100%);
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            padding: 26px 30px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .btn-aurora {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #050811;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.5);
+        }
+
+        .studio-input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+            margin-top: 5px;
+        }
+
+        .studio-input:focus { border-color: var(--aurora-gold); }
+
+        .inquiry-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        .inquiry-table th {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-glow);
+            color: var(--aurora-gold);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .inquiry-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 860px) {
+            .studio-layout { grid-template-columns: 1fr; }
+            .studio-sidebar { display: flex; flex-direction: row; overflow-x: auto; padding: 12px; }
+            .studio-content { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Top Bar -->
+    <header class="studio-topbar">
+        <a href="/" class="studio-brand">
+            <div class="studio-brand-emblem"><i class="fas fa-school"></i></div>
+            <div>
+                <h1 style="font-family:'Cinzel',serif; font-size:17px; margin:0;" id="dirCenterName">Director Studio</h1>
+                <p style="font-size:11px; color:var(--aurora-gold); margin:0;">BBCC SKILL HUB Affiliated Center</p>
+            </div>
+        </a>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a id="btnPublicWebsite" href="/center" target="_blank" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--aurora-gold);">
+                <i class="fas fa-globe"></i> View Institute Website
+            </a>
+            <button onclick="logoutDirector()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                <i class="fas fa-power-off"></i> Sign Out
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. Studio Layout -->
+    <div class="studio-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="studio-sidebar">
+            <button class="studio-nav-btn active" onclick="switchTab('overview')">
+                <i class="fas fa-chart-pie"></i> Overview Desk
+            </button>
+            <button class="studio-nav-btn" onclick="switchTab('faculty')">
+                <i class="fas fa-chalkboard-user"></i> Faculty Members
+            </button>
+            <button class="studio-nav-btn" onclick="switchTab('materials')">
+                <i class="fas fa-book"></i> Study Notes
+            </button>
+            <button class="studio-nav-btn" onclick="switchTab('inquiries')">
+                <i class="fas fa-inbox"></i> Admission Inquiries
+            </button>
+            <button class="studio-nav-btn" onclick="switchTab('profile')">
+                <i class="fas fa-gear"></i> Center Profile & Contacts
+            </button>
+        </aside>
+
+        <!-- Main Studio Content Viewport -->
+        <main class="studio-content">
+
+            <!-- AUTOMATED SUSPENSION LOCKOUT CARD (SHOWN ONLY IF BLOCKED) -->
+            <div id="lockoutCard" class="dues-lockout-banner" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <span style="background:#ef4444; color:#ffffff; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:800; text-transform:uppercase;">
+                            <i class="fas fa-ban"></i> Account Suspended
+                        </span>
+                        <h3 style="font-family:'Cinzel',serif; font-size:20px; color:#ffffff; margin-top:8px;">
+                            Coaching Center Access Temporarily Blocked
+                        </h3>
+                        <p style="color:#fca5a5; font-size:13.5px;" id="lockoutReasonText">
+                            Reason: Outstanding administrative dues.
+                        </p>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:12px; color:#cbd5e1;">Pending Dues:</span>
+                        <div style="font-size:28px; font-weight:900; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="lockoutAmountDisplay">₹0</div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); border-radius:12px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <strong style="color:var(--aurora-gold); font-size:14px; display:block;">Instant 1-Click Automated Unblock via Razorpay</strong>
+                        <span style="font-size:12.5px; color:#cbd5e1;">Pay dues online via UPI (GPay, PhonePe), Cards or NetBanking. Center will unblock instantly without waiting for admin approval.</span>
+                    </div>
+                    <button type="button" id="btnPayDuesInstant" onclick="payCoachingDuesOnline()" class="btn-aurora btn-gold" style="font-size:14.5px; padding:12px 26px;">
+                        <i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 1: OVERVIEW -->
+            <div class="studio-tab-view active" id="tab-overview">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; margin-bottom:28px;">
+                    <div class="studio-card" style="margin:0;">
+                        <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Registered Faculty</span>
+                        <h3 style="font-size:32px; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="statFacultyCount">0</h3>
+                    </div>
+                    <div class="studio-card" style="margin:0;">
+                        <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Study Materials</span>
+                        <h3 style="font-size:32px; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="statMaterialsCount">0</h3>
+                    </div>
+                    <div class="studio-card" style="margin:0;">
+                        <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Admission Inquiries</span>
+                        <h3 style="font-size:32px; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="statInquiriesCount">0</h3>
+                    </div>
+                    <div class="studio-card" style="margin:0;">
+                        <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Account Status</span>
+                        <h3 style="font-size:22px; margin-top:8px;" id="statAccountStatus">Active</h3>
+                    </div>
+                </div>
+
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:12px;">Quick Direct URL</h3>
+                    <p style="color:#cbd5e1; font-size:13.5px; margin-bottom:14px;">Your coaching center has a dedicated public microsite. Share this link with prospective students and parents:</p>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="shareableUrlInput" readonly class="studio-input" style="margin:0; font-family:monospace; color:var(--aurora-gold);">
+                        <button onclick="copyShareUrl()" class="btn-aurora btn-gold"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: FACULTY MEMBERS -->
+            <div class="studio-tab-view" id="tab-faculty">
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Add Teaching Faculty Member</h3>
+                    <form onsubmit="addFacultyMember(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Teacher Name *</label>
+                            <input type="text" id="facName" required placeholder="e.g. Dr. Rajesh Verma" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Subject Taught *</label>
+                            <input type="text" id="facSubject" required placeholder="e.g. Physics / Mathematics" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Qualification</label>
+                            <input type="text" id="facQual" placeholder="e.g. M.Sc, B.Ed" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Experience</label>
+                            <input type="text" id="facExp" placeholder="e.g. 5+ Years" class="studio-input">
+                        </div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Add Faculty</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Current Faculty Members</h3>
+                    <div id="facultyListDock" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px;">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: STUDY NOTES -->
+            <div class="studio-tab-view" id="tab-materials">
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Center Study Note</h3>
+                    <form onsubmit="uploadCenterMaterial(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Note Title *</label>
+                                <input type="text" id="matTitle" required placeholder="e.g. Chapter 4 Motion Formula Sheet" class="studio-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Description</label>
+                                <input type="text" id="matDesc" placeholder="Brief note summary" class="studio-input">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; color:#cbd5e1;">PDF Document File (Base64/File)</label>
+                            <input type="file" id="matFileInput" accept=".pdf,.doc,.docx" class="studio-input">
+                        </div>
+                        <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-upload"></i> Upload Note</button>
+                    </form>
+                </div>
+
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Published Notes</h3>
+                    <div id="materialsListDock"></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ADMISSION INQUIRIES -->
+            <div class="studio-tab-view" id="tab-inquiries">
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Student Admission Inquiries</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="inquiry-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Mobile No.</th>
+                                    <th>Class / Goal</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inquiriesTbody">
+                                <tr><td colspan="5" style="text-align:center; padding:20px;">No inquiries received yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: PROFILE & CONTACTS -->
+            <div class="studio-tab-view" id="tab-profile">
+                <div class="studio-card">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Institute Profile & Direct Contacts</h3>
+                    <form onsubmit="saveProfileSettings(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Contact Number</label>
+                            <input type="tel" id="cpPhone" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">WhatsApp Number</label>
+                            <input type="tel" id="cpWhatsapp" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Official Email</label>
+                            <input type="email" id="cpEmail" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Encrypted Call Link</label>
+                            <input type="url" id="cpEncLink" placeholder="https://..." class="studio-input">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
+                            <input type="text" id="cpAddress" class="studio-input">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1;">Institute About Bio</label>
+                            <textarea id="cpDesc" rows="3" class="studio-input" style="resize:vertical;"></textarea>
+                        </div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Profile Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Client Script -->
+    <script>
+        const token = localStorage.getItem('bbcc_token');
+        if (!token) {
+            window.location.replace('/login');
+        }
+
+        let centerProfile = null;
+
+        async function initDirectorStudio() {
+            try {
+                const res = await fetch('/api/director/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    localStorage.removeItem('bbcc_token');
+                    window.location.replace('/login');
+                    return;
+                }
+
+                centerProfile = data.data;
+                populateStudioUI(centerProfile);
+                loadInquiries();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function populateStudioUI(c) {
+            document.getElementById('dirCenterName').textContent = c.centerName;
+            document.getElementById('shareableUrlInput').value = `${window.location.origin}/center/${c._id}`;
+            document.getElementById('btnPublicWebsite').href = `/center/${c._id}`;
+
+            document.getElementById('statFacultyCount').textContent = (c.teachers || []).length;
+            document.getElementById('statMaterialsCount').textContent = (c.materials || []).length;
+
+            // Check Suspension & Dues Status
+            const lockoutCard = document.getElementById('lockoutCard');
+            const statusText = document.getElementById('statAccountStatus');
+
+            if (c.isBlocked) {
+                statusText.innerHTML = '<span style="color:#ef4444;"><i class="fas fa-ban"></i> Suspended</span>';
+                lockoutCard.style.display = 'block';
+                document.getElementById('lockoutReasonText').textContent = 'Reason: ' + (c.blockReason || 'Outstanding fee dues');
+                document.getElementById('lockoutAmountDisplay').textContent = `₹${c.dueAmount || 0}`;
+            } else {
+                statusText.innerHTML = '<span style="color:#10b981;"><i class="fas fa-circle-check"></i> Active</span>';
+                lockoutCard.style.display = 'none';
+            }
+
+            // Profile form fields
+            document.getElementById('cpPhone').value = c.contactNumber || '';
+            document.getElementById('cpWhatsapp').value = c.whatsappNumber || '';
+            document.getElementById('cpEmail').value = c.email || '';
+            document.getElementById('cpEncLink').value = c.encryptedCallLink || '';
+            document.getElementById('cpAddress').value = c.address || '';
+            document.getElementById('cpDesc').value = c.description || '';
+
+            renderFacultyList(c.teachers || []);
+            renderMaterialsList(c.materials || []);
+        }
+
+        // ============================================
+        // 100% AUTOMATED UNBLOCK PAYMENT VIA RAZORPAY
+        // ============================================
+        async function payCoachingDuesOnline() {
+            const dueAmount = centerProfile.dueAmount || 0;
+            if (dueAmount <= 0) {
+                alert('No pending dues found for this account.');
+                return;
+            }
+
+            const btn = document.getElementById('btnPayDuesInstant');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Gateway...';
+
+            try {
+                const res = await fetch('/api/pay/create-coaching-unblock-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                    alert(data.message || 'Payment initiation failed.');
+                    return;
+                }
+
+                if (typeof Razorpay === 'undefined') {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                    alert('Razorpay Checkout SDK is still loading. Please check connection.');
+                    return;
+                }
+
+                const options = {
+                    key: data.keyId,
+                    amount: data.amountInPaise,
+                    currency: 'INR',
+                    name: 'BBCC SKILL HUB',
+                    description: `Reactivate & Unblock: ${data.centerName}`,
+                    order_id: data.orderId,
+                    theme: { color: '#fbbf24' },
+                    handler: async function(resp) {
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying & Reactivating Portal...';
+                        try {
+                            const verifyRes = await fetch('/api/pay/verify-coaching-unblock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: resp.razorpay_order_id,
+                                    razorpay_payment_id: resp.razorpay_payment_id,
+                                    razorpay_signature: resp.razorpay_signature
+                                })
+                            });
+
+                            const vData = await verifyRes.json();
+                            if (vData.success) {
+                                alert('🎉 Payment Successful!\n\nYour coaching center portal has been 100% unblocked and reactivated automatically!');
+                                window.location.reload();
+                            } else {
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                                alert(vData.message || 'Payment verification failed.');
+                            }
+                        } catch(err) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                            alert('Verification error: ' + err.message);
+                        }
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
+                alert('Connection error: ' + e.message);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.studio-tab-view').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.studio-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function copyShareUrl() {
+            const input = document.getElementById('shareableUrlInput');
+            input.select();
+            document.execCommand('copy');
+            alert('Copied center URL to clipboard!');
+        }
+
+        function renderFacultyList(teachers) {
+            const dock = document.getElementById('facultyListDock');
+            if (!teachers || teachers.length === 0) {
+                dock.innerHTML = '<div style="color:#94a3b8; font-size:13px;">No faculty members added yet.</div>';
+                return;
+            }
+            dock.innerHTML = teachers.map(t => `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:#ffffff; font-size:14.5px;">${t.name}</strong>
+                        <div style="color:var(--aurora-gold); font-size:12.5px; font-weight:700;">${t.subject}</div>
+                        <div style="font-size:11.5px; color:#94a3b8;">${t.qualification} • ${t.experience}</div>
+                    </div>
+                    <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function addFacultyMember(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('facName').value.trim(),
+                subject: document.getElementById('facSubject').value.trim(),
+                qualification: document.getElementById('facQual').value.trim(),
+                experience: document.getElementById('facExp').value.trim()
+            };
+
+            const res = await fetch('/api/director/teachers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Faculty added!');
+                e.target.reset();
+                initDirectorStudio();
+            }
+        }
+
+        async function removeFaculty(tid) {
+            if (!confirm('Remove this faculty member?')) return;
+            const res = await fetch(`/api/director/teachers/${tid}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) initDirectorStudio();
+        }
+
+        function renderMaterialsList(mats) {
+            const dock = document.getElementById('materialsListDock');
+            if (!mats || mats.length === 0) {
+                dock.innerHTML = '<div style="color:#94a3b8; font-size:13px;">No study notes published yet.</div>';
+                return;
+            }
+            dock.innerHTML = mats.map(m => `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:#ffffff; font-size:14px;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i> ${m.title}</strong>
+                        <div style="font-size:12px; color:#94a3b8;">${m.description || 'Study note'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function uploadCenterMaterial(e) {
+            e.preventDefault();
+            const title = document.getElementById('matTitle').value.trim();
+            const desc = document.getElementById('matDesc').value.trim();
+            const fileInput = document.getElementById('matFileInput');
+
+            let base64 = '';
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                await new Promise(resolve => reader.onload = resolve);
+                base64 = reader.result;
+            }
+
+            const res = await fetch('/api/director/materials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ title, description: desc, pdf: base64 })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Note uploaded!');
+                e.target.reset();
+                initDirectorStudio();
+            }
+        }
+
+        async function loadInquiries() {
+            try {
+                const res = await fetch('/api/director/inquiries', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    document.getElementById('statInquiriesCount').textContent = data.data.length;
+                    const tbody = document.getElementById('inquiriesTbody');
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No admission inquiries yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(q => `
+                        <tr>
+                            <td><strong>${q.studentName}</strong></td>
+                            <td><a href="tel:${q.mobile}" style="color:var(--aurora-gold); text-decoration:none;">${q.mobile}</a></td>
+                            <td>${q.targetClass || 'N/A'}</td>
+                            <td>${q.message || '-'}</td>
+                            <td>${new Date(q.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function saveProfileSettings(e) {
+            e.preventDefault();
+            const payload = {
+                contactNumber: document.getElementById('cpPhone').value.trim(),
+                whatsappNumber: document.getElementById('cpWhatsapp').value.trim(),
+                email: document.getElementById('cpEmail').value.trim(),
+                encryptedCallLink: document.getElementById('cpEncLink').value.trim(),
+                address: document.getElementById('cpAddress').value.trim(),
+                description: document.getElementById('cpDesc').value.trim()
+            };
+
+            const res = await fetch('/api/director/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Profile settings saved successfully!');
+            }
+        }
+
+        function logoutDirector() {
+            localStorage.removeItem('bbcc_token');
+            window.location.replace('/login');
+        }
+
+        document.addEventListener('DOMContentLoaded', initDirectorStudio);
+    </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Access & Sign In — BBCC SKILL HUB</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --cosmic-bg: #030712;
+            --aurora-gold: #fbbf24;
+            --aurora-amber: #f59e0b;
+            --border-glow: rgba(251, 191, 36, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background-color: var(--cosmic-bg);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.06) 0%, transparent 40%);
+        }
+
+        .auth-card-panel {
+            background: linear-gradient(145deg, #0b1120 0%, #050811 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 26px;
+            width: 100%;
+            max-width: 440px;
+            padding: 36px 32px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.15);
+            text-align: center;
+        }
+
+        .auth-emblem {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #050811;
+            font-size: 26px;
+            margin: 0 auto 16px;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+        }
+
+        .auth-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .role-switch-dock {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 4px;
+            margin: 24px 0;
+            gap: 4px;
+        }
+
+        .role-switch-btn {
+            padding: 10px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-switch-btn.active {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--aurora-gold);
+            border: 1px solid var(--border-glow);
+        }
+
+        .auth-input-field {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .auth-input-field:focus {
+            border-color: var(--aurora-gold);
+        }
+
+        .btn-submit-auth {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            background: var(--gold-gradient);
+            color: #050811;
+            font-weight: 800;
+            font-size: 14.5px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+            transition: transform 0.2s;
+            margin-top: 6px;
+        }
+
+        .btn-submit-auth:hover { transform: translateY(-2px); }
+
+        .return-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+            margin-top: 24px;
+            transition: color 0.2s;
+        }
+
+        .return-link:hover { color: var(--aurora-gold); }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card-panel">
+        <div class="auth-emblem">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+        <h2 class="auth-title">BBCC SKILL HUB</h2>
+        <p style="font-size:12.5px; color:#cbd5e1;">Authorized Directorate Portal Sign In</p>
+
+        <!-- Role Switcher -->
+        <div class="role-switch-dock">
+            <button type="button" class="role-switch-btn active" id="btnRoleDirector" onclick="selectRole('director')">
+                <i class="fas fa-school"></i> Center Director
+            </button>
+            <button type="button" class="role-switch-btn" id="btnRoleAdmin" onclick="selectRole('superadmin')">
+                <i class="fas fa-crown"></i> Super Admin
+            </button>
+        </div>
+
+        <form onsubmit="handlePortalLogin(event)">
+            <input type="text" id="loginUsername" required placeholder="Center Username / Admin ID" class="auth-input-field">
+            <input type="password" id="loginPassword" required placeholder="Security Password" class="auth-input-field">
+
+            <div id="authAlert" style="display:none; padding:10px; border-radius:10px; margin-bottom:14px; font-size:12.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;"></div>
+
+            <button type="submit" id="btnAuthSubmit" class="btn-submit-auth">
+                <i class="fas fa-right-to-bracket"></i> Sign In to Portal
+            </button>
+        </form>
+
+        <a href="/" class="return-link">
+            <i class="fas fa-arrow-left"></i> Return to BBCC Board Homepage
+        </a>
+    </div>
+
+    <script>
+        let selectedRole = 'director';
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('btnRoleDirector').classList.toggle('active', role === 'director');
+            document.getElementById('btnRoleAdmin').classList.toggle('active', role === 'superadmin');
+
+            const uField = document.getElementById('loginUsername');
+            if (role === 'superadmin') {
+                uField.placeholder = 'Super Admin ID (e.g. admin)';
+            } else {
+                uField.placeholder = 'Coaching Center Username';
+            }
+        }
+
+        async function handlePortalLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnAuthSubmit');
+            const alertBox = document.getElementById('authAlert');
+            alertBox.style.display = 'none';
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role: selectedRole })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Sign In to Portal';
+
+                if (data.success && data.token) {
+                    localStorage.setItem('bbcc_token', data.token);
+                    localStorage.setItem('bbcc_role', data.role);
+                    window.location.replace(data.redirect || (data.role === 'superadmin' ? '/admin-console.html' : '/director-portal.html'));
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.textContent = data.message || 'Authentication failed. Please verify credentials.';
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Sign In to Portal';
+                alertBox.style.display = 'block';
+                alertBox.textContent = 'Server connection error. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
