@@ -1251,6 +1251,8 @@
             box.style.color = '#38bdf8';
             box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing Loving BHARTI AI connection with Google Gemini...';
 
+            const activeInputKey = document.getElementById('setGeminiApiKey') ? document.getElementById('setGeminiApiKey').value.trim() : '';
+
             try {
                 const res = await fetch('/api/admin/test-gemini', {
                     method: 'POST',
@@ -1258,7 +1260,10 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ prompt: 'Namaste BHARTI beta, testing connection.' })
+                    body: JSON.stringify({
+                        apiKey: activeInputKey || undefined,
+                        prompt: 'Namaste BHARTI beta, testing connection.'
+                    })
                 });
                 const data = await res.json();
                 if (data.success) {

@@ -870,6 +870,100 @@
                 </div>
             </div>
         </div>
+    <!-- EDIT MATERIAL MODAL -->
+    <div class="cert-modal-overlay" id="editMaterialModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:550px; padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold);">
+                    <i class="fas fa-edit"></i> Edit Study Note & MRP
+                </h3>
+                <button type="button" onclick="closeEditMaterialModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <form onsubmit="saveEditMaterial(event)">
+                <input type="hidden" id="editMatId">
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Document / Chapter Title *</label>
+                    <input type="text" id="editMatTitle" required class="studio-input" style="width:100%;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">MRP Price in ₹ (0 = Free for All, >0 = Enrolled Free / Others Paid) *</label>
+                    <input type="number" id="editMatPrice" min="0" required class="studio-input" style="width:100%;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Description / Highlights</label>
+                    <input type="text" id="editMatDesc" class="studio-input" style="width:100%;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Replace PDF File (Optional - leave empty to keep current file)</label>
+                    <input type="file" id="editMatFileInput" accept=".pdf,.doc,.docx" class="studio-input" style="width:100%;">
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeEditMaterialModal()" style="background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-aurora btn-gold" style="padding:8px 20px;"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT STUDENT MODAL -->
+    <div class="cert-modal-overlay" id="editStudentModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:620px; padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.85); color:#ffffff; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold);">
+                    <i class="fas fa-user-edit"></i> Edit Student Record
+                </h3>
+                <button type="button" onclick="closeEditStudentModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <form onsubmit="saveEditStudent(event)">
+                <input type="hidden" id="editStuId">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Student Full Name *</label>
+                        <input type="text" id="editStuName" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Father / Guardian Name</label>
+                        <input type="text" id="editStuFather" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Course / Stream</label>
+                        <input type="text" id="editStuCourse" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Class Level</label>
+                        <input type="text" id="editStuClass" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Grade / Marks Status</label>
+                        <input type="text" id="editStuGrade" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Learning Mode</label>
+                        <select id="editStuMode" class="studio-input" style="width:100%; background:#0b1120;">
+                            <option value="physical">Physical Classroom</option>
+                            <option value="online">Online Live</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Student Phone / Mobile</label>
+                        <input type="text" id="editStuPhone" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Parent / Emergency Phone</label>
+                        <input type="text" id="editStuParentPhone" class="studio-input" style="width:100%;">
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Address</label>
+                        <input type="text" id="editStuAddress" class="studio-input" style="width:100%;">
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" onclick="closeEditStudentModal()" style="background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-aurora btn-gold" style="padding:8px 20px;"><i class="fas fa-save"></i> Save Student Details</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Client Script -->
@@ -1080,6 +1174,8 @@
         }
 
         // Students Enrolment
+        let currentStudentsList = [];
+
         async function loadStudents() {
             try {
                 const res = await fetch('/api/director/students', {
@@ -1087,6 +1183,7 @@
                 });
                 const data = await res.json();
                 if (data.success && data.data) {
+                    currentStudentsList = data.data;
                     document.getElementById('statStudentsCount').textContent = data.data.length;
                     const tbody = document.getElementById('studentsTbody');
                     if (data.data.length === 0) {
@@ -1097,19 +1194,80 @@
                         <tr>
                             <td><strong style="color:var(--aurora-gold); font-family:monospace;">${s.rollNo}</strong></td>
                             <td>${s.name}</td>
-                            <td>${s.course}</td>
-                            <td>${s.classLevel}</td>
-                            <td><span style="color:#10b981; font-weight:700;">${s.marksGrade}</span></td>
-                            <td><span style="color:#10b981;">${s.status}</span></td>
+                            <td>${s.course || s.courseName || '-'}</td>
+                            <td>${s.classLevel || '-'}</td>
+                            <td><span style="color:#10b981; font-weight:700;">${s.marksGrade || 'A+'}</span></td>
+                            <td><span style="color:#10b981;">${s.status || 'Active'}</span></td>
                             <td>
-                                <button onclick="removeStudent('${s._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div style="display:flex; gap:6px;">
+                                    <button onclick="openEditStudentModal('${s._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px; border-radius:6px;" title="Edit Student">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="removeStudent('${s._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;" title="Delete Student">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `).join('');
                 }
             } catch(e) {}
+        }
+
+        function openEditStudentModal(sid) {
+            const stu = currentStudentsList.find(s => s._id === sid);
+            if (!stu) return;
+            document.getElementById('editStuId').value = stu._id;
+            document.getElementById('editStuName').value = stu.name || '';
+            document.getElementById('editStuFather').value = stu.fatherName || stu.parentName || '';
+            document.getElementById('editStuCourse').value = stu.course || stu.courseName || '';
+            document.getElementById('editStuClass').value = stu.classLevel || '';
+            document.getElementById('editStuGrade').value = stu.marksGrade || 'A+';
+            document.getElementById('editStuMode').value = stu.mode || 'physical';
+            document.getElementById('editStuPhone').value = stu.mobile || stu.phone || '';
+            document.getElementById('editStuParentPhone').value = stu.parentMobile || '';
+            document.getElementById('editStuAddress').value = stu.address || '';
+            document.getElementById('editStudentModal').style.display = 'flex';
+        }
+
+        function closeEditStudentModal() {
+            document.getElementById('editStudentModal').style.display = 'none';
+        }
+
+        async function saveEditStudent(e) {
+            e.preventDefault();
+            const sid = document.getElementById('editStuId').value;
+            const payload = {
+                name: document.getElementById('editStuName').value.trim(),
+                fatherName: document.getElementById('editStuFather').value.trim(),
+                parentName: document.getElementById('editStuFather').value.trim(),
+                course: document.getElementById('editStuCourse').value.trim(),
+                classLevel: document.getElementById('editStuClass').value.trim(),
+                marksGrade: document.getElementById('editStuGrade').value.trim(),
+                mode: document.getElementById('editStuMode').value,
+                mobile: document.getElementById('editStuPhone').value.trim(),
+                phone: document.getElementById('editStuPhone').value.trim(),
+                parentMobile: document.getElementById('editStuParentPhone').value.trim(),
+                address: document.getElementById('editStuAddress').value.trim()
+            };
+
+            const res = await fetch(`/api/director/students/${sid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Student details updated successfully!');
+                closeEditStudentModal();
+                loadStudents();
+            } else {
+                alert(data.message || 'Error updating student record');
+            }
         }
 
         async function enrollStudent(e) {
@@ -1209,20 +1367,111 @@
         }
 
         // Materials
+        let currentCenterMaterials = [];
+
         function renderMaterialsList(mats) {
+            currentCenterMaterials = mats || [];
             const dock = document.getElementById('materialsListDock');
             if (!mats || mats.length === 0) {
                 dock.innerHTML = '<div style="color:#94a3b8; font-size:13px;">No study notes published yet.</div>';
                 return;
             }
             dock.innerHTML = mats.map(m => `
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:14px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <strong style="color:#ffffff; font-size:14px;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i> ${m.title}</strong>
-                        <div style="font-size:12px; color:#94a3b8;">${m.description || 'Study note'}</div>
+                        <strong style="color:#ffffff; font-size:14.5px;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:8px;"></i> ${m.title}</strong>
+                        <div style="font-size:12px; color:#94a3b8; margin:4px 0;">${m.description || 'Verified study note'}</div>
+                        <div style="display:flex; gap:10px; align-items:center; margin-top:4px;">
+                            <span style="font-size:11.5px; padding:2px 8px; border-radius:4px; background:rgba(217,119,6,0.15); color:var(--aurora-gold); font-weight:700;">
+                                ${m.price > 0 ? `₹${m.price} MRP (Enrolled Free)` : '100% FREE'}
+                            </span>
+                            ${(m.pdf || m.file) ? `<a href="${m.pdf || m.file}" target="_blank" style="font-size:11.5px; color:#38bdf8; text-decoration:none;"><i class="fas fa-eye"></i> View PDF</a>` : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="openEditMaterialModal('${m._id}')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; border-radius:6px;">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="deleteMaterial('${m._id}')" style="background:#ef4444; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function openEditMaterialModal(mid) {
+            const mat = currentCenterMaterials.find(m => m._id === mid);
+            if (!mat) return;
+            document.getElementById('editMatId').value = mat._id;
+            document.getElementById('editMatTitle').value = mat.title || '';
+            document.getElementById('editMatPrice').value = mat.price !== undefined ? mat.price : 0;
+            document.getElementById('editMatDesc').value = mat.description || '';
+            document.getElementById('editMatFileInput').value = '';
+            document.getElementById('editMaterialModal').style.display = 'flex';
+        }
+
+        function closeEditMaterialModal() {
+            document.getElementById('editMaterialModal').style.display = 'none';
+        }
+
+        async function saveEditMaterial(e) {
+            e.preventDefault();
+            const mid = document.getElementById('editMatId').value;
+            const title = document.getElementById('editMatTitle').value.trim();
+            const price = Number(document.getElementById('editMatPrice').value) || 0;
+            const desc = document.getElementById('editMatDesc').value.trim();
+            const fileInput = document.getElementById('editMatFileInput');
+
+            let base64 = '';
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                base64 = reader.result;
+            }
+
+            const payload = {
+                title: title,
+                price: price,
+                description: desc
+            };
+            if (base64) {
+                payload.pdf = base64;
+            }
+
+            const res = await fetch(`/api/director/materials/${mid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Study material updated successfully!');
+                closeEditMaterialModal();
+                initDirectorStudio();
+            } else {
+                alert(data.message || 'Error updating study material');
+            }
+        }
+
+        async function deleteMaterial(mid) {
+            if (!confirm('Are you sure you want to permanently delete this study material?')) return;
+            const res = await fetch(`/api/director/materials/${mid}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Study material deleted successfully');
+                initDirectorStudio();
+            } else {
+                alert(data.message || 'Error deleting material');
+            }
         }
 
         async function uploadCenterMaterial(e) {
