@@ -274,6 +274,21 @@ const PaymentTransactionSchema = new mongoose.Schema({
 });
 const PaymentTransaction = mongoose.model('PaymentTransaction', PaymentTransactionSchema);
 
+// Coaching Center Affiliation Inquiry Schema
+const CoachingAffiliationSchema = new mongoose.Schema({
+    centerName: { type: String, required: true },
+    directorName: { type: String, required: true },
+    contactNumber: { type: String, required: true },
+    email: { type: String, default: '' },
+    fromClass: { type: String, default: 'Class 1st' },
+    toClass: { type: String, default: 'Class 12th' },
+    address: { type: String, default: '' },
+    message: { type: String, default: '' },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    createdAt: { type: Date, default: Date.now }
+});
+const CoachingAffiliation = mongoose.model('CoachingAffiliation', CoachingAffiliationSchema);
+
 // ============================================
 // DATABASE CONNECTION
 // ============================================
@@ -1229,7 +1244,39 @@ app.get('/api/study-material', async (req, res) => {
                 notes: []
             });
         }
-        res.json({ success: true, data: studyMaterial });
+
+        // Check if caller is authorized admin (e.g. from management panel)
+        let isAdmin = false;
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            if (token) {
+                try {
+                    jwt.verify(token, JWT_SECRET);
+                    isAdmin = true;
+                } catch (e) {}
+            }
+        }
+
+        const rawData = studyMaterial.toObject ? studyMaterial.toObject() : JSON.parse(JSON.stringify(studyMaterial));
+
+        // For public visitors: Strip heavy PDF / file base64 data for all paid documents
+        if (!isAdmin && rawData && Array.isArray(rawData.notes)) {
+            rawData.notes = rawData.notes.map(note => {
+                const price = Number(note.price) || 0;
+                if (price > 0) {
+                    return {
+                        ...note,
+                        pdf: '', // Stripped to prevent free download leak
+                        file: '', // Stripped to prevent free download leak
+                        isPaid: true
+                    };
+                }
+                return note;
+            });
+        }
+
+        res.json({ success: true, data: rawData });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -3609,6 +3656,131 @@ app.post('/api/public/center/:id/inquiry', async (req, res) => {
         res.json({ success: true, message: "Inquiry submitted successfully to center director!" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// COACHING AFFILIATION REGISTRATION APIS (MAIN INDEX)
+// ============================================
+
+// 1. Public: Submit Coaching Affiliation Application
+app.post('/api/public/register-coaching-inquiry', async (req, res) => {
+    try {
+        const { centerName, directorName, contactNumber, email, fromClass, toClass, address, message } = req.body;
+        if (!centerName || !centerName.trim()) {
+            return res.status(400).json({ success: false, message: "Coaching Center name is required" });
+        }
+        if (!directorName || !directorName.trim()) {
+            return res.status(400).json({ success: false, message: "Director name is required" });
+        }
+        if (!contactNumber || !contactNumber.trim()) {
+            return res.status(400).json({ success: false, message: "Contact / WhatsApp number is required" });
+        }
+
+        const inquiry = await CoachingAffiliation.create({
+            centerName: centerName.trim(),
+            directorName: directorName.trim(),
+            contactNumber: contactNumber.trim(),
+            email: email ? email.trim() : '',
+            fromClass: fromClass ? fromClass.trim() : 'Class 1st',
+            toClass: toClass ? toClass.trim() : 'Class 12th',
+            address: address ? address.trim() : '',
+            message: message ? message.trim() : '',
+            status: 'pending'
+        });
+
+        res.json({
+            success: true,
+            message: "Coaching Affiliation Application submitted successfully! The BBCC Skill Hub Central Board will review and connect with you shortly.",
+            data: inquiry
+        });
+    } catch (err) {
+        console.error("Coaching registration error:", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. Super Admin: List All Coaching Affiliation Applications
+app.get('/api/super-admin/coaching-affiliations', verifySuperAdmin, async (req, res) => {
+    try {
+        const list = await CoachingAffiliation.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: list });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Super Admin: Approve Coaching Application & Create Center Login
+app.post('/api/super-admin/coaching-affiliations/:id/approve', verifySuperAdmin, async (req, res) => {
+    try {
+        const appRecord = await CoachingAffiliation.findById(req.params.id);
+        if (!appRecord) return res.status(404).json({ success: false, message: "Application record not found" });
+
+        const cleanName = appRecord.centerName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'center';
+        const randomNum = Math.floor(100 + Math.random() * 900);
+        const username = `${cleanName}${randomNum}`;
+        const rawPassword = 'bbcc' + Math.floor(1000 + Math.random() * 9000);
+        const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+        const newCenter = await TuitionCenter.create({
+            centerName: appRecord.centerName,
+            directorName: appRecord.directorName,
+            contactNumber: appRecord.contactNumber,
+            email: appRecord.email,
+            fromClass: appRecord.fromClass || 'Class 1st',
+            toClass: appRecord.toClass || 'Class 12th',
+            address: appRecord.address || '',
+            description: appRecord.message || '',
+            username: username,
+            password: hashedPassword,
+            isBlocked: false
+        });
+
+        appRecord.status = 'approved';
+        await appRecord.save();
+
+        res.json({
+            success: true,
+            message: `Coaching Center approved and created successfully!`,
+            center: newCenter,
+            credentials: { username, password: rawPassword }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. Super Admin: Delete / Reject Coaching Application
+app.delete('/api/super-admin/coaching-affiliations/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        await CoachingAffiliation.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "Application removed successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. Super Admin: Test Razorpay Gateway Connection
+app.get('/api/super-admin/test-razorpay', verifySuperAdmin, async (req, res) => {
+    try {
+        const { client, keyId } = await getRazorpayClient();
+        if (!client || !keyId) {
+            return res.status(400).json({
+                success: false,
+                message: "Razorpay credentials are not configured yet. Please enter Key ID and Secret."
+            });
+        }
+        await client.orders.all({ count: 1 });
+        res.json({
+            success: true,
+            message: "Razorpay Gateway credentials are verified and active!",
+            keyId: keyId
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: "Razorpay connection error: " + (err.error ? err.error.description || err.error.message : err.message)
+        });
     }
 });
 

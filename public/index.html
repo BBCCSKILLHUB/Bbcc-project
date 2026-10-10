@@ -2191,6 +2191,7 @@
             <a href="#pdfNotesSection" class="nav-link"><i class="fas fa-book-reader"></i> E-Library</a>
             <a href="#videosSection" class="nav-link"><i class="fas fa-play-circle"></i> Lectures</a>
             <a href="#gallerySection" class="nav-link"><i class="fas fa-images"></i> Gallery</a>
+            <a href="javascript:void(0)" onclick="openCoachingRegistrationModal()" class="nav-link" style="color:#ffd700;font-weight:700;"><i class="fas fa-handshake"></i> Register Coaching</a>
             <a href="javascript:void(0)" onclick="openAadharDownloadModal()" class="nav-link" style="color:var(--gold-primary);"><i class="fas fa-id-card"></i> Verify Aadhar</a>
         </nav>
 
@@ -2214,6 +2215,7 @@
         <!-- Mobile Drawer -->
         <div class="mobile-menu" id="mobileMenu">
             <a href="#partnerSection" onclick="toggleMobileMenu()"><i class="fas fa-landmark"></i> Affiliated Centers</a>
+            <a href="javascript:void(0)" onclick="toggleMobileMenu(); openCoachingRegistrationModal();" style="color:#ffd700;font-weight:700;"><i class="fas fa-handshake"></i> Register Your Coaching Center</a>
             <a href="#teachersTrack" onclick="toggleMobileMenu()"><i class="fas fa-chalkboard-teacher"></i> Faculty Directory</a>
             <a href="#pdfNotesSection" onclick="toggleMobileMenu()"><i class="fas fa-book-reader"></i> Digital Study Materials</a>
             <a href="#videosSection" onclick="toggleMobileMenu()"><i class="fas fa-play-circle"></i> Video Modules</a>
@@ -2481,6 +2483,28 @@
         </div>
     </section>
 
+    <!-- ===== COACHING AFFILIATION CALL TO ACTION BANNER ===== -->
+    <div class="fade-up" style="max-width: 1200px; margin: 20px auto 50px auto; padding: 0 20px;">
+        <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%); border: 1px solid rgba(255, 215, 0, 0.35); border-radius: 20px; padding: 35px 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <div style="max-width: 720px;">
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 215, 0, 0.12); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+                    <i class="fas fa-handshake"></i> Partner With BBCC Skill Hub
+                </div>
+                <h3 style="font-family: 'Cinzel', serif; font-size: 26px; color: #ffffff; font-weight: 800; margin-bottom: 8px;">
+                    Are You a Coaching Institute Director?
+                </h3>
+                <p style="color: #cbd5e1; font-size: 14.5px; line-height: 1.6; margin: 0;">
+                    Get affiliated with <strong>BBCC Skill Hub</strong>. Receive your institute's dedicated modern web portal, online student admission inquiries, centralized board syllabus, faculty verification, and complete digital academic management tools.
+                </p>
+            </div>
+            <div>
+                <button type="button" onclick="openCoachingRegistrationModal()" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #0b0f19; font-weight: 800; font-size: 15px; padding: 14px 28px; border-radius: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(255,215,0,0.3); transition: transform 0.2s ease;">
+                    <i class="fas fa-file-signature"></i> Register Coaching Center &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== CAMPUS & ACADEMIC GALLERY ===== -->
     <div class="section-header-box fade-up" id="gallerySection">
         <div class="section-badge"><i class="fas fa-images"></i> Visual Showcase</div>
@@ -2572,6 +2596,77 @@
                     <i class="fas fa-download"></i> Download PDF
                 </a>
             </div>
+        </div>
+    </div>
+
+    <!-- ===== COACHING CENTER AFFILIATION REGISTRATION MODAL ===== -->
+    <div class="pdf-modal" id="coachingRegModal">
+        <div class="pdf-modal-content" style="max-width:620px; background:#0b1120; border-radius:20px; overflow:hidden; border:2px solid rgba(255,215,0,0.4); box-shadow:0 25px 60px rgba(0,0,0,0.9);">
+            <div style="background:linear-gradient(135deg,#070b14 0%,#172033 100%); padding:20px 24px; border-bottom:1px solid rgba(255,215,0,0.25); display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:26px;">🏫</span>
+                    <div>
+                        <h3 style="color:#ffffff; margin:0; font-size:17px; font-family:'Cinzel', serif; font-weight:800;">Register Coaching Center</h3>
+                        <p style="color:#ffd700; margin:0; font-size:11.5px; font-weight:600;">BBCC Skill Hub Academic Affiliation Application</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCoachingRegModal()" style="background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; font-size:20px; width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+            </div>
+            <form id="coachingAffiliationForm" onsubmit="submitCoachingAffiliation(event)" style="padding:22px 24px; max-height:80vh; overflow-y:auto;">
+                <div style="background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.2); border-radius:10px; padding:12px 14px; margin-bottom:18px; font-size:12.5px; color:#cbd5e1; line-height:1.5;">
+                    Expand your coaching institute with BBCC Skill Hub. Get a dedicated webpage, verified director dashboard, online student admission inquiries, and nationwide certification.
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">Coaching Center Name <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="crCenterName" required placeholder="e.g. Apex Science Academy" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">Director / Owner Name <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="crDirectorName" required placeholder="e.g. Prof. R. K. Sharma" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">Contact / WhatsApp No. <span style="color:#ef4444;">*</span></label>
+                        <input type="tel" id="crContactNumber" required placeholder="10-digit mobile number" maxlength="10" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">Official Email (Optional)</label>
+                        <input type="email" id="crEmail" placeholder="institute@example.com" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">From Class <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="crFromClass" required value="Class 6th" placeholder="e.g. Class 6th" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">To Class / Exams <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="crToClass" required value="Class 12th" placeholder="e.g. Class 12th & NEET" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">Complete Institute Address / City <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="crAddress" required placeholder="Street, Landmark, City, District, State" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">About Institute / Courses / Remarks</label>
+                    <textarea id="crMessage" rows="3" placeholder="Tell us about faculties, courses offered, student strength, etc." style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; resize:vertical;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeCoachingRegModal()" style="padding:10px 18px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); color:#cbd5e1; border-radius:8px; font-size:13px; cursor:pointer;">Cancel</button>
+                    <button type="submit" id="crSubmitBtn" style="padding:10px 24px; border:none; background:linear-gradient(135deg,#ffd700,#f59e0b); color:#0b0f19; font-weight:800; border-radius:8px; font-size:13.5px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                        <i class="fas fa-paper-plane"></i> Submit Affiliation Application
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -3056,7 +3151,7 @@
                 const initials = (c.centerName || 'BBCC').split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 3).toUpperCase();
                 const dirInitial = c.directorName ? c.directorName.charAt(0).toUpperCase() : 'D';
                 html += `
-                    <div class="partner-card" style="min-width:320px;max-width:360px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div class="partner-card" onclick="window.location.href='/center.html?id=${c._id}'" style="min-width:320px;max-width:360px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;" title="Click to visit ${c.centerName} website & admissions">
                         <div class="partner-card-header">
                             <div class="center-logo">
                                 ${c.clogo && c.clogo.length > 50 ? `<img src="${c.clogo}" alt="${c.centerName}">` : `<span>${initials}</span>`}
@@ -3076,17 +3171,17 @@
                                 <div class="director-name">${c.directorName || 'Director'}</div>
                                 ${c.contactNumber ? `<div class="director-contact"><i class="fas fa-phone-alt"></i> ${c.contactNumber}</div>` : ''}
                                 ${c.encryptedCallLink ? `
-                                    <a href="${c.encryptedCallLink}" target="_blank" class="encrypted-call-btn" style="text-decoration:none;">
+                                    <a href="${c.encryptedCallLink}" target="_blank" onclick="event.stopPropagation()" class="encrypted-call-btn" style="text-decoration:none;">
                                         <i class="fas fa-lock"></i> Encrypted Call
                                     </a>
                                 ` : ''}
                             </div>
                         </div>
                         <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,215,0,0.15);display:flex;gap:8px;">
-                            <a href="/center.html?id=${c._id}" class="btn btn-sm btn-gold" style="flex:1;text-align:center;font-size:12px;text-decoration:none;padding:7px 12px;border-radius:8px;">
-                                <i class="fas fa-globe"></i> Visit Center Website
+                            <a href="/center.html?id=${c._id}" onclick="event.stopPropagation()" class="btn btn-sm btn-gold" style="flex:1;text-align:center;font-size:12.5px;font-weight:700;text-decoration:none;padding:8px 12px;border-radius:8px;">
+                                <i class="fas fa-university"></i> Visit Center & Apply For Admission &rarr;
                             </a>
-                            ${c.contactNumber ? `<a href="tel:${c.contactNumber}" class="btn btn-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;padding:7px 12px;border-radius:8px;text-decoration:none;"><i class="fas fa-phone-alt"></i></a>` : ''}
+                            ${c.contactNumber ? `<a href="tel:${c.contactNumber}" onclick="event.stopPropagation()" class="btn btn-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;padding:8px 12px;border-radius:8px;text-decoration:none;" title="Call Center"><i class="fas fa-phone-alt"></i></a>` : ''}
                         </div>
                     </div>
                 `;
@@ -3350,8 +3445,8 @@
 
                 html += `
                     <div class="doc-card-ultra" data-title="${(note.title || '').toLowerCase()}">
-                        <!-- Thumbnail Cover -->
-                        <div class="doc-cover-box" onclick="previewDocModal('${note._id}', '${safeTitleEscaped}')">
+                        <!-- Thumbnail Cover: Only cover image is shown! -->
+                        <div class="doc-cover-box" onclick="${isPaid ? `buyDocWithRazorpay('${note._id}', ${price}, '${safeTitleEscaped}')` : `downloadFreeDocDirect('${note._id}', '${safeTitleEscaped}')`}" style="cursor:pointer;" title="${isPaid ? `Click to pay ₹${price} and unlock` : 'Click to download'}">
                             ${note.thumbnail ? `
                                 <img src="${note.thumbnail}" alt="${safeTitle}" class="doc-cover-img" loading="lazy">
                             ` : `
@@ -3362,7 +3457,7 @@
                             `}
                             <!-- Price Pill -->
                             <div class="rzp-price-pill ${isPaid ? '' : 'free'}">
-                                ${isPaid ? `<i class="fas fa-tag"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
+                                ${isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
                             </div>
                             <!-- Subject Tag -->
                             <div class="doc-subject-tag">
@@ -3373,28 +3468,26 @@
                         <!-- Card Body -->
                         <div class="doc-body-box">
                             <h4 class="doc-title-text" title="${safeTitle}">${safeTitle}</h4>
-                            <p class="doc-desc-text">${note.description || 'Comprehensive verified study material by BBCC Academic Board.'}</p>
+                            <p class="doc-desc-text">${note.description || 'Verified academic syllabus & study material by BBCC Board.'}</p>
                             
                             <div class="doc-meta-row">
-                                <span>${typeIcon} • ${fileSize}</span>
+                                <span>${typeIcon}</span>
                                 <span style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${classLevel}</span>
+                                ${isPaid ? `<span style="color:#ffd700;font-size:11px;font-weight:700;"><i class="fas fa-shield-alt"></i> Paid Material</span>` : `<span style="color:#34d399;font-size:11px;font-weight:700;">Instant Free</span>`}
                             </div>
                         </div>
 
-                        <!-- Actions -->
+                        <!-- Actions: Payment strictly required before download -->
                         <div class="doc-actions-box">
                             ${isPaid ? `
-                                <button type="button" class="btn-doc-pay" onclick="buyDocWithRazorpay('${note._id}', ${price}, '${safeTitleEscaped}')">
-                                    <i class="fas fa-credit-card"></i> Pay ₹${price} & Download
+                                <button type="button" class="btn-doc-pay" onclick="buyDocWithRazorpay('${note._id}', ${price}, '${safeTitleEscaped}')" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <i class="fas fa-lock"></i> Pay ₹${price} to Unlock & Download
                                 </button>
                             ` : `
-                                <button type="button" class="btn-doc-free" onclick="downloadFreeDocDirect('${note._id}', '${safeTitleEscaped}')">
+                                <button type="button" class="btn-doc-free" onclick="downloadFreeDocDirect('${note._id}', '${safeTitleEscaped}')" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
                                     <i class="fas fa-arrow-down"></i> Free Download
                                 </button>
                             `}
-                            <button type="button" class="btn-doc-preview" onclick="previewDocModal('${note._id}', '${safeTitleEscaped}')" title="Preview Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
                 `;
@@ -3534,10 +3627,15 @@
         function previewDocModal(docId, encodedTitle) {
             const title = decodeURIComponent(encodedTitle);
             const note = (pdfNotesData || []).find(n => n._id === docId);
-            if (note && (note.pdf || note.file)) {
+            if (!note) return;
+            const price = Math.max(0, Number(note.price) || 0);
+            if (price > 0) {
+                // Strictly require Razorpay checkout before unlocking
+                buyDocWithRazorpay(docId, price, encodedTitle);
+            } else if (note.pdf || note.file) {
                 openPDFModal(title, note.pdf || note.file);
             } else {
-                showToast('Document preview is loading or restricted. Please click Pay & Download.');
+                downloadFreeDocDirect(docId, encodedTitle);
             }
         }
 
@@ -3562,6 +3660,73 @@
             modal.classList.remove('active');
             viewer.src = '';
             document.body.style.overflow = '';
+        }
+
+        // ============================================
+        // COACHING AFFILIATION REGISTRATION MODAL
+        // ============================================
+        function openCoachingRegistrationModal() {
+            const modal = document.getElementById('coachingRegModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeCoachingRegModal() {
+            const modal = document.getElementById('coachingRegModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        async function submitCoachingAffiliation(e) {
+            e.preventDefault();
+            const btn = document.getElementById('crSubmitBtn');
+            const originalText = btn.innerHTML;
+
+            const centerName = (document.getElementById('crCenterName')?.value || '').trim();
+            const directorName = (document.getElementById('crDirectorName')?.value || '').trim();
+            const contactNumber = (document.getElementById('crContactNumber')?.value || '').trim();
+            const email = (document.getElementById('crEmail')?.value || '').trim();
+            const fromClass = (document.getElementById('crFromClass')?.value || '').trim();
+            const toClass = (document.getElementById('crToClass')?.value || '').trim();
+            const address = (document.getElementById('crAddress')?.value || '').trim();
+            const message = (document.getElementById('crMessage')?.value || '').trim();
+
+            if (!centerName || !directorName || !contactNumber) {
+                alert('Please enter center name, director name, and contact number.');
+                return;
+            }
+
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                btn.disabled = true;
+
+                const res = await fetch('/api/public/register-coaching-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        centerName, directorName, contactNumber, email,
+                        fromClass, toClass, address, message
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    document.getElementById('coachingAffiliationForm').reset();
+                    closeCoachingRegModal();
+                } else {
+                    alert(data.message || 'Submission failed. Please try again.');
+                }
+            } catch (err) {
+                alert('Submission error: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // ============================================

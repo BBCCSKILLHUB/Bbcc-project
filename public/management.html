@@ -1184,6 +1184,11 @@
                     <span class="tab-label">Affiliated Centers</span>
                     <span class="badge" id="tuitionCenterBadge">0</span>
                 </button>
+                <button class="tab-btn" data-tab="coaching-affiliations">
+                    <span class="icon">📝</span>
+                    <span class="tab-label">Affiliation Requests</span>
+                    <span class="badge" id="coachingAffiliationBadge" style="background:#3b82f6;color:white;">0</span>
+                </button>
                 <button class="tab-btn" data-tab="students">
                     <span class="icon">👨‍🎓</span>
                     <span class="tab-label">Student Registry</span>
@@ -1248,6 +1253,20 @@
 
         <!-- ===== TAB 1: HEADER SETTINGS ===== -->
         <div class="tab-content" id="tab-header">
+            <!-- Razorpay Shortcut Banner -->
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #93c5fd; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 26px;">💳</span>
+                    <div>
+                        <strong style="color: #1e3a8a; font-size: 14px; display: block;">Razorpay Payment Gateway Setup</strong>
+                        <span style="color: #475569; font-size: 12.5px;">Configure Key ID & Secret to enable instant online document downloads & fee unblocking.</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="document.querySelector('[data-tab=\'razorpay-settings\']').click()" style="padding: 8px 16px; font-size: 13px; font-weight: 700;">
+                    ⚙️ Open Razorpay Settings &rarr;
+                </button>
+            </div>
+
             <div class="card">
                 <div class="card-title">
                     <span class="icon">🖼️</span>
@@ -1477,6 +1496,162 @@
             </div>
         </div>
 
+        <!-- ===== TAB: COACHING AFFILIATION REQUESTS ===== -->
+        <div class="tab-content" id="tab-coaching-affiliations">
+            <div class="card">
+                <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="icon">📝</span>
+                        <span>Coaching Center Affiliation Applications (From Homepage)</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadCoachingAffiliations()" style="padding:8px 14px; font-size:13px;">
+                        🔄 Refresh Applications
+                    </button>
+                </div>
+
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:14px 18px; margin-bottom:20px; font-size:13px; color:#1e3a8a; line-height:1.5;">
+                    Coaching centers who submit an application on the main homepage will appear here. You can review their details and click <strong>✅ Approve & Create</strong> to automatically register them and generate their director dashboard login!
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#f1f5f9; color:#334155; text-align:left; border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px 14px;">Date</th>
+                                <th style="padding:12px 14px;">Coaching Center</th>
+                                <th style="padding:12px 14px;">Director Name</th>
+                                <th style="padding:12px 14px;">Contact / Phone</th>
+                                <th style="padding:12px 14px;">Classes</th>
+                                <th style="padding:12px 14px;">Location</th>
+                                <th style="padding:12px 14px;">Status</th>
+                                <th style="padding:12px 14px; text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coachingAffiliationsTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center; padding:30px; color:#64748b;">
+                                    ⏳ Click Refresh to load applications...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: RAZORPAY GATEWAY CONFIGURATION ===== -->
+        <div class="tab-content" id="tab-razorpay-settings">
+            <div class="card" style="border: 1px solid rgba(255,215,0,0.3); background: #ffffff;">
+                <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="icon">💳</span>
+                        <span>Razorpay Official Payment Gateway Configuration</span>
+                    </div>
+                    <span id="rzpStatusBadge" style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;">
+                        ⚙️ Setup Required
+                    </span>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px 20px; margin-bottom:24px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                        <span style="font-size:22px;">⚡</span>
+                        <strong style="color:#0f172a; font-size:15px;">Automated Instant Payments & Digital Downloads</strong>
+                    </div>
+                    <p style="color:#475569; font-size:13px; margin:0; line-height:1.5;">
+                        Configure your <strong>Razorpay API Key ID</strong> and <strong>API Key Secret</strong> below. Razorpay powers 1-click UPI (GPay, PhonePe, Paytm), Debit/Credit Card, and Net Banking payments for <strong>E-Library study documents</strong> and <strong>Coaching Center unblock dues</strong>. Once configured, students can pay instantly and download protected PDFs!
+                    </p>
+                </div>
+
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#1e40af; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span>📌 Need your Razorpay credentials? Generate them from your Razorpay Dashboard:</span>
+                    <a href="https://dashboard.razorpay.com/app/keys" target="_blank" class="btn btn-sm btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        🔑 Open Razorpay API Keys <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+
+                <form id="razorpaySettingsForm" onsubmit="saveRazorpaySettings(event)">
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:6px;">
+                            Razorpay Key ID <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="text" id="razorpayKeyIdInput" placeholder="rzp_live_xxxxxxxxxxxx or rzp_test_xxxxxxxxxxxx" style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-family:monospace; background:#ffffff; outline:none;" required>
+                        <small style="color:#64748b; display:block; margin-top:4px;">
+                            Your Public Razorpay Key ID (starts with <code>rzp_live_</code> or <code>rzp_test_</code>).
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:6px;">
+                            Razorpay Key Secret <span style="color:#ef4444;">*</span>
+                        </label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="password" id="razorpayKeySecretInput" placeholder="Enter your Razorpay Key Secret" style="flex:1; padding:12px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-family:monospace; background:#ffffff; outline:none;" required>
+                            <button type="button" class="btn btn-info" onclick="toggleRzpSecretVisibility()" id="toggleRzpSecretBtn" style="padding:10px 16px;">👁️ Show</button>
+                        </div>
+                        <small style="color:#64748b; display:block; margin-top:4px;">
+                            Used for backend HMAC-SHA256 signature verification to prevent spoofing. Never share this publicly.
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:22px; display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="razorpayEnabledInput" checked style="width:18px; height:18px; accent-color:#10b981; cursor:pointer;">
+                        <label for="razorpayEnabledInput" style="font-weight:600; color:#334155; cursor:pointer; margin:0;">
+                            Enable Live Online Payments on Public Website
+                        </label>
+                    </div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-success" style="padding:12px 28px; font-size:14px; font-weight:700;">
+                            💾 Save Razorpay Credentials
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="testRazorpayConnection()" style="padding:12px 22px; font-size:14px; font-weight:600;">
+                            ⚡ Test Gateway Connection
+                        </button>
+                    </div>
+                </form>
+
+                <div id="rzpTestResultBox" style="display:none; margin-top:20px; padding:14px 18px; border-radius:10px; font-size:13px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: PAYMENT TRANSACTION HISTORY ===== -->
+        <div class="tab-content" id="tab-payment-history">
+            <div class="card">
+                <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="icon">💰</span>
+                        <span>Payment Transactions & Revenue History</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadPaymentTransactions()" style="padding:8px 14px; font-size:13px;">
+                        🔄 Refresh Ledger
+                    </button>
+                </div>
+
+                <div style="overflow-x:auto; margin-top:16px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#f1f5f9; color:#334155; text-align:left; border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px 14px;">Date</th>
+                                <th style="padding:12px 14px;">Purpose</th>
+                                <th style="padding:12px 14px;">Payment ID / Order ID</th>
+                                <th style="padding:12px 14px;">Payer Name</th>
+                                <th style="padding:12px 14px;">Item / Center</th>
+                                <th style="padding:12px 14px;">Amount</th>
+                                <th style="padding:12px 14px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentTransactionsTbody">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:30px; color:#64748b;">
+                                    ⏳ Click Refresh Ledger to load payment records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== TAB: SYSTEM MAINTENANCE, ANTI-SLEEP & RESET ===== -->
         <div class="tab-content" id="tab-system-maintenance">
             <!-- Render Anti-Sleep Live URL Card -->
@@ -1655,6 +1830,7 @@
                 const targetContent = document.getElementById(`tab-${tabName}`);
                 if (targetContent) targetContent.classList.add('active');
                 if (tabName === 'payment-history') loadPaymentTransactions();
+                if (tabName === 'coaching-affiliations') loadCoachingAffiliations();
                 
                 closeSidebarMenu();
                 
@@ -2143,9 +2319,138 @@
                     if (document.getElementById('bhartiVoiceProfile')) {
                         document.getElementById('bhartiVoiceProfile').value = settings.bhartiVoiceProfile || 'Kore';
                     }
+
+                    // Populate Razorpay Gateway Settings
+                    if (document.getElementById('razorpayKeyIdInput')) {
+                        document.getElementById('razorpayKeyIdInput').value = settings.razorpayKeyId || '';
+                    }
+                    if (document.getElementById('razorpayKeySecretInput')) {
+                        document.getElementById('razorpayKeySecretInput').value = settings.razorpayKeySecret || '';
+                    }
+                    if (document.getElementById('razorpayEnabledInput')) {
+                        document.getElementById('razorpayEnabledInput').checked = settings.razorpayEnabled !== false;
+                    }
+
+                    const rzpBadge = document.getElementById('rzpBadge');
+                    const rzpStatusBadge = document.getElementById('rzpStatusBadge');
+                    if (settings.razorpayKeyId && settings.razorpayKeySecret) {
+                        if (rzpBadge) { rzpBadge.textContent = 'Active'; rzpBadge.style.background = '#10b981'; }
+                        if (rzpStatusBadge) { rzpStatusBadge.innerHTML = '✅ Active & Configured'; rzpStatusBadge.style.background = '#dcfce7'; rzpStatusBadge.style.color = '#15803d'; }
+                    } else {
+                        if (rzpBadge) { rzpBadge.textContent = 'Configure'; rzpBadge.style.background = '#f59e0b'; }
+                        if (rzpStatusBadge) { rzpStatusBadge.innerHTML = '⚙️ Setup Required'; rzpStatusBadge.style.background = '#fef3c7'; rzpStatusBadge.style.color = '#b45309'; }
+                    }
+
+                    // Also update coaching affiliations count
+                    loadCoachingAffiliations();
                 }
             } catch (error) {
                 showToast('Error loading settings', true);
+            }
+        }
+
+        async function testRazorpayConnection() {
+            const box = document.getElementById('rzpTestResultBox');
+            if (!box) return;
+            box.style.display = 'block';
+            box.style.background = '#f8fafc';
+            box.style.border = '1px solid #cbd5e1';
+            box.style.color = '#334155';
+            box.innerHTML = '⏳ Testing connection with Razorpay Gateway...';
+
+            try {
+                const res = await apiCall('/api/super-admin/test-razorpay');
+                if (res.success) {
+                    box.style.background = '#f0fdf4';
+                    box.style.border = '1px solid #86efac';
+                    box.style.color = '#166534';
+                    box.innerHTML = `<strong>✅ Gateway Connected Successfully!</strong><br>${res.message} (Key ID: ${res.keyId})`;
+                } else {
+                    box.style.background = '#fef2f2';
+                    box.style.border = '1px solid #fca5a5';
+                    box.style.color = '#991b1b';
+                    box.innerHTML = `<strong>❌ Connection Failed:</strong> ${res.message}`;
+                }
+            } catch (e) {
+                box.style.background = '#fef2f2';
+                box.style.border = '1px solid #fca5a5';
+                box.style.color = '#991b1b';
+                box.innerHTML = `<strong>❌ Connection Error:</strong> ${e.message}`;
+            }
+        }
+
+        async function loadCoachingAffiliations() {
+            const tbody = document.getElementById('coachingAffiliationsTableBody');
+            const badge = document.getElementById('coachingAffiliationBadge');
+            try {
+                const res = await apiCall('/api/super-admin/coaching-affiliations');
+                if (res.success) {
+                    const list = res.data || [];
+                    if (badge) badge.textContent = list.filter(a => a.status === 'pending').length;
+                    if (!tbody) return;
+                    if (list.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:#888;">No coaching affiliation applications yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = list.map(item => {
+                        const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Recent';
+                        const statusBadge = item.status === 'approved'
+                            ? '<span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:6px;font-weight:700;">✅ Approved</span>'
+                            : '<span style="background:#fef3c7;color:#b45309;padding:3px 8px;border-radius:6px;font-weight:700;">⏳ Pending</span>';
+                        return `
+                            <tr>
+                                <td>${dateStr}</td>
+                                <td style="font-weight:700;color:#0f172a;">${item.centerName}</td>
+                                <td>${item.directorName}</td>
+                                <td><a href="tel:${item.contactNumber}" style="color:#2563eb;font-weight:600;">${item.contactNumber}</a></td>
+                                <td>${item.fromClass} - ${item.toClass}</td>
+                                <td>${item.address || '—'}</td>
+                                <td>${statusBadge}</td>
+                                <td style="text-align:center;white-space:nowrap;">
+                                    ${item.status === 'pending' ? `
+                                        <button class="btn btn-sm btn-success" onclick="approveCoachingAffiliation('${item._id}')" style="padding:4px 10px;font-size:12px;margin-right:6px;">
+                                            ✅ Approve & Create
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCoachingAffiliation('${item._id}')" style="padding:4px 8px;font-size:12px;">
+                                        🗑️
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function approveCoachingAffiliation(id) {
+            if (!confirm('Approve this coaching application and generate director login credentials?')) return;
+            try {
+                const res = await apiCall(`/api/super-admin/coaching-affiliations/${id}/approve`, { method: 'POST' });
+                if (res.success) {
+                    alert(res.message + '\n\nCredentials:\nUsername: ' + res.credentials.username + '\nPassword: ' + res.credentials.password);
+                    loadCoachingAffiliations();
+                    if (typeof loadTuitionCenters === 'function') loadTuitionCenters();
+                } else {
+                    showToast(res.message || 'Approval failed', true);
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, true);
+            }
+        }
+
+        async function deleteCoachingAffiliation(id) {
+            if (!confirm('Are you sure you want to delete this application?')) return;
+            try {
+                const res = await apiCall(`/api/super-admin/coaching-affiliations/${id}`, { method: 'DELETE' });
+                if (res.success) {
+                    showToast('Application deleted');
+                    loadCoachingAffiliations();
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, true);
             }
         }
 
