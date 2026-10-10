@@ -848,6 +848,76 @@
             font-size: 13px;
             color: var(--text-slate);
         }
+
+        /* E-Library Search Filter Pills */
+        .vault-filter-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: #cbd5e1;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .vault-filter-pill:hover, .vault-filter-pill.active {
+            background: var(--gold-gradient);
+            color: #050811;
+            border-color: var(--aurora-gold);
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.25);
+        }
+
+        /* Campus & Felicitation Photo Gallery */
+        .gallery-mosaic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-card {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.35s ease;
+        }
+
+        .gallery-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-card-caption {
+            padding: 12px 16px;
+            font-size: 13.5px;
+            color: #ffffff;
+            font-weight: 600;
+            background: rgba(11, 17, 32, 0.95);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        @media print {
+            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -988,6 +1058,22 @@
             <p>Protected academic notes and syllabus guides. Strictly book cover previews — zero browser PDF rendering. Paid documents unlock via Razorpay and download directly to your disk.</p>
         </div>
 
+        <!-- Live Search & Category Filter Bar -->
+        <div style="margin-bottom:32px; display:flex; flex-direction:column; gap:16px; align-items:center;">
+            <div style="position:relative; width:100%; max-width:640px;">
+                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
+                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class (10th, 12th)..." class="verify-input" style="width:100%; padding-left:48px;">
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('free', this)"><i class="fas fa-gift"></i> Free Notes</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 10', this)">Class 10th</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 12', this)">Class 12th</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('science', this)">Science</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('math', this)">Mathematics</button>
+            </div>
+        </div>
+
         <div class="vault-grid" id="booksGrid">
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
                 <i class="fas fa-spinner fa-spin fa-2x"></i>
@@ -1007,6 +1093,21 @@
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
                 <i class="fas fa-spinner fa-spin fa-2x"></i>
                 <p style="margin-top:12px;">Loading partner institutes...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8.5 BOARD CAMPUS & FELICITATION PHOTO GALLERY -->
+    <section class="universe-section" id="gallery">
+        <div class="section-header-elite">
+            <h2>Board Campus & Academic Felicitation Gallery</h2>
+            <p>Glimpses of academic conventions, student awards, state conferences, and certified partner institute campuses across the nation.</p>
+        </div>
+
+        <div class="gallery-mosaic-grid" id="boardGalleryGrid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:12px;">Loading campus & felicitation gallery...</p>
             </div>
         </div>
     </section>
@@ -1232,6 +1333,94 @@
     </div>
 
     <!-- ============================================================
+         MODAL 4: OFFICIAL DIGITAL TAX INVOICE & PAYMENT RECEIPT MODAL
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="taxReceiptModalDock">
+        <div class="modal-body-panel" style="max-width:580px; background:#070c18; border-color:var(--border-glow);">
+            <div class="modal-head-bar no-print">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-file-invoice" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Official Payment Tax Invoice & Receipt</h3>
+                </div>
+                <button type="button" onclick="closeTaxReceiptModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="padding:28px 30px;" id="printableInvoiceContent">
+                <!-- Header with Board Crest -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--aurora-gold); padding-bottom:14px; margin-bottom:18px;">
+                    <div>
+                        <h2 style="font-family:'Cinzel',serif; font-size:20px; color:#ffffff; margin:0;">BBCC SKILL HUB</h2>
+                        <div style="font-size:11px; color:#cbd5e1; text-transform:uppercase; letter-spacing:1px;">Central Academic Board & Directorate</div>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">GSTIN: 07AAACB1234F1Z8 • Reg: Central Directorate, New Delhi</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;">
+                            PAID & VERIFIED
+                        </span>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:5px;" id="rcptDateDisplay">Date: 2026-10-10</div>
+                    </div>
+                </div>
+
+                <!-- Invoice Details Grid -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; font-size:12.5px; background:rgba(255,255,255,0.03); padding:14px; border-radius:12px; border:1px solid var(--border-subtle);">
+                    <div>
+                        <span style="color:#94a3b8; display:block; font-size:11px;">Billed To (Payer):</span>
+                        <strong id="rcptPayerName" style="color:#ffffff;">Student Name</strong>
+                        <div id="rcptPayerPhone" style="color:#cbd5e1; font-size:12px;">+91 98765 43210</div>
+                    </div>
+                    <div>
+                        <span style="color:#94a3b8; display:block; font-size:11px;">Transaction Identifiers:</span>
+                        <div>Order ID: <span id="rcptOrderId" style="font-family:monospace; color:var(--aurora-gold); font-size:11.5px;">ORDER_123</span></div>
+                        <div>Payment ID: <span id="rcptPaymentId" style="font-family:monospace; color:#34d399; font-size:11.5px;">PAY_456</span></div>
+                    </div>
+                </div>
+
+                <!-- Itemized Breakdown Table -->
+                <table style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:18px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-subtle); color:#94a3b8; text-align:left;">
+                            <th style="padding:8px 0;">Item Description</th>
+                            <th style="padding:8px 0; text-align:center;">Qty</th>
+                            <th style="padding:8px 0; text-align:right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.06); color:#ffffff;">
+                            <td style="padding:10px 0;">
+                                <strong id="rcptItemTitle">E-Library Academic Document</strong>
+                                <div id="rcptItemMeta" style="font-size:11px; color:#94a3b8;">Direct Download License • Digital Academic Curriculum</div>
+                            </td>
+                            <td style="padding:10px 0; text-align:center;">1</td>
+                            <td style="padding:10px 0; text-align:right; font-weight:700;" id="rcptBasePrice">₹49.00</td>
+                        </tr>
+                        <tr style="color:#94a3b8; font-size:12px;">
+                            <td style="padding:6px 0;" colspan="2">CGST (9%) + SGST (9%) [Tax Included]</td>
+                            <td style="padding:6px 0; text-align:right;" id="rcptGstPrice">₹7.47</td>
+                        </tr>
+                        <tr style="border-top:2px solid var(--aurora-gold); font-size:14px; font-weight:800; color:#ffffff;">
+                            <td style="padding:10px 0;" colspan="2">Total Paid Amount:</td>
+                            <td style="padding:10px 0; text-align:right; color:var(--aurora-gold);" id="rcptTotalPrice">₹49.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Bottom Seal & Print Bar -->
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:14px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-stamp" style="color:var(--aurora-gold); font-size:22px;"></i>
+                        <span style="font-size:11px; color:#94a3b8;">BBCC Central Directorate Authenticated Digital Seal</span>
+                    </div>
+                    <div class="no-print" style="display:flex; gap:10px;">
+                        <button type="button" onclick="window.print()" class="btn-aurora btn-aurora-gold" style="padding:6px 16px; font-size:12px;">
+                            <i class="fas fa-print"></i> Print Receipt
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
          FLOATING BHARTI AI HELPLINE INTERACTIVE WIDGET
          ============================================================ -->
     <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
@@ -1250,7 +1439,12 @@
                     <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Helpline Active</span>
                 </div>
             </div>
-            <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" id="btnTtsToggle" onclick="toggleTtsVoice()" title="Toggle Voice Speech" style="background:none; border:none; color:var(--aurora-gold); font-size:15px; cursor:pointer;">
+                    <i class="fas fa-volume-high"></i>
+                </button>
+                <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
         </div>
 
         <div class="bharti-chat-body" id="bhartiChatMessages">
@@ -1268,7 +1462,10 @@
         </div>
 
         <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
-            <input type="text" id="bhartiUserInput" required placeholder="Type your academic or coaching question..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
+            <button type="button" id="btnMicToggle" onclick="toggleSpeechRecognition()" title="Voice Microphone Input" style="background:none; border:none; color:#cbd5e1; font-size:16px; cursor:pointer; padding:0 8px;">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input type="text" id="bhartiUserInput" required placeholder="Type or speak your academic question..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
             <button type="submit" id="btnBhartiSend" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -1322,10 +1519,67 @@
                         document.getElementById('selfRegFeeBadge').textContent = feeStr;
                         document.getElementById('selfRegPayBtnText').textContent = publicConfig.affiliationFee > 0 ? `Pay ${feeStr} Affiliation Fee & Activate Live` : `Activate Coaching Center Instantly (Free)`;
                     }
+                    if (publicConfig.gallery) {
+                        renderGallery(publicConfig.gallery);
+                    }
                 }
             } catch(e) {
                 console.error('Config fetch notice:', e);
             }
+        }
+
+        function renderGallery(items) {
+            const grid = document.getElementById('boardGalleryGrid');
+            if (!grid) return;
+            if (!items || items.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Campus & felicitation photos will be published shortly.</div>';
+                return;
+            }
+            grid.innerHTML = items.map(img => `
+                <div class="gallery-card">
+                    <img src="${img.image}" alt="${img.title || 'Board Campus Photo'}">
+                    <div class="gallery-card-caption">
+                        <i class="fas fa-camera-retro" style="color:var(--aurora-gold); margin-right:6px;"></i> ${img.title || 'Campus Event'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentFilterTag = 'all';
+
+        function applyBookFilter(tag, btn) {
+            currentFilterTag = tag.toLowerCase();
+            document.querySelectorAll('.vault-filter-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterVaultBooks();
+        }
+
+        function filterVaultBooks() {
+            const query = (document.getElementById('vaultSearchInput') ? document.getElementById('vaultSearchInput').value : '').trim().toLowerCase();
+            let filtered = allBooks;
+
+            if (currentFilterTag === 'free') {
+                filtered = filtered.filter(b => (Number(b.price) || 0) === 0);
+            } else if (currentFilterTag === 'class 10') {
+                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('10'));
+            } else if (currentFilterTag === 'class 12') {
+                filtered = filtered.filter(b => (b.classLevel || '').toLowerCase().includes('12'));
+            } else if (currentFilterTag === 'science') {
+                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('science'));
+            } else if (currentFilterTag === 'math') {
+                filtered = filtered.filter(b => (b.subject || '').toLowerCase().includes('math'));
+            }
+
+            if (query) {
+                filtered = filtered.filter(b =>
+                    (b.title || '').toLowerCase().includes(query) ||
+                    (b.subject || '').toLowerCase().includes(query) ||
+                    (b.classLevel || '').toLowerCase().includes(query) ||
+                    (b.description || '').toLowerCase().includes(query)
+                );
+            }
+
+            renderBooks(filtered);
         }
 
         async function loadPromotionalBanners() {
@@ -1380,7 +1634,7 @@
                 if (data.success && data.data && data.data.notes) {
                     allBooks = data.data.notes;
                     document.getElementById('statBooksCount').textContent = allBooks.length + '+';
-                    renderBooks(allBooks);
+                    filterVaultBooks();
                 } else {
                     renderBooks([]);
                 }
@@ -1654,6 +1908,16 @@
                             if (vData.success) {
                                 showSelfRegSuccess(payload.centerName, payload.username);
                                 await loadCenters();
+                                openTaxReceiptModal({
+                                    orderId: resp.razorpay_order_id,
+                                    paymentId: resp.razorpay_payment_id,
+                                    payerName: payload.directorName,
+                                    payerPhone: payload.contactNumber,
+                                    itemTitle: `Board Affiliation Certification: ${payload.centerName}`,
+                                    itemMeta: 'Institutional Recognition & Dedicated Microsite License',
+                                    totalPrice: data.amount || 999,
+                                    paidDate: new Date()
+                                });
                             } else {
                                 btn.disabled = false;
                                 btnText.textContent = 'Pay Affiliation Fee & Activate Live';
@@ -1801,6 +2065,16 @@
                             if (vData.success) {
                                 triggerDownload(vData.file, vData.fileName);
                                 showDockSuccess(vData.file, vData.fileName);
+                                openTaxReceiptModal({
+                                    orderId: resp.razorpay_order_id,
+                                    paymentId: resp.razorpay_payment_id,
+                                    payerName: name,
+                                    payerPhone: phone,
+                                    itemTitle: document.getElementById('dockDocTitle').textContent,
+                                    itemMeta: document.getElementById('dockDocSpecs').textContent,
+                                    totalPrice: price,
+                                    paidDate: new Date()
+                                });
                             } else {
                                 btn.disabled = false;
                                 btnText.textContent = `Pay ₹${price} via Razorpay`;
@@ -1877,8 +2151,115 @@
         }
 
         // ============================================
-        // BHARTI AI HELPLINE INTERACTIVE ASSISTANT
+        // DIGITAL TAX INVOICE & PAYMENT RECEIPT MODAL
         // ============================================
+        function openTaxReceiptModal(info) {
+            if (!info) return;
+            const price = Number(info.totalPrice) || 0;
+            const basePrice = (price / 1.18).toFixed(2);
+            const gst = (price - basePrice).toFixed(2);
+
+            document.getElementById('rcptOrderId').textContent = info.orderId || ('BBCC_TXN_' + Date.now());
+            document.getElementById('rcptPaymentId').textContent = info.paymentId || ('PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase());
+            document.getElementById('rcptPayerName').textContent = info.payerName || 'Student / Center Partner';
+            document.getElementById('rcptPayerPhone').textContent = info.payerPhone || '';
+            document.getElementById('rcptItemTitle').textContent = info.itemTitle || 'Academic Curriculum Document';
+            document.getElementById('rcptItemMeta').textContent = info.itemMeta || 'Verified Central Board Learning Resource';
+            document.getElementById('rcptBasePrice').textContent = `₹${basePrice}`;
+            document.getElementById('rcptGstPrice').textContent = `₹${gst}`;
+            document.getElementById('rcptTotalPrice').textContent = `₹${price.toFixed(2)}`;
+            document.getElementById('rcptDateDisplay').textContent = 'Date: ' + (info.paidDate ? new Date(info.paidDate).toLocaleString() : new Date().toLocaleString());
+
+            document.getElementById('taxReceiptModalDock').style.display = 'flex';
+        }
+
+        function closeTaxReceiptModal() {
+            document.getElementById('taxReceiptModalDock').style.display = 'none';
+        }
+
+        // ============================================
+        // BHARTI AI HELPLINE VOICE & INTERACTIVE ASSISTANT
+        // ============================================
+        let isVoiceEnabled = true;
+        let recognition = null;
+        let isListening = false;
+
+        function toggleTtsVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const btn = document.getElementById('btnTtsToggle');
+            if (btn) {
+                btn.style.color = isVoiceEnabled ? 'var(--aurora-gold)' : '#64748b';
+                btn.innerHTML = isVoiceEnabled ? '<i class="fas fa-volume-high"></i>' : '<i class="fas fa-volume-xmark"></i>';
+            }
+            if (!isVoiceEnabled && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakBhartiReply(text) {
+            if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                const cleanText = text.replace(/[*#_~`>\[\]\(\)]/g, ' ').replace(/\s+/g, ' ').trim();
+                const utter = new SpeechSynthesisUtterance(cleanText);
+                utter.lang = 'hi-IN';
+                utter.rate = 1.0;
+                utter.pitch = 1.05;
+                window.speechSynthesis.speak(utter);
+            } catch(e) {
+                console.warn('Speech synthesis error:', e);
+            }
+        }
+
+        function toggleSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                alert('Microphone voice recognition is not supported in this browser. Please type your question.');
+                return;
+            }
+            const micBtn = document.getElementById('btnMicToggle');
+            if (!recognition) {
+                recognition = new SpeechRec();
+                recognition.lang = 'hi-IN';
+                recognition.interimResults = false;
+                recognition.onstart = () => {
+                    isListening = true;
+                    if (micBtn) {
+                        micBtn.style.color = '#ef4444';
+                        micBtn.innerHTML = '<i class="fas fa-microphone-lines fa-beat"></i>';
+                    }
+                };
+                recognition.onresult = (e) => {
+                    const transcript = e.results[0][0].transcript;
+                    const input = document.getElementById('bhartiUserInput');
+                    if (input) {
+                        input.value = transcript;
+                        submitBhartiMessage(new Event('submit'));
+                    }
+                };
+                recognition.onerror = () => {
+                    isListening = false;
+                    if (micBtn) {
+                        micBtn.style.color = '#cbd5e1';
+                        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    }
+                };
+                recognition.onend = () => {
+                    isListening = false;
+                    if (micBtn) {
+                        micBtn.style.color = '#cbd5e1';
+                        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    }
+                };
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
         function toggleBhartiChat() {
             const panel = document.getElementById('bhartiChatPanel');
             panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
@@ -1965,6 +2346,11 @@
                 aiBubble.innerHTML = html;
                 chatBody.appendChild(aiBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
+
+                // Voice audio speech
+                if (data.reply) {
+                    speakBhartiReply(data.reply);
+                }
             } catch(err) {
                 loadBubble.innerHTML = '<span style="color:#fca5a5;">Bharti AI connection timeout. Please check your network.</span>';
             }

@@ -509,8 +509,25 @@
                 </div>
 
                 <div class="studio-card">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Published Notes</h3>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Published Center Notes</h3>
                     <div id="materialsListDock"></div>
+                </div>
+
+                <div class="studio-card" style="border-color:var(--border-glow);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold);">
+                                <i class="fas fa-file-shield"></i> Official Board Syllabus & Raw Educational Data
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Official curriculum documents, question banks, and syllabus files provided by the BBCC Central Directorate.</p>
+                        </div>
+                        <button type="button" onclick="loadRawMaterials()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh Files
+                        </button>
+                    </div>
+                    <div id="rawMaterialsDock">
+                        <div style="color:#94a3b8; font-size:13px; text-align:center; padding:20px;">Loading central board syllabus files...</div>
+                    </div>
                 </div>
             </div>
 
@@ -564,6 +581,18 @@
                             <input type="text" id="cpHeaderNotice" placeholder="e.g. Free demo class every Sunday at 10 AM!" class="studio-input">
                         </div>
                         <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1;">Microsite Footer Custom Notice / Tagline</label>
+                            <input type="text" id="cpFooterText" placeholder="e.g. Committed to academic excellence & personalized student mentoring." class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Upload Institute Logo (Optional)</label>
+                            <input type="file" id="cpLogoInput" accept="image/*" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Upload Director Photo (Optional)</label>
+                            <input type="file" id="cpPhotoInput" accept="image/*" class="studio-input">
+                        </div>
+                        <div style="grid-column:1/-1;">
                             <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
                             <input type="text" id="cpAddress" class="studio-input">
                         </div>
@@ -572,7 +601,7 @@
                             <textarea id="cpDesc" rows="3" class="studio-input" style="resize:vertical;"></textarea>
                         </div>
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Profile Settings</button>
+                            <button type="submit" id="btnSaveProfile" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Profile & Branding</button>
                         </div>
                     </form>
                 </div>
@@ -669,6 +698,7 @@
                 loadBanners();
                 loadStudents();
                 loadInquiries();
+                loadRawMaterials();
             } catch(e) {
                 console.error(e);
             }
@@ -698,6 +728,7 @@
             document.getElementById('cpEmail').value = c.email || '';
             document.getElementById('cpEncLink').value = c.encryptedCallLink || '';
             document.getElementById('cpHeaderNotice').value = c.headerNotice || '';
+            if (document.getElementById('cpFooterText')) document.getElementById('cpFooterText').value = c.footerText || '';
             document.getElementById('cpAddress').value = c.address || '';
             document.getElementById('cpDesc').value = c.description || '';
 
@@ -1024,27 +1055,110 @@
         // Profile settings
         async function saveProfileSettings(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnSaveProfile');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving Profile...';
+            }
+
+            let clogo = undefined;
+            const logoInput = document.getElementById('cpLogoInput');
+            if (logoInput && logoInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(logoInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                clogo = reader.result;
+            }
+
+            let directorPhoto = undefined;
+            const photoInput = document.getElementById('cpPhotoInput');
+            if (photoInput && photoInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(photoInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                directorPhoto = reader.result;
+            }
+
             const payload = {
                 contactNumber: document.getElementById('cpPhone').value.trim(),
                 whatsappNumber: document.getElementById('cpWhatsapp').value.trim(),
                 email: document.getElementById('cpEmail').value.trim(),
                 encryptedCallLink: document.getElementById('cpEncLink').value.trim(),
                 headerNotice: document.getElementById('cpHeaderNotice').value.trim(),
+                footerText: document.getElementById('cpFooterText') ? document.getElementById('cpFooterText').value.trim() : '',
                 address: document.getElementById('cpAddress').value.trim(),
                 description: document.getElementById('cpDesc').value.trim()
             };
+            if (clogo) payload.clogo = clogo;
+            if (directorPhoto) payload.directorPhoto = directorPhoto;
 
-            const res = await fetch('/api/director/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Institute profile settings and header notice saved successfully!');
+            try {
+                const res = await fetch('/api/director/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Institute profile, custom branding & footer notice saved successfully!');
+                    initDirectorStudio();
+                } else {
+                    alert(data.message || 'Error saving institute profile');
+                }
+            } catch(err) {
+                alert('Connection error saving profile: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save"></i> Save Profile & Branding';
+                }
+            }
+        }
+
+        // Official Board Syllabus & Raw Materials
+        async function loadRawMaterials() {
+            const dock = document.getElementById('rawMaterialsDock');
+            if (!dock) return;
+            try {
+                const res = await fetch('/api/director/raw-materials', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; text-align:center; padding:20px;">No official curriculum documents or raw data files assigned to this center yet.</div>';
+                        return;
+                    }
+                    dock.innerHTML = data.data.map(doc => {
+                        const fileExt = (doc.fileType || 'pdf').toUpperCase();
+                        const downloadName = doc.fileName || (doc.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (doc.fileType || 'pdf'));
+                        return `
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                                <div>
+                                    <strong style="color:#ffffff; font-size:14.5px;">
+                                        <i class="fas fa-file-shield" style="color:var(--aurora-gold); margin-right:8px;"></i>${doc.title}
+                                    </strong>
+                                    <div style="font-size:12px; color:#94a3b8; margin-top:4px;">
+                                        ${doc.subject || 'All Subjects'} • ${doc.classLevel || 'General'} • Target Scope: <span style="color:#fbbf24; font-weight:600;">${doc.targetCenterName || 'Universal Board'}</span>
+                                    </div>
+                                    ${doc.description ? `<div style="font-size:12px; color:#cbd5e1; margin-top:3px;">${doc.description}</div>` : ''}
+                                </div>
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(245,158,11,0.15); color:#fbbf24; font-weight:700;">RAW DATA / ${fileExt}</span>
+                                    <a href="${doc.file}" download="${downloadName}" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; text-decoration:none;">
+                                        <i class="fas fa-download"></i> Direct Download
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch(e) {
+                console.error('Error loading raw curriculum materials:', e);
+                dock.innerHTML = '<div style="color:#ef4444; font-size:13px; text-align:center;">Failed to load curriculum files.</div>';
             }
         }
 

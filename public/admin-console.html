@@ -213,6 +213,12 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('vault')">
                 <i class="fas fa-book-bookmark"></i> E-Library & Raw Data
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('banners')">
+                <i class="fas fa-images"></i> Promotional Banners Network
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('gallery')">
+                <i class="fas fa-camera-retro"></i> Board Campus Gallery
+            </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('students')">
                 <i class="fas fa-id-card"></i> Student Enrolment Roster
             </button>
@@ -496,6 +502,58 @@
                 </div>
             </div>
 
+            <!-- TAB 7: PROMOTIONAL BANNERS NETWORK -->
+            <div class="admin-tab" id="tab-banners">
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0;">Partner Institutes Promotional Banners Network</h3>
+                            <p style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">Review and moderate promotional announcements uploaded by coaching centers across the nation.</p>
+                        </div>
+                        <button onclick="loadAllBanners()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh Banners
+                        </button>
+                    </div>
+                    <div id="allBannersGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px;">
+                        <div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">Loading banners...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: BOARD CAMPUS PHOTO GALLERY -->
+            <div class="admin-tab" id="tab-gallery">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Upload Campus & Felicitation Photo</h3>
+                    <form onsubmit="uploadGalleryPhoto(event)" style="display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:end;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Photo Caption / Title *</label>
+                            <input type="text" id="galTitleInput" required placeholder="e.g. Annual Academic Awards 2026" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Select Image File *</label>
+                            <input type="file" id="galFileInput" required accept="image/*" class="console-input">
+                        </div>
+                        <div>
+                            <button type="submit" id="btnUploadGal" class="btn-aurora btn-gold" style="padding:12px 20px;">
+                                <i class="fas fa-upload"></i> Upload to Gallery
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-console" style="margin-top:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0;">Active Campus & Felicitation Photos</h3>
+                        <button onclick="loadAdminGallery()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="adminGalleryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px;">
+                        <div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">Loading gallery photos...</div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -687,10 +745,166 @@
             if (event && event.currentTarget) event.currentTarget.classList.add('active');
             if (tId === 'centers') loadCentersList();
             if (tId === 'vault') loadVaultBooks();
+            if (tId === 'banners') loadAllBanners();
+            if (tId === 'gallery') loadAdminGallery();
             if (tId === 'students') loadStudents();
             if (tId === 'settings') loadSettingsData();
             if (tId === 'affiliations') loadAffiliations();
             if (tId === 'transactions') loadTransactions();
+        }
+
+        // ============================================
+        // PROMOTIONAL BANNERS NETWORK MANAGEMENT
+        // ============================================
+        async function loadAllBanners() {
+            const grid = document.getElementById('allBannersGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch('/api/admin/banners', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">No promotional banners uploaded across all centers yet.</div>';
+                        return;
+                    }
+                    grid.innerHTML = data.data.map(b => `
+                        <div style="background:var(--admin-card); border:1px solid var(--border-glow); border-radius:14px; overflow:hidden;">
+                            <img src="${b.image}" style="width:100%; height:160px; object-fit:cover;">
+                            <div style="padding:14px;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <div>
+                                        <strong style="color:#ffffff; font-size:14px;">${b.title}</strong>
+                                        <div style="color:var(--admin-gold); font-size:12px;">Center: ${b.centerName} (${b.username})</div>
+                                    </div>
+                                    <button onclick="deleteBanner('${b.centerId}', '${b._id}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 8px; font-size:11px;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                                <div style="font-size:12px; color:#94a3b8;">${b.subtitle || 'Active announcement'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#ef4444; padding:20px;">Error loading banners.</div>';
+            }
+        }
+
+        async function deleteBanner(centerId, bannerId) {
+            if (!confirm('Permanently remove this banner from the network?')) return;
+            try {
+                const res = await fetch(`/api/admin/banners/${centerId}/${bannerId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadAllBanners();
+                } else {
+                    alert(data.message || 'Error deleting banner');
+                }
+            } catch(e) {
+                alert('Connection error');
+            }
+        }
+
+        // ============================================
+        // BOARD CAMPUS PHOTO GALLERY MANAGEMENT
+        // ============================================
+        async function loadAdminGallery() {
+            const grid = document.getElementById('adminGalleryGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch('/api/public/config');
+                const data = await res.json();
+                if (data.success && data.data && data.data.gallery) {
+                    const gallery = data.data.gallery;
+                    if (gallery.length === 0) {
+                        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">No campus gallery photos uploaded yet.</div>';
+                        return;
+                    }
+                    grid.innerHTML = gallery.map(img => `
+                        <div style="background:var(--admin-card); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden;">
+                            <img src="${img.image}" style="width:100%; height:160px; object-fit:cover;">
+                            <div style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="font-size:13px; color:#ffffff;">${img.title || 'Campus Event'}</strong>
+                                <button onclick="deleteGalleryPhoto('${img._id}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 8px; font-size:11px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#ef4444; padding:20px;">Error loading gallery photos.</div>';
+            }
+        }
+
+        async function uploadGalleryPhoto(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnUploadGal');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+            const title = document.getElementById('galTitleInput').value.trim();
+            const fileInput = document.getElementById('galFileInput');
+
+            if (!fileInput.files.length) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Upload to Gallery';
+                return alert('Please select an image file');
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(fileInput.files[0]);
+            await new Promise(r => reader.onload = r);
+            const imageBase64 = reader.result;
+
+            try {
+                const res = await fetch('/api/admin/gallery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, image: imageBase64 })
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Upload to Gallery';
+
+                if (data.success) {
+                    alert('Photo published to Board Campus Gallery!');
+                    e.target.reset();
+                    loadAdminGallery();
+                } else {
+                    alert(data.message || 'Error uploading photo');
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Upload to Gallery';
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        async function deleteGalleryPhoto(gid) {
+            if (!confirm('Remove this photo from the campus gallery?')) return;
+            try {
+                const res = await fetch(`/api/admin/gallery/${gid}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadAdminGallery();
+                } else {
+                    alert(data.message || 'Error removing photo');
+                }
+            } catch(e) {
+                alert('Connection error');
+            }
         }
 
         async function initAdminConsole() {

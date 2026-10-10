@@ -728,9 +728,38 @@ app.post('/api/pay/create-document-order', async (req, res) => {
         // CASE B: Paid Document -> Generate Razorpay Order
         const { client, keyId } = await getRazorpayClient();
         if (!client) {
-            return res.status(400).json({
-                success: false,
-                message: 'Razorpay Payment Gateway is currently in setup mode. Super Admin can configure API keys in Admin Console.'
+            // Instant Test Simulation when Razorpay keys are not configured yet
+            note.downloadCount = (note.downloadCount || 0) + 1;
+            await sm.save();
+
+            const orderId = 'TEST_DOC_' + Date.now();
+            const paymentId = 'TEST_PAY_' + crypto.randomBytes(4).toString('hex').toUpperCase();
+
+            await PaymentTransaction.create({
+                orderId: orderId,
+                paymentId: paymentId,
+                purpose: 'document_purchase',
+                amount: price,
+                status: 'paid',
+                payerName: (payerName || 'Test Student').trim(),
+                payerPhone: (payerPhone || '9876543210').trim(),
+                payerEmail: (payerEmail || '').trim(),
+                docId: note._id.toString(),
+                docTitle: note.title,
+                paidAt: new Date()
+            });
+
+            return res.json({
+                success: true,
+                free: true,
+                isTestSandbox: true,
+                orderId: orderId,
+                paymentId: paymentId,
+                amount: price,
+                file: note.file || note.pdf,
+                fileName: note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf')),
+                fileType: note.fileType || 'pdf',
+                message: 'Test sandbox payment verified! Document download starting.'
             });
         }
 
@@ -908,9 +937,54 @@ app.post('/api/pay/create-affiliation-order', async (req, res) => {
         // Paid Affiliation -> Razorpay Order
         const { client, keyId } = await getRazorpayClient();
         if (!client) {
-            return res.status(400).json({
-                success: false,
-                message: 'Razorpay Gateway is in setup mode. Please contact BBCC Super Admin.'
+            // Test Sandbox Instant Activation
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
+
+            const newCenter = await TuitionCenter.create({
+                centerName: centerName.trim(),
+                username: cleanUser,
+                password: hashedPassword,
+                directorName: directorName.trim(),
+                contactNumber: contactNumber.trim(),
+                whatsappNumber: (whatsappNumber || contactNumber).trim(),
+                email: (email || '').trim(),
+                fromClass: fromClass || 'Class 6th',
+                toClass: toClass || 'Class 12th',
+                address: address.trim(),
+                affiliationCertificateId: certId,
+                affiliationPaid: true,
+                isBlocked: false,
+                dueAmount: 0
+            });
+
+            const orderId = 'TEST_AFF_' + Date.now();
+            const paymentId = 'TEST_PAY_' + crypto.randomBytes(4).toString('hex').toUpperCase();
+
+            await PaymentTransaction.create({
+                orderId: orderId,
+                paymentId: paymentId,
+                purpose: 'coaching_affiliation',
+                amount: affiliationFee,
+                status: 'paid',
+                payerName: directorName,
+                payerPhone: contactNumber,
+                payerEmail: email || '',
+                centerId: newCenter._id.toString(),
+                centerName: newCenter.centerName,
+                paidAt: new Date()
+            });
+
+            return res.json({
+                success: true,
+                direct: true,
+                isTestSandbox: true,
+                orderId: orderId,
+                paymentId: paymentId,
+                amount: affiliationFee,
+                message: 'Institute registered and activated instantly via test sandbox mode!',
+                centerName: newCenter.centerName,
+                username: newCenter.username
             });
         }
 
@@ -1458,6 +1532,38 @@ app.get('/api/director/affiliation-certificate', verifyDirector, async (req, res
     }
 });
 
+// 7.9 Get Official Central Board Raw Data & Syllabus Assigned to this Center
+app.get('/api/director/raw-materials', verifyDirector, async (req, res) => {
+    try {
+        const sm = await StudyMaterial.findOne();
+        if (!sm || !sm.notes) return res.json({ success: true, data: [] });
+
+        const centerId = req.center.centerId.toString();
+        // Return notes targeted to 'all' or this specific center
+        const targeted = sm.notes.filter(n => 
+            !n.targetCenterId || 
+            n.targetCenterId === 'all' || 
+            n.targetCenterId === centerId
+        ).map(n => ({
+            _id: n._id,
+            title: n.title,
+            subject: n.subject,
+            classLevel: n.classLevel,
+            description: n.description,
+            fileType: n.fileType,
+            fileName: n.fileName,
+            file: n.file || n.pdf,
+            isRawData: n.isRawData || false,
+            targetCenterName: n.targetCenterName,
+            createdAt: n.createdAt
+        }));
+
+        res.json({ success: true, data: targeted });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ============================================================
 // 8. SUPER ADMIN CONSOLE APIS (FULL MASTER CENTER & DOC EDITORS)
 // ============================================================
@@ -1796,6 +1902,73 @@ app.get('/api/admin/students', verifySuperAdmin, async (req, res) => {
     try {
         const students = await Student.find().sort({ createdAt: -1 });
         res.json({ success: true, data: students });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.14 Get All Promotional Banners from All Centers for Super Admin Review
+app.get('/api/admin/banners', verifySuperAdmin, async (req, res) => {
+    try {
+        const centers = await TuitionCenter.find({}, { centerName: 1, username: 1, promotionalBanners: 1 });
+        const list = [];
+        centers.forEach(c => {
+            (c.promotionalBanners || []).forEach(b => {
+                list.push({
+                    _id: b._id,
+                    centerId: c._id,
+                    centerName: c.centerName,
+                    username: c.username,
+                    title: b.title,
+                    subtitle: b.subtitle,
+                    image: b.image,
+                    link: b.link,
+                    active: b.active !== false,
+                    uploadedAt: b.uploadedAt
+                });
+            });
+        });
+        res.json({ success: true, data: list });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.15 Delete Banner from Super Admin Console
+app.delete('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) => {
+    try {
+        const center = await TuitionCenter.findById(req.params.cid);
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        center.promotionalBanners = (center.promotionalBanners || []).filter(b => b._id.toString() !== req.params.bid);
+        await center.save();
+        res.json({ success: true, message: 'Banner removed by Super Admin' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.16 Board Campus Photo Gallery Management
+app.post('/api/admin/gallery', verifySuperAdmin, async (req, res) => {
+    try {
+        const { image, title } = req.body;
+        if (!image) return res.status(400).json({ success: false, message: 'Image required' });
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+        settings.gallery.push({ image, title: title || 'Campus Highlight' });
+        await settings.save();
+        res.json({ success: true, message: 'Photo added to Board Gallery!', data: settings.gallery });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/admin/gallery/:gid', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) return res.status(404).json({ success: false, message: 'Settings not found' });
+        settings.gallery = settings.gallery.filter(g => g._id.toString() !== req.params.gid);
+        await settings.save();
+        res.json({ success: true, message: 'Photo removed from Gallery' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

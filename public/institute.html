@@ -671,6 +671,7 @@
 
     <!-- 8. Footer -->
     <footer style="text-align:center; padding:40px 20px 20px; font-size:13px; color:#94a3b8; border-top:1px solid var(--border-subtle);">
+        <p id="instCustomFooterText" style="margin-bottom:12px; color:#cbd5e1; font-size:13.5px; font-style:italic; display:none;"></p>
         <p style="margin-bottom:12px;">
             © 2026 <span id="instFooterName">Partner Coaching Center</span> • Affiliated with 
             <a href="/" style="color:var(--inst-gold); font-weight:700; text-decoration:none;">BBCC SKILL HUB</a>
@@ -698,7 +699,12 @@
                     <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Center Desk Active</span>
                 </div>
             </div>
-            <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" id="btnTtsToggle" onclick="toggleTtsVoice()" title="Toggle Voice Speech" style="background:none; border:none; color:var(--inst-gold); font-size:15px; cursor:pointer;">
+                    <i class="fas fa-volume-high"></i>
+                </button>
+                <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
         </div>
 
         <div class="bharti-chat-body" id="bhartiChatMessages">
@@ -708,6 +714,9 @@
         </div>
 
         <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
+            <button type="button" id="btnMicToggle" onclick="toggleSpeechRecognition()" title="Voice Microphone Input" style="background:none; border:none; color:#cbd5e1; font-size:16px; cursor:pointer; padding:0 8px;">
+                <i class="fas fa-microphone"></i>
+            </button>
             <input type="text" id="bhartiUserInput" required placeholder="Ask about fees, timings, director..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
             <button type="submit" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
                 <i class="fas fa-paper-plane"></i>
@@ -786,6 +795,14 @@
             if (c.headerNotice && c.headerNotice.trim()) {
                 document.getElementById('instNoticeText').textContent = c.headerNotice;
                 document.getElementById('instNoticeStrip').style.display = 'flex';
+            }
+
+            if (c.footerText && c.footerText.trim()) {
+                const ft = document.getElementById('instCustomFooterText');
+                if (ft) {
+                    ft.textContent = c.footerText;
+                    ft.style.display = 'block';
+                }
             }
 
             if (c.clogo) {
@@ -913,7 +930,87 @@
             }
         }
 
-        // BHARTI AI on Institute Microsite
+        // BHARTI AI Voice Synthesis & Recognition on Institute Microsite
+        let isVoiceEnabled = true;
+        let recognition = null;
+        let isListening = false;
+
+        function toggleTtsVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const btn = document.getElementById('btnTtsToggle');
+            if (btn) {
+                btn.style.color = isVoiceEnabled ? 'var(--inst-gold)' : '#64748b';
+                btn.innerHTML = isVoiceEnabled ? '<i class="fas fa-volume-high"></i>' : '<i class="fas fa-volume-xmark"></i>';
+            }
+            if (!isVoiceEnabled && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakBhartiReply(text) {
+            if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                const cleanText = text.replace(/[*#_~`>\[\]\(\)]/g, ' ').replace(/\s+/g, ' ').trim();
+                const utter = new SpeechSynthesisUtterance(cleanText);
+                utter.lang = 'hi-IN';
+                utter.rate = 1.0;
+                utter.pitch = 1.05;
+                window.speechSynthesis.speak(utter);
+            } catch(e) {
+                console.warn('Speech synthesis error:', e);
+            }
+        }
+
+        function toggleSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                alert('Microphone speech recognition is not supported in this browser. Please type your message.');
+                return;
+            }
+            const micBtn = document.getElementById('btnMicToggle');
+            if (!recognition) {
+                recognition = new SpeechRec();
+                recognition.lang = 'hi-IN';
+                recognition.interimResults = false;
+                recognition.onstart = () => {
+                    isListening = true;
+                    if (micBtn) {
+                        micBtn.style.color = '#ef4444';
+                        micBtn.innerHTML = '<i class="fas fa-microphone-lines fa-beat"></i>';
+                    }
+                };
+                recognition.onresult = (e) => {
+                    const transcript = e.results[0][0].transcript;
+                    const input = document.getElementById('bhartiUserInput');
+                    if (input) {
+                        input.value = transcript;
+                        submitBhartiMessage(new Event('submit'));
+                    }
+                };
+                recognition.onerror = () => {
+                    isListening = false;
+                    if (micBtn) {
+                        micBtn.style.color = '#cbd5e1';
+                        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    }
+                };
+                recognition.onend = () => {
+                    isListening = false;
+                    if (micBtn) {
+                        micBtn.style.color = '#cbd5e1';
+                        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    }
+                };
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
         function toggleBhartiChat() {
             const panel = document.getElementById('bhartiChatPanel');
             panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
@@ -986,6 +1083,11 @@
                 aiBubble.innerHTML = html;
                 chatBody.appendChild(aiBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
+
+                // Voice audio speech
+                if (data.reply) {
+                    speakBhartiReply(data.reply);
+                }
             } catch(err) {
                 loadBubble.innerHTML = '<span style="color:#fca5a5;">Connection error.</span>';
             }
