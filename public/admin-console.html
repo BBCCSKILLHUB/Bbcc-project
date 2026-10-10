@@ -1265,7 +1265,7 @@
                     box.style.background = 'rgba(16,185,129,0.15)';
                     box.style.borderColor = '#10b981';
                     box.style.color = '#86efac';
-                    box.innerHTML = `<i class="fas fa-check-circle"></i> <b>Gemini Live Connected!</b> Response: "${data.reply}"`;
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> <b>${data.message || 'Gemini Live Connected!'}</b><div style="margin-top:6px; color:#ffffff; font-style:italic; font-size:12.5px;">"${data.reply || data.sampleReply}"</div>`;
                 } else {
                     box.style.background = 'rgba(239,68,68,0.15)';
                     box.style.borderColor = '#ef4444';

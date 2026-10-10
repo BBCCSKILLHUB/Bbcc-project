@@ -373,6 +373,127 @@ async function getRazorpayClient() {
     }
 }
 
+// Cache discovered active Gemini model per apiKey to avoid extra network latency
+const activeGeminiModelCache = new Map();
+
+async function getBestGeminiModel(apiKey) {
+    if (!apiKey) return 'gemini-2.0-flash';
+    if (activeGeminiModelCache.has(apiKey)) {
+        return activeGeminiModelCache.get(apiKey);
+    }
+
+    try {
+        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        if (listRes.ok) {
+            const listData = await listRes.json();
+            if (listData && Array.isArray(listData.models)) {
+                const usableModels = listData.models
+                    .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+                    .map(m => m.name.replace(/^models\//, ''));
+
+                if (usableModels.length > 0) {
+                    const chosen =
+                        usableModels.find(m => m === 'gemini-2.0-flash') ||
+                        usableModels.find(m => m.includes('2.0-flash')) ||
+                        usableModels.find(m => m === 'gemini-1.5-flash-latest') ||
+                        usableModels.find(m => m.includes('1.5-flash')) ||
+                        usableModels.find(m => m.includes('flash')) ||
+                        usableModels.find(m => m.includes('pro')) ||
+                        usableModels[0];
+
+                    activeGeminiModelCache.set(apiKey, chosen);
+                    console.log(`[Gemini Engine] Auto-discovered best model for key: ${chosen}`);
+                    return chosen;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[Gemini Engine] ListModels auto-discovery notice:', e.message);
+    }
+
+    return 'gemini-2.0-flash';
+}
+
+async function callGoogleGemini({ apiKey, prompt, systemInstruction = '', maxTokens = 600, temperature = 0.7 }) {
+    if (!apiKey || !apiKey.trim()) {
+        throw new Error('Google Gemini API key is not configured');
+    }
+
+    const cleanKey = apiKey.trim();
+    const primaryModel = await getBestGeminiModel(cleanKey);
+    const candidateModels = [
+        primaryModel,
+        'gemini-2.0-flash',
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-flash-002',
+        'gemini-1.5-flash-001',
+        'gemini-1.5-flash',
+        'gemini-pro'
+    ].filter((m, i, arr) => arr.indexOf(m) === i);
+
+    let lastError = null;
+
+    for (const model of candidateModels) {
+        try {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
+            const reqBody = {
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: temperature,
+                    maxOutputTokens: maxTokens
+                }
+            };
+            if (systemInstruction) {
+                reqBody.systemInstruction = {
+                    parts: [{ text: systemInstruction }]
+                };
+            }
+
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reqBody)
+            });
+
+            const data = await res.json();
+            if (res.ok && data.candidates && data.candidates.length > 0) {
+                const text = data.candidates[0].content?.parts?.[0]?.text;
+                if (text && text.trim()) {
+                    activeGeminiModelCache.set(cleanKey, model);
+                    return {
+                        success: true,
+                        text: text.trim(),
+                        modelUsed: model
+                    };
+                }
+            }
+
+            if (data.error) {
+                lastError = data.error;
+                // If 404 (model not found), automatically try next candidate model
+                if (data.error.code === 404 || data.error.status === 'NOT_FOUND') {
+                    console.warn(`[Gemini Engine] Model '${model}' returned 404 NOT_FOUND. Automatically trying next candidate model...`);
+                    continue;
+                }
+                if (data.error.code === 400 && data.error.message?.includes('API_KEY_INVALID')) {
+                    throw new Error('Google Gemini API Key is INVALID. Please verify key in Google AI Studio.');
+                }
+                if (data.error.code === 403) {
+                    throw new Error(`Google API Access Denied: ${data.error.message}`);
+                }
+            }
+        } catch (callErr) {
+            lastError = callErr;
+            if (callErr.message && (callErr.message.includes('INVALID') || callErr.message.includes('Access Denied'))) {
+                throw callErr;
+            }
+        }
+    }
+
+    const errMsg = lastError?.message || (lastError ? JSON.stringify(lastError) : 'All candidate models failed');
+    throw new Error(`Gemini API Error: ${errMsg}`);
+}
+
 // Super Admin Authentication Middleware
 function verifySuperAdmin(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -1206,24 +1327,18 @@ Context Information: ${centerContext}
 User ka sandesh: "${message}"
 Jawab sundar, madhur, emotional, Hindi/Hinglish mein aur helpful rakhein (maximum 2-3 short paragraphs).`;
 
-                const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ role: 'user', parts: [{ text: geminiPrompt }] }],
-                        generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
-                    })
+                const aiRes = await callGoogleGemini({
+                    apiKey: geminiKey,
+                    prompt: geminiPrompt,
+                    temperature: 0.7,
+                    maxTokens: 600
                 });
 
-                if (aiRes.ok) {
-                    const aiData = await aiRes.json();
-                    const genText = aiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (genText && genText.trim()) {
-                        replyText = genText.trim();
-                    }
+                if (aiRes && aiRes.text) {
+                    replyText = aiRes.text;
                 }
             } catch (gErr) {
-                console.error('BHARTI Gemini call error:', gErr.message);
+                console.error('BHARTI Gemini call notice:', gErr.message);
             }
         }
 
@@ -2349,34 +2464,27 @@ app.post('/api/director/ai-banner-generator', verifyDirector, async (req, res) =
 
         if (geminiKey) {
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            role: 'user',
-                            parts: [{
-                                text: `Generate a high-converting promotional banner title, catchy subtitle, and color theme for a coaching institute banner.
+                const aiResult = await callGoogleGemini({
+                    apiKey: geminiKey,
+                    prompt: `Generate a high-converting promotional banner title, catchy subtitle, and color theme for a coaching institute banner.
 Institute: ${center.centerName}
 Festival/Occasion: ${festivalName || 'Admissions Open'}
 Discount/Offer: ${discountText || 'Special Concession'}
 User Prompt: ${prompt || ''}
-Output STRICTLY valid JSON with keys "title", "subtitle", "suggestedTheme" (one of "gold-aurora", "crimson-festive", "sapphire-academic", "emerald-success").`
-                            }]
-                        }]
-                    })
+Output STRICTLY valid JSON with keys "title", "subtitle", "suggestedTheme" (one of "gold-aurora", "crimson-festive", "sapphire-academic", "emerald-success").`,
+                    temperature: 0.7,
+                    maxTokens: 300
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    const cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                if (aiResult && aiResult.text) {
+                    const cleaned = aiResult.text.replace(/```json/g, '').replace(/```/g, '').trim();
                     const parsed = JSON.parse(cleaned);
                     if (parsed.title) generatedTitle = parsed.title;
                     if (parsed.subtitle) generatedSubtitle = parsed.subtitle;
                     if (parsed.suggestedTheme) suggestedTheme = parsed.suggestedTheme;
                 }
             } catch (e) {
-                console.error('AI banner gemini call error:', e.message);
+                console.error('AI banner gemini call notice:', e.message);
             }
         }
 
@@ -2978,18 +3086,15 @@ app.put('/api/admin/gemini-key', verifySuperAdmin, async (req, res) => {
 
         // Immediate verification test with Google Gemini API
         let verifiedLive = false;
+        let modelDiscovered = '';
         try {
-            const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiApiKey}`;
-            const testRes = await fetch(testUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: 'Namaste, acknowledge test' }] }]
-                })
+            const testResult = await callGoogleGemini({
+                apiKey: settings.geminiApiKey,
+                prompt: 'Namaste, please acknowledge connection test.'
             });
-            const testData = await testRes.json();
-            if (testData.candidates && testData.candidates.length > 0) {
+            if (testResult && testResult.success) {
                 verifiedLive = true;
+                modelDiscovered = testResult.modelUsed;
             }
         } catch (testErr) {
             console.warn('Gemini test notice:', testErr.message);
@@ -2998,9 +3103,10 @@ app.put('/api/admin/gemini-key', verifySuperAdmin, async (req, res) => {
         res.json({
             success: true,
             message: verifiedLive
-                ? '✅ Gemini API Key SAVED & VERIFIED LIVE! BHARTI AI is now active with loving persona.'
+                ? `✅ Gemini API Key SAVED & VERIFIED LIVE! Model active: ${modelDiscovered || 'Gemini Flash'}.`
                 : 'Google Gemini API Key saved successfully!',
-            verified: verifiedLive
+            verified: verifiedLive,
+            modelUsed: modelDiscovered
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3016,23 +3122,20 @@ app.post('/api/admin/test-gemini', verifySuperAdmin, async (req, res) => {
             return res.status(400).json({ success: false, message: 'Gemini API Key is not configured' });
         }
 
-        const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        const testRes = await fetch(testUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: 'Say one short loving sentence to a student as BHARTI Didi' }] }]
-            })
+        const testResult = await callGoogleGemini({
+            apiKey: apiKey,
+            prompt: 'Say one short loving sentence to a student as BHARTI Didi with warmth ("beta", "aap").'
         });
-        const testData = await testRes.json();
-        if (testData.candidates && testData.candidates.length > 0) {
-            const reply = testData.candidates[0].content.parts[0].text;
-            return res.json({ success: true, message: 'Gemini 1.5 Flash Connected!', sampleReply: reply });
-        } else {
-            return res.status(400).json({ success: false, message: 'Gemini API Error: ' + JSON.stringify(testData.error || testData) });
-        }
+
+        res.json({
+            success: true,
+            message: `Google Gemini Live Connected! (Active Model: ${testResult.modelUsed})`,
+            reply: testResult.text,
+            sampleReply: testResult.text,
+            model: testResult.modelUsed
+        });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Connection error: ' + err.message });
+        res.status(400).json({ success: false, message: err.message });
     }
 });
 
