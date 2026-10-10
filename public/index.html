@@ -1,0 +1,4344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Razorpay Payment Gateway SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- ===== SEO META TAGS ===== -->
+    <title>BBCC Skill Hub — Premier Academic Board & Central Coaching Directorate</title>
+    <meta name="description" content="BBCC Skill Hub — Central Directorate of Accredited Coaching Centers, Certified Educators, Digital Study Materials and Aadhar-Verified Student Access." />
+    <meta name="keywords" content="BBCC Skill Hub, academic board, coaching centers, university portal, certified teachers, digital study material, aadhar download, skill education" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="BBCC Skill Hub" />
+    <link rel="canonical" href="https://bbccskillhub.com/" />
+    
+    <!-- Open Graph & Social Cards -->
+    <meta property="og:title" content="BBCC Skill Hub — Premier Academic Board & Central Coaching Directorate" />
+    <meta property="og:description" content="Empowering Skills, Building Futures. Central Directorate of Accredited Coaching Centers & Certified Educators." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bbccskillhub.com/" />
+    <meta property="og:image" content="https://bbccskillhub.com/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BBCC Skill Hub — Premier Academic Board" />
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "BBCC Skill Hub",
+        "description": "Central Directorate of Accredited Coaching Centers, Certified Educators & Digital Study Materials",
+        "url": "https://bbccskillhub.com/",
+        "logo": "https://bbccskillhub.com/logo.png"
+    }
+    </script>
+
+    <!-- ===== FAVICONS ===== -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23030712' stroke='%23ffd700' stroke-width='4'/%3E%3Ctext x='50' y='58' font-family='sans-serif' font-size='28' font-weight='900' fill='%23ffd700' text-anchor='middle' dominant-baseline='central'%3EBBCC%3C/text%3E%3C/svg%3E" id="dynamicFavicon" />
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts: Plus Jakarta Sans, Cinzel & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           BBCC SKILL HUB — ULTRA MODERN UNIVERSITY DESIGN SYSTEM (v3.0)
+           ============================================================ */
+        :root {
+            --bg-base: #030712;
+            --bg-surface: #0a0f1d;
+            --bg-elevated: #111827;
+            --bg-glass: rgba(15, 23, 42, 0.75);
+            --bg-glass-card: rgba(17, 24, 39, 0.7);
+            --bg-glass-hover: rgba(30, 41, 59, 0.85);
+            
+            --gold-primary: #ffd700;
+            --gold-secondary: #f59e0b;
+            --gold-dark: #b45309;
+            --gold-glow: rgba(255, 215, 0, 0.35);
+            --gold-gradient: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            
+            --blue-royal: #1e3a8a;
+            --blue-accent: #3b82f6;
+            --blue-glow: rgba(59, 130, 246, 0.25);
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(255, 215, 0, 0.28);
+            --border-gold-hover: rgba(255, 215, 0, 0.6);
+            
+            --text-white: #ffffff;
+            --text-silver: #f1f5f9;
+            --text-slate: #94a3b8;
+            --text-muted: #64748b;
+            
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-card: 0 12px 35px rgba(0, 0, 0, 0.45);
+            --shadow-gold: 0 10px 30px rgba(245, 158, 11, 0.2);
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: var(--bg-base);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== SPLASH SCREEN ===== */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-base);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .splash-screen.hide {
+            opacity: 0;
+            transform: scale(1.08);
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b0f19, #1e293b);
+            border: 3px solid rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--gold-primary);
+            position: relative;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            animation: splashPulse 1.8s ease-in-out infinite;
+        }
+
+        .splash-logo::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #ffd700, transparent, #f59e0b, transparent);
+            animation: ringRotate 2.4s linear infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        @keyframes ringRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .splash-title {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 24px;
+            background: linear-gradient(135deg, #ffffff 30%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.05em;
+        }
+
+        .splash-subtitle {
+            font-size: 13px;
+            color: var(--text-slate);
+            letter-spacing: 0.25em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        .splash-loader {
+            margin-top: 28px;
+            width: 220px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .splash-loader-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--gold-gradient);
+            animation: loaderAnim 1.6s ease-in-out infinite;
+        }
+
+        @keyframes loaderAnim {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ===== BACKGROUND AMBIENT CANVAS ===== */
+        .bg-lines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.7;
+        }
+
+        .bg-lines canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ===== NOTIFICATION POPUP ===== */
+        .notification-popup {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 22px 24px;
+            max-width: 380px;
+            z-index: 99990;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: none;
+            animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .notification-popup.active { display: block; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notif-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: transparent;
+            border: none;
+            color: var(--text-slate);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .notif-icon { font-size: 28px; margin-bottom: 8px; display: inline-block; }
+        .notif-title { font-weight: 700; color: #ffffff; font-size: 16px; margin-bottom: 4px; }
+        .notif-text { font-size: 13px; color: var(--text-slate); line-height: 1.5; margin-bottom: 14px; }
+        .notif-btn {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 8px;
+            color: #0b0f19;
+            font-weight: 700;
+            font-size: 12px;
+            text-decoration: none;
+            background: var(--gold-gradient);
+        }
+
+        /* ===== FLOATING CALL BUTTON ===== */
+        .call-float {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: floatCall 3s ease-in-out infinite;
+        }
+
+        @keyframes floatCall {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .call-float .call-btn {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .call-float .call-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 14px 40px rgba(16, 185, 129, 0.6);
+        }
+
+        .call-float .call-btn .pulse-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .call-tooltip {
+            position: absolute;
+            left: 78px;
+            bottom: 10px;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-gold);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+
+        .call-float:hover .call-tooltip { display: block; }
+        .call-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            white-space: nowrap;
+        }
+
+        /* ===== BACK TO TOP BUTTON ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 100px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-primary);
+            font-size: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-to-top.show { display: flex; }
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background: var(--gold-primary);
+            color: #0b0f19;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.35);
+        }
+
+        /* ============================================================
+           HEADER & PRESTIGIOUS NAVIGATION SYSTEM
+           ============================================================ */
+        /* Top Board Utility Bar */
+        .academic-ticker-bar {
+            background: linear-gradient(90deg, #070b14 0%, #0d1424 50%, #070b14 100%);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 8px 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 12.5px;
+            position: relative;
+            z-index: 105;
+        }
+
+        .ticker-badge {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .ticker-marquee-inner {
+            display: inline-block;
+            white-space: nowrap;
+            color: var(--text-slate);
+            font-weight: 500;
+            animation: tickerScroll 32s linear infinite;
+        }
+
+        .academic-ticker-bar:hover .ticker-marquee-inner {
+            animation-play-state: paused;
+        }
+
+        @keyframes tickerScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .ticker-links a {
+            color: var(--gold-primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s ease;
+        }
+
+        .ticker-links a:hover { color: #ffffff; }
+
+        /* Main Glassmorphic Sticky Header */
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(3, 7, 18, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(3, 7, 18, 0.96);
+            padding: 10px 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            border-bottom-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b0f19, #1e293b);
+            border: 2px solid var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--gold-primary);
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
+            flex-shrink: 0;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            line-height: 1.15;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .header-title .b { color: var(--gold-primary); }
+        .header-title .b2 { color: #f59e0b; }
+        .header-title .b3 { color: #ffffff; }
+        .header-title .b4 { color: #60a5fa; }
+
+        .header-subtitle {
+            font-size: 11px;
+            color: var(--gold-primary);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        /* Desktop Navigation Links */
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-link {
+            color: var(--text-slate);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 6px 0;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold-gradient);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .portal-login-nav-btn {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            padding: 9px 18px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.02em;
+        }
+
+        .portal-login-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .admin-direct-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--gold-primary);
+            border: 1px solid var(--border-gold);
+            padding: 8px 16px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .admin-direct-btn:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: var(--gold-primary);
+        }
+
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        .hamburger-menu span {
+            width: 24px;
+            height: 2px;
+            background: var(--gold-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* Mobile Menu Drawer */
+        .mobile-menu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 15, 29, 0.98);
+            backdrop-filter: blur(24px);
+            border-bottom: 2px solid var(--gold-primary);
+            padding: 24px 20px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 99;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            animation: slideDownMenu 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mobile-menu.active { display: flex; }
+
+        @keyframes slideDownMenu {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .mobile-menu a {
+            color: var(--text-silver);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-menu a:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold-primary);
+        }
+
+        /* ============================================================
+           HERO SECTION & DYNAMIC SLIDESHOW
+           ============================================================ */
+        .university-hero {
+            position: relative;
+            padding: 40px 24px 20px;
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .hero-banner-card {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(11, 15, 25, 0.95) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 38px 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 36px;
+            align-items: center;
+            box-shadow: var(--shadow-card), 0 0 50px rgba(245, 158, 11, 0.08);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .hero-banner-card::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -120px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            padding: 6px 16px;
+            border-radius: 30px;
+            color: var(--gold-primary);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(28px, 3.4vw, 42px);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 14px;
+        }
+
+        .hero-title span {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 14.5px;
+            color: var(--text-slate);
+            line-height: 1.65;
+            margin-bottom: 24px;
+            max-width: 580px;
+        }
+
+        .hero-actions-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-primary-btn {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-gold);
+            transition: all 0.3s ease;
+        }
+
+        .hero-primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.45);
+        }
+
+        .hero-secondary-btn {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-secondary-btn:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        /* Hero Right Dynamic Slider Window */
+        .hero-slider-window {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-gold);
+            box-shadow: var(--shadow-card);
+            height: 300px;
+            background: #000000;
+        }
+
+        /* Original Banner Section compatibility */
+        .banner-section {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .banner-slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s ease;
+        }
+
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            flex-shrink: 0;
+            opacity: 0;
+        }
+
+        .banner-slide.active { opacity: 1; z-index: 2; }
+        .banner-slide.anim-split-h { animation: splitHorizontal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .banner-slide.anim-split-v { animation: splitVertical 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .banner-slide.anim-split-corner { animation: splitCorner 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .banner-slide.anim-split-diag { animation: splitDiagonal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .banner-slide.anim-split-radial { animation: splitRadial 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+        @keyframes splitHorizontal { 0% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: scale(0.9); } 100% { opacity: 1; clip-path: inset(0 0 0 0); transform: scale(1); } }
+        @keyframes splitVertical { 0% { opacity: 0; clip-path: inset(0 50% 0 50%); transform: scale(0.9); } 100% { opacity: 1; clip-path: inset(0 0 0 0); transform: scale(1); } }
+        @keyframes splitCorner { 0% { opacity: 0; clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%); transform: scale(0.8); } 100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: scale(1); } }
+        @keyframes splitDiagonal { 0% { opacity: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); transform: scale(0.8) rotate(10deg); } 100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: scale(1) rotate(0deg); } }
+        @keyframes splitRadial { 0% { opacity: 0; clip-path: circle(0% at 50% 50%); transform: scale(0.8); } 100% { opacity: 1; clip-path: circle(100% at 50% 50%); transform: scale(1); } }
+
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: linear-gradient(transparent, rgba(3, 7, 18, 0.92));
+        }
+
+        .banner-overlay h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .banner-overlay p {
+            font-size: 13px;
+            color: var(--gold-primary);
+        }
+
+        .banner-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border-gold);
+            background: rgba(3, 7, 18, 0.75);
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .banner-nav:hover {
+            background: var(--gold-primary);
+            color: #0b0f19;
+        }
+
+        .banner-nav.prev { left: 12px; }
+        .banner-nav.next { right: 12px; }
+
+        .banner-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .banner-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .banner-dot.active {
+            background: var(--gold-primary);
+            width: 22px;
+            border-radius: 10px;
+        }
+
+        /* ============================================================
+           UNIVERSITY PILLARS & LIVE STATS GRID
+           ============================================================ */
+        .board-stats-section {
+            padding: 30px 24px;
+            max-width: 1360px;
+            margin: 0 auto 30px;
+        }
+
+        .board-stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow-subtle);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold-primary);
+            background: var(--bg-glass-hover);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .stat-icon {
+            font-size: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(245, 158, 11, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-info { display: flex; flex-direction: column; }
+        .stat-number {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--gold-primary);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3px;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text-slate);
+            margin-top: 1px;
+        }
+
+        /* ============================================================
+           SECTION HEADINGS & DECORATIVE BADGES
+           ============================================================ */
+        .section-header-box {
+            text-align: center;
+            padding: 50px 20px 25px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 5px 14px;
+            border-radius: 30px;
+            color: var(--gold-primary);
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+
+        .section-title h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(26px, 3vw, 36px);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 40%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: 1.25;
+        }
+
+        .section-title p {
+            font-size: 14.5px;
+            color: var(--text-slate);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           TEACHERS & FACULTY DIRECTORY
+           ============================================================ */
+        .teachers-section {
+            max-width: 1360px;
+            margin: 0 auto 50px;
+            padding: 0 24px;
+        }
+
+        .teachers-filter-bar {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 14px 20px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .teachers-filter-bar select, .teachers-filter-bar input {
+            background: rgba(3, 7, 18, 0.85);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .teachers-filter-bar select:focus, .teachers-filter-bar input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+        }
+
+        .teachers-filter-bar input { flex: 1; min-width: 200px; }
+
+        .teachers-scroll-container {
+            overflow: hidden;
+            position: relative;
+            padding: 10px 0 20px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .teachers-scroll-container:active { cursor: grabbing; }
+
+        .teachers-scroll-track {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+        }
+
+        .teacher-card {
+            width: 240px;
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px 18px;
+            text-align: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(14px);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.15);
+        }
+
+        .teacher-avatar {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            background: linear-gradient(135deg, #111827, #1e293b);
+            border: 2px solid var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--gold-primary);
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .teacher-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .teacher-name { font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
+        .teacher-center { font-size: 12px; color: var(--gold-primary); margin-bottom: 12px; font-weight: 600; }
+        .teacher-divider { height: 1px; background: rgba(255, 255, 255, 0.08); margin: 10px 0; }
+        .teacher-subject { font-size: 13px; color: var(--text-silver); font-weight: 600; margin-bottom: 4px; }
+        .teacher-class { font-size: 12px; color: var(--text-muted); }
+
+        @keyframes scrollTeachers {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ============================================================
+           DIGITAL STUDY MATERIALS (E-LIBRARY & AADHAR GATEWAY)
+           ============================================================ */
+        .pdf-notes-section {
+            max-width: 1360px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        /* Aadhar Document Verification Card */
+        .aadhar-gateway-card {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aadhar-gateway-card::after {
+            content: '';
+            position: absolute;
+            right: -80px;
+            top: -80px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .aadhar-gateway-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 680px;
+        }
+
+        .aadhar-badge-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+        }
+
+        .aadhar-gateway-left h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .aadhar-gateway-left p {
+            font-size: 13px;
+            color: var(--text-slate);
+            line-height: 1.5;
+        }
+
+        .aadhar-gateway-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-apply-doc {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            padding: 12px 22px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-apply-doc:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(245, 158, 11, 0.5); }
+
+        .btn-verify-aadhar {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gold-primary);
+            border: 1px solid var(--border-gold);
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-verify-aadhar:hover { background: rgba(255, 215, 0, 0.15); border-color: var(--gold-primary); }
+
+        .pdf-notes-header {
+            margin-bottom: 24px;
+        }
+
+        .pdf-search-box {
+            position: relative;
+            max-width: 500px;
+        }
+
+        .pdf-search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-primary);
+            font-size: 16px;
+        }
+
+        .pdf-search-box input {
+            width: 100%;
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-gold);
+            padding: 14px 20px 14px 48px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .pdf-search-box input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .pdf-notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .note-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .note-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-primary);
+            background: var(--bg-glass-hover);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .pdf-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pdf-info { flex: 1; min-width: 0; }
+        .pdf-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pdf-size { font-size: 11.5px; color: var(--text-slate); margin-top: 3px; display: block; }
+        .download-icon { color: var(--gold-primary); font-size: 16px; transition: transform 0.2s ease; }
+        .note-card:hover .download-icon { transform: translateX(4px); }
+
+        /* ============================================================
+           FEATURED VIDEO LECTURES THEATER
+           ============================================================ */
+        .videos-section {
+            max-width: 1360px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 22px;
+        }
+
+        .video-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .video-card:hover .video-thumbnail img { transform: scale(1.06); }
+
+        .video-play-icon {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .video-play-icon { transform: scale(1.15); }
+
+        .video-info { padding: 18px; }
+        .video-info h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        .video-info p {
+            font-size: 12.5px;
+            color: var(--text-slate);
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-date { font-size: 11px; color: var(--gold-primary); margin-top: 8px; font-weight: 600; }
+
+        /* ============================================================
+           PARTNER COACHING CENTERS SHOWCASE
+           ============================================================ */
+        .partner-section {
+            max-width: 1360px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .partner-scroll-container {
+            overflow-x: auto;
+            padding: 10px 0 20px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-primary) transparent;
+        }
+
+        .partner-scroll-track {
+            display: flex;
+            gap: 22px;
+            width: max-content;
+        }
+
+        .partner-card {
+            width: 340px;
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            flex-shrink: 0;
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s ease;
+        }
+
+        .partner-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.15);
+        }
+
+        .partner-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .center-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0b0f19, #1e293b);
+            border: 2px solid var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--gold-primary);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .center-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .center-name { font-size: 16px; font-weight: 800; color: #ffffff; line-height: 1.25; }
+        .center-classes { font-size: 12px; color: var(--gold-primary); font-weight: 600; margin-top: 3px; }
+        .center-address { font-size: 11.5px; color: var(--text-slate); margin-top: 2px; }
+
+        .director-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .director-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #ffffff;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .director-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .director-details { flex: 1; }
+        .director-label { font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+        .director-name { font-size: 13.5px; font-weight: 700; color: #ffffff; }
+        .director-contact { font-size: 11.5px; color: var(--text-slate); margin-top: 2px; }
+
+        .encrypted-call-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 6px;
+            text-decoration: none;
+        }
+
+        /* ============================================================
+           CAMPUS & ACADEMIC GALLERY
+           ============================================================ */
+        .gallery-section {
+            max-width: 1360px;
+            margin: 0 auto 70px;
+            padding: 0 24px;
+            text-align: center;
+        }
+
+        .gallery-slideshow {
+            position: relative;
+            height: 450px;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            border: 1px solid var(--border-gold);
+            box-shadow: var(--shadow-card);
+            background: #000000;
+            margin-bottom: 24px;
+        }
+
+        .gallery-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .gallery-slide.active { opacity: 1; z-index: 2; }
+        .gallery-slide img { width: 100%; height: 100%; object-fit: cover; }
+
+        .gallery-controls {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            z-index: 10;
+        }
+
+        .gallery-autoplay-btn {
+            background: rgba(3, 7, 18, 0.8);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(3, 7, 18, 0.8);
+            border: 1px solid var(--border-gold);
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-nav.prev { left: 16px; }
+        .gallery-nav.next { right: 16px; }
+
+        .gallery-dots {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .gallery-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+        }
+
+        .gallery-dot.active { background: var(--gold-primary); width: 24px; border-radius: 12px; }
+
+        .gallery-view-all {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: var(--shadow-gold);
+            transition: all 0.2s ease;
+        }
+
+        .gallery-view-all:hover { transform: translateY(-2px); }
+
+        .gallery-grid-container {
+            display: none;
+            margin-top: 30px;
+            padding: 30px 20px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-gold);
+        }
+
+        .gallery-grid-container.active { display: block; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .gallery-grid-item {
+            height: 180px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            cursor: pointer;
+        }
+
+        .gallery-grid-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .gallery-grid-item:hover img { transform: scale(1.08); }
+
+        .gallery-grid-close {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           PREMIER UNIVERSITY FOOTER
+           ============================================================ */
+        footer {
+            background: linear-gradient(180deg, #070b14 0%, #030712 100%);
+            border-top: 1px solid rgba(255, 215, 0, 0.25);
+            padding: 50px 24px 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-inner {
+            max-width: 1360px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .footer-datetime {
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            padding: 6px 16px;
+            border-radius: 30px;
+            color: var(--gold-primary);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-gold);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-4px);
+            background: var(--gold-primary);
+            color: #0b0f19;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .whatsapp-number {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #10b981;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .footer-text span { color: var(--gold-primary); font-weight: 600; }
+
+        /* ============================================================
+           MODALS (PDF, VIDEO, AADHAR VERIFICATION)
+           ============================================================ */
+        .pdf-modal, .video-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pdf-modal.active, .video-modal.active { display: flex; }
+
+        .pdf-modal input, .pdf-modal select {
+            color: #0b0e1a !important;
+            background: #ffffff !important;
+        }
+
+        .pdf-modal input::placeholder { color: #94a3b8 !important; }
+
+        .pdf-modal-content {
+            background: #111827;
+            border-radius: var(--radius-xl);
+            max-width: 820px;
+            width: 100%;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .pdf-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(0, 0, 0, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .pdf-modal-header h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .pdf-modal-header .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-slate);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .pdf-modal-body {
+            flex: 1;
+            min-height: 480px;
+            background: #000000;
+        }
+
+        .pdf-modal-body iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 480px;
+            border: none;
+        }
+
+        .pdf-modal-footer {
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .pdf-modal-footer .download-btn {
+            background: var(--gold-gradient);
+            color: #0b0f19;
+            font-weight: 800;
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .pdf-modal-footer .close-modal-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* Video Modal Content */
+        .video-modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 860px;
+            aspect-ratio: 16 / 9;
+            background: #000000;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+        }
+
+        .video-modal-content iframe { width: 100%; height: 100%; border: none; }
+        .video-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: #ffffff;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .hero-banner-card { grid-template-columns: 1fr; }
+            .header-nav { display: none; }
+            .hamburger-menu { display: flex; }
+        }
+
+        @media (max-width: 768px) {
+            .academic-ticker-bar .ticker-links { display: none !important; }
+            .header { padding: 12px 18px; }
+            .hero-banner-card { padding: 26px 20px; }
+            .aadhar-gateway-card { padding: 20px; }
+            .pdf-modal-body, .pdf-modal-body iframe { min-height: 320px; }
+        }
+    
+        /* ===== ULTRA E-LIBRARY WITH THUMBNAILS & RAZORPAY ===== */
+        .doc-card-ultra {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(12px);
+        }
+        .doc-card-ultra:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 16px 35px rgba(0,0,0,0.5), 0 0 25px rgba(255,215,0,0.15);
+        }
+        .doc-cover-box {
+            height: 175px;
+            background: linear-gradient(135deg, #0d1525 0%, #1e293b 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .doc-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .doc-card-ultra:hover .doc-cover-img {
+            transform: scale(1.05);
+        }
+        .doc-cover-placeholder {
+            font-size: 54px;
+            opacity: 0.85;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .rzp-price-pill {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+        .rzp-price-pill.free {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+        }
+        .doc-subject-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            background: rgba(11, 14, 26, 0.85);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            z-index: 2;
+        }
+        .doc-body-box {
+            padding: 16px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .doc-title-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .doc-desc-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .doc-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .doc-actions-box {
+            padding: 0 18px 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .btn-doc-pay {
+            flex: 1;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+        .btn-doc-pay:hover {
+            box-shadow: 0 4px 18px rgba(255, 215, 0, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-doc-free {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+        .btn-doc-free:hover {
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-doc-preview {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-doc-preview:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: var(--gold-primary);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <span>BBCC</span>
+        </div>
+        <div class="splash-title">BBCC Skill Hub</div>
+        <div class="splash-subtitle">Empowering Skills, Building Futures</div>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+    </div>
+
+    <!-- ===== NOTIFICATION POPUP ===== -->
+    <div class="notification-popup" id="notificationPopup">
+        <button class="notif-close" id="notifClose">✕</button>
+        <span class="notif-icon">🔧</span>
+        <div class="notif-title">Official Board Circular</div>
+        <div class="notif-text">
+            Welcome to BBCC Skill Hub Academic Portal.<br>
+            Affiliated coaching admissions and study vaults are active.
+        </div>
+        <a href="#partnerSection" class="notif-btn">Explore Centers</a>
+    </div>
+
+    <!-- ===== ANIMATED BACKGROUND LINES ===== -->
+    <div class="bg-lines">
+        <canvas id="bgCanvas"></canvas>
+    </div>
+
+    <!-- ===== FLOATING CALL BUTTON ===== -->
+    <div class="call-float">
+        <a href="https://call.doorvi.co/6a16b16de2dfc9742d223f53" target="_blank" class="call-btn" title="Encrypted Academic Support Call">
+            <span class="pulse-ring"></span>
+            <i class="fas fa-phone-alt"></i>
+        </a>
+        <div class="call-tooltip">🔒 Official Academic Helpline<br>Direct & Encrypted Line<br>⏱️ Instant Response</div>
+        <span class="call-label">📞 Academic Helpline</span>
+    </div>
+
+    <!-- ===== BACK TO TOP BUTTON ===== -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to Top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ===== TOP ACADEMIC TICKER BAR ===== -->
+    <div class="academic-ticker-bar">
+        <div class="ticker-badge">
+            <i class="fas fa-bullhorn"></i> BOARD CIRCULAR 2026-27
+        </div>
+        <div style="overflow:hidden;white-space:nowrap;flex:1;position:relative;">
+            <div class="ticker-marquee-inner">
+                📢 <strong>BBCC Skill Hub Academic Board:</strong> Affiliated Partner Coaching Institute Admissions for Session 2026-27 are now active &bull; Central Digital E-Library, Lecture Notes & Video Modules updated &bull; Verified Faculty Directory live &bull; Coaching Directors can manage admissions via Partner Portal.
+            </div>
+        </div>
+        <div class="ticker-links">
+            <a href="#partnerSection"><i class="fas fa-landmark"></i> Affiliated Centers</a>
+            <a href="#teachersTrack"><i class="fas fa-chalkboard-teacher"></i> Faculty Directory</a>
+            <a href="/login"><i class="fas fa-user-shield"></i> Director / Admin Login</a>
+        </div>
+    </div>
+
+    <!-- ===== MAIN GLASSMORPHIC STICKY HEADER ===== -->
+    <header class="header" id="header">
+        <a href="/" class="header-left">
+            <div class="header-logo" id="headerLogo">
+                <span>BBCC</span>
+            </div>
+            <div class="header-brand-text">
+                <div class="header-title" id="headerTitle">
+                    <span class="b">B</span><span class="b2">B</span><span class="b3">C</span><span class="b4">C</span> Skill Hub
+                </div>
+                <div class="header-subtitle" id="headerSubtitle">Empowering Skills, Building Futures</div>
+            </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="header-nav">
+            <a href="#partnerSection" class="nav-link"><i class="fas fa-landmark"></i> Centers</a>
+            <a href="#teachersTrack" class="nav-link"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+            <a href="#pdfNotesSection" class="nav-link"><i class="fas fa-book-reader"></i> E-Library</a>
+            <a href="#videosSection" class="nav-link"><i class="fas fa-play-circle"></i> Lectures</a>
+            <a href="#gallerySection" class="nav-link"><i class="fas fa-images"></i> Gallery</a>
+            <a href="javascript:void(0)" onclick="openAadharDownloadModal()" class="nav-link" style="color:var(--gold-primary);"><i class="fas fa-id-card"></i> Verify Aadhar</a>
+        </nav>
+
+        <div class="header-actions">
+            <button type="button" onclick="openBhartiModal()" style="background:linear-gradient(135deg,rgba(255,215,0,0.18) 0%,rgba(245,158,11,0.18) 100%);border:1px solid rgba(255,215,0,0.45);color:#ffd700;padding:8px 16px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.25s ease;box-shadow:0 0 15px rgba(255,215,0,0.15);" title="Ask BHARTI Live Voice & Chat Helpline">
+                <i class="fas fa-microphone-alt"></i> 🌸 Ask BHARTI AI
+            </button>
+            <a href="/login" class="portal-login-nav-btn">
+                <i class="fas fa-university"></i> Portal Login
+            </a>
+            <a href="/management" class="admin-direct-btn" id="adminBtn" style="display:none;">
+                <i class="fas fa-crown"></i> Admin
+            </a>
+            <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#partnerSection" onclick="toggleMobileMenu()"><i class="fas fa-landmark"></i> Affiliated Centers</a>
+            <a href="#teachersTrack" onclick="toggleMobileMenu()"><i class="fas fa-chalkboard-teacher"></i> Faculty Directory</a>
+            <a href="#pdfNotesSection" onclick="toggleMobileMenu()"><i class="fas fa-book-reader"></i> Digital Study Materials</a>
+            <a href="#videosSection" onclick="toggleMobileMenu()"><i class="fas fa-play-circle"></i> Video Modules</a>
+            <a href="#gallerySection" onclick="toggleMobileMenu()"><i class="fas fa-images"></i> Photo Gallery</a>
+            <a href="javascript:void(0)" onclick="toggleMobileMenu(); openAadharDownloadModal();" style="color:var(--gold-primary);"><i class="fas fa-id-card"></i> Verify Aadhar Download</a>
+            <a href="/login" style="background:var(--gold-gradient);color:#0b0f19;font-weight:800;border-radius:10px;"><i class="fas fa-university"></i> Portal Login (SSO)</a>
+            <a href="/management" id="mobileAdminBtn" style="display:none;"><i class="fas fa-crown"></i> Super Admin Dashboard</a>
+        </div>
+    </header>
+
+    <!-- ===== GRAND UNIVERSITY HERO SECTION ===== -->
+    <section class="university-hero fade-up">
+        <div class="hero-banner-card">
+            <div class="hero-banner-left">
+                <div class="hero-badge-pill">
+                    <i class="fas fa-certificate"></i> Central Academic Directorate &bull; Session 2026-27
+                </div>
+                <h1 class="hero-title">
+                    Empowering Skills, <span>Elevating Standards</span> & Regulating Centers
+                </h1>
+                <p class="hero-desc">
+                    BBCC Skill Hub unites accredited coaching centers, certified expert educators, and secured e-library resources under one centralized board. Explore verified institutes or unlock Aadhar-authenticated study documents.
+                </p>
+                <div class="hero-actions-cluster">
+                    <a href="#partnerSection" class="hero-primary-btn">
+                        <i class="fas fa-landmark"></i> Explore Centers
+                    </a>
+                    <button type="button" onclick="openBhartiModal()" class="hero-secondary-btn" style="border-color:rgba(255,215,0,0.6);color:#ffd700;background:rgba(255,215,0,0.1);">
+                        <i class="fas fa-microphone"></i> 🌸 Talk to BHARTI AI
+                    </button>
+                    <a href="#pdfNotesSection" class="hero-secondary-btn">
+                        <i class="fas fa-file-pdf"></i> Digital E-Library
+                    </a>
+                    <button onclick="openAadharDownloadModal()" class="hero-secondary-btn" style="border-color:var(--gold-primary);color:var(--gold-primary);">
+                        <i class="fas fa-id-card"></i> Aadhar Verification
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Slider Presentation Window -->
+            <div class="hero-slider-window">
+                <section class="banner-section" id="bannerSection">
+                    <div class="banner-slides" id="bannerSlides">
+                        <div class="banner-slide anim-split-h active">
+                            <div class="banner-overlay">
+                                <h2 id="bannerTitle">Welcome to BBCC Skill Hub</h2>
+                                <p id="bannerDesc">Empowering Skills, Building Futures</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="banner-nav prev" id="bannerPrev" aria-label="Previous Banner">◀</button>
+                    <button class="banner-nav next" id="bannerNext" aria-label="Next Banner">▶</button>
+                    <div class="banner-dots" id="bannerDots"></div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== UNIVERSITY PILLARS & STATS BAR ===== -->
+    <section class="board-stats-section fade-up">
+        <div class="board-stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-info">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Affiliated Centers</span>
+                    <span class="stat-sub">Regulated & Certified</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-info">
+                    <span class="stat-number">12,500+</span>
+                    <span class="stat-label">Enrolled Students</span>
+                    <span class="stat-sub">Across All Academic Streams</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🏫</div>
+                <div class="stat-info">
+                    <span class="stat-number">250+</span>
+                    <span class="stat-label">Verified Faculty</span>
+                    <span class="stat-sub">Certified Experienced Teachers</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📖</div>
+                <div class="stat-info">
+                    <span class="stat-number">1,200+</span>
+                    <span class="stat-label">Digital Study Materials</span>
+                    <span class="stat-sub">Official Syllabi & E-Notes</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🆔</div>
+                <div class="stat-info">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Verified Security</span>
+                    <span class="stat-sub">Aadhar-Approved Downloads</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== EXPERT TEACHERS SECTION ===== -->
+    <div class="section-header-box fade-up">
+        <div class="section-badge"><i class="fas fa-graduation-cap"></i> Verified Faculty Roster</div>
+        <div class="section-title">
+            <h2>👨‍🏫 Our Expert Educators & Faculty</h2>
+            <p>Learn from certified, experienced mentors across all academic subjects</p>
+        </div>
+    </div>
+
+    <section class="teachers-section fade-up">
+        <div class="teachers-filter-bar">
+            <select id="subjectFilter" onchange="filterTeachers()">
+                <option value="">All Academic Subjects</option>
+                <option value="math">Mathematics</option>
+                <option value="science">Science / Physics / Chem</option>
+                <option value="english">English Literature & Grammar</option>
+                <option value="hindi">Hindi</option>
+                <option value="gk">General Knowledge</option>
+                <option value="computer">Computer & IT</option>
+            </select>
+            <select id="classFilter" onchange="filterTeachers()">
+                <option value="">All Classes & Standards</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
+                <option value="11">Class 11</option>
+                <option value="12">Class 12</option>
+            </select>
+            <input type="text" id="teacherSearch" placeholder="🔍 Search teacher by name, center, or specialization..." onkeyup="filterTeachers()">
+        </div>
+
+        <div class="teachers-scroll-container">
+            <div class="teachers-scroll-track" id="teachersTrack"></div>
+        </div>
+    </section>
+
+    <!-- ===== PDF NOTES & STUDY MATERIAL VAULT ===== -->
+    <div class="section-header-box fade-up" id="pdfNotesSection">
+        <div class="section-badge"><i class="fas fa-book-reader"></i> Digital Repository</div>
+        <div class="section-title">
+            <h2>📄 Official Study Materials & E-Library</h2>
+            <p>Official curriculum, verified lecture notes, question banks & model papers</p>
+        </div>
+    </div>
+
+    <section class="pdf-notes-section fade-up">
+        <!-- Aadhar Document Download Gateway Card -->
+        <div class="aadhar-gateway-card">
+            <div class="aadhar-gateway-left">
+                <div class="aadhar-badge-icon">
+                    🆔
+                </div>
+                <div>
+                    <h3>Official Study Documents & Aadhar Download Verification</h3>
+                    <p>
+                        Official syllabus, notes aur model papers download karne ke liye application jama karein. Super Admin verification ke baad aap apna 12-digit Aadhar Card number enter karke turant document unlock kar sakte hain.
+                    </p>
+                </div>
+            </div>
+            <div class="aadhar-gateway-actions">
+                <button onclick="openDocApplicationModal()" class="btn-apply-doc">
+                    <i class="fas fa-file-signature"></i> Apply for Document Access
+                </button>
+                <button onclick="openAadharDownloadModal()" class="btn-verify-aadhar">
+                    <i class="fas fa-fingerprint"></i> Download via Aadhar
+                </button>
+            </div>
+        </div>
+
+        <div class="pdf-notes-header">
+            <div class="pdf-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="pdfSearchInput" placeholder="Search syllabus, notes, question papers..." onkeyup="filterPDFNotes(this.value)" list="pdfSuggestions" autocomplete="off">
+                <datalist id="pdfSuggestions"></datalist>
+            </div>
+        </div>
+
+        <div class="pdf-notes-grid" id="pdfNotesContainer"></div>
+    </section>
+
+    <!-- ===== FEATURED VIDEO LECTURES ===== -->
+    <div class="section-header-box fade-up" id="videosSection">
+        <div class="section-badge"><i class="fas fa-video"></i> Digital Classroom</div>
+        <div class="section-title">
+            <h2>📹 Featured Educational Video Modules</h2>
+            <p>High-definition recorded masterclasses and academic conceptual guides</p>
+        </div>
+    </div>
+
+    <section class="videos-section fade-up">
+        <div class="videos-grid" id="videosGrid">
+            <div class="no-videos" style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1;">
+                <i class="fas fa-spinner fa-spin" style="font-size:32px;display:block;margin-bottom:12px;"></i>
+                Loading official video modules...
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- ===== BHARTI AI ACADEMIC HELPLINE & COPILOT SHOWCASE ===== -->
+    <section class="bharti-showcase-section fade-up" id="bhartiSection" style="max-width:1250px;margin:50px auto 30px;padding:0 20px;">
+        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(20,29,52,0.96) 100%);border:2px solid rgba(255,215,0,0.35);border-radius:24px;padding:45px 35px;box-shadow:0 25px 60px rgba(0,0,0,0.6),0 0 35px rgba(255,215,0,0.15);display:grid;grid-template-columns:1.2fr 0.8fr;gap:35px;align-items:center;position:relative;overflow:hidden;">
+            <!-- Ambient Glow -->
+            <div style="position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,215,0,0.18) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+            
+            <div>
+                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);padding:6px 16px;border-radius:30px;color:#ffd700;font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:14px;">
+                    <i class="fas fa-microphone-alt"></i> Official Academic Voice Helpline
+                </div>
+                <h2 style="font-family:'Cinzel',serif;font-size:32px;font-weight:900;background:linear-gradient(135deg,#ffffff 40%,#ffd700 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;margin-bottom:12px;">
+                    Meet "BHARTI" (भारती) — BBCC Voice AI Copilot
+                </h2>
+                <p style="color:#cbd5e1;font-size:14.5px;line-height:1.6;margin-bottom:20px;">
+                    BBCC Skill Hub's official female counseling & academic support assistant, guided under <strong>Santosh Sir</strong>. Talk to Bharti live via natural voice or chat to get instant information regarding affiliated coaching centers, study materials, Aadhar document verification, admissions, and faculty!
+                </p>
+
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:25px;">
+                    <button type="button" class="btn btn-sm" onclick="openBhartiWithPrompt('BBCC Skill Hub kya hai aur Santosh Sir kaun hain?')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ffffff;border-radius:20px;font-size:12px;cursor:pointer;">🏛️ About BBCC & Santosh Sir</button>
+                    <button type="button" class="btn btn-sm" onclick="openBhartiWithPrompt('Affiliated partner coaching centers kaunse hain?')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ffffff;border-radius:20px;font-size:12px;cursor:pointer;">🏫 Find Coaching Centers</button>
+                    <button type="button" class="btn btn-sm" onclick="openBhartiWithPrompt('Free syllabus aur study notes kaise download kare?')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ffffff;border-radius:20px;font-size:12px;cursor:pointer;">📚 Free Study Notes</button>
+                    <button type="button" class="btn btn-sm" onclick="openBhartiWithPrompt('Aadhar se document download kaise hota hai?')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ffffff;border-radius:20px;font-size:12px;cursor:pointer;">🆔 Aadhar Verification</button>
+                </div>
+
+                <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-gold" onclick="openBhartiModal()" style="padding:14px 28px;font-size:14.5px;box-shadow:0 8px 25px rgba(245,158,11,0.4);cursor:pointer;">
+                        <i class="fas fa-microphone-alt"></i> Start Live Voice Conversation
+                    </button>
+                    <span style="font-size:12px;color:#94a3b8;"><i class="fas fa-check-circle" style="color:#22c55e;"></i> 100% Free · Real-Time Voice & Audio Output</span>
+                </div>
+            </div>
+
+            <!-- Interactive Voice Avatar Box -->
+            <div style="background:rgba(11,16,29,0.7);border:1px solid rgba(255,215,0,0.25);border-radius:20px;padding:30px 20px;text-align:center;position:relative;">
+                <div style="width:110px;height:110px;border-radius:50%;margin:0 auto 16px;background:linear-gradient(135deg,#ffd700 0%,#f59e0b 100%);display:flex;align-items:center;justify-content:center;font-size:52px;color:#0b0e1a;box-shadow:0 0 40px rgba(255,215,0,0.35);cursor:pointer;position:relative;" onclick="openBhartiModal()">
+                    🌸
+                    <div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #ffd700;animation:bhartiPulse 2s infinite;pointer-events:none;"></div>
+                </div>
+                <h3 style="font-family:'Cinzel',serif;font-size:20px;color:#ffffff;margin-bottom:4px;">BHARTI Helpline</h3>
+                <p style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:15px;">Senior Academic Counselor · BBCC Skill Hub</p>
+                <button type="button" class="btn btn-outline" onclick="openBhartiModal()" style="width:100%;justify-content:center;font-size:13px;border-color:rgba(255,215,0,0.4);color:#ffd700;cursor:pointer;">
+                    <i class="fas fa-comment-dots"></i> Open Chat & Voice Console
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== AFFILIATED PARTNER COACHING CENTERS ===== -->
+    <div class="section-header-box fade-up" id="partnerSection">
+        <div class="section-badge"><i class="fas fa-landmark"></i> Institutional Network</div>
+        <div class="section-title">
+            <h2>🤝 Affiliated Partner Coaching Institutes</h2>
+            <p>Verified, certified academic centers authorized by BBCC Skill Hub</p>
+        </div>
+    </div>
+
+    <section class="partner-section fade-up">
+        <div class="partner-scroll-container">
+            <div class="partner-scroll-track" id="partnerTrack"></div>
+        </div>
+    </section>
+
+    <!-- ===== CAMPUS & ACADEMIC GALLERY ===== -->
+    <div class="section-header-box fade-up" id="gallerySection">
+        <div class="section-badge"><i class="fas fa-images"></i> Visual Showcase</div>
+        <div class="section-title">
+            <h2>📸 Campus Moments & Event Gallery</h2>
+            <p>Academic milestones, student felicitations and board activities</p>
+        </div>
+    </div>
+
+    <section class="gallery-section fade-up">
+        <div class="gallery-slideshow" id="gallerySlideshow">
+            <div class="no-gallery" id="galleryPlaceholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);">
+                <i class="fas fa-images" style="font-size:42px;margin-bottom:12px;"></i>
+                <p>Loading gallery photographs...</p>
+            </div>
+            <button class="gallery-nav prev" id="galleryPrev">◀</button>
+            <button class="gallery-nav next" id="galleryNext">▶</button>
+            <div class="gallery-dots" id="galleryDots"></div>
+            <div class="gallery-controls">
+                <button class="gallery-autoplay-btn" id="galleryAutoplayBtn" onclick="toggleGalleryAutoplay()">
+                    <i class="fas fa-pause"></i> Auto
+                </button>
+            </div>
+        </div>
+
+        <button class="gallery-view-all" id="galleryViewAllBtn">
+            <i class="fas fa-th"></i> View All Photographs
+        </button>
+
+        <div class="gallery-grid-container" id="galleryGridContainer">
+            <div class="gallery-grid" id="galleryGrid"></div>
+            <button class="gallery-grid-close" id="galleryGridClose">✕ Close Gallery</button>
+        </div>
+    </section>
+
+    <!-- ===== PREMIER UNIVERSITY FOOTER ===== -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-datetime" id="liveDateTime">Loading Board Time...</div>
+            
+            <div class="social-links" id="socialLinks">
+                <a href="#" id="whatsappLink" target="_blank" title="WhatsApp" style="display:none;"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" id="whatsappChannelLink" target="_blank" title="WhatsApp Channel" style="display:none;"><i class="fas fa-broadcast-tower"></i></a>
+                <a href="#" id="youtubeLink" target="_blank" title="YouTube" style="display:none;"><i class="fab fa-youtube"></i></a>
+                <a href="#" id="facebookLink" target="_blank" title="Facebook" style="display:none;"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" id="instagramLink" target="_blank" title="Instagram" style="display:none;"><i class="fab fa-instagram"></i></a>
+                <a href="#" id="telegramLink" target="_blank" title="Telegram" style="display:none;"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#" id="twitterLink" target="_blank" title="Twitter" style="display:none;"><i class="fab fa-twitter"></i></a>
+                <a href="#" id="linkedinLink" target="_blank" title="LinkedIn" style="display:none;"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+
+            <div class="whatsapp-number">
+                <i class="fab fa-whatsapp" style="font-size:18px;"></i>
+                <span id="whatsappNumber">Connecting...</span>
+            </div>
+
+            <div class="footer-text">
+                &copy; <span id="currentYear"></span>
+                <span id="footerTitle">BBCC Skill Hub</span>
+                &bull; Central Academic Directorate &bull; All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         MODALS (VIDEO, PDF PREVIEW, AADHAR APPLICATION, AADHAR VERIFY)
+         ============================================================ -->
+    <!-- ===== VIDEO MODAL ===== -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-modal-content">
+            <button class="video-modal-close" id="videoModalClose">✕</button>
+            <iframe id="videoFrame" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- ===== PDF MODAL ===== -->
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h3 id="pdfModalTitle">Official Document Preview</h3>
+                <button class="close-btn" id="pdfModalClose">&times;</button>
+            </div>
+            <div class="pdf-modal-body">
+                <iframe id="pdfViewer" src=""></iframe>
+            </div>
+            <div class="pdf-modal-footer">
+                <button class="close-modal-btn" id="pdfModalCloseFooter">Close</button>
+                <a href="#" class="download-btn" id="pdfDownloadBtn" download>
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DOCUMENT ACCESS APPLICATION MODAL ===== -->
+    <div class="pdf-modal" id="docApplicationModal">
+        <div class="pdf-modal-content" style="max-width:540px;background:#ffffff;border-radius:20px;overflow:hidden;border:2px solid #ffd700;">
+            <div style="background:linear-gradient(135deg,#0b0e1a 0%,#1e293b 100%);padding:18px 24px;border-bottom:1px solid rgba(255,215,0,0.3);display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">📝</span>
+                    <div>
+                        <h3 style="color:#ffffff;margin:0;font-size:16px;">Document Access Application</h3>
+                        <p style="color:#ffd700;margin:0;font-size:11px;">BBCC Skill Hub Official Verification</p>
+                    </div>
+                </div>
+                <button onclick="closeDocApplicationModal()" style="background:transparent;border:none;color:#cbd5e1;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <form id="docAppForm" onsubmit="submitDocApplication(event)" style="padding:22px 24px;">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Full Name *</label>
+                    <input type="text" id="appStudentName" required placeholder="Enter student full name" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Mobile Number *</label>
+                        <input type="tel" id="appStudentMobile" required placeholder="10-digit Mobile" maxlength="10" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Aadhar Card Number (12 Digits) *</label>
+                        <input type="text" id="appStudentAadhar" required placeholder="12-digit Aadhar" maxlength="14" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;font-family:monospace;font-weight:700;">
+                    </div>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Residential Address / City</label>
+                    <input type="text" id="appStudentAddress" placeholder="Village / Town / City, District, State" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px;">Select Required Document *</label>
+                    <select id="appDocSelect" required style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;">
+                        <option value="">-- Choose Study Material Document --</option>
+                    </select>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="button" onclick="closeDocApplicationModal()" style="padding:10px 18px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
+                    <button type="submit" id="docAppSubmitBtn" style="padding:10px 22px;border:none;background:linear-gradient(135deg,#0b0e1a,#1e293b);color:#ffd700;font-weight:700;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid rgba(255,215,0,0.5);">
+                        📤 Submit Application
+                    </button>
+                </div>
+                <div id="docAppMsg" style="margin-top:12px;font-size:12px;display:none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== AADHAR DOWNLOAD VERIFICATION MODAL ===== -->
+    <div class="pdf-modal" id="aadharDownloadModal">
+        <div class="pdf-modal-content" style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;border:2px solid #ffd700;">
+            <div style="background:linear-gradient(135deg,#0b0e1a 0%,#1e293b 100%);padding:18px 24px;border-bottom:1px solid rgba(255,215,0,0.3);display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">🆔</span>
+                    <div>
+                        <h3 style="color:#ffffff;margin:0;font-size:16px;">Download with Aadhar Verification</h3>
+                        <p style="color:#ffd700;margin:0;font-size:11px;">Approved Official Document Access</p>
+                    </div>
+                </div>
+                <button onclick="closeAadharDownloadModal()" style="background:transparent;border:none;color:#cbd5e1;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:22px 24px;">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Enter your 12-digit Aadhar Card Number:</label>
+                    <div style="display:flex;gap:10px;">
+                        <input type="text" id="aadharVerifyInput" placeholder="12-digit Aadhar Number" maxlength="14" style="flex:1;padding:10px 14px;border:2px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;font-family:monospace;font-weight:700;letter-spacing:1px;">
+                        <button onclick="checkAadharDownloads()" id="aadharCheckBtn" style="padding:10px 20px;background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0b0e1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:13px;">
+                            🔍 Check & Download
+                        </button>
+                    </div>
+                </div>
+
+                <div id="aadharResultsContainer" style="margin-top:16px;">
+                    <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">
+                        Enter your 12-digit Aadhar number and click 'Check & Download' to view approved files.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         JAVASCRIPT LOGIC (100% PRESERVED & INTEGRATED)
+         ============================================ -->
+<script>
+        const API_BASE = window.location.origin + '/api';
+
+        // ===== SPLASH SCREEN =====
+        function hideSplash() {
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('hide');
+                setTimeout(() => {
+                    document.getElementById('splashScreen').style.display = 'none';
+                }, 800);
+            }, 3000);
+        }
+
+        // ===== NOTIFICATION POPUP =====
+        function initNotification() {
+            const popup = document.getElementById('notificationPopup');
+            const closeBtn = document.getElementById('notifClose');
+
+            setTimeout(() => { popup.style.display = 'block'; }, 1500);
+
+            closeBtn.addEventListener('click', function() {
+                popup.style.animation = 'slideOutRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+                setTimeout(() => { popup.style.display = 'none'; }, 500);
+            });
+
+            setTimeout(() => {
+                if (popup.style.display !== 'none') {
+                    popup.style.animation = 'slideOutRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+                    setTimeout(() => { popup.style.display = 'none'; }, 500);
+                }
+            }, 8000);
+        }
+
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes slideOutRight {
+                0% { transform: translateX(0); opacity: 1; }
+                100% { transform: translateX(120%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // ===== ANIMATED BACKGROUND LINES =====
+        function initBgLines() {
+            const canvas = document.getElementById('bgCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, lines = [];
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                generateLines();
+            }
+
+            function generateLines() {
+                lines = [];
+                const count = Math.floor((w * h) / 25000);
+                for (let i = 0; i < count; i++) {
+                    lines.push({
+                        x1: Math.random() * w,
+                        y1: Math.random() * h,
+                        x2: Math.random() * w,
+                        y2: Math.random() * h,
+                        speed: 0.2 + Math.random() * 0.5,
+                        opacity: 0.05 + Math.random() * 0.15,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                const time = Date.now() / 1000;
+
+                for (const line of lines) {
+                    const offsetX = Math.sin(time * line.speed + line.phase) * 30;
+                    const offsetY = Math.cos(time * line.speed * 0.7 + line.phase) * 30;
+
+                    ctx.beginPath();
+                    ctx.moveTo(line.x1 + offsetX, line.y1 + offsetY);
+                    ctx.lineTo(line.x2 - offsetX * 0.5, line.y2 - offsetY * 0.5);
+                    ctx.strokeStyle = `rgba(255, 215, 0, ${line.opacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
+                for (let i = 0; i < lines.length; i += 3) {
+                    const l = lines[i];
+                    const x = (l.x1 + l.x2) / 2 + Math.sin(time * l.speed + l.phase) * 20;
+                    const y = (l.y1 + l.y2) / 2 + Math.cos(time * l.speed * 0.8 + l.phase) * 20;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${l.opacity * 0.5})`;
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            animate();
+        }
+
+        // ===== HEADER SCROLL EFFECT =====
+        function initHeaderScroll() {
+            const header = document.getElementById('header');
+            const backToTop = document.getElementById('backToTop');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                    backToTop.classList.add('show');
+                } else {
+                    header.classList.remove('scrolled');
+                    backToTop.classList.remove('show');
+                }
+            });
+        }
+
+        // ===== MOBILE MENU =====
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const hamburger = document.getElementById('hamburgerMenu');
+            menu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // ===== SCROLL ANIMATIONS =====
+        function initScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-up');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            elements.forEach(el => observer.observe(el));
+        }
+
+        // ===== CHECK AUTH FOR ADMIN BUTTON =====
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const adminBtn = document.getElementById('adminBtn');
+            const mobileAdminBtn = document.getElementById('mobileAdminBtn');
+            if (token) {
+                adminBtn.style.display = 'inline-block';
+                mobileAdminBtn.style.display = 'inline-block';
+            } else {
+                adminBtn.style.display = 'none';
+                mobileAdminBtn.style.display = 'none';
+            }
+        }
+
+        // ===== SET FAVICON =====
+        function setFavicon(logoUrl) {
+            if (!logoUrl || logoUrl.trim() === '' || logoUrl.trim().length < 10) {
+                const defaultSvg =
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230b0e1a' stroke='%23ffd700' stroke-width='3'/%3E%3Ctext x='50' y='58' font-family='Inter, sans-serif' font-size='32' font-weight='900' fill='%23ffd700' text-anchor='middle' dominant-baseline='central'%3EBBCC%3C/text%3E%3C/svg%3E";
+                document.querySelector('link[rel="icon"]').href = defaultSvg;
+                document.querySelector('link[rel="apple-touch-icon"]').href = defaultSvg.replace('viewBox="0 0 100 100"',
+                    'viewBox="0 0 180 180"').replace('font-size="32"', 'font-size="48"').replace('r="45"', 'r="80"');
+                return;
+            }
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const size = 64;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#0b0e1a';
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffd700';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, size / 2 - 4, 0, Math.PI * 2);
+                    ctx.clip();
+
+                    const imgSize = size - 12;
+                    const offset = (size - imgSize) / 2;
+                    ctx.drawImage(img, offset, offset, imgSize, imgSize);
+
+                    const dataUrl = canvas.toDataURL('image/png');
+                    document.querySelector('link[rel="icon"]').href = dataUrl;
+
+                    const bigCanvas = document.createElement('canvas');
+                    bigCanvas.width = 180;
+                    bigCanvas.height = 180;
+                    const bigCtx = bigCanvas.getContext('2d');
+
+                    bigCtx.beginPath();
+                    bigCtx.arc(90, 90, 88, 0, Math.PI * 2);
+                    bigCtx.fillStyle = '#0b0e1a';
+                    bigCtx.fill();
+                    bigCtx.strokeStyle = '#ffd700';
+                    bigCtx.lineWidth = 3;
+                    bigCtx.stroke();
+
+                    bigCtx.beginPath();
+                    bigCtx.arc(90, 90, 84, 0, Math.PI * 2);
+                    bigCtx.clip();
+
+                    const bigImgSize = 160;
+                    const bigOffset = (180 - bigImgSize) / 2;
+                    bigCtx.drawImage(img, bigOffset, bigOffset, bigImgSize, bigImgSize);
+
+                    document.querySelector('link[rel="apple-touch-icon"]').href = bigCanvas.toDataURL('image/png');
+                } catch (err) {
+                    console.warn('Favicon generation failed:', err);
+                }
+            };
+            img.onerror = function() {
+                const defaultSvg =
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230b0e1a' stroke='%23ffd700' stroke-width='3'/%3E%3Ctext x='50' y='58' font-family='Inter, sans-serif' font-size='32' font-weight='900' fill='%23ffd700' text-anchor='middle' dominant-baseline='central'%3EBBCC%3C/text%3E%3C/svg%3E";
+                document.querySelector('link[rel="icon"]').href = defaultSvg;
+            };
+            img.src = logoUrl;
+        }
+
+        // ===== FETCH SETTINGS =====
+        async function fetchSettings() {
+            try {
+                const res = await fetch(`${API_BASE}/settings`);
+                const result = await res.json();
+                if (result.success && result.data) {
+                    applySettings(result.data);
+                } else {
+                    fallbackSettings();
+                }
+            } catch (err) {
+                console.error('❌ Settings fetch failed:', err);
+                fallbackSettings();
+            }
+        }
+
+        function applySettings(data) {
+            if (data.logo && data.logo.trim().length > 10) {
+                setFavicon(data.logo);
+                document.querySelector('.header-logo').innerHTML = `<img src="${data.logo}" alt="Logo">`;
+            } else {
+                document.querySelector('.header-logo').innerHTML = `<span>BBCC</span>`;
+            }
+
+            if (data.title) {
+                document.getElementById('footerTitle').textContent = data.title;
+                document.title = data.title + ' - Best Coaching Centers & Education Platform';
+            }
+            if (data.subTitle) {
+                document.getElementById('headerSubtitle').textContent = data.subTitle;
+            }
+
+            const socialMap = {
+                'whatsappLink': data.whatsappLink,
+                'whatsappChannelLink': data.whatsappChannelLink,
+                'youtubeLink': data.youtubeChannelLink,
+                'facebookLink': data.facebookLink,
+                'instagramLink': data.instagramLink,
+                'telegramLink': data.telegramLink,
+                'twitterLink': data.twitterLink,
+                'linkedinLink': data.linkedinLink,
+            };
+
+            for (const [id, url] of Object.entries(socialMap)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (url && url.trim() !== '' && url.trim() !== '#') {
+                        el.href = url.trim();
+                        el.style.display = 'inline-flex';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            }
+
+            const numEl = document.getElementById('whatsappNumber');
+            if (data.whatsappNumber && data.whatsappNumber.trim() !== '') {
+                numEl.textContent = data.whatsappNumber;
+                const waLink = document.getElementById('whatsappLink');
+                if (waLink) {
+                    const clean = data.whatsappNumber.replace(/\D/g, '');
+                    if (clean) {
+                        waLink.href = `https://wa.me/${clean}`;
+                        waLink.style.display = 'inline-flex';
+                    }
+                }
+            } else {
+                numEl.textContent = 'Not available';
+            }
+        }
+
+        function fallbackSettings() {
+            document.querySelector('.header-logo').innerHTML = `<span>BBCC</span>`;
+            document.getElementById('headerSubtitle').textContent = 'Empowering Skills, Building Futures';
+            document.getElementById('footerTitle').textContent = 'BBCC Skill Hub';
+            document.getElementById('whatsappNumber').textContent = 'Not available';
+        }
+
+        // ===== LIVE DATE/TIME =====
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('liveDateTime').textContent = '🕐 ' + now.toLocaleString('en-IN', options);
+        }
+
+        // ============================================
+        // TEACHERS
+        // ============================================
+        let allTeachers = [];
+        let pdfNotesData = [];
+        let filteredTeachers = [];
+
+        async function fetchTeachers() {
+            try {
+                const res = await fetch(`${API_BASE}/tuition-centers`);
+                const result = await res.json();
+                if (result.success && result.data) {
+                    // Filter out blocked/suspended centers from public display
+                    const activeCenters = result.data.filter(c => !c.isBlocked);
+                    renderPartnerCenters(activeCenters);
+
+                    allTeachers = [];
+                    for (const center of activeCenters) {
+                        if (center.teachers && center.teachers.length > 0) {
+                            for (const teacher of center.teachers) {
+                                allTeachers.push({
+                                    ...teacher,
+                                    centerName: center.centerName,
+                                    centerId: center._id,
+                                    centerLogo: center.clogo,
+                                    centerDirector: center.directorName,
+                                    centerAddress: center.address,
+                                    centerContact: center.contactNumber,
+                                    centerWhatsapp: center.whatsappNumber,
+                                    centerEmail: center.email
+                                });
+                            }
+                        }
+                    }
+                    filteredTeachers = [...allTeachers];
+                    renderTeachersScroll(filteredTeachers);
+                } else {
+                    allTeachers = [];
+                    filteredTeachers = [];
+                    renderTeachersScroll([]);
+                    renderPartnerCenters([]);
+                }
+            } catch (err) {
+                console.error('❌ Teachers fetch failed:', err);
+                allTeachers = [];
+                filteredTeachers = [];
+                renderTeachersScroll([]);
+                renderPartnerCenters([]);
+            }
+        }
+
+        // ============================================
+        // RENDER AFFILIATED PARTNER CENTERS
+        // ============================================
+        function renderPartnerCenters(centersList) {
+            const track = document.getElementById('partnerTrack');
+            if (!track) return;
+            if (!centersList || centersList.length === 0) {
+                track.innerHTML = `
+                    <div style="padding:40px;text-align:center;color:rgba(255,255,255,0.4);width:100%;">
+                        <i class="fas fa-university" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+                        Affiliated coaching centers will be displayed here.
+                    </div>
+                `;
+                return;
+            }
+            const items = centersList.length >= 2 ? [...centersList, ...centersList] : centersList;
+            let html = '';
+            for (let i = 0; i < items.length; i++) {
+                const c = items[i];
+                const initials = (c.centerName || 'BBCC').split(' ').filter(w => w.length > 0).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+                const dirInitial = c.directorName ? c.directorName.charAt(0).toUpperCase() : 'D';
+                html += `
+                    <div class="partner-card" style="min-width:320px;max-width:360px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;">
+                        <div class="partner-card-header">
+                            <div class="center-logo">
+                                ${c.clogo && c.clogo.length > 50 ? `<img src="${c.clogo}" alt="${c.centerName}">` : `<span>${initials}</span>`}
+                            </div>
+                            <div class="center-info">
+                                <div class="center-name">${c.centerName}</div>
+                                <div class="center-classes">Classes: ${c.fromClass || 'All'} - ${c.toClass || 'All'}</div>
+                                ${c.address ? `<div class="center-address"><i class="fas fa-map-marker-alt"></i> ${c.address}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="director-section">
+                            <div class="director-avatar">
+                                ${c.directorPhoto && c.directorPhoto.length > 50 ? `<img src="${c.directorPhoto}" alt="${c.directorName}">` : `<span>${dirInitial}</span>`}
+                            </div>
+                            <div class="director-details">
+                                <div class="director-label">Center Director</div>
+                                <div class="director-name">${c.directorName || 'Director'}</div>
+                                ${c.contactNumber ? `<div class="director-contact"><i class="fas fa-phone-alt"></i> ${c.contactNumber}</div>` : ''}
+                                ${c.encryptedCallLink ? `
+                                    <a href="${c.encryptedCallLink}" target="_blank" class="encrypted-call-btn" style="text-decoration:none;">
+                                        <i class="fas fa-lock"></i> Encrypted Call
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,215,0,0.15);display:flex;gap:8px;">
+                            <a href="/center.html?id=${c._id}" class="btn btn-sm btn-gold" style="flex:1;text-align:center;font-size:12px;text-decoration:none;padding:7px 12px;border-radius:8px;">
+                                <i class="fas fa-globe"></i> Visit Center Website
+                            </a>
+                            ${c.contactNumber ? `<a href="tel:${c.contactNumber}" class="btn btn-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;padding:7px 12px;border-radius:8px;text-decoration:none;"><i class="fas fa-phone-alt"></i></a>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            track.innerHTML = html;
+        }
+
+        function filterTeachers() {
+            const subject = document.getElementById('subjectFilter').value.toLowerCase();
+            const classFilter = document.getElementById('classFilter').value;
+            const search = document.getElementById('teacherSearch').value.toLowerCase();
+
+            filteredTeachers = allTeachers.filter(t => {
+                const matchSubject = !subject || (t.subject && t.subject.toLowerCase().includes(subject));
+                const matchClass = !classFilter || (t.class && t.class.includes(classFilter));
+                const matchSearch = !search || (t.name && t.name.toLowerCase().includes(search)) || 
+                                    (t.subject && t.subject.toLowerCase().includes(search)) ||
+                                    (t.centerName && t.centerName.toLowerCase().includes(search));
+                return matchSubject && matchClass && matchSearch;
+            });
+
+            renderTeachersScroll(filteredTeachers);
+        }
+
+        function renderTeachersScroll(teachers) {
+            const track = document.getElementById('teachersTrack');
+            if (!track) return;
+
+            if (!teachers || teachers.length === 0) {
+                track.innerHTML = `
+                    <div class="teacher-card" style="min-width:100%;max-width:100%;">
+                        <div style="padding:30px;text-align:center;color:rgba(255,255,255,0.3);">
+                            <i class="fas fa-user-graduate" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+                            No teachers found
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const items = [...teachers, ...teachers];
+            let html = '';
+            for (let i = 0; i < items.length; i++) {
+                const t = items[i];
+                const initial = t.name ? t.name.charAt(0).toUpperCase() : 'T';
+                html += `
+                    <div class="teacher-card" onclick='openTeacherDetails(${JSON.stringify(t).replace(/'/g,"&#39;")})'>
+                        <div class="teacher-avatar">
+                            ${t.photo && t.photo.length > 50 ? 
+                                `<img src="${t.photo}" alt="${t.name}">` : 
+                                `<span>${initial}</span>`
+                            }
+                        </div>
+                        <div class="teacher-name">${t.name || 'Teacher'}</div>
+                        <div class="teacher-center">🏫 ${t.centerName || 'Unknown Center'}</div>
+                        <div class="teacher-divider"></div>
+                        <div class="teacher-subject">📚 ${t.subject || 'N/A'}</div>
+                        <div class="teacher-class">🎯 ${t.class || 'N/A'}</div>
+                    </div>
+                `;
+            }
+            track.innerHTML = html;
+            track.style.animation = 'scrollTeachers 35s linear infinite';
+            
+            setupTeacherDrag(track);
+        }
+
+        function setupTeacherDrag(track) {
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            track.addEventListener('mousedown', (e) => {
+                isDown = true;
+                track.style.animationPlayState = 'paused';
+                startX = e.pageX - track.offsetLeft;
+                scrollLeft = track.scrollLeft || 0;
+                track.style.cursor = 'grabbing';
+            });
+
+            track.addEventListener('mouseleave', () => {
+                isDown = false;
+                track.style.animationPlayState = 'running';
+                track.style.cursor = 'grab';
+            });
+
+            track.addEventListener('mouseup', () => {
+                isDown = false;
+                track.style.animationPlayState = 'running';
+                track.style.cursor = 'grab';
+            });
+
+            track.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - track.offsetLeft;
+                const walk = (x - startX) * 0.8;
+                const currentTransform = window.getComputedStyle(track).transform;
+                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(', ');
+                    const currentX = parseFloat(values[4]) || 0;
+                    const newX = currentX + walk;
+                    track.style.transform = `translateX(${newX}px)`;
+                }
+                startX = x;
+            });
+
+            track.addEventListener('touchstart', (e) => {
+                isDown = true;
+                track.style.animationPlayState = 'paused';
+                startX = e.touches[0].pageX - track.offsetLeft;
+                const currentTransform = window.getComputedStyle(track).transform;
+                let matrix = currentTransform.match(/matrix.*\((.+)\)/);
+                if (matrix) {
+                    const values = matrix[1].split(', ');
+                    scrollLeft = parseFloat(values[4]) || 0;
+                }
+            }, { passive: true });
+
+            track.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - track.offsetLeft;
+                const walk = (x - startX) * 0.8;
+                const newX = scrollLeft + walk;
+                track.style.transform = `translateX(${newX}px)`;
+            }, { passive: true });
+
+            track.addEventListener('touchend', () => {
+                isDown = false;
+                track.style.animationPlayState = 'running';
+            }, { passive: true });
+        }
+
+        function openTeacherDetails(teacher) {
+            const modal = document.createElement('div');
+            modal.className = 'teacher-details-modal';
+            modal.innerHTML = `
+                <div class="teacher-details-content">
+                    <button onclick="this.closest('.teacher-details-modal').remove()" style="
+                        position: sticky;
+                        top: 0;
+                        float: right;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        border: 1px solid rgba(255,255,255,0.1);
+                        background: rgba(255,255,255,0.05);
+                        color: #fff;
+                        font-size: 20px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        z-index: 10;
+                        margin-bottom: 10px;
+                    " onmouseover="this.style.background='rgba(255,0,0,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        ✕
+                    </button>
+
+                    <div class="teacher-popup-avatar">
+                        ${teacher.photo && teacher.photo.length > 50 ? 
+                            `<img src="${teacher.photo}" alt="${teacher.name}">` : 
+                            `<span>${teacher.name ? teacher.name.charAt(0).toUpperCase() : 'T'}</span>`
+                        }
+                    </div>
+
+                    <h2>${teacher.name || 'Teacher'}</h2>
+                    <div class="teacher-popup-center">🏫 ${teacher.centerName || 'Unknown Center'}</div>
+
+                    <div class="teacher-popup-info">
+                        <div><span class="label">📚 Subject</span><span class="value">${teacher.subject || 'N/A'}</span></div>
+                        <div><span class="label">🎯 Class</span><span class="value">${teacher.class || 'N/A'}</span></div>
+                        ${teacher.centerDirector ? `<div><span class="label">👤 Director</span><span class="value">${teacher.centerDirector}</span></div>` : ''}
+                        ${teacher.centerAddress ? `<div><span class="label">📍 Address</span><span class="value">${teacher.centerAddress}</span></div>` : ''}
+                        ${teacher.centerContact ? `<div><span class="label">📞 Contact</span><span class="value">${teacher.centerContact}</span></div>` : ''}
+                        ${teacher.centerEmail ? `<div><span class="label">📧 Email</span><span class="value">${teacher.centerEmail}</span></div>` : ''}
+                    </div>
+
+                    <button class="teacher-popup-close" onclick="this.closest('.teacher-details-modal').remove()">✕ Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) this.remove();
+            });
+        }
+
+        // ============================================
+        // PDF NOTES
+        // ============================================
+        async function fetchPDFNotes() {
+            try {
+                const res = await fetch(`${API_BASE}/study-material`);
+                const result = await res.json();
+                if (result.success && result.data && result.data.notes && result.data.notes.length > 0) {
+                    pdfNotesData = result.data.notes;
+                    renderPDFNotes(pdfNotesData);
+                } else {
+                    pdfNotesData = [];
+                    renderPDFNotes([]);
+                }
+            } catch (err) {
+                console.error('❌ PDF Notes fetch failed:', err);
+                pdfNotesData = [];
+                renderPDFNotes([]);
+            }
+        }
+
+        function renderPDFNotes(notes) {
+            const container = document.getElementById('pdfNotesContainer');
+            const datalist = document.getElementById('pdfSuggestions');
+            if (!container) return;
+
+            if (datalist) {
+                datalist.innerHTML = '';
+                if (notes && notes.length > 0) {
+                    const seen = new Set();
+                    for (const note of notes) {
+                        if (note.title && !seen.has(note.title)) {
+                            seen.add(note.title);
+                            const opt = document.createElement('option');
+                            opt.value = note.title;
+                            datalist.appendChild(opt);
+                        }
+                    }
+                }
+            }
+
+            if (!notes || notes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-notes" style="grid-column: 1 / -1; text-align: center; padding: 40px; background: rgba(15,23,42,0.6); border-radius: 16px; border: 1px dashed rgba(255,215,0,0.2);">
+                        <i class="fas fa-book-open" style="font-size: 40px; color: #ffd700; margin-bottom: 10px; display: block;"></i>
+                        <p style="color: #94a3b8; font-size: 15px;">No study material documents available at the moment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < notes.length; i++) {
+                const note = notes[i];
+                const price = Math.max(0, Number(note.price) || 0);
+                const isPaid = price > 0;
+                const fileType = (note.fileType || 'pdf').toLowerCase();
+                const typeIcon = fileType === 'pdf' ? '<i class="fas fa-file-pdf" style="color:#ef4444;"></i> PDF' : '<i class="fas fa-file-word" style="color:#3b82f6;"></i> Word';
+                const subject = note.subject || 'General Study';
+                const classLevel = note.classLevel || 'All Classes';
+                const safeTitle = (note.title || 'Untitled Document').replace(/'/g, "&#39;");
+                const safeTitleEscaped = encodeURIComponent(note.title || 'Document');
+
+                let fileSize = 'Standard Document';
+                if (note.pdf && note.pdf.startsWith('data:')) {
+                    const base64 = note.pdf.split(',')[1] || '';
+                    const size = Math.round((base64.length * 3) / 4 / 1024);
+                    if (size < 1024) {
+                        fileSize = size + ' KB';
+                    } else {
+                        fileSize = (size / 1024).toFixed(1) + ' MB';
+                    }
+                }
+
+                html += `
+                    <div class="doc-card-ultra" data-title="${(note.title || '').toLowerCase()}">
+                        <!-- Thumbnail Cover -->
+                        <div class="doc-cover-box" onclick="previewDocModal('${note._id}', '${safeTitleEscaped}')">
+                            ${note.thumbnail ? `
+                                <img src="${note.thumbnail}" alt="${safeTitle}" class="doc-cover-img" loading="lazy">
+                            ` : `
+                                <div class="doc-cover-placeholder">
+                                    <span>${fileType === 'pdf' ? '📕' : '📘'}</span>
+                                    <span style="font-size:12px;color:#94a3b8;font-weight:600;">${fileType.toUpperCase()} COVER</span>
+                                </div>
+                            `}
+                            <!-- Price Pill -->
+                            <div class="rzp-price-pill ${isPaid ? '' : 'free'}">
+                                ${isPaid ? `<i class="fas fa-tag"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`}
+                            </div>
+                            <!-- Subject Tag -->
+                            <div class="doc-subject-tag">
+                                ${subject}
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="doc-body-box">
+                            <h4 class="doc-title-text" title="${safeTitle}">${safeTitle}</h4>
+                            <p class="doc-desc-text">${note.description || 'Comprehensive verified study material by BBCC Academic Board.'}</p>
+                            
+                            <div class="doc-meta-row">
+                                <span>${typeIcon} • ${fileSize}</span>
+                                <span style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${classLevel}</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="doc-actions-box">
+                            ${isPaid ? `
+                                <button type="button" class="btn-doc-pay" onclick="buyDocWithRazorpay('${note._id}', ${price}, '${safeTitleEscaped}')">
+                                    <i class="fas fa-credit-card"></i> Pay ₹${price} & Download
+                                </button>
+                            ` : `
+                                <button type="button" class="btn-doc-free" onclick="downloadFreeDocDirect('${note._id}', '${safeTitleEscaped}')">
+                                    <i class="fas fa-arrow-down"></i> Free Download
+                                </button>
+                            `}
+                            <button type="button" class="btn-doc-preview" onclick="previewDocModal('${note._id}', '${safeTitleEscaped}')" title="Preview Document">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // RAZORPAY & DIRECT DOWNLOAD LOGIC
+        // ============================================
+
+        async function buyDocWithRazorpay(docId, price, encodedTitle) {
+            const docTitle = decodeURIComponent(encodedTitle);
+            
+            let payerName = localStorage.getItem('bbcc_student_name') || '';
+            let payerPhone = localStorage.getItem('bbcc_student_phone') || '';
+
+            if (!payerName) {
+                payerName = prompt('Enter Student / Buyer Name for Receipt:', '') || 'Student';
+                if (payerName) localStorage.setItem('bbcc_student_name', payerName);
+            }
+            if (!payerPhone) {
+                payerPhone = prompt('Enter 10-digit Mobile Number:', '') || '';
+                if (payerPhone) localStorage.setItem('bbcc_student_phone', payerPhone);
+            }
+
+            showToast(`Connecting to Razorpay gateway for ₹${price}...`);
+
+            try {
+                const res = await fetch('/api/payment/create-document-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        docId: docId,
+                        payerName: payerName,
+                        payerPhone: payerPhone
+                    })
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    alert(data.message || 'Payment initialization failed. Please contact support.');
+                    return;
+                }
+
+                if (data.free) {
+                    triggerClientDownload(data.file, data.fileName);
+                    showToast('Free document unlocked & downloaded!');
+                    return;
+                }
+
+                if (typeof Razorpay === 'undefined') {
+                    alert('Razorpay Checkout SDK is still loading. Please check your internet connection and try again.');
+                    return;
+                }
+
+                const options = {
+                    key: data.keyId,
+                    amount: data.amountInPaise,
+                    currency: data.currency || 'INR',
+                    name: 'BBCC SKILL HUB',
+                    description: `E-Library: ${data.docTitle || docTitle}`,
+                    order_id: data.orderId,
+                    prefill: {
+                        name: payerName,
+                        contact: payerPhone
+                    },
+                    theme: { color: '#ffd700' },
+                    handler: async function (response) {
+                        showToast('Verifying payment with gateway...');
+                        try {
+                            const verifyRes = await fetch('/api/payment/verify-document-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    docId: docId
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                alert(`🎉 Payment Successful!\n\nTransaction ID: ${response.razorpay_payment_id}\nAmount: ₹${price}\n\nYour document is now downloading!`);
+                                triggerClientDownload(verifyData.file, verifyData.fileName);
+                                showToast('Document successfully downloaded!');
+                            } else {
+                                alert(verifyData.message || 'Payment verification failed');
+                            }
+                        } catch (err) {
+                            alert('Payment verification error: ' + err.message);
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch (err) {
+                alert('Payment error: ' + err.message);
+            }
+        }
+
+        async function downloadFreeDocDirect(docId, encodedTitle) {
+            showToast('Downloading free document...');
+            try {
+                const res = await fetch('/api/payment/create-document-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ docId })
+                });
+                const data = await res.json();
+                if (data.success && data.file) {
+                    triggerClientDownload(data.file, data.fileName || 'study_document.pdf');
+                    showToast('Document downloaded successfully!');
+                } else {
+                    alert(data.message || 'Error downloading file');
+                }
+            } catch (e) {
+                alert('Download error: ' + e.message);
+            }
+        }
+
+        function triggerClientDownload(filePayload, fileName) {
+            if (!filePayload) {
+                alert('Document content payload unavailable.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = filePayload;
+            a.download = fileName || 'document.pdf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => a.remove(), 100);
+        }
+
+        function previewDocModal(docId, encodedTitle) {
+            const title = decodeURIComponent(encodedTitle);
+            const note = (pdfNotesData || []).find(n => n._id === docId);
+            if (note && (note.pdf || note.file)) {
+                openPDFModal(title, note.pdf || note.file);
+            } else {
+                showToast('Document preview is loading or restricted. Please click Pay & Download.');
+            }
+        }
+
+        function openPDFModal(title, pdfData) {
+            const modal = document.getElementById('pdfModal');
+            const viewer = document.getElementById('pdfViewer');
+            const titleEl = document.getElementById('pdfModalTitle');
+            const downloadBtn = document.getElementById('pdfDownloadBtn');
+
+            titleEl.textContent = title || 'PDF Preview';
+            viewer.src = pdfData || '';
+            downloadBtn.href = pdfData || '#';
+            downloadBtn.download = (title || 'document') + '.pdf';
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePDFModal() {
+            const modal = document.getElementById('pdfModal');
+            const viewer = document.getElementById('pdfViewer');
+            modal.classList.remove('active');
+            viewer.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // ============================================
+        // AADHAR DOCUMENT DOWNLOAD WORKFLOW
+        // ============================================
+        async function openDocApplicationModal(preselectDocId) {
+            const modal = document.getElementById('docApplicationModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            await populateDocSelect(preselectDocId);
+        }
+
+        function closeDocApplicationModal() {
+            const modal = document.getElementById('docApplicationModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        async function populateDocSelect(selectedDocId) {
+            const sel = document.getElementById('appDocSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- Choose Study Material Document --</option>';
+
+            let docs = [];
+            try {
+                const res = await fetch(`${API_BASE}/study-material/public-docs`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                    docs = data.data;
+                }
+            } catch (err) {
+                console.warn('Could not fetch public docs list:', err);
+            }
+
+            // Fallback to in-memory pdfNotesData if public-docs is empty
+            if (docs.length === 0 && Array.isArray(pdfNotesData) && pdfNotesData.length > 0) {
+                docs = pdfNotesData;
+            }
+
+            // Guarantee official default prospectus so the form can ALWAYS be submitted
+            if (docs.length === 0) {
+                docs = [{
+                    _id: 'general_syllabus',
+                    title: 'Official BBCC Skill Hub Academic Prospectus & Syllabus (2026-27)',
+                    fileName: 'BBCC_Academic_Prospectus_2026.pdf'
+                }];
+            }
+
+            docs.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n._id;
+                opt.textContent = `${n.title} (${n.fileName || 'PDF Document'})`;
+                if (selectedDocId && n._id.toString() === selectedDocId.toString()) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            });
+
+            // Auto-select if requested or if only 1 option available
+            if (selectedDocId) {
+                sel.value = selectedDocId;
+            } else if (docs.length > 0) {
+                sel.value = docs[0]._id;
+            }
+        }
+
+        async function submitDocApplication(e) {
+            e.preventDefault();
+            const btn = document.getElementById('docAppSubmitBtn');
+            const msgEl = document.getElementById('docAppMsg');
+            const name = document.getElementById('appStudentName').value.trim();
+            const mobile = document.getElementById('appStudentMobile').value.trim();
+            const aadhar = document.getElementById('appStudentAadhar').value.trim();
+            const address = document.getElementById('appStudentAddress').value.trim();
+            const docId = document.getElementById('appDocSelect').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            msgEl.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/download-requests`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, mobile, aadhar, address, docId })
+                });
+                const data = await res.json();
+                msgEl.style.display = 'block';
+                if (data.success) {
+                    msgEl.style.background = '#dcfce7';
+                    msgEl.style.color = '#166534';
+                    msgEl.style.padding = '10px 14px';
+                    msgEl.style.borderRadius = '8px';
+                    msgEl.innerHTML = `✅ <strong>Safal:</strong> ${data.message}`;
+                    setTimeout(() => {
+                        closeDocApplicationModal();
+                        document.getElementById('docAppForm').reset();
+                        openAadharDownloadModal(aadhar);
+                    }, 2200);
+                } else {
+                    msgEl.style.background = '#fee2e2';
+                    msgEl.style.color = '#991b1b';
+                    msgEl.style.padding = '10px 14px';
+                    msgEl.style.borderRadius = '8px';
+                    msgEl.textContent = `❌ ${data.message || 'Error submitting application'}`;
+                }
+            } catch (err) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#fee2e2';
+                msgEl.style.color = '#991b1b';
+                msgEl.style.padding = '10px 14px';
+                msgEl.style.borderRadius = '8px';
+                msgEl.textContent = '❌ Server network error. Kripya punah prayas karein.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📤 Submit Application';
+            }
+        }
+
+        function openAadharDownloadModal(prefillAadhar) {
+            const modal = document.getElementById('aadharDownloadModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (prefillAadhar) {
+                document.getElementById('aadharVerifyInput').value = prefillAadhar;
+                checkAadharDownloads();
+            }
+        }
+
+        function closeAadharDownloadModal() {
+            const modal = document.getElementById('aadharDownloadModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        async function checkAadharDownloads() {
+            const input = document.getElementById('aadharVerifyInput');
+            const container = document.getElementById('aadharResultsContainer');
+            const btn = document.getElementById('aadharCheckBtn');
+            const aadhar = (input.value || '').trim();
+
+            if (!aadhar) {
+                alert('Please enter your 12-digit Aadhar number');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+            container.innerHTML = `<div style="text-align:center;padding:24px;color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Checking Aadhar approval records...</div>`;
+
+            try {
+                const res = await fetch(`${API_BASE}/download-requests/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aadhar })
+                });
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.requests) && data.requests.length > 0) {
+                    let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+                    data.requests.forEach(r => {
+                        const isApproved = r.status === 'approved';
+                        const isPending = r.status === 'pending';
+
+                        html += `
+                            <div style="border:1px solid ${isApproved ? '#bbf7d0' : (isPending ? '#fde68a' : '#fecaca')};background:${isApproved ? '#f0fdf4' : (isPending ? '#fffbeb' : '#fef2f2')};border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                                <div>
+                                    <div style="font-weight:700;color:#0f172a;font-size:14px;margin-bottom:2px;">📄 ${r.docTitle}</div>
+                                    <div style="font-size:11px;color:#64748b;">
+                                        Status: <strong style="color:${isApproved ? '#166534' : (isPending ? '#b45309' : '#dc2626')};">${isApproved ? 'Approved & Ready' : (isPending ? 'Verification Pending' : 'Rejected')}</strong>
+                                        ${r.approvedAt ? ' &bull; Approved on ' + new Date(r.approvedAt).toLocaleDateString('en-IN') : ''}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${isApproved && r.file ? `
+                                        <a href="${r.file}" download="${r.fileName || 'bbcc-study-document.pdf'}" class="btn" style="background:#16a34a;color:white;font-weight:700;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+                                            📥 Download Document
+                                        </a>
+                                    ` : (isPending ? `
+                                        <span style="background:#fef3c7;color:#92400e;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;">
+                                            ⏳ Admin Review In Progress
+                                        </span>
+                                    ` : `
+                                        <button onclick="openDocApplicationModal('${r.docId}')" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;">
+                                            Re-apply
+                                        </button>
+                                    `)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:24px;color:#b91c1c;background:#fef2f2;border-radius:12px;border:1px solid #fecaca;">
+                            <div style="font-size:24px;margin-bottom:6px;">⚠️</div>
+                            <p style="margin:0 0 10px;font-size:13px;">${data.message || 'No applications found for this Aadhar number.'}</p>
+                            <button onclick="openDocApplicationModal()" style="background:linear-gradient(135deg,#0b0e1a,#1e293b);color:#ffd700;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;">
+                                📝 Submit Application Now
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;">Connection error. Please try again.</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Check & Download';
+            }
+        }
+
+        function filterPDFNotes(query) {
+            const cards = document.querySelectorAll('.note-card');
+            const search = query.toLowerCase().trim();
+            
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const title = card.dataset.title || '';
+                const match = search === '' || title.includes(search);
+                card.style.display = match ? 'flex' : 'none';
+                if (match) visibleCount++;
+            });
+
+            const container = document.getElementById('pdfNotesContainer');
+            let existing = container.querySelector('.no-notes');
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!existing) {
+                    const div = document.createElement('div');
+                    div.className = 'no-notes';
+                    div.innerHTML = `<i class="fas fa-search"></i><p>No notes match your search</p>`;
+                    container.appendChild(div);
+                }
+            } else {
+                if (existing) existing.remove();
+            }
+        }
+
+        // ============================================
+        // BANNERS
+        // ============================================
+        let bannerData = [];
+        let currentBannerIndex = 0;
+        let bannerInterval = null;
+        const bannerAnimations = ['anim-split-h','anim-split-v','anim-split-corner','anim-split-diag','anim-split-radial'];
+
+        async function fetchBanners() {
+            try {
+                const res = await fetch(`${API_BASE}/sidebar-banner`);
+                const result = await res.json();
+                if (result.success && result.data && result.data.banners.length > 0) {
+                    bannerData = result.data.banners;
+                    renderBanners();
+                } else {
+                    bannerData = [{ image: '', title: 'Welcome to BBCC Skill Hub', link: '', _id: 'default' }];
+                    renderBanners();
+                }
+            } catch (err) {
+                console.error('❌ Banner fetch failed:', err);
+                bannerData = [{ image: '', title: 'Welcome to BBCC Skill Hub', link: '', _id: 'default' }];
+                renderBanners();
+            }
+        }
+
+        function renderBanners() {
+            const slidesContainer = document.getElementById('bannerSlides');
+            const dotsContainer = document.getElementById('bannerDots');
+            const prevBtn = document.getElementById('bannerPrev');
+            const nextBtn = document.getElementById('bannerNext');
+
+            if (!bannerData || bannerData.length === 0) {
+                slidesContainer.innerHTML = `
+                    <div class="banner-slide anim-split-h active">
+                        <div class="banner-overlay">
+                            <h2>Welcome to BBCC Skill Hub</h2>
+                            <p>Empowering Skills, Building Futures</p>
+                        </div>
+                    </div>
+                `;
+                dotsContainer.innerHTML = '';
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                return;
+            }
+
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+
+            let slidesHtml = '';
+            let dotsHtml = '';
+            const shuffledAnims = [...bannerAnimations].sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < bannerData.length; i++) {
+                const b = bannerData[i];
+                const animClass = shuffledAnims[i % shuffledAnims.length];
+                const isActive = i === 0 ? 'active' : '';
+                slidesHtml += `
+                    <div class="banner-slide ${animClass} ${isActive}" style="${i === 0 ? 'display:block;' : 'display:none;'}">
+                        ${b.image && b.image.length > 50 ? `<img src="${b.image}" alt="${b.title || 'Banner'}">` : ''}
+                        <div class="banner-overlay">
+                            <h2>${b.title || 'Welcome to BBCC Skill Hub'}</h2>
+                        </div>
+                    </div>
+                `;
+                dotsHtml += `<span class="banner-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`;
+            }
+
+            slidesContainer.innerHTML = slidesHtml;
+            dotsContainer.innerHTML = dotsHtml;
+            currentBannerIndex = 0;
+
+            dotsContainer.querySelectorAll('.banner-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    goToBanner(index);
+                });
+            });
+
+            startBannerSlideshow();
+        }
+
+        function goToBanner(index) {
+            const slides = document.querySelectorAll('.banner-slide');
+            const dots = document.querySelectorAll('.banner-dot');
+            if (index < 0) index = slides.length - 1;
+            if (index >= slides.length) index = 0;
+
+            slides.forEach((slide, i) => {
+                slide.style.display = i === index ? 'block' : 'none';
+                if (i === index) {
+                    slide.classList.remove(...bannerAnimations);
+                    const randomAnim = bannerAnimations[Math.floor(Math.random() * bannerAnimations.length)];
+                    slide.classList.add(randomAnim);
+                    slide.style.animation = 'none';
+                    setTimeout(() => { slide.style.animation = ''; }, 50);
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentBannerIndex = index;
+        }
+
+        function changeBanner(direction) {
+            goToBanner(currentBannerIndex + direction);
+        }
+
+        function startBannerSlideshow() {
+            if (bannerInterval) clearInterval(bannerInterval);
+            if (bannerData.length > 1) {
+                bannerInterval = setInterval(() => { changeBanner(1); }, 5000);
+            }
+        }
+
+        function resetBannerInterval() {
+            if (bannerInterval) {
+                clearInterval(bannerInterval);
+                if (bannerData.length > 1) {
+                    bannerInterval = setInterval(() => { changeBanner(1); }, 5000);
+                }
+            }
+        }
+
+        // ============================================
+        // VIDEOS
+        // ============================================
+        let videosData = [];
+
+        async function fetchVideos() {
+            try {
+                const res = await fetch(`${API_BASE}/study-material`);
+                const result = await res.json();
+                if (result.success && result.data && result.data.videos.length > 0) {
+                    videosData = result.data.videos;
+                    renderVideos();
+                } else {
+                    videosData = [];
+                    renderVideos();
+                }
+            } catch (err) {
+                console.error('❌ Videos fetch failed:', err);
+                videosData = [];
+                renderVideos();
+            }
+        }
+
+        function renderVideos() {
+            const grid = document.getElementById('videosGrid');
+            if (!videosData || videosData.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-videos">
+                        <i class="fas fa-video" style="font-size:36px;display:block;margin-bottom:10px;"></i>
+                        No videos available
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < videosData.length; i++) {
+                const v = videosData[i];
+                let videoId = '';
+                if (v.link) {
+                    const match = v.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?#]+)/);
+                    if (match) videoId = match[1];
+                }
+
+                html += `
+                    <div class="video-card" onclick="openVideo('${videoId}', '${v.link}')">
+                        <div class="video-thumbnail">
+                            ${v.thumbnail && v.thumbnail.length > 50 ? 
+                                `<img src="${v.thumbnail}" alt="${v.title}">` : 
+                                `<img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="${v.title}">`
+                            }
+                            <div class="video-play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="video-info">
+                            <h3>${v.title || 'Untitled'}</h3>
+                            ${v.description ? `<p>${v.description}</p>` : ''}
+                            <div class="video-date">${v.createdAt ? new Date(v.createdAt).toLocaleDateString() : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function openVideo(videoId, directLink) {
+            const modal = document.getElementById('videoModal');
+            const frame = document.getElementById('videoFrame');
+            if (videoId) {
+                frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            } else if (directLink) {
+                frame.src = directLink;
+            } else {
+                showToast('Video link not available', true);
+                return;
+            }
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const frame = document.getElementById('videoFrame');
+            modal.classList.remove('active');
+            frame.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // ============================================
+        // GALLERY
+        // ============================================
+        let galleryPhotos = [];
+        let currentGalleryIndex = 0;
+        let galleryInterval = null;
+        let isGalleryAutoplay = true;
+        const galleryAnimations = ['anim-fade','anim-zoom','anim-slide-left','anim-slide-right','anim-rotate','anim-blur','anim-flip','anim-bounce','anim-shutter','anim-wipe'];
+
+        async function fetchGallery() {
+            try {
+                const res = await fetch(`${API_BASE}/gallery`);
+                const result = await res.json();
+                if (result.success && result.data && result.data.photos.length > 0) {
+                    galleryPhotos = result.data.photos;
+                    renderGallery();
+                } else {
+                    galleryPhotos = [];
+                    renderGallery();
+                }
+            } catch (err) {
+                console.error('❌ Gallery fetch failed:', err);
+                galleryPhotos = [];
+                renderGallery();
+            }
+        }
+
+        function renderGallery() {
+            const slideshow = document.getElementById('gallerySlideshow');
+            const dotsContainer = document.getElementById('galleryDots');
+            const prevBtn = document.getElementById('galleryPrev');
+            const nextBtn = document.getElementById('galleryNext');
+
+            const placeholder = document.getElementById('galleryPlaceholder');
+            if (placeholder) placeholder.remove();
+
+            if (!galleryPhotos || galleryPhotos.length === 0) {
+                slideshow.innerHTML = `<div class="no-gallery"><i class="fas fa-images"></i><p>No photos available</p></div>`;
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                dotsContainer.innerHTML = '';
+                return;
+            }
+
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+
+            const shuffledAnims = [...galleryAnimations].sort(() => Math.random() - 0.5);
+
+            let slidesHtml = '';
+            let dotsHtml = '';
+
+            for (let i = 0; i < galleryPhotos.length; i++) {
+                const p = galleryPhotos[i];
+                const animClass = shuffledAnims[i % shuffledAnims.length];
+                const isActive = i === 0 ? 'active' : '';
+                slidesHtml += `
+                    <div class="gallery-slide ${animClass} ${isActive}">
+                        <img src="${p.image}" alt="${p.title || 'Gallery'}" loading="lazy">
+                        <div class="gallery-overlay">
+                            <h3>${p.title || 'Photo ' + (i + 1)}</h3>
+                            ${p.centerName ? `<div style="display:inline-block;padding:2px 8px;background:rgba(255,215,0,0.25);border:1px solid #ffd700;border-radius:12px;font-size:11px;color:#ffd700;margin-bottom:4px;font-weight:600;">🏫 ${p.centerName}</div>` : ''}
+                            ${p.description ? `<p>${p.description}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+                dotsHtml += `<span class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`;
+            }
+
+            slideshow.innerHTML = slidesHtml;
+            dotsContainer.innerHTML = dotsHtml;
+
+            slideshow.appendChild(prevBtn);
+            slideshow.appendChild(nextBtn);
+            slideshow.appendChild(dotsContainer);
+
+            currentGalleryIndex = 0;
+
+            dotsContainer.querySelectorAll('.gallery-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    goToGallery(index);
+                });
+            });
+
+            startGallerySlideshow();
+            renderGalleryGrid();
+        }
+
+        function goToGallery(index) {
+            const slides = document.querySelectorAll('.gallery-slide');
+            const dots = document.querySelectorAll('.gallery-dot');
+            if (index < 0) index = slides.length - 1;
+            if (index >= slides.length) index = 0;
+            slides.forEach((slide, i) => { slide.classList.toggle('active', i === index); });
+            dots.forEach((dot, i) => { dot.classList.toggle('active', i === index); });
+            currentGalleryIndex = index;
+        }
+
+        function changeGallery(direction) {
+            goToGallery(currentGalleryIndex + direction);
+            setTimeout(() => {
+                const slides = document.querySelectorAll('.gallery-slide');
+                slides.forEach(slide => {
+                    slide.classList.remove(...galleryAnimations);
+                    const randomAnim = galleryAnimations[Math.floor(Math.random() * galleryAnimations.length)];
+                    slide.classList.add(randomAnim);
+                });
+            }, 100);
+        }
+
+        function startGallerySlideshow() {
+            if (galleryInterval) clearInterval(galleryInterval);
+            if (galleryPhotos.length > 1 && isGalleryAutoplay) {
+                galleryInterval = setInterval(() => { changeGallery(1); }, 4000);
+            }
+        }
+
+        function toggleGalleryAutoplay() {
+            isGalleryAutoplay = !isGalleryAutoplay;
+            const btn = document.getElementById('galleryAutoplayBtn');
+            if (isGalleryAutoplay) {
+                btn.innerHTML = '<i class="fas fa-pause"></i> Auto';
+                startGallerySlideshow();
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i> Auto';
+                clearInterval(galleryInterval);
+                galleryInterval = null;
+            }
+        }
+
+        function resetGalleryInterval() {
+            if (galleryInterval) {
+                clearInterval(galleryInterval);
+                if (galleryPhotos.length > 1 && isGalleryAutoplay) {
+                    galleryInterval = setInterval(() => { changeGallery(1); }, 4000);
+                }
+            }
+        }
+
+        function renderGalleryGrid() {
+            const grid = document.getElementById('galleryGrid');
+            if (!galleryPhotos || galleryPhotos.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.3);padding:20px;">No photos available</p>';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < galleryPhotos.length; i++) {
+                const p = galleryPhotos[i];
+                html += `
+                    <div class="gallery-grid-item" onclick="viewFullImage('${p.image}')">
+                        <img src="${p.image}" alt="${p.title || 'Photo'}" loading="lazy">
+                        <div class="grid-overlay">
+                            <div>${p.title || 'Photo ' + (i + 1)}</div>
+                            ${p.centerName ? `<div style="font-size:10px;color:#ffd700;font-weight:600;margin-top:2px;">🏫 ${p.centerName}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function toggleGalleryGrid() {
+            const container = document.getElementById('galleryGridContainer');
+            const btn = document.getElementById('galleryViewAllBtn');
+            if (container.classList.contains('active')) {
+                container.classList.remove('active');
+                btn.textContent = '📷 View All Photos';
+            } else {
+                container.classList.add('active');
+                btn.textContent = '✕ Hide Gallery';
+                renderGalleryGrid();
+                setTimeout(() => { container.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+            }
+        }
+
+        function viewFullImage(imageSrc) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:3000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:20px;';
+            modal.onclick = function() { this.remove(); };
+            modal.innerHTML = `
+                <img src="${imageSrc}" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <button style="position:absolute;top:20px;right:20px;width:40px;height:40px;border:none;background:rgba(255,255,255,0.1);color:white;border-radius:50%;font-size:24px;cursor:pointer;transition:all 0.3s ease;">✕</button>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(message, isError = false) {
+            const existing = document.querySelector('.custom-toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: ${isError ? '#e74c3c' : '#2ecc71'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: 600;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                z-index: 3000;
+                animation: slideUp 0.5s ease;
+                max-width: 400px;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(styleEl);
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            hideSplash();
+            initBgLines();
+            initHeaderScroll();
+            initScrollAnimations();
+            checkAuth();
+            initNotification();
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            fetchSettings();
+            fetchBanners();
+            fetchTeachers();
+            fetchPDFNotes();
+            fetchVideos();
+            fetchGallery();
+
+            // PDF Modal events
+            document.getElementById('pdfModalClose').addEventListener('click', closePDFModal);
+            document.getElementById('pdfModalCloseFooter').addEventListener('click', closePDFModal);
+            document.getElementById('pdfModal').addEventListener('click', function(e) {
+                if (e.target === this) closePDFModal();
+            });
+
+            document.getElementById('bannerPrev').addEventListener('click', function() {
+                changeBanner(-1);
+                resetBannerInterval();
+            });
+            document.getElementById('bannerNext').addEventListener('click', function() {
+                changeBanner(1);
+                resetBannerInterval();
+            });
+
+            document.getElementById('galleryPrev').addEventListener('click', function() {
+                changeGallery(-1);
+                resetGalleryInterval();
+            });
+            document.getElementById('galleryNext').addEventListener('click', function() {
+                changeGallery(1);
+                resetGalleryInterval();
+            });
+
+            document.getElementById('galleryViewAllBtn').addEventListener('click', toggleGalleryGrid);
+            document.getElementById('galleryGridClose').addEventListener('click', toggleGalleryGrid);
+
+            document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
+            document.getElementById('videoModal').addEventListener('click', function(e) {
+                if (e.target === this) closeVideoModal();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeVideoModal();
+                    closePDFModal();
+                    const grid = document.getElementById('galleryGridContainer');
+                    if (grid.classList.contains('active')) {
+                        grid.classList.remove('active');
+                        document.getElementById('galleryViewAllBtn').textContent = '📷 View All Photos';
+                    }
+                    const teacherModal = document.querySelector('.teacher-details-modal');
+                    if (teacherModal) teacherModal.remove();
+                    const centerModal = document.querySelector('.center-details-modal');
+                    if (centerModal) centerModal.remove();
+                }
+                if (e.key === 'ArrowLeft') {
+                    if (document.getElementById('videoModal').classList.contains('active')) return;
+                    if (document.getElementById('pdfModal').classList.contains('active')) return;
+                    changeBanner(-1);
+                    resetBannerInterval();
+                }
+                if (e.key === 'ArrowRight') {
+                    if (document.getElementById('videoModal').classList.contains('active')) return;
+                    if (document.getElementById('pdfModal').classList.contains('active')) return;
+                    changeBanner(1);
+                    resetBannerInterval();
+                }
+            });
+
+            setInterval(() => {
+                fetchBanners();
+                fetchTeachers();
+                fetchPDFNotes();
+                fetchVideos();
+                fetchGallery();
+            }, 60000);
+        });
+    </script>
+    <script src="/opc.js"></script>
+    <!-- ===== BHARTI AI ASSISTANT JS ===== -->
+    <script src="/bharti-ai.js"></script>
+</body>
+</html>
