@@ -681,6 +681,75 @@
             max-width: 600px;
             margin: 0 auto;
         }
+    
+        /* ===== ENHANCED BBCC NAVIGATION & MOBILE DOCK ===== */
+        .btn-return-portal {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: #ffd700;
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+        .btn-return-portal:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+            color: #0b0e1a;
+            box-shadow: 0 4px 18px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .mobile-bottom-nav {
+            display: none;
+        }
+        @media (max-width: 900px) {
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 62px;
+                background: rgba(7, 11, 20, 0.96);
+                backdrop-filter: blur(14px);
+                border-top: 1px solid rgba(255, 215, 0, 0.28);
+                z-index: 9999;
+                align-items: center;
+                justify-content: space-around;
+                padding: 0 8px;
+                box-shadow: 0 -4px 25px rgba(0,0,0,0.7);
+            }
+            .mb-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 10.5px;
+                font-weight: 600;
+                flex: 1;
+                transition: color 0.2s ease;
+            }
+            .mb-nav-item i { font-size: 16px; }
+            .mb-nav-item:hover, .mb-nav-item.active { color: #ffd700; }
+            .mb-nav-item.mb-home { color: #ffd700; font-weight: 700; }
+            .mb-nav-item.mb-apply { color: #4ade80; font-weight: 700; }
+            body { padding-bottom: 70px; }
+            .center-navbar {
+                flex-wrap: wrap;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -729,13 +798,20 @@
                 </div>
             </a>
 
-            <nav class="nav-links">
-                <a href="#about" class="nav-link">About Center</a>
-                <a href="#faculty" class="nav-link">Faculty Members</a>
-                <a href="#materials" class="nav-link">Study Materials</a>
-                <a href="#gallery" class="nav-link">Gallery</a>
-                <a href="#inquiry" class="btn btn-gold"><i class="fas fa-user-plus"></i> Student Admission</a>
-            </nav>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <a href="/" class="btn-return-portal" title="Return to BBCC SKILL HUB Main Board Website">
+                    <i class="fas fa-house-chimney"></i>
+                    <span>BBCC Main Portal</span>
+                </a>
+
+                <nav class="nav-links">
+                    <a href="#about" class="nav-link">About Center</a>
+                    <a href="#faculty" class="nav-link">Faculty Members</a>
+                    <a href="#materials" class="nav-link">Study Materials</a>
+                    <a href="#gallery" class="nav-link">Gallery</a>
+                    <a href="#inquiry" class="btn btn-gold"><i class="fas fa-user-plus"></i> Student Admission</a>
+                </nav>
+            </div>
         </header>
 
         <!-- 3. Grand Hero Section -->
@@ -904,6 +980,12 @@
 
             <div class="footer-social-icons" id="socialLinksBox"></div>
 
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:18px 0 10px;">
+                <a href="/" class="btn btn-outline" style="font-size:12.5px; padding:8px 16px;"><i class="fas fa-house-chimney"></i> BBCC SKILL HUB Main Portal</a>
+                <a href="/#coaching" class="btn btn-outline" style="font-size:12.5px; padding:8px 16px;"><i class="fas fa-school"></i> All Partner Centers</a>
+                <a href="/" onclick="sessionStorage.setItem('openCoachingReg', '1')" class="btn btn-gold" style="font-size:12.5px; padding:8px 16px;"><i class="fas fa-file-signature"></i> Register Your Center</a>
+            </div>
+
             <p style="margin-top: 15px;">
                 © 2026 <span id="cFooterName">Coaching Center</span> · Registered Partner of 
                 <a href="/" style="color: #ffd700; text-decoration: none; font-weight: 700;">BBCC SKILL HUB</a>. All Rights Reserved.
@@ -931,6 +1013,17 @@
 
         async function loadCenterWebsite() {
             if (!centerId) {
+                // Try fetching first registered coaching center
+                try {
+                    const listRes = await fetch('/api/tuition-centers');
+                    const listData = await listRes.json();
+                    if (listData && listData.data && listData.data.length > 0) {
+                        const first = listData.data[0];
+                        window.location.replace('/center.html?id=' + first._id);
+                        return;
+                    }
+                } catch(e) {}
+
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('errorState').style.display = 'block';
                 return;
@@ -1134,5 +1227,30 @@
 
     <!-- Embedded BHARTI AI Voice Assistant -->
     <script src="/bharti-ai.js"></script>
+
+    <!-- Mobile Sticky Navigation Dock -->
+    <nav class="mobile-bottom-nav">
+        <a href="/" class="mb-nav-item mb-home">
+            <i class="fas fa-house-chimney"></i>
+            <span>BBCC Home</span>
+        </a>
+        <a href="#about" class="mb-nav-item">
+            <i class="fas fa-school"></i>
+            <span>About</span>
+        </a>
+        <a href="#faculty" class="mb-nav-item">
+            <i class="fas fa-chalkboard-user"></i>
+            <span>Faculty</span>
+        </a>
+        <a href="#materials" class="mb-nav-item">
+            <i class="fas fa-book"></i>
+            <span>Notes</span>
+        </a>
+        <a href="#inquiry" class="mb-nav-item mb-apply">
+            <i class="fas fa-user-plus"></i>
+            <span>Admission</span>
+        </a>
+    </nav>
+
 </body>
 </html>
