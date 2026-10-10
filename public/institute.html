@@ -43,6 +43,20 @@
             padding-bottom: 75px;
         }
 
+        /* Running Notice Strip */
+        .inst-header-ticker {
+            background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 50%, #1e1b4b 100%);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 8px 20px;
+            font-size: 13px;
+            color: var(--inst-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
         /* Top Institutional Affiliation Header */
         .inst-affiliation-strip {
             background: linear-gradient(90deg, #070c18 0%, #0d172e 100%);
@@ -125,7 +139,6 @@
             font-weight: 600;
         }
 
-        /* Prominent Return Button (Visible on both Desktop and Mobile) */
         .btn-return-bbcc {
             display: inline-flex;
             align-items: center;
@@ -139,20 +152,18 @@
             font-size: 13px;
             text-decoration: none;
             transition: all 0.25s ease;
-            white-space: nowrap;
         }
 
         .btn-return-bbcc:hover {
             background: var(--gold-gradient);
             color: #050811;
             transform: translateY(-2px);
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
         }
 
         .inst-nav-links {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 16px;
         }
 
         .inst-nav-link {
@@ -167,14 +178,14 @@
             color: var(--inst-gold);
         }
 
-        /* Hero Section */
+        /* Institute Hero Section */
         .inst-hero {
-            padding: 50px 24px 40px;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 50px 24px 30px;
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
-            gap: 36px;
+            gap: 40px;
             align-items: center;
         }
 
@@ -182,62 +193,58 @@
             font-family: 'Cinzel', serif;
             font-size: clamp(28px, 4vw, 44px);
             font-weight: 900;
+            color: #ffffff;
             line-height: 1.2;
             margin-bottom: 14px;
-            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .inst-hero-left p {
             font-size: 15px;
             color: #cbd5e1;
+            margin-bottom: 24px;
             line-height: 1.6;
-            margin-bottom: 22px;
         }
 
         .inst-hero-badge-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 24px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 26px;
         }
 
         .inst-badge-box {
-            background: var(--inst-card);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-subtle);
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 12px;
+            text-align: center;
         }
 
         .inst-badge-box span {
             font-size: 11px;
             color: #94a3b8;
-            text-transform: uppercase;
-            font-weight: 700;
             display: block;
+            text-transform: uppercase;
         }
 
         .inst-badge-box strong {
-            font-size: 14px;
-            color: #ffffff;
-            margin-top: 2px;
-            display: block;
+            font-size: 13.5px;
+            color: var(--inst-gold);
         }
 
-        /* Director Profile Card */
+        /* Director Showcase Card */
         .inst-director-card {
             background: var(--inst-card);
             border: 2px solid var(--border-glow);
-            border-radius: 22px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 30px 24px;
             text-align: center;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .inst-director-photo {
-            width: 110px;
-            height: 110px;
+            width: 105px;
+            height: 105px;
             border-radius: 50%;
             border: 3px solid var(--inst-gold);
             margin: 0 auto 16px;
@@ -245,10 +252,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 42px;
             color: var(--inst-gold);
-            background: #090e1a;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35);
+            font-size: 42px;
+            background: #0b1120;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
         }
 
         .inst-director-photo img {
@@ -258,6 +265,7 @@
         }
 
         .inst-director-name {
+            font-family: 'Cinzel', serif;
             font-size: 20px;
             font-weight: 800;
             color: #ffffff;
@@ -265,40 +273,53 @@
         }
 
         .inst-director-tag {
-            font-size: 12px;
+            font-size: 12.5px;
             color: var(--inst-gold);
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
         }
 
         .inst-contact-dock {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
         .inst-contact-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 12.5px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: 700;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
         }
 
-        .btn-call { background: #2563eb; color: #ffffff; }
-        .btn-wa { background: #16a34a; color: #ffffff; }
-        .btn-enc { background: #9333ea; color: #ffffff; }
+        .btn-call {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+        }
 
-        /* Sections */
+        .btn-wa {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #34d399;
+        }
+
+        .btn-enc {
+            background: var(--gold-gradient);
+            color: #050811;
+        }
+
+        /* Section Wrappers */
         .inst-section-wrap {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 50px 24px;
+            padding: 40px 24px;
         }
 
         .inst-section-title {
@@ -386,57 +407,115 @@
             border-color: var(--inst-gold);
         }
 
-        /* Persistent Mobile Sticky Dock */
-        .inst-mobile-dock {
+        /* Floating BHARTI AI */
+        .bharti-bubble-launcher {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: var(--gold-gradient);
+            color: #050811;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45);
+            transition: all 0.3s;
+            border: 2px solid #ffffff;
+        }
+
+        .bharti-chat-panel {
             display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 28px;
+            width: min(420px, calc(100vw - 36px));
+            height: 540px;
+            background: linear-gradient(155deg, #0b1120 0%, #050811 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            z-index: 10000;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .bharti-chat-header {
+            background: linear-gradient(90deg, #1e1b4b 0%, #0d172e 100%);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bharti-chat-body {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .bharti-msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .bharti-msg-ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+        }
+
+        .bharti-msg-user {
+            align-self: flex-end;
+            background: var(--gold-gradient);
+            color: #050811;
+            font-weight: 600;
+        }
+
+        .bharti-action-card {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bharti-chat-input-bar {
+            padding: 14px 16px;
+            background: rgba(4, 7, 16, 0.95);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 10px;
         }
 
         @media (max-width: 900px) {
-            .inst-hero {
-                grid-template-columns: 1fr;
-                text-align: center;
-                padding: 35px 18px;
-            }
+            .inst-hero { grid-template-columns: 1fr; text-align: center; }
             .inst-nav-links { display: none; }
             .inst-form-grid { grid-template-columns: 1fr; }
-
-            .inst-mobile-dock {
-                display: flex;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 62px;
-                background: rgba(6, 10, 20, 0.96);
-                backdrop-filter: blur(16px);
-                border-top: 1px solid var(--border-glow);
-                z-index: 9999;
-                align-items: center;
-                justify-content: space-around;
-                padding: 0 8px;
-                box-shadow: 0 -4px 25px rgba(0,0,0,0.7);
-            }
-
-            .inst-dock-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 3px;
-                color: #94a3b8;
-                text-decoration: none;
-                font-size: 10.5px;
-                font-weight: 600;
-                flex: 1;
-            }
-
-            .inst-dock-item i { font-size: 16px; }
-            .inst-dock-item.highlight { color: var(--inst-gold); font-weight: 700; }
-            .inst-dock-item.cta { color: #10b981; font-weight: 700; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Center Custom Header Running Notice (if set) -->
+    <div class="inst-header-ticker" id="instNoticeStrip" style="display:none;">
+        <i class="fas fa-bullhorn"></i> <span id="instNoticeText">Important Institute Notice</span>
+    </div>
 
     <!-- 1. Institutional Affiliation Bar -->
     <div class="inst-affiliation-strip">
@@ -464,7 +543,6 @@
         </a>
 
         <div style="display:flex; align-items:center; gap:14px;">
-            <!-- Prominent Return Button (Desktop & Mobile) -->
             <a href="/" class="btn-return-bbcc">
                 <i class="fas fa-house-chimney"></i> <span>BBCC Portal Home</span>
             </a>
@@ -478,11 +556,16 @@
         </div>
     </header>
 
-    <!-- 3. Institute Hero Section -->
+    <!-- 3. Promotional Banners Slider/Grid (if center uploaded any) -->
+    <div id="instBannersSection" class="inst-section-wrap" style="display:none; padding-bottom:10px;">
+        <div id="instBannersGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;"></div>
+    </div>
+
+    <!-- 4. Institute Hero Section -->
     <section class="inst-hero" id="about">
         <div class="inst-hero-left">
             <div style="display:inline-flex; align-items:center; gap:8px; padding:4px 14px; border-radius:20px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#34d399; font-size:12px; font-weight:700; margin-bottom:14px;">
-                <i class="fas fa-circle-check"></i> Certified Center Registration Verified
+                <i class="fas fa-circle-check"></i> Certified Board Affiliation Active
             </div>
             <h2 id="instHeroName">Coaching Center Name</h2>
             <p id="instHeroDesc">Empowering student success with exceptional coaching, qualified faculty, and curriculum excellence backed by BBCC SKILL HUB.</p>
@@ -497,8 +580,8 @@
                     <strong id="instAddressText">Campus Address</strong>
                 </div>
                 <div class="inst-badge-box">
-                    <span>Affiliation Board</span>
-                    <strong>BBCC SKILL HUB</strong>
+                    <span>Affiliation ID</span>
+                    <strong id="instAffIdText" style="font-family:monospace;">BBCC-AFF-VERIFIED</strong>
                 </div>
             </div>
 
@@ -525,7 +608,7 @@
         </div>
     </section>
 
-    <!-- 4. Faculty Showcase -->
+    <!-- 5. Faculty Showcase -->
     <section class="inst-section-wrap" id="faculty">
         <h3 class="inst-section-title">Certified Teaching Faculty</h3>
         <div class="inst-faculty-grid" id="facultyGrid">
@@ -533,15 +616,15 @@
         </div>
     </section>
 
-    <!-- 5. Study Notes / Materials -->
+    <!-- 6. Study Notes / Materials -->
     <section class="inst-section-wrap" id="materials" style="background:rgba(255,255,255,0.01); border-radius:24px;">
-        <h3 class="inst-section-title">Curated Institute Study Materials</h3>
+        <h3 class="inst-section-title">Curated Institute Study Materials & Syllabus</h3>
         <div class="inst-faculty-grid" id="materialsGrid">
             <div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Study materials will be added soon.</div>
         </div>
     </section>
 
-    <!-- 6. Student Admission Inquiry Desk -->
+    <!-- 7. Student Admission Inquiry Desk -->
     <section class="inst-section-wrap" id="inquiry">
         <div class="inst-inquiry-box">
             <div style="text-align:center; margin-bottom:24px;">
@@ -586,7 +669,7 @@
         </div>
     </section>
 
-    <!-- 7. Footer -->
+    <!-- 8. Footer -->
     <footer style="text-align:center; padding:40px 20px 20px; font-size:13px; color:#94a3b8; border-top:1px solid var(--border-subtle);">
         <p style="margin-bottom:12px;">
             © 2026 <span id="instFooterName">Partner Coaching Center</span> • Affiliated with 
@@ -598,29 +681,39 @@
         </div>
     </footer>
 
-    <!-- 8. Mobile Sticky Navigation Dock -->
-    <nav class="inst-mobile-dock">
-        <a href="/" class="inst-dock-item highlight">
-            <i class="fas fa-house-chimney"></i>
-            <span>BBCC Home</span>
-        </a>
-        <a href="#about" class="inst-dock-item">
-            <i class="fas fa-school"></i>
-            <span>About</span>
-        </a>
-        <a href="#faculty" class="inst-dock-item">
-            <i class="fas fa-user-tie"></i>
-            <span>Faculty</span>
-        </a>
-        <a href="#materials" class="inst-dock-item">
-            <i class="fas fa-book"></i>
-            <span>Notes</span>
-        </a>
-        <a href="#inquiry" class="inst-dock-item cta">
-            <i class="fas fa-user-plus"></i>
-            <span>Admission</span>
-        </a>
-    </nav>
+    <!-- 9. Floating BHARTI AI Helpline Assistant Scoped to This Institute -->
+    <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
+        <i class="fas fa-headset"></i>
+        <span>Helpdesk AI</span>
+    </div>
+
+    <div class="bharti-chat-panel" id="bhartiChatPanel">
+        <div class="bharti-chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:#050811;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h4 style="font-size:14px; margin:0; color:#ffffff;">BHARTI Academic AI</h4>
+                    <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Center Desk Active</span>
+                </div>
+            </div>
+            <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+
+        <div class="bharti-chat-body" id="bhartiChatMessages">
+            <div class="bharti-msg bharti-msg-ai" id="bhartiGreetingMsg">
+                Namaste! I am <strong>BHARTI AI</strong>, academic helpline assistant for this institute. How can I help you today?
+            </div>
+        </div>
+
+        <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
+            <input type="text" id="bhartiUserInput" required placeholder="Ask about fees, timings, director..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
+            <button type="submit" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
 
     <!-- Client Script -->
     <script>
@@ -642,7 +735,6 @@
             currentCenterId = getCenterParamId();
 
             if (!currentCenterId) {
-                // Graceful Auto-Fallback: Fetch first active institute
                 try {
                     const listRes = await fetch('/api/public/centers');
                     const listData = await listRes.json();
@@ -657,7 +749,7 @@
                 document.body.innerHTML = `
                     <div style="text-align:center; padding:100px 20px;">
                         <h2 style="font-family:'Cinzel',serif; margin-bottom:14px;">Institute Portal</h2>
-                        <p style="color:#94a3b8; margin-bottom:20px;">No partner center specified. Please choose a partner institute from the BBCC portal.</p>
+                        <p style="color:#94a3b8; margin-bottom:20px;">No partner center specified. Please choose an institute from the BBCC portal.</p>
                         <a href="/" class="btn-return-bbcc"><i class="fas fa-house-chimney"></i> Return to BBCC SKILL HUB</a>
                     </div>
                 `;
@@ -691,6 +783,11 @@
             document.getElementById('instFooterName').textContent = c.centerName;
             document.getElementById('instDirectorName').textContent = c.directorName || 'Director';
 
+            if (c.headerNotice && c.headerNotice.trim()) {
+                document.getElementById('instNoticeText').textContent = c.headerNotice;
+                document.getElementById('instNoticeStrip').style.display = 'flex';
+            }
+
             if (c.clogo) {
                 document.getElementById('instNavLogo').innerHTML = `<img src="${c.clogo}" alt="${c.centerName}">`;
             }
@@ -703,20 +800,37 @@
 
             document.getElementById('instClassesOffered').textContent = `${c.fromClass || 'Class 6th'} to ${c.toClass || 'Class 12th'}`;
             document.getElementById('instAddressText').textContent = c.address || 'Academic Campus';
+            document.getElementById('instAffIdText').textContent = c.affiliationCertificateId || ('BBCC-AFF-' + c._id.toString().slice(-6).toUpperCase());
 
-            // Contact Dock
+            // Promotional Banners
+            if (c.promotionalBanners && c.promotionalBanners.length > 0) {
+                const bSection = document.getElementById('instBannersSection');
+                const bGrid = document.getElementById('instBannersGrid');
+                bSection.style.display = 'block';
+                bGrid.innerHTML = c.promotionalBanners.map(b => `
+                    <div style="background:var(--inst-card); border:1px solid var(--border-glow); border-radius:16px; overflow:hidden;">
+                        <img src="${b.image}" style="width:100%; height:160px; object-fit:cover;">
+                        <div style="padding:14px;">
+                            <strong style="color:#ffffff; font-size:15px;">${b.title}</strong>
+                            <div style="color:var(--inst-gold); font-size:12.5px;">${b.subtitle || ''}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Contact Dock: Call, WhatsApp, Encrypted Call
             const contactDock = document.getElementById('instContactDock');
             let contactHtml = '';
             if (c.contactNumber) {
-                contactHtml += `<a href="tel:${c.contactNumber}" class="inst-contact-btn btn-call"><i class="fas fa-phone"></i> Call</a>`;
+                contactHtml += `<a href="tel:${c.contactNumber}" class="inst-contact-btn btn-call"><i class="fas fa-phone"></i> Call: ${c.contactNumber}</a>`;
             }
-            if (c.whatsappNumber) {
-                const clean = c.whatsappNumber.replace(/\D/g, '');
-                contactHtml += `<a href="https://wa.me/${clean.startsWith('91') ? clean : '91' + clean}" target="_blank" class="inst-contact-btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+            if (c.whatsappNumber || c.contactNumber) {
+                const num = (c.whatsappNumber || c.contactNumber).replace(/\D/g, '').slice(-10);
+                const msg = encodeURIComponent(`Namaste Director ${c.directorName}, I am contacting you regarding admission inquiry at ${c.centerName} through BBCC SKILL HUB.`);
+                contactHtml += `<a href="https://wa.me/91${num}?text=${msg}" target="_blank" class="inst-contact-btn btn-wa"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>`;
             }
-            if (c.encryptedCallLink) {
-                contactHtml += `<a href="${c.encryptedCallLink}" target="_blank" class="inst-contact-btn btn-enc"><i class="fas fa-lock"></i> Encrypted Call</a>`;
-            }
+            const encLink = c.encryptedCallLink || `https://meet.bbccskillhub.org/call/${c.username}`;
+            contactHtml += `<a href="${encLink}" target="_blank" class="inst-contact-btn btn-enc"><i class="fas fa-lock"></i> Encrypted Secure Call Line</a>`;
             contactDock.innerHTML = contactHtml;
 
             // Faculty
@@ -741,10 +855,15 @@
                     <div class="inst-faculty-card" style="text-align:left;">
                         <h4 style="font-size:15px; margin-bottom:6px;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i> ${m.title}</h4>
                         <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">${m.description || 'Verified center study guide'}</p>
-                        ${m.pdf ? `<a href="${m.pdf}" download="${m.title}.pdf" class="btn-return-bbcc" style="width:100%; justify-content:center; font-size:12px;"><i class="fas fa-download"></i> Download Notes</a>` : ''}
+                        ${(m.pdf || m.file) ? `<a href="${m.pdf || m.file}" download="${m.title}.pdf" class="btn-return-bbcc" style="width:100%; justify-content:center; font-size:12px;"><i class="fas fa-download"></i> Download Notes</a>` : ''}
                     </div>
                 `).join('');
             }
+
+            document.getElementById('bhartiGreetingMsg').innerHTML = `
+                Namaste! I am <strong>BHARTI AI</strong>, academic helpline assistant for <strong>${c.centerName}</strong> under Director <strong>${c.directorName}</strong>. 
+                Ask me about courses, fees, or connect directly with the director!
+            `;
         }
 
         async function submitAdmissionInquiry(e) {
@@ -755,7 +874,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
             const payload = {
-                centerId: currentCenterId,
+                centerId: currentCenter._id,
                 studentName: document.getElementById('iqStudentName').value.trim(),
                 parentName: document.getElementById('iqParentName').value.trim(),
                 mobile: document.getElementById('iqMobile').value.trim(),
@@ -778,7 +897,7 @@
                     feedback.style.background = 'rgba(16,185,129,0.15)';
                     feedback.style.border = '1px solid #10b981';
                     feedback.style.color = '#86efac';
-                    feedback.innerHTML = '<i class="fas fa-check-circle"></i> Admission inquiry submitted successfully! The center director has received your request.';
+                    feedback.innerHTML = '<i class="fas fa-check-circle"></i> Admission inquiry submitted successfully! Director ' + currentCenter.directorName + ' has received your request.';
                     e.target.reset();
                 } else {
                     feedback.style.display = 'block';
@@ -791,6 +910,84 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Admission Request';
                 alert('Connection error');
+            }
+        }
+
+        // BHARTI AI on Institute Microsite
+        function toggleBhartiChat() {
+            const panel = document.getElementById('bhartiChatPanel');
+            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        async function submitBhartiMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('bhartiUserInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBody = document.getElementById('bhartiChatMessages');
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'bharti-msg bharti-msg-user';
+            userMsgDiv.textContent = msg;
+            chatBody.appendChild(userMsgDiv);
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const loadBubble = document.createElement('div');
+            loadBubble.className = 'bharti-msg bharti-msg-ai';
+            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> BHARTI is responding...';
+            chatBody.appendChild(loadBubble);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                const res = await fetch('/api/public/bharti-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, centerId: currentCenter ? currentCenter._id : null })
+                });
+                const data = await res.json();
+                loadBubble.remove();
+
+                const aiBubble = document.createElement('div');
+                aiBubble.className = 'bharti-msg bharti-msg-ai';
+                let html = `<div>${data.reply || 'Namaste! How may I assist you further?'}</div>`;
+
+                // Encrypted call first, then Director phone & WhatsApp
+                if (data.encryptedCallLink || data.directorPhone) {
+                    html += `
+                        <div class="bharti-action-card">
+                            <span style="font-size:11px; color:var(--inst-gold); font-weight:800; text-transform:uppercase;">
+                                <i class="fas fa-headset"></i> ${data.centerName || 'Institute'} Helpline
+                            </span>
+
+                            ${data.encryptedCallLink ? `
+                                <a href="${data.encryptedCallLink}" target="_blank" class="inst-contact-btn btn-enc" style="font-size:12px; padding:6px 10px;">
+                                    <i class="fas fa-lock"></i> 1. Encrypted Call Link
+                                </a>
+                            ` : ''}
+
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                                ${data.directorPhone ? `
+                                    <a href="tel:${data.directorPhone}" class="inst-contact-btn btn-call" style="flex:1; font-size:12px; padding:6px 10px;">
+                                        <i class="fas fa-phone"></i> 2. Call Director
+                                    </a>
+                                ` : ''}
+
+                                ${data.whatsappLink ? `
+                                    <a href="${data.whatsappLink}" target="_blank" class="inst-contact-btn btn-wa" style="font-size:12px; padding:6px 10px;">
+                                        <i class="fab fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                aiBubble.innerHTML = html;
+                chatBody.appendChild(aiBubble);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            } catch(err) {
+                loadBubble.innerHTML = '<span style="color:#fca5a5;">Connection error.</span>';
             }
         }
 

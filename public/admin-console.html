@@ -150,6 +150,31 @@
             color: #cbd5e1;
         }
 
+        /* Modal Styles */
+        .admin-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.88);
+            backdrop-filter: blur(14px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-modal-box {
+            background: linear-gradient(145deg, #0b1120 0%, #060a14 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 26px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+        }
+
         @media (max-width: 860px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { display: flex; flex-direction: row; overflow-x: auto; padding: 12px; }
@@ -166,7 +191,7 @@
             </div>
             <div>
                 <h1 style="font-family:'Cinzel',serif; font-size:17px; margin:0;">BBCC Super Admin Console</h1>
-                <p style="font-size:11px; color:var(--admin-gold); margin:0;">Central Directorate Command</p>
+                <p style="font-size:11px; color:var(--admin-gold); margin:0;">Central Directorate Master Command</p>
             </div>
         </div>
 
@@ -186,13 +211,16 @@
                 <i class="fas fa-school"></i> Partner Coaching Centers
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('vault')">
-                <i class="fas fa-book-bookmark"></i> E-Library Vault
+                <i class="fas fa-book-bookmark"></i> E-Library & Raw Data
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('razorpay')">
-                <i class="fas fa-credit-card"></i> Razorpay Gateway Settings
+            <button class="admin-nav-btn" onclick="switchAdminTab('students')">
+                <i class="fas fa-id-card"></i> Student Enrolment Roster
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
+                <i class="fas fa-sliders"></i> Board & Gateway Settings
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('affiliations')">
-                <i class="fas fa-handshake"></i> Center Affiliations Desk
+                <i class="fas fa-handshake"></i> Affiliations Desk
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('transactions')">
                 <i class="fas fa-receipt"></i> Payment Transactions
@@ -237,7 +265,7 @@
                 </div>
 
                 <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Registered Partner Institutes</h3>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Registered Partner Institutes (Full Master Edit Access)</h3>
                     <div style="overflow-x:auto;">
                         <table class="console-table">
                             <thead>
@@ -247,7 +275,7 @@
                                     <th>Director</th>
                                     <th>Status</th>
                                     <th>Dues (₹)</th>
-                                    <th>Actions / Suspension</th>
+                                    <th>Actions / Master Editor</th>
                                 </tr>
                             </thead>
                             <tbody id="centersTbody">
@@ -258,10 +286,10 @@
                 </div>
             </div>
 
-            <!-- TAB 2: E-LIBRARY VAULT -->
+            <!-- TAB 2: E-LIBRARY VAULT & RAW DATA -->
             <div class="admin-tab" id="tab-vault">
                 <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Document Note to E-Library Vault</h3>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Document Note / Raw Data to E-Library Vault</h3>
                     <form onsubmit="publishVaultBook(event)">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                             <div>
@@ -286,9 +314,23 @@
                             <div>
                                 <label style="font-size:12px; color:#cbd5e1;">File Format</label>
                                 <select id="vbType" class="console-input">
-                                    <option value="pdf">PDF Document</option>
-                                    <option value="docx">Word Document</option>
+                                    <option value="pdf">PDF Document (.pdf)</option>
+                                    <option value="docx">Word Document (.docx / .doc)</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Target Center Scope & Raw Data Flag -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Target Center Scope</label>
+                                <select id="vbTargetCenter" class="console-input">
+                                    <option value="all">Universal / All Coaching Centers</option>
+                                </select>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
+                                <input type="checkbox" id="vbIsRawData" style="width:18px; height:18px; accent-color:var(--admin-gold);">
+                                <label for="vbIsRawData" style="font-size:13px; color:#cbd5e1; cursor:pointer;">Is Raw Educational Data / Syllabus Resource</label>
                             </div>
                         </div>
 
@@ -307,7 +349,7 @@
                 </div>
 
                 <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Central Repository Documents</h3>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Central Repository Documents (Edit & Scope Control)</h3>
                     <div style="overflow-x:auto;">
                         <table class="console-table">
                             <thead>
@@ -315,34 +357,76 @@
                                     <th>Title</th>
                                     <th>Subject</th>
                                     <th>Class</th>
+                                    <th>Scope / Target Center</th>
                                     <th>Price</th>
                                     <th>Downloads</th>
-                                    <th>Action</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="booksTbody">
-                                <tr><td colspan="6" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading books...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: RAZORPAY GATEWAY SETTINGS -->
-            <div class="admin-tab" id="tab-razorpay">
+            <!-- TAB 3: STUDENT ENROLMENT ROSTER -->
+            <div class="admin-tab" id="tab-students">
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">All Enrolled Students Across Centers</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Roll Number</th>
+                                    <th>Student Name</th>
+                                    <th>Father Name</th>
+                                    <th>Course / Class</th>
+                                    <th>Grade</th>
+                                    <th>Center Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading student records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: BOARD & GATEWAY SETTINGS -->
+            <div class="admin-tab" id="tab-settings">
                 <div class="card-console">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
                         <div>
-                            <h3 style="font-family:'Cinzel',serif; font-size:20px; margin:0;">Razorpay Payment Gateway Setup</h3>
-                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Configure Key ID & Secret for online document sales & coaching center unblocking.</p>
+                            <h3 style="font-family:'Cinzel',serif; font-size:20px; margin:0;">Global Board & Razorpay Gateway Setup</h3>
+                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Configure Affiliation Fee, Breaking News Marquee, and Gateway Keys.</p>
                         </div>
                         <span id="rzpStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--admin-gold);">
                             Checking Gateway...
                         </span>
                     </div>
 
-                    <form onsubmit="saveRazorpaySettings(event)">
-                        <div style="margin-bottom:16px;">
+                    <form onsubmit="saveGlobalSettings(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Board Affiliation Fee in ₹ (0 = Free) *</label>
+                                <input type="number" id="setAffFee" required min="0" value="999" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Official Support Phone</label>
+                                <input type="text" id="setPhone" placeholder="+91 98765 43210" class="console-input">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Running Breaking News Marquee (Homepage Ticker)</label>
+                            <input type="text" id="setNewsMarquee" placeholder="📢 Admissions Open 2026-27 Across All BBCC Certified Centers..." class="console-input">
+                        </div>
+
+                        <div style="margin-bottom:14px;">
                             <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Razorpay Key ID *</label>
                             <input type="text" id="rzpKeyId" required placeholder="rzp_live_... or rzp_test_..." class="console-input" style="font-family:monospace;">
                         </div>
@@ -355,7 +439,7 @@
                         <div id="rzpTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px;"></div>
 
                         <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Gateway Credentials</button>
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Board & Gateway Settings</button>
                             <button type="button" onclick="testRazorpayConnection()" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
                                 <i class="fas fa-bolt"></i> Test Gateway Connection
                             </button>
@@ -364,10 +448,10 @@
                 </div>
             </div>
 
-            <!-- TAB 4: AFFILIATIONS -->
+            <!-- TAB 5: AFFILIATIONS DESK -->
             <div class="admin-tab" id="tab-affiliations">
                 <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Coaching Center Affiliation Applications</h3>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Coaching Center Affiliation Inquiries</h3>
                     <div style="overflow-x:auto;">
                         <table class="console-table">
                             <thead>
@@ -387,7 +471,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: TRANSACTIONS -->
+            <!-- TAB 6: TRANSACTIONS -->
             <div class="admin-tab" id="tab-transactions">
                 <div class="card-console">
                     <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Payment Transactions & Revenue Ledger</h3>
@@ -415,51 +499,239 @@
         </main>
     </div>
 
+    <!-- ============================================================
+         MASTER CENTER EDITOR MODAL (SUPER ADMIN FULL ACCESS)
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="centerEditorModal">
+        <div class="admin-modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glow); padding-bottom:14px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
+                    <i class="fas fa-pen-to-square"></i> Master Center Profile Editor
+                </h3>
+                <button type="button" onclick="closeCenterEditor()" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="saveCenterEditorData(event)">
+                <input type="hidden" id="editCenterId">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Center Name *</label>
+                        <input type="text" id="edCenterName" required class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Director Name *</label>
+                        <input type="text" id="edDirectorName" required class="console-input">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Director Username *</label>
+                        <input type="text" id="edUsername" required class="console-input" style="font-family:monospace;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Reset Password (Leave blank to keep current)</label>
+                        <input type="text" id="edPassword" placeholder="New Password" class="console-input">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Contact Phone</label>
+                        <input type="tel" id="edContact" class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">WhatsApp Helpline</label>
+                        <input type="tel" id="edWhatsapp" class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Official Email</label>
+                        <input type="email" id="edEmail" class="console-input">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Classes (From - To)</label>
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" id="edFromClass" placeholder="Class 6th" class="console-input">
+                            <input type="text" id="edToClass" placeholder="Class 12th" class="console-input">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Encrypted Call Link</label>
+                        <input type="url" id="edEncryptedCall" placeholder="https://meet.bbccskillhub.org/call/..." class="console-input">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
+                    <input type="text" id="edAddress" class="console-input">
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:12px; color:#cbd5e1;">Center Header Notice (Banner on Microsite)</label>
+                    <input type="text" id="edHeaderNotice" placeholder="Custom notice for students" class="console-input">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Outstanding Dues (₹)</label>
+                        <input type="number" id="edDueAmount" min="0" class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Account Status</label>
+                        <select id="edIsBlocked" class="console-input">
+                            <option value="false">Active (Normal)</option>
+                            <option value="true">Suspended (Blocked)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <button type="button" onclick="deleteCenterFromModal()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                        <i class="fas fa-trash"></i> Delete Center
+                    </button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" onclick="closeCenterEditor()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
+                        <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MASTER E-LIBRARY DOCUMENT EDITOR MODAL
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="bookEditorModal">
+        <div class="admin-modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glow); padding-bottom:14px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
+                    <i class="fas fa-file-pen"></i> Edit E-Library Document & Scope
+                </h3>
+                <button type="button" onclick="closeBookEditor()" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="saveBookEditorData(event)">
+                <input type="hidden" id="editBookId">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Document Title *</label>
+                        <input type="text" id="edBookTitle" required class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Subject Category</label>
+                        <input type="text" id="edBookSubject" class="console-input">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
+                        <input type="text" id="edBookClass" class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Price (₹)</label>
+                        <input type="number" id="edBookPrice" min="0" class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">File Format</label>
+                        <select id="edBookType" class="console-input">
+                            <option value="pdf">PDF</option>
+                            <option value="docx">Word</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Target Center Scope</label>
+                        <select id="edBookTargetCenter" class="console-input">
+                            <option value="all">Universal / All Coaching Centers</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
+                        <input type="checkbox" id="edBookIsRaw" style="width:18px; height:18px; accent-color:var(--admin-gold);">
+                        <label for="edBookIsRaw" style="font-size:13px; color:#cbd5e1; cursor:pointer;">Is Raw Educational Data</label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12px; color:#cbd5e1;">Replace Document File (Optional — leave blank to keep current file)</label>
+                    <input type="file" id="edBookFileInput" accept=".pdf,.doc,.docx" class="console-input">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <button type="button" onclick="closeBookEditor()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
+                    <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Document Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
         if (!token) window.location.replace('/login');
 
+        let globalCenters = [];
+        let globalBooks = [];
+
         function switchAdminTab(tId) {
             document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tId}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
             if (tId === 'centers') loadCentersList();
             if (tId === 'vault') loadVaultBooks();
+            if (tId === 'students') loadStudents();
+            if (tId === 'settings') loadSettingsData();
             if (tId === 'affiliations') loadAffiliations();
             if (tId === 'transactions') loadTransactions();
         }
 
         async function initAdminConsole() {
-            await loadGatewayConfig();
+            await loadSettingsData();
             await loadCentersList();
         }
 
-        async function loadGatewayConfig() {
+        async function loadSettingsData() {
             try {
                 const res = await fetch('/api/public/config');
                 const data = await res.json();
                 const badge = document.getElementById('rzpStatusBadge');
-                if (data.success && data.data && data.data.razorpayConfigured) {
-                    badge.textContent = '✅ ACTIVE & CONFIGURED';
-                    badge.style.background = 'rgba(16,185,129,0.15)';
-                    badge.style.borderColor = '#10b981';
-                    badge.style.color = '#34d399';
-                    document.getElementById('rzpKeyId').value = data.data.razorpayKeyId || '';
-                } else {
-                    badge.textContent = '⚙️ SETUP REQUIRED';
-                    badge.style.background = 'rgba(245,158,11,0.15)';
-                    badge.style.borderColor = '#f59e0b';
-                    badge.style.color = '#fbbf24';
+                if (data.success && data.data) {
+                    const cfg = data.data;
+                    document.getElementById('setAffFee').value = cfg.affiliationFee !== undefined ? cfg.affiliationFee : 999;
+                    document.getElementById('setPhone').value = cfg.phone || '';
+                    document.getElementById('setNewsMarquee').value = cfg.newsMarquee || '';
+
+                    if (cfg.razorpayConfigured) {
+                        badge.textContent = '✅ ACTIVE & CONFIGURED';
+                        badge.style.background = 'rgba(16,185,129,0.15)';
+                        badge.style.borderColor = '#10b981';
+                        badge.style.color = '#34d399';
+                        document.getElementById('rzpKeyId').value = cfg.razorpayKeyId || '';
+                    } else {
+                        badge.textContent = '⚙️ SETUP REQUIRED';
+                        badge.style.background = 'rgba(245,158,11,0.15)';
+                        badge.style.borderColor = '#f59e0b';
+                        badge.style.color = '#fbbf24';
+                    }
                 }
             } catch(e) {}
         }
 
-        async function saveRazorpaySettings(e) {
+        async function saveGlobalSettings(e) {
             e.preventDefault();
             const keyId = document.getElementById('rzpKeyId').value.trim();
             const keySecret = document.getElementById('rzpKeySecret').value.trim();
+            const affFee = Number(document.getElementById('setAffFee').value) || 0;
+            const phone = document.getElementById('setPhone').value.trim();
+            const marquee = document.getElementById('setNewsMarquee').value.trim();
 
             const res = await fetch('/api/admin/settings', {
                 method: 'PUT',
@@ -467,13 +739,20 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ razorpayKeyId: keyId, razorpayKeySecret: keySecret, razorpayEnabled: true })
+                body: JSON.stringify({
+                    razorpayKeyId: keyId,
+                    razorpayKeySecret: keySecret,
+                    razorpayEnabled: true,
+                    affiliationFee: affFee,
+                    phone: phone,
+                    newsMarquee: marquee
+                })
             });
 
             const data = await res.json();
             if (data.success) {
-                alert('Razorpay credentials saved successfully!');
-                loadGatewayConfig();
+                alert('Settings & Gateway credentials saved successfully!');
+                loadSettingsData();
             } else {
                 alert(data.message || 'Error saving settings');
             }
@@ -514,7 +793,17 @@
                 const data = await res.json();
                 const tbody = document.getElementById('centersTbody');
                 if (data.success && data.data) {
-                    tbody.innerHTML = data.data.map(c => `
+                    globalCenters = data.data;
+
+                    // Populate Target Center dropdowns
+                    const vbTarget = document.getElementById('vbTargetCenter');
+                    const edBookTarget = document.getElementById('edBookTargetCenter');
+                    const options = '<option value="all">Universal / All Coaching Centers</option>' + 
+                        globalCenters.map(c => `<option value="${c._id}">${c.centerName} (${c.username})</option>`).join('');
+                    if (vbTarget) vbTarget.innerHTML = options;
+                    if (edBookTarget) edBookTarget.innerHTML = options;
+
+                    tbody.innerHTML = globalCenters.map(c => `
                         <tr>
                             <td><strong>${c.centerName}</strong></td>
                             <td><code>${c.username}</code></td>
@@ -526,15 +815,105 @@
                             </td>
                             <td>₹${c.dueAmount || 0}</td>
                             <td>
-                                <button onclick="toggleBlockCenter('${c._id}', ${!c.isBlocked})" style="padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; border:none; cursor:pointer; background:${c.isBlocked ? '#10b981' : '#ef4444'}; color:#ffffff;">
-                                    ${c.isBlocked ? 'Unblock' : 'Suspend / Set Dues'}
+                                <button onclick="openCenterEditor('${c._id}')" class="btn-aurora btn-gold" style="padding:4px 10px; font-size:12px;">
+                                    <i class="fas fa-pen-to-square"></i> Edit Center Data
                                 </button>
-                                <a href="/center/${c._id}" target="_blank" style="color:var(--admin-gold); margin-left:8px; text-decoration:none;">View</a>
+                                <button onclick="toggleBlockCenter('${c._id}', ${!c.isBlocked})" style="padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; border:none; cursor:pointer; background:${c.isBlocked ? '#10b981' : '#ef4444'}; color:#ffffff; margin-left:6px;">
+                                    ${c.isBlocked ? 'Unblock' : 'Suspend'}
+                                </button>
+                                <a href="/center/${c.username || c._id}" target="_blank" style="color:var(--admin-gold); margin-left:8px; text-decoration:none;">View</a>
                             </td>
                         </tr>
                     `).join('');
                 }
             } catch(e) {}
+        }
+
+        // ============================================
+        // MASTER CENTER EDITOR MODAL HANDLERS
+        // ============================================
+        function openCenterEditor(centerId) {
+            const center = globalCenters.find(c => c._id === centerId);
+            if (!center) return;
+
+            document.getElementById('editCenterId').value = center._id;
+            document.getElementById('edCenterName').value = center.centerName || '';
+            document.getElementById('edDirectorName').value = center.directorName || '';
+            document.getElementById('edUsername').value = center.username || '';
+            document.getElementById('edPassword').value = '';
+            document.getElementById('edContact').value = center.contactNumber || '';
+            document.getElementById('edWhatsapp').value = center.whatsappNumber || '';
+            document.getElementById('edEmail').value = center.email || '';
+            document.getElementById('edFromClass').value = center.fromClass || 'Class 6th';
+            document.getElementById('edToClass').value = center.toClass || 'Class 12th';
+            document.getElementById('edEncryptedCall').value = center.encryptedCallLink || '';
+            document.getElementById('edAddress').value = center.address || '';
+            document.getElementById('edHeaderNotice').value = center.headerNotice || '';
+            document.getElementById('edDueAmount').value = center.dueAmount || 0;
+            document.getElementById('edIsBlocked').value = center.isBlocked ? 'true' : 'false';
+
+            document.getElementById('centerEditorModal').style.display = 'flex';
+        }
+
+        function closeCenterEditor() {
+            document.getElementById('centerEditorModal').style.display = 'none';
+        }
+
+        async function saveCenterEditorData(e) {
+            e.preventDefault();
+            const id = document.getElementById('editCenterId').value;
+            const payload = {
+                centerName: document.getElementById('edCenterName').value.trim(),
+                directorName: document.getElementById('edDirectorName').value.trim(),
+                username: document.getElementById('edUsername').value.trim().toLowerCase(),
+                contactNumber: document.getElementById('edContact').value.trim(),
+                whatsappNumber: document.getElementById('edWhatsapp').value.trim(),
+                email: document.getElementById('edEmail').value.trim(),
+                fromClass: document.getElementById('edFromClass').value.trim(),
+                toClass: document.getElementById('edToClass').value.trim(),
+                encryptedCallLink: document.getElementById('edEncryptedCall').value.trim(),
+                address: document.getElementById('edAddress').value.trim(),
+                headerNotice: document.getElementById('edHeaderNotice').value.trim(),
+                dueAmount: Number(document.getElementById('edDueAmount').value) || 0,
+                isBlocked: document.getElementById('edIsBlocked').value === 'true'
+            };
+
+            const newPwd = document.getElementById('edPassword').value.trim();
+            if (newPwd) payload.password = newPwd;
+
+            const res = await fetch(`/api/admin/centers/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Center details updated successfully by Super Admin!');
+                closeCenterEditor();
+                loadCentersList();
+            } else {
+                alert(data.message || 'Error updating center');
+            }
+        }
+
+        async function deleteCenterFromModal() {
+            const id = document.getElementById('editCenterId').value;
+            if (!confirm('Are you sure you want to permanently delete this coaching center?')) return;
+
+            const res = await fetch(`/api/admin/centers/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Center deleted');
+                closeCenterEditor();
+                loadCentersList();
+            }
         }
 
         async function registerCenter(e) {
@@ -588,21 +967,36 @@
             if (data.success) loadCentersList();
         }
 
+        // ============================================
+        // E-LIBRARY VAULT & DOCUMENT EDITOR
+        // ============================================
         async function loadVaultBooks() {
             try {
-                const res = await fetch('/api/public/books');
+                const res = await fetch('/api/admin/books', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const data = await res.json();
                 const tbody = document.getElementById('booksTbody');
-                if (data.success && data.data && data.data.notes) {
-                    tbody.innerHTML = data.data.notes.map(b => `
+                if (data.success && data.data) {
+                    globalBooks = data.data;
+                    tbody.innerHTML = globalBooks.map(b => `
                         <tr>
                             <td><strong>${b.title}</strong></td>
                             <td>${b.subject || '-'}</td>
                             <td>${b.classLevel || '-'}</td>
+                            <td>
+                                <span style="color:${b.targetCenterId === 'all' ? '#38bdf8' : '#fbbf24'}; font-weight:700;">
+                                    ${b.targetCenterName || (b.targetCenterId === 'all' ? 'Universal' : 'Specific Center')}
+                                </span>
+                                ${b.isRawData ? '<span style="background:rgba(251,191,36,0.2); color:#fbbf24; font-size:10px; padding:2px 6px; border-radius:8px; margin-left:4px;">RAW</span>' : ''}
+                            </td>
                             <td>${b.price > 0 ? `₹${b.price}` : '<span style="color:#10b981;">FREE</span>'}</td>
                             <td>${b.downloadCount || 0}</td>
                             <td>
-                                <button onclick="deleteVaultBook('${b._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">
+                                <button onclick="openBookEditor('${b._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px;">
+                                    <i class="fas fa-pen"></i> Edit
+                                </button>
+                                <button onclick="deleteVaultBook('${b._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; margin-left:4px;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -623,6 +1017,10 @@
             const classLevel = document.getElementById('vbClass').value.trim();
             const price = Number(document.getElementById('vbPrice').value) || 0;
             const fileType = document.getElementById('vbType').value;
+            const targetCenterId = document.getElementById('vbTargetCenter').value;
+            const targetCenterName = document.getElementById('vbTargetCenter').options[document.getElementById('vbTargetCenter').selectedIndex].text;
+            const isRawData = document.getElementById('vbIsRawData').checked;
+
             const fileInput = document.getElementById('vbFileInput');
             const thumbInput = document.getElementById('vbThumbInput');
 
@@ -652,7 +1050,10 @@
                     title, subject, classLevel, price, fileType,
                     file: fileBase64,
                     thumbnail: thumbBase64,
-                    fileName: fileInput.files[0] ? fileInput.files[0].name : `${title}.pdf`
+                    fileName: fileInput.files[0] ? fileInput.files[0].name : `${title}.pdf`,
+                    targetCenterId,
+                    targetCenterName,
+                    isRawData
                 })
             });
 
@@ -669,6 +1070,70 @@
             }
         }
 
+        function openBookEditor(bookId) {
+            const b = globalBooks.find(x => x._id === bookId);
+            if (!b) return;
+
+            document.getElementById('editBookId').value = b._id;
+            document.getElementById('edBookTitle').value = b.title || '';
+            document.getElementById('edBookSubject').value = b.subject || '';
+            document.getElementById('edBookClass').value = b.classLevel || '';
+            document.getElementById('edBookPrice').value = b.price || 0;
+            document.getElementById('edBookType').value = b.fileType || 'pdf';
+            document.getElementById('edBookTargetCenter').value = b.targetCenterId || 'all';
+            document.getElementById('edBookIsRaw').checked = Boolean(b.isRawData);
+
+            document.getElementById('bookEditorModal').style.display = 'flex';
+        }
+
+        function closeBookEditor() {
+            document.getElementById('bookEditorModal').style.display = 'none';
+        }
+
+        async function saveBookEditorData(e) {
+            e.preventDefault();
+            const id = document.getElementById('editBookId').value;
+            const targetSelect = document.getElementById('edBookTargetCenter');
+
+            const payload = {
+                title: document.getElementById('edBookTitle').value.trim(),
+                subject: document.getElementById('edBookSubject').value.trim(),
+                classLevel: document.getElementById('edBookClass').value.trim(),
+                price: Number(document.getElementById('edBookPrice').value) || 0,
+                fileType: document.getElementById('edBookType').value,
+                targetCenterId: targetSelect.value,
+                targetCenterName: targetSelect.options[targetSelect.selectedIndex].text,
+                isRawData: document.getElementById('edBookIsRaw').checked
+            };
+
+            const fileInput = document.getElementById('edBookFileInput');
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                await new Promise(r => reader.onload = r);
+                payload.file = reader.result;
+                payload.fileName = fileInput.files[0].name;
+            }
+
+            const res = await fetch(`/api/admin/books/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Document updated successfully!');
+                closeBookEditor();
+                loadVaultBooks();
+            } else {
+                alert(data.message || 'Error updating document');
+            }
+        }
+
         async function deleteVaultBook(id) {
             if (!confirm('Delete this document from vault?')) return;
             const res = await fetch(`/api/admin/books/${id}`, {
@@ -677,6 +1142,36 @@
             });
             const data = await res.json();
             if (data.success) loadVaultBooks();
+        }
+
+        // ============================================
+        // ALL STUDENTS VIEW
+        // ============================================
+        async function loadStudents() {
+            try {
+                const res = await fetch('/api/admin/students', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('studentsTbody');
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(s => `
+                        <tr>
+                            <td><strong style="color:var(--admin-gold); font-family:monospace;">${s.rollNo}</strong></td>
+                            <td>${s.name}</td>
+                            <td>${s.fatherName || '-'}</td>
+                            <td>${s.course} (${s.classLevel})</td>
+                            <td><span style="color:#10b981; font-weight:700;">${s.marksGrade}</span></td>
+                            <td>${s.centerName}</td>
+                            <td><span style="color:#10b981;">${s.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
         }
 
         async function loadAffiliations() {

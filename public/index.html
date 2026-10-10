@@ -14,7 +14,7 @@
 
     <style>
         /* ============================================================
-           BBCC SKILL HUB — CELESTIAL AURORA OBSIDIAN DESIGN SYSTEM (v3.0)
+           BBCC SKILL HUB — CELESTIAL AURORA OBSIDIAN DESIGN SYSTEM (v3.1)
            ============================================================ */
         :root {
             --cosmic-bg: #030712;
@@ -52,6 +52,47 @@
                 radial-gradient(circle at 85% 75%, rgba(56, 189, 248, 0.06) 0%, transparent 40%),
                 radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
             background-attachment: fixed;
+        }
+
+        /* Running Breaking News Marquee */
+        .marquee-container {
+            background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 50%, #1e1b4b 100%);
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+            height: 38px;
+        }
+
+        .marquee-label {
+            background: var(--gold-gradient);
+            color: #050811;
+            font-weight: 800;
+            padding: 0 16px;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            padding-left: 20px;
+            animation: marqueeAnim 28s linear infinite;
+        }
+
+        @keyframes marqueeAnim {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
         /* Ambient Top Board Affiliation Bar */
@@ -99,26 +140,26 @@
 
         /* Master Navbar */
         .aurora-navbar {
-            padding: 16px 28px;
+            padding: 16px 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(4, 7, 17, 0.8);
-            backdrop-filter: blur(20px);
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-subtle);
             position: sticky;
-            top: 37px;
+            top: 38px;
             z-index: 999;
         }
 
-        .brand-cluster {
+        .brand-dock {
             display: flex;
             align-items: center;
             gap: 14px;
             text-decoration: none;
         }
 
-        .brand-emblem {
+        .brand-emblem-box {
             width: 48px;
             height: 48px;
             border-radius: 14px;
@@ -128,48 +169,45 @@
             justify-content: center;
             color: #050811;
             font-size: 22px;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
-        .brand-text h1 {
+        .brand-emblem-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-title-dock h1 {
             font-family: 'Cinzel', serif;
             font-size: 20px;
             font-weight: 900;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #ffffff 30%, #fbbf24 100%);
+            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        .brand-text p {
-            font-size: 11px;
-            color: var(--text-slate);
+            line-height: 1.2;
             letter-spacing: 0.5px;
-            text-transform: uppercase;
         }
 
-        .nav-cluster {
+        .brand-title-dock p {
+            font-size: 11.5px;
+            color: var(--aurora-gold);
+            font-weight: 600;
+            letter-spacing: 0.4px;
+        }
+
+        .nav-actions-dock {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .nav-btn-link {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .nav-btn-link:hover {
-            color: var(--aurora-gold);
+            gap: 12px;
         }
 
         .btn-aurora {
             padding: 9px 18px;
             border-radius: 10px;
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 700;
             border: none;
             cursor: pointer;
@@ -183,72 +221,72 @@
         .btn-aurora-gold {
             background: var(--gold-gradient);
             color: #050811;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
         }
 
         .btn-aurora-gold:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
+            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
         }
 
         .btn-aurora-outline {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glow);
-            color: var(--aurora-gold);
+            color: #ffffff;
+            border: 1px solid var(--border-subtle);
         }
 
         .btn-aurora-outline:hover {
             background: rgba(251, 191, 36, 0.1);
-            transform: translateY(-2px);
+            border-color: var(--border-glow);
+            color: var(--aurora-gold);
         }
 
-        /* Hero Section */
-        .aurora-hero {
-            padding: 70px 24px 50px;
-            max-width: 1250px;
+        /* Hero Directorate Section */
+        .hero-universe {
+            padding: 60px 24px 40px;
+            max-width: 1240px;
             margin: 0 auto;
             text-align: center;
-            position: relative;
         }
 
         .hero-tag {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 16px;
-            border-radius: 30px;
+            padding: 6px 18px;
+            border-radius: 20px;
             background: rgba(251, 191, 36, 0.1);
             border: 1px solid var(--border-glow);
             color: var(--aurora-gold);
             font-size: 12.5px;
             font-weight: 700;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         .hero-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(32px, 5vw, 56px);
+            font-size: clamp(32px, 5vw, 54px);
             font-weight: 900;
             line-height: 1.15;
-            margin-bottom: 18px;
-            background: linear-gradient(135deg, #ffffff 40%, #fbbf24 85%, #f59e0b 100%);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 30%, #fbbf24 80%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero-desc {
-            font-size: 16px;
+            font-size: clamp(15px, 2vw, 18px);
             color: var(--text-dim);
-            max-width: 780px;
-            margin: 0 auto 32px;
-            line-height: 1.6;
+            max-width: 820px;
+            margin: 0 auto 30px;
+            line-height: 1.7;
         }
 
         .hero-stats-dock {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 18px;
-            max-width: 950px;
+            max-width: 960px;
             margin: 40px auto 0;
         }
 
@@ -256,63 +294,144 @@
             background: var(--cosmic-card);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 20px;
-            backdrop-filter: blur(12px);
+            padding: 18px 20px;
             transition: all 0.3s;
         }
 
         .stat-card-elite:hover {
             border-color: var(--border-glow);
-            transform: translateY(-4px);
+            transform: translateY(-3px);
         }
 
         .stat-card-elite h3 {
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 28px;
             font-weight: 800;
             color: var(--aurora-gold);
-            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 4px;
         }
 
         .stat-card-elite p {
-            font-size: 12.5px;
+            font-size: 13px;
             color: var(--text-slate);
-            font-weight: 600;
         }
 
-        /* Section Layout */
+        /* Common Section Layout */
         .universe-section {
-            padding: 70px 24px;
-            max-width: 1280px;
+            max-width: 1240px;
             margin: 0 auto;
+            padding: 50px 24px;
         }
 
         .section-header-elite {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
         }
 
         .section-header-elite h2 {
             font-family: 'Cinzel', serif;
-            font-size: 32px;
+            font-size: clamp(26px, 3.5vw, 36px);
             font-weight: 800;
             color: #ffffff;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .section-header-elite p {
-            font-size: 14.5px;
+            font-size: 15px;
             color: var(--text-slate);
-            max-width: 620px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
         /* ============================================================
-           ACADEMIC BOOK VAULT (E-LIBRARY): 3D COVERS ONLY, NO RAW PDF
+           STUDENT ROLL NUMBER VERIFICATION DESK
+           ============================================================ */
+        .verification-desk-box {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(7, 12, 24, 0.95) 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 32px 36px;
+            max-width: 860px;
+            margin: 0 auto 50px;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .verify-input-dock {
+            display: flex;
+            gap: 12px;
+            max-width: 640px;
+            margin: 20px auto 0;
+            flex-wrap: wrap;
+        }
+
+        .verify-input {
+            flex: 1;
+            min-width: 240px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .verify-input:focus {
+            border-color: var(--aurora-gold);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.25);
+        }
+
+        /* ============================================================
+           PROMOTIONAL BANNERS SHOWCASE
+           ============================================================ */
+        .promotional-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .promo-banner-card {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .promo-banner-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+        }
+
+        .promo-banner-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #0d1424;
+        }
+
+        .promo-banner-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* ============================================================
+           ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY
            ============================================================ */
         .vault-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            gap: 26px;
         }
 
         .vault-book-card {
@@ -322,130 +441,98 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.35s ease;
         }
 
         .vault-book-card:hover {
-            transform: translateY(-8px);
             border-color: var(--border-glow);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(251, 191, 36, 0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.15);
         }
 
         .book-stage {
-            height: 200px;
-            position: relative;
-            background: linear-gradient(135deg, #090e1a 0%, #172238 100%);
-            overflow: hidden;
-            cursor: pointer;
+            height: 250px;
+            background: linear-gradient(145deg, #070d1d 0%, #030712 100%);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            padding: 20px;
+            cursor: pointer;
         }
 
-        /* Realistic 3D Academic Textbook Cover Mockup */
+        .book-stage-custom-img {
+            max-height: 210px;
+            max-width: 85%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: -8px 10px 25px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .vault-book-card:hover .book-stage-custom-img {
+            transform: scale(1.05) rotate(-1deg);
+        }
+
         .book-spine-3d {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #080d1a 0%, #131c31 50%, #0a1122 100%);
-            position: relative;
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 6px 14px 14px 6px;
+            border: 2px solid var(--border-glow);
+            box-shadow: -10px 14px 30px rgba(0, 0, 0, 0.8), inset 4px 0 8px rgba(251, 191, 36, 0.3);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 18px 20px 18px 28px;
-            box-sizing: border-box;
-            box-shadow: inset -6px 0 15px rgba(0,0,0,0.8);
-        }
-
-        .spine-ribbon {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 16px;
-            background: linear-gradient(90deg, rgba(251, 191, 36, 0.5) 0%, rgba(0,0,0,0.7) 50%, rgba(251, 191, 36, 0.25) 100%);
-            box-shadow: inset 1px 0 0 rgba(251, 191, 36, 0.7);
-        }
-
-        .bookmark-tag {
-            position: absolute;
-            top: 0;
-            right: 28px;
-            width: 16px;
-            height: 42px;
-            background: #ef4444;
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .embossed-gold-seal {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 1.5px solid var(--aurora-gold);
-            background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, rgba(0,0,0,0.6) 100%);
-            display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--aurora-gold);
-            font-size: 17px;
-            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+            padding: 16px 12px;
+            text-align: center;
+            position: relative;
         }
 
         .book-title-embossed {
             font-family: 'Cinzel', serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             color: #ffffff;
-            line-height: 1.35;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+            margin-bottom: 6px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-        }
-
-        .book-stage-custom-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .vault-book-card:hover .book-stage-custom-img {
-            transform: scale(1.05);
+            line-height: 1.3;
         }
 
         .price-badge-pill {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 14px;
+            right: 14px;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            z-index: 2;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
-        .price-badge-pill.paid {
-            background: var(--gold-gradient);
-            color: #050811;
+            gap: 6px;
+            backdrop-filter: blur(8px);
         }
 
         .price-badge-pill.free {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #ffffff;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #34d399;
+        }
+
+        .price-badge-pill.paid {
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid var(--aurora-gold);
+            color: var(--aurora-gold);
         }
 
         .book-body {
-            padding: 18px 20px;
+            padding: 18px 20px 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -581,6 +668,123 @@
             object-fit: cover;
         }
 
+        /* ============================================================
+           FLOATING BHARTI AI HELPLINE ASSISTANT
+           ============================================================ */
+        .bharti-bubble-launcher {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: var(--gold-gradient);
+            color: #050811;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45);
+            transition: all 0.3s;
+            border: 2px solid #ffffff;
+        }
+
+        .bharti-bubble-launcher:hover {
+            transform: scale(1.05);
+            box-shadow: 0 14px 40px rgba(245, 158, 11, 0.6);
+        }
+
+        .bharti-avatar-pulse {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #050811;
+            color: var(--aurora-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .bharti-chat-panel {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 28px;
+            width: min(420px, calc(100vw - 36px));
+            height: 560px;
+            background: linear-gradient(155deg, #0b1120 0%, #050811 100%);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            z-index: 10000;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .bharti-chat-header {
+            background: linear-gradient(90deg, #1e1b4b 0%, #0d172e 100%);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bharti-chat-body {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .bharti-msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .bharti-msg-ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            border-bottom-left-radius: 4px;
+        }
+
+        .bharti-msg-user {
+            align-self: flex-end;
+            background: var(--gold-gradient);
+            color: #050811;
+            font-weight: 600;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bharti-action-card {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bharti-chat-input-bar {
+            padding: 14px 16px;
+            background: rgba(4, 7, 16, 0.95);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 10px;
+        }
+
         /* Modal Overlays */
         .aurora-modal-dock {
             display: none;
@@ -600,28 +804,28 @@
             border-radius: 24px;
             width: 100%;
             max-width: 520px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
             overflow: hidden;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.15);
-            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: modalFade 0.25s ease-out;
         }
 
-        @keyframes modalPop {
-            from { transform: scale(0.93); opacity: 0; }
+        @keyframes modalFade {
+            from { transform: scale(0.95); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
         .modal-head-bar {
-            background: linear-gradient(90deg, #0d172e 0%, #152445 100%);
             padding: 18px 24px;
-            border-bottom: 1px solid var(--border-glow);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .modal-input-field {
             width: 100%;
-            padding: 12px 14px;
+            padding: 11px 14px;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -629,7 +833,6 @@
             font-size: 13.5px;
             outline: none;
             margin-top: 5px;
-            transition: border-color 0.2s;
         }
 
         .modal-input-field:focus {
@@ -638,83 +841,86 @@
 
         /* Footer */
         .aurora-footer {
-            background: #03060e;
+            background: #02040a;
             border-top: 1px solid var(--border-subtle);
-            padding: 50px 24px 30px;
+            padding: 40px 24px;
             text-align: center;
+            font-size: 13px;
             color: var(--text-slate);
-            font-size: 13.5px;
-        }
-
-        @media (max-width: 768px) {
-            .aurora-navbar { padding: 12px 16px; }
-            .nav-cluster { display: none; }
-            .aurora-hero { padding: 45px 18px 30px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. Ambient Top Affiliation Bar -->
-    <div class="aurora-topbar">
-        <div class="topbar-badge">
-            <i class="fas fa-certificate"></i>
-            <span>BBCC SKILL HUB • Academic Directorate</span>
+    <!-- 1. Running Breaking News Marquee -->
+    <div class="marquee-container">
+        <div class="marquee-label">
+            <i class="fas fa-bullhorn"></i> BBCC Live News
         </div>
-        <div class="topbar-actions">
-            <a href="javascript:void(0)" onclick="openAffiliationModal()" class="topbar-link" style="color: var(--aurora-gold); font-weight:700;">
-                <i class="fas fa-handshake"></i> Register Coaching Center
-            </a>
-            <a href="/login" class="topbar-link">
-                <i class="fas fa-user-shield"></i> Portal Login
-            </a>
+        <div class="marquee-content" id="newsMarqueeText">
+            📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live
         </div>
     </div>
 
-    <!-- 2. Master Navigation Bar -->
-    <header class="aurora-navbar">
-        <a href="/" class="brand-cluster">
-            <div class="brand-emblem">
+    <!-- 2. Ambient Top Institutional Affiliation Header -->
+    <header class="aurora-topbar">
+        <div class="topbar-badge">
+            <i class="fas fa-certificate"></i> BBCC Central Academic Board & Institutional Network
+        </div>
+        <div class="topbar-actions">
+            <a href="#verify" class="topbar-link"><i class="fas fa-user-check"></i> Student Verification</a>
+            <a href="javascript:void(0)" onclick="openSelfRegistrationModal()" class="topbar-link" style="color:var(--aurora-gold); font-weight:700;">
+                <i class="fas fa-bolt"></i> Register Institute Online
+            </a>
+            <a href="/login" class="topbar-link"><i class="fas fa-lock"></i> Director / Admin Portal</a>
+        </div>
+    </header>
+
+    <!-- 3. Master Navbar -->
+    <nav class="aurora-navbar">
+        <a href="/" class="brand-dock">
+            <div class="brand-emblem-box" id="brandEmblemBox">
                 <i class="fas fa-graduation-cap"></i>
             </div>
-            <div class="brand-text">
+            <div class="brand-title-dock">
                 <h1 id="brandNameDisplay">BBCC SKILL HUB</h1>
-                <p>Central Academic Board & Institute Network</p>
+                <p>Central Academic Directorate</p>
             </div>
         </a>
 
-        <nav class="nav-cluster">
-            <a href="#vault" class="nav-btn-link"><i class="fas fa-book-bookmark"></i> E-Library</a>
-            <a href="#institutes" class="nav-btn-link"><i class="fas fa-school"></i> Partner Institutes</a>
-            <a href="javascript:void(0)" onclick="openAffiliationModal()" class="btn-aurora btn-aurora-gold">
-                <i class="fas fa-file-signature"></i> Coaching Affiliation
+        <div class="nav-actions-dock">
+            <a href="#vault" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-book-bookmark"></i> E-Library
             </a>
-            <a href="/login" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-right-to-bracket"></i> Sign In
+            <a href="#institutes" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-school"></i> Partner Centers
             </a>
-        </nav>
-    </header>
+            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold">
+                <i class="fas fa-file-signature"></i> Open Coaching Center
+            </button>
+        </div>
+    </nav>
 
-    <!-- 3. Aurora Hero Section -->
-    <section class="aurora-hero">
+    <!-- 4. Hero Section -->
+    <section class="hero-universe">
         <div class="hero-tag">
             <i class="fas fa-shield-halved"></i> Officially Recognized Academic Directorate
         </div>
         <h2 class="hero-title" id="heroTagline">Empowering Certified Learning & Partner Institutes</h2>
         <p class="hero-desc">
-            Access protected syllabus textbook notes, discover certified faculty, and visit affiliated coaching center microsites with centralized academic verification.
+            Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.
         </p>
 
         <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
             <a href="#vault" class="btn-aurora btn-aurora-gold" style="padding:12px 26px; font-size:14.5px;">
                 <i class="fas fa-book-open-reader"></i> Explore E-Library Vault
             </a>
-            <a href="#institutes" class="btn-aurora btn-aurora-outline" style="padding:12px 24px; font-size:14.5px;">
-                <i class="fas fa-university"></i> Partner Coaching Centers
-            </a>
-            <button onclick="openAffiliationModal()" class="btn-aurora btn-aurora-outline" style="padding:12px 24px; font-size:14.5px;">
-                <i class="fas fa-handshake"></i> Affiliation Application
+            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="padding:12px 26px; font-size:14.5px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; box-shadow:0 4px 16px rgba(16,185,129,0.35);">
+                <i class="fas fa-bolt"></i> Instant Coaching Registration (<span id="btnHeroAffFee">₹999</span>)
             </button>
+            <a href="#verify" class="btn-aurora btn-aurora-outline" style="padding:12px 24px; font-size:14.5px;">
+                <i class="fas fa-id-card-clip"></i> Verify Student Roll No
+            </a>
         </div>
 
         <div class="hero-stats-dock">
@@ -728,16 +934,54 @@
             </div>
             <div class="stat-card-elite">
                 <h3>100%</h3>
-                <p>Verified Curriculum</p>
+                <p>Digital Verification</p>
             </div>
             <div class="stat-card-elite">
-                <h3>Instant</h3>
-                <p>Razorpay Delivery</p>
+                <h3>24/7</h3>
+                <p>BHARTI AI Support</p>
             </div>
         </div>
     </section>
 
-    <!-- 4. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY -->
+    <!-- 5. STUDENT ROLL NUMBER & DIGITAL CERTIFICATE VERIFICATION DESK -->
+    <section class="universe-section" id="verify" style="padding-top:20px;">
+        <div class="verification-desk-box">
+            <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:5px 14px; border-radius:20px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-shield-check"></i> Official Verification Desk
+            </span>
+            <h3 style="font-family:'Cinzel',serif; font-size:24px; color:#ffffff; margin:14px 0 8px;">
+                Student Roll Number & Digital Marksheet Verification
+            </h3>
+            <p style="color:var(--text-slate); font-size:14px; max-width:600px; margin:0 auto;">
+                Verify student credentials, courses, class levels, and academic certificates issued under BBCC Affiliated Coaching Centers.
+            </p>
+
+            <form onsubmit="verifyStudentRollNo(event)" class="verify-input-dock">
+                <input type="text" id="verifyQueryInput" required placeholder="Enter Student Roll Number or ID (e.g. BBCC-102948)..." class="verify-input">
+                <button type="submit" id="btnVerifySubmit" class="btn-aurora btn-aurora-gold" style="padding:14px 24px; font-size:14px;">
+                    <i class="fas fa-search"></i> Verify Credential
+                </button>
+            </form>
+            <div id="verifyAlertBox" style="display:none; margin-top:14px; font-size:13px; padding:10px; border-radius:10px;"></div>
+        </div>
+    </section>
+
+    <!-- 6. FEATURED PROMOTIONAL BANNERS SHOWCASE (COACHING & BOARD) -->
+    <section class="universe-section" id="showcase">
+        <div class="section-header-elite">
+            <h2>Partner Institutes Promotional Showcase</h2>
+            <p>Prominent announcements, scholarships, and academic programs from BBCC recognized coaching institutes.</p>
+        </div>
+
+        <div class="promotional-grid" id="promotionalGrid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:10px;">Loading partner institute announcements...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY -->
     <section class="universe-section" id="vault">
         <div class="section-header-elite">
             <h2>Central E-Library Digital Repository</h2>
@@ -752,7 +996,7 @@
         </div>
     </section>
 
-    <!-- 5. PARTNER COACHING INSTITUTES NETWORK -->
+    <!-- 8. PARTNER COACHING INSTITUTES NETWORK -->
     <section class="universe-section" id="institutes">
         <div class="section-header-elite">
             <h2>Affiliated Partner Coaching Institutes</h2>
@@ -767,7 +1011,171 @@
         </div>
     </section>
 
-    <!-- 6. IN-APP RAZORPAY CHECKOUT DOCK MODAL (NO BROWSER PROMPTS) -->
+    <!-- ============================================================
+         MODAL 1: SELF-SERVICE COACHING REGISTRATION WITH ADMIN FEE
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="selfRegModalDock">
+        <div class="modal-body-panel" style="max-width:620px;">
+            <div class="modal-head-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-school" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Open & Register Coaching Center Online</h3>
+                </div>
+                <button type="button" onclick="closeSelfRegistrationModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="padding:22px 24px; max-height:80vh; overflow-y:auto;">
+                <div style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--aurora-gold); font-size:14px;">Instant Board Affiliation & Microsite</strong>
+                        <div style="font-size:12px; color:var(--text-dim);">Center goes live immediately upon payment verification!</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:11px; color:var(--text-slate); display:block;">Affiliation Fee</span>
+                        <span id="selfRegFeeBadge" style="font-size:20px; font-weight:900; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;">₹999</span>
+                    </div>
+                </div>
+
+                <form id="selfRegForm" onsubmit="processSelfRegistration(event)">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Coaching Center Name *</label>
+                            <input type="text" id="srCenterName" required placeholder="e.g. Paramount Academy" class="modal-input-field">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Director Name *</label>
+                            <input type="text" id="srDirectorName" required placeholder="e.g. Dr. Rajesh Verma" class="modal-input-field">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Director Username * (Login ID)</label>
+                            <input type="text" id="srUsername" required placeholder="e.g. paramount" class="modal-input-field" style="font-family:monospace;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Director Password *</label>
+                            <input type="password" id="srPassword" required placeholder="Create secure password" class="modal-input-field">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Contact Mobile *</label>
+                            <input type="tel" id="srContact" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" class="modal-input-field">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">WhatsApp Helpline *</label>
+                            <input type="tel" id="srWhatsapp" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit WhatsApp number" class="modal-input-field">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">From Class</label>
+                            <input type="text" id="srFromClass" value="Class 6th" class="modal-input-field">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-dim);">To Class</label>
+                            <input type="text" id="srToClass" value="Class 12th" class="modal-input-field">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Campus Address / City *</label>
+                        <input type="text" id="srAddress" required placeholder="Campus location, City, State" class="modal-input-field">
+                    </div>
+
+                    <div id="selfRegAlertBox" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:12.5px;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" onclick="closeSelfRegistrationModal()" class="btn-aurora btn-aurora-outline">Cancel</button>
+                        <button type="submit" id="selfRegPayBtn" class="btn-aurora btn-aurora-gold" style="flex:1; justify-content:center;">
+                            <i class="fas fa-lock"></i> <span id="selfRegPayBtnText">Pay Affiliation Fee & Activate Live</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="selfRegSuccessView" style="display:none; text-align:center; padding:15px 0;">
+                    <i class="fas fa-circle-check" style="color:#10b981; font-size:46px; margin-bottom:12px;"></i>
+                    <h3 style="font-family:'Cinzel',serif; font-size:20px; color:#ffffff; margin-bottom:6px;">Institute Successfully Activated!</h3>
+                    <p style="font-size:13.5px; color:var(--text-dim); margin-bottom:18px;">
+                        Your coaching center is now officially recognized and listed live on BBCC SKILL HUB homepage.
+                    </p>
+
+                    <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border-glow); border-radius:14px; padding:16px; margin-bottom:20px; text-align:left;">
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Center Name:</strong> <span id="sucCenterName">-</span></div>
+                        <div style="font-size:13px; margin-bottom:6px;"><strong>Director Username:</strong> <span id="sucUsername" style="font-family:monospace; color:var(--aurora-gold);">-</span></div>
+                        <div style="font-size:12px; color:var(--text-slate);">You can immediately log in to the Director Studio to manage teachers, banners & certificates.</div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                        <a id="sucWebsiteLink" href="#" class="btn-aurora btn-aurora-gold" target="_blank">
+                            <i class="fas fa-globe"></i> View Institute Website
+                        </a>
+                        <a href="/login" class="btn-aurora btn-aurora-outline">
+                            <i class="fas fa-user-tie"></i> Open Director Studio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: STUDENT ROLL NUMBER VERIFICATION CREDENTIAL DISPLAY
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="studentVerifyModalDock">
+        <div class="modal-body-panel" style="max-width:560px;">
+            <div class="modal-head-bar">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-award" style="color:var(--aurora-gold); font-size:22px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Digital Marksheet & Verification Certificate</h3>
+                </div>
+                <button type="button" onclick="closeStudentVerifyModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="padding:24px 26px;">
+                <div style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(15,23,42,0.95) 100%); border:2px solid #10b981; border-radius:18px; padding:22px; text-align:center; margin-bottom:20px;">
+                    <span style="background:#10b981; color:#050811; padding:4px 14px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase;">
+                        <i class="fas fa-check-circle"></i> 100% Authenticated Record
+                    </span>
+                    <h3 id="verStudentName" style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin:14px 0 4px;">Student Name</h3>
+                    <div style="font-size:13px; color:var(--aurora-gold); font-weight:700;">Roll Number: <span id="verRollNo" style="font-family:monospace;">-</span></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; font-size:13px;">
+                    <div style="background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                        <span style="color:var(--text-slate); font-size:11px; display:block;">Course / Stream</span>
+                        <strong id="verCourse" style="color:#ffffff;">-</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                        <span style="color:var(--text-slate); font-size:11px; display:block;">Class Level</span>
+                        <strong id="verClass" style="color:#ffffff;">-</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                        <span style="color:var(--text-slate); font-size:11px; display:block;">Grade / Performance</span>
+                        <strong id="verGrade" style="color:var(--aurora-gold); font-size:15px;">-</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid var(--border-subtle);">
+                        <span style="color:var(--text-slate); font-size:11px; display:block;">Issuing Institute</span>
+                        <strong id="verCenterName" style="color:#ffffff;">-</strong>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-slate); border-top:1px solid var(--border-subtle); padding-top:14px;">
+                    <span>Official Directorate Seal: <strong style="color:#10b981;">VERIFIED</strong></span>
+                    <button type="button" onclick="window.print()" class="btn-aurora btn-aurora-outline" style="padding:6px 14px; font-size:12px;">
+                        <i class="fas fa-print"></i> Print Transcript
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: IN-APP RAZORPAY CHECKOUT DOCK FOR E-LIBRARY
+         ============================================================ -->
     <div class="aurora-modal-dock" id="docCheckoutDock">
         <div class="modal-body-panel">
             <div class="modal-head-bar">
@@ -823,68 +1231,59 @@
         </div>
     </div>
 
-    <!-- 7. COACHING AFFILIATION APPLICATION MODAL -->
-    <div class="aurora-modal-dock" id="affiliationModalDock">
-        <div class="modal-body-panel" style="max-width:580px;">
-            <div class="modal-head-bar">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-school" style="color:var(--aurora-gold); font-size:20px;"></i>
-                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Institute Affiliation Application</h3>
-                </div>
-                <button type="button" onclick="closeAffiliationModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
-            </div>
-
-            <form onsubmit="submitAffiliationApplication(event)" style="padding:22px 24px; max-height:80vh; overflow-y:auto;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                    <div>
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Center Name *</label>
-                        <input type="text" id="affCenterName" required placeholder="e.g. Apex Academy" class="modal-input-field">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Director Name *</label>
-                        <input type="text" id="affDirectorName" required placeholder="e.g. Prof. Sharma" class="modal-input-field">
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                    <div>
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Contact Mobile *</label>
-                        <input type="tel" id="affContact" required maxlength="10" placeholder="10-digit number" class="modal-input-field">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Official Email</label>
-                        <input type="email" id="affEmail" placeholder="info@center.com" class="modal-input-field">
-                    </div>
-                </div>
-
-                <div style="margin-bottom:12px;">
-                    <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Campus Address / City *</label>
-                    <input type="text" id="affAddress" required placeholder="Street, City, State" class="modal-input-field">
-                </div>
-
-                <div style="margin-bottom:18px;">
-                    <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Message / Remarks</label>
-                    <textarea id="affMessage" rows="2" placeholder="Student strength, courses, etc." class="modal-input-field" style="resize:vertical;"></textarea>
-                </div>
-
-                <div style="display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" onclick="closeAffiliationModal()" class="btn-aurora btn-aurora-outline">Cancel</button>
-                    <button type="submit" id="affSubmitBtn" class="btn-aurora btn-aurora-gold">
-                        <i class="fas fa-paper-plane"></i> Submit Application
-                    </button>
-                </div>
-            </form>
-        </div>
+    <!-- ============================================================
+         FLOATING BHARTI AI HELPLINE INTERACTIVE WIDGET
+         ============================================================ -->
+    <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
+        <div class="bharti-avatar-pulse"><i class="fas fa-headset"></i></div>
+        <span>BHARTI AI Helpline</span>
     </div>
 
-    <!-- 8. Master Institutional Footer -->
+    <div class="bharti-chat-panel" id="bhartiChatPanel">
+        <div class="bharti-chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:#050811;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h4 style="font-size:14px; margin:0; color:#ffffff;">BHARTI Academic AI</h4>
+                    <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Helpline Active</span>
+                </div>
+            </div>
+            <button onclick="toggleBhartiChat()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+
+        <div class="bharti-chat-body" id="bhartiChatMessages">
+            <div class="bharti-msg bharti-msg-ai">
+                Namaste! I am <strong>BHARTI AI</strong>, your 24/7 BBCC Academic & Center Helpline Assistant. 
+                Ask me about admission inquiries, syllabus guides, or connect directly with coaching center directors!
+            </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div style="padding:6px 14px; background:rgba(255,255,255,0.02); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; border-top:1px solid var(--border-subtle);">
+            <button onclick="sendQuickPrompt('Find best coaching center for Class 10')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Class 10 Coaching</button>
+            <button onclick="sendQuickPrompt('Connect me with a center director')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Director Contact</button>
+            <button onclick="sendQuickPrompt('How do I download study materials?')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">E-Library Notes</button>
+        </div>
+
+        <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
+            <input type="text" id="bhartiUserInput" required placeholder="Type your academic or coaching question..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
+            <button type="submit" id="btnBhartiSend" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Master Institutional Footer -->
     <footer class="aurora-footer">
         <p style="margin-bottom:12px;">
             © 2026 <strong>BBCC SKILL HUB</strong> Academic Board. Centralized Educational Verification & Digital Institute Network.
         </p>
         <div style="display:flex; justify-content:center; gap:18px; flex-wrap:wrap; font-size:12.5px;">
             <a href="/login" style="color:var(--aurora-gold); text-decoration:none;"><i class="fas fa-lock"></i> Director / Admin Portal</a>
-            <a href="javascript:void(0)" onclick="openAffiliationModal()" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-school"></i> Apply for Affiliation</a>
+            <a href="javascript:void(0)" onclick="openSelfRegistrationModal()" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-school"></i> Open Coaching Center</a>
+            <a href="#verify" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-id-card"></i> Student Verification</a>
             <a href="#vault" style="color:var(--text-dim); text-decoration:none;"><i class="fas fa-book"></i> E-Library Vault</a>
         </div>
     </footer>
@@ -897,6 +1296,7 @@
 
         async function initPortal() {
             await loadConfig();
+            await loadPromotionalBanners();
             await loadBooks();
             await loadCenters();
         }
@@ -913,9 +1313,62 @@
                     if (publicConfig.tagline) {
                         document.getElementById('heroTagline').textContent = publicConfig.tagline;
                     }
+                    if (publicConfig.newsMarquee) {
+                        document.getElementById('newsMarqueeText').textContent = publicConfig.newsMarquee;
+                    }
+                    if (publicConfig.affiliationFee !== undefined) {
+                        const feeStr = publicConfig.affiliationFee > 0 ? `₹${publicConfig.affiliationFee}` : 'FREE';
+                        document.getElementById('btnHeroAffFee').textContent = feeStr;
+                        document.getElementById('selfRegFeeBadge').textContent = feeStr;
+                        document.getElementById('selfRegPayBtnText').textContent = publicConfig.affiliationFee > 0 ? `Pay ${feeStr} Affiliation Fee & Activate Live` : `Activate Coaching Center Instantly (Free)`;
+                    }
                 }
             } catch(e) {
                 console.error('Config fetch notice:', e);
+            }
+        }
+
+        async function loadPromotionalBanners() {
+            const grid = document.getElementById('promotionalGrid');
+            try {
+                const res = await fetch('/api/public/promotional-banners');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    grid.innerHTML = data.data.map(b => `
+                        <div class="promo-banner-card">
+                            <img src="${b.image}" alt="${b.title}" class="promo-banner-img">
+                            <div class="promo-banner-body">
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                        <span style="background:rgba(251,191,36,0.15); color:var(--aurora-gold); padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">
+                                            <i class="fas fa-certificate"></i> ${b.centerName}
+                                        </span>
+                                    </div>
+                                    <h4 style="font-size:16px; font-weight:800; color:#ffffff; margin-bottom:4px;">${b.title}</h4>
+                                    <p style="font-size:12.5px; color:var(--text-slate); margin-bottom:14px;">${b.subtitle || 'Academic Program & Admissions'}</p>
+                                </div>
+                                <a href="${b.link || `/center/${b.username}`}" class="btn-aurora btn-aurora-gold" style="justify-content:center; text-decoration:none; padding:8px 14px; font-size:12.5px;">
+                                    <i class="fas fa-university"></i> Visit Institute &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = `
+                        <div style="grid-column:1/-1; text-align:center; padding:30px; background:var(--cosmic-card); border-radius:16px; border:1px solid var(--border-subtle);">
+                            <i class="fas fa-bullhorn" style="color:var(--aurora-gold); font-size:26px; margin-bottom:10px;"></i>
+                            <h4 style="color:#ffffff;">Direct Institute Affiliation Open 2026-27</h4>
+                            <p style="color:var(--text-slate); font-size:13px; margin:6px auto 14px; max-width:500px;">
+                                Coaching centers can register their institute directly and feature their promotional banners here.
+                            </p>
+                            <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="font-size:13px;">
+                                <i class="fas fa-bolt"></i> Register Your Center Now
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">Promotional announcements will update shortly.</div>';
             }
         }
 
@@ -1058,7 +1511,196 @@
         }
 
         // ============================================
-        // IN-APP RAZORPAY CHECKOUT LOGIC
+        // STUDENT ROLL NUMBER VERIFICATION DESK LOGIC
+        // ============================================
+        async function verifyStudentRollNo(e) {
+            e.preventDefault();
+            const q = document.getElementById('verifyQueryInput').value.trim();
+            if (!q) return;
+
+            const btn = document.getElementById('btnVerifySubmit');
+            const alertBox = document.getElementById('verifyAlertBox');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            alertBox.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/public/verify-student/${encodeURIComponent(q)}`);
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Verify Credential';
+
+                if (data.success && data.verified && data.data) {
+                    const stu = data.data;
+                    document.getElementById('verStudentName').textContent = stu.name;
+                    document.getElementById('verRollNo').textContent = stu.rollNo;
+                    document.getElementById('verCourse').textContent = stu.course;
+                    document.getElementById('verClass').textContent = stu.classLevel;
+                    document.getElementById('verGrade').textContent = stu.marksGrade || 'A+ (Passed)';
+                    document.getElementById('verCenterName').textContent = stu.centerName;
+
+                    document.getElementById('studentVerifyModalDock').style.display = 'flex';
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message || 'No credential record found for this roll number.'}`;
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Verify Credential';
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.textContent = 'Server connection error. Please try again.';
+            }
+        }
+
+        function closeStudentVerifyModal() {
+            document.getElementById('studentVerifyModalDock').style.display = 'none';
+        }
+
+        // ============================================
+        // SELF-SERVICE COACHING REGISTRATION WITH FEE
+        // ============================================
+        function openSelfRegistrationModal() {
+            document.getElementById('selfRegForm').style.display = 'block';
+            document.getElementById('selfRegSuccessView').style.display = 'none';
+            document.getElementById('selfRegAlertBox').style.display = 'none';
+            document.getElementById('selfRegModalDock').style.display = 'flex';
+        }
+
+        function closeSelfRegistrationModal() {
+            document.getElementById('selfRegModalDock').style.display = 'none';
+        }
+
+        async function processSelfRegistration(e) {
+            e.preventDefault();
+            const btn = document.getElementById('selfRegPayBtn');
+            const btnText = document.getElementById('selfRegPayBtnText');
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Registration...';
+
+            const payload = {
+                centerName: document.getElementById('srCenterName').value.trim(),
+                directorName: document.getElementById('srDirectorName').value.trim(),
+                username: document.getElementById('srUsername').value.trim().toLowerCase(),
+                password: document.getElementById('srPassword').value.trim(),
+                contactNumber: document.getElementById('srContact').value.trim(),
+                whatsappNumber: document.getElementById('srWhatsapp').value.trim(),
+                fromClass: document.getElementById('srFromClass').value.trim(),
+                toClass: document.getElementById('srToClass').value.trim(),
+                address: document.getElementById('srAddress').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/pay/create-affiliation-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    btn.disabled = false;
+                    btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                    showSelfRegAlert(data.message || 'Registration failed', true);
+                    return;
+                }
+
+                // If Direct / Free Activation
+                if (data.direct) {
+                    showSelfRegSuccess(data.centerName, data.username);
+                    await loadCenters();
+                    return;
+                }
+
+                // Razorpay Payment Flow
+                if (typeof Razorpay === 'undefined') {
+                    btn.disabled = false;
+                    btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                    showSelfRegAlert('Razorpay SDK loading. Please check internet connection.', true);
+                    return;
+                }
+
+                const options = {
+                    key: data.keyId,
+                    amount: data.amountInPaise,
+                    currency: 'INR',
+                    name: 'BBCC SKILL HUB',
+                    description: `Coaching Center Affiliation: ${data.centerName}`,
+                    order_id: data.orderId,
+                    prefill: {
+                        name: payload.directorName,
+                        contact: payload.contactNumber
+                    },
+                    theme: { color: '#fbbf24' },
+                    handler: async function(resp) {
+                        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Activating Institute...';
+                        try {
+                            const verifyRes = await fetch('/api/pay/verify-affiliation-order', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: resp.razorpay_order_id,
+                                    razorpay_payment_id: resp.razorpay_payment_id,
+                                    razorpay_signature: resp.razorpay_signature,
+                                    regData: payload
+                                })
+                            });
+                            const vData = await verifyRes.json();
+                            if (vData.success) {
+                                showSelfRegSuccess(payload.centerName, payload.username);
+                                await loadCenters();
+                            } else {
+                                btn.disabled = false;
+                                btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                                showSelfRegAlert(vData.message || 'Payment verification failed', true);
+                            }
+                        } catch(err) {
+                            btn.disabled = false;
+                            btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                            showSelfRegAlert('Verification error: ' + err.message, true);
+                        }
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            btn.disabled = false;
+                            btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(err) {
+                btn.disabled = false;
+                btnText.textContent = 'Pay Affiliation Fee & Activate Live';
+                showSelfRegAlert('Server connection error: ' + err.message, true);
+            }
+        }
+
+        function showSelfRegAlert(msg, isError) {
+            const box = document.getElementById('selfRegAlertBox');
+            box.style.display = 'block';
+            box.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
+            box.style.border = isError ? '1px solid #ef4444' : '1px solid #10b981';
+            box.style.color = isError ? '#fca5a5' : '#86efac';
+            box.innerHTML = msg;
+        }
+
+        function showSelfRegSuccess(cName, uName) {
+            document.getElementById('selfRegForm').style.display = 'none';
+            document.getElementById('sucCenterName').textContent = cName;
+            document.getElementById('sucUsername').textContent = uName;
+            document.getElementById('sucWebsiteLink').href = `/center/${uName}`;
+            document.getElementById('selfRegSuccessView').style.display = 'block';
+        }
+
+        // ============================================
+        // IN-APP RAZORPAY CHECKOUT LOGIC FOR E-LIBRARY
         // ============================================
         function openCheckout(docId, price, encTitle, encSubject, encClass) {
             const title = decodeURIComponent(encTitle || 'Document');
@@ -1072,7 +1714,6 @@
             document.getElementById('dockDocPrice').textContent = `₹${price}`;
             document.getElementById('dockPayBtnText').textContent = `Pay ₹${price} via Razorpay`;
 
-            // Restore name / mobile
             const savedName = localStorage.getItem('bbcc_student_name') || '';
             const savedPhone = localStorage.getItem('bbcc_student_phone') || '';
             if (savedName) document.getElementById('dockPayerName').value = savedName;
@@ -1235,50 +1876,97 @@
             document.getElementById('dockSuccessView').style.display = 'block';
         }
 
-        // Affiliation Application
-        function openAffiliationModal() {
-            document.getElementById('affiliationModalDock').style.display = 'flex';
+        // ============================================
+        // BHARTI AI HELPLINE INTERACTIVE ASSISTANT
+        // ============================================
+        function toggleBhartiChat() {
+            const panel = document.getElementById('bhartiChatPanel');
+            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+            if (panel.style.display === 'flex') {
+                document.getElementById('bhartiUserInput').focus();
+            }
         }
 
-        function closeAffiliationModal() {
-            document.getElementById('affiliationModalDock').style.display = 'none';
+        function sendQuickPrompt(txt) {
+            document.getElementById('bhartiUserInput').value = txt;
+            submitBhartiMessage(new Event('submit'));
         }
 
-        async function submitAffiliationApplication(e) {
-            e.preventDefault();
-            const btn = document.getElementById('affSubmitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        async function submitBhartiMessage(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('bhartiUserInput');
+            const msg = input.value.trim();
+            if (!msg) return;
 
-            const payload = {
-                centerName: document.getElementById('affCenterName').value.trim(),
-                directorName: document.getElementById('affDirectorName').value.trim(),
-                contactNumber: document.getElementById('affContact').value.trim(),
-                email: document.getElementById('affEmail').value.trim(),
-                address: document.getElementById('affAddress').value.trim(),
-                message: document.getElementById('affMessage').value.trim()
-            };
+            const chatBody = document.getElementById('bhartiChatMessages');
+            
+            // Append User Message
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'bharti-msg bharti-msg-user';
+            userMsgDiv.textContent = msg;
+            chatBody.appendChild(userMsgDiv);
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Loading AI bubble
+            const loadBubble = document.createElement('div');
+            loadBubble.className = 'bharti-msg bharti-msg-ai';
+            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> BHARTI is thinking...';
+            chatBody.appendChild(loadBubble);
+            chatBody.scrollTop = chatBody.scrollHeight;
 
             try {
-                const res = await fetch('/api/public/affiliate', {
+                const res = await fetch('/api/public/bharti-chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ message: msg })
                 });
                 const data = await res.json();
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                loadBubble.remove();
 
-                if (data.success) {
-                    alert('🎉 Application submitted successfully! The BBCC Directorate will contact you shortly.');
-                    closeAffiliationModal();
-                } else {
-                    alert(data.message || 'Submission error');
+                const aiBubble = document.createElement('div');
+                aiBubble.className = 'bharti-msg bharti-msg-ai';
+
+                let html = `<div>${data.reply || 'Namaste! How may I assist you further?'}</div>`;
+
+                // CRITICAL REQUIREMENT:
+                // First: Encrypted Call Link
+                // Second: Director Direct Phone & WhatsApp
+                if (data.encryptedCallLink || data.directorPhone) {
+                    html += `
+                        <div class="bharti-action-card">
+                            <span style="font-size:11px; color:var(--aurora-gold); font-weight:800; text-transform:uppercase;">
+                                <i class="fas fa-headset"></i> Direct Assistance Desk: ${data.centerName || 'BBCC Center'}
+                            </span>
+
+                            ${data.encryptedCallLink ? `
+                                <a href="${data.encryptedCallLink}" target="_blank" class="btn-aurora btn-aurora-gold" style="font-size:12px; padding:7px 12px; text-decoration:none; justify-content:center;">
+                                    <i class="fas fa-lock"></i> 1. Connect via Encrypted Call Link
+                                </a>
+                            ` : ''}
+
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                                ${data.directorPhone ? `
+                                    <a href="tel:${data.directorPhone}" class="btn-aurora btn-aurora-outline" style="flex:1; font-size:12px; padding:7px 10px; text-decoration:none; justify-content:center;">
+                                        <i class="fas fa-phone"></i> 2. Call: ${data.directorPhone}
+                                    </a>
+                                ` : ''}
+
+                                ${data.whatsappLink ? `
+                                    <a href="${data.whatsappLink}" target="_blank" class="btn-aurora btn-aurora-outline" style="background:rgba(16,185,129,0.15); border-color:#10b981; color:#34d399; font-size:12px; padding:7px 10px; text-decoration:none; justify-content:center;">
+                                        <i class="fab fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
                 }
-            } catch(e) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
-                alert('Connection error');
+
+                aiBubble.innerHTML = html;
+                chatBody.appendChild(aiBubble);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            } catch(err) {
+                loadBubble.innerHTML = '<span style="color:#fca5a5;">Bharti AI connection timeout. Please check your network.</span>';
             }
         }
 
