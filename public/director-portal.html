@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" id="dynamicFavicon" href="/favicon.ico">
     <!-- Razorpay Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -376,8 +377,13 @@
 
                     <!-- Quick Festive Presets & AI Copy Generator -->
                     <div style="background:rgba(255,255,255,0.03); border:1px dashed var(--border-glow); border-radius:12px; padding:14px; margin-bottom:18px;">
+                        <div style="margin-bottom:12px;">
+                            <button type="button" onclick="openFestivalBannersModal()" class="btn-aurora" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color:#ffffff; font-weight:700; padding:9px 18px; border:none; box-shadow:0 4px 15px rgba(245,158,11,0.3); font-size:13px; cursor:pointer;">
+                                <i class="fas fa-wand-magic-sparkles"></i> 🌟 Choose Ready-Made Indian Festival / Special Day Banner
+                            </button>
+                        </div>
                         <span style="font-size:11.5px; font-weight:700; color:var(--aurora-gold); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">
-                            <i class="fas fa-wand-magic-sparkles"></i> 1-Click Festive Presets & Gemini AI Banner Maker:
+                            <i class="fas fa-wand-magic-sparkles"></i> Or 1-Click Festive Presets & Gemini AI Banner Maker:
                         </span>
                         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
                             <button type="button" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(245,158,11,0.1);" onclick="applyFestivePreset('Diwali Mahotsav Mega Admission', 'Flat 30% Scholarship & Free Practice Books')">🪔 Diwali Fest</button>
@@ -546,6 +552,20 @@
                         Offer courses in Online Live mode (Google Meet / Zoom) or Physical Classroom mode. These courses appear in the Homepage Course Explorer and student admission forms.
                     </p>
 
+                    <div style="background:rgba(2,132,199,0.1); border:1px dashed #38bdf8; border-radius:12px; padding:14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <span style="font-weight:700; color:#38bdf8; font-size:13px; display:block;">
+                                <i class="fas fa-layer-group"></i> Need Instant Educational Course Setups?
+                            </span>
+                            <span style="font-size:12px; color:#cbd5e1;">
+                                Choose from in-built curriculum for School Boards (BSEB, CBSE, NCERT 1-12), CTET, STET, BPSC TRE, Computer, and Govt Exams.
+                            </span>
+                        </div>
+                        <button type="button" onclick="openCourseTemplatesModal()" class="btn-aurora" style="background:linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color:#ffffff; font-weight:700; padding:8px 16px; border:none; white-space:nowrap; cursor:pointer;">
+                            <i class="fas fa-book-sparkles"></i> Browse Pre-Built Course Catalog
+                        </button>
+                    </div>
+
                     <form onsubmit="handleCreateCourse(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Course Name *</label>
@@ -692,7 +712,12 @@
                     <div class="studio-card" style="margin:0; background:linear-gradient(135deg, rgba(245,158,11,0.15) 0%, #0b1120 100%); border-color:var(--border-glow);">
                         <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Center Net Wallet (80% Share)</span>
                         <h3 style="font-size:32px; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="walletBalanceDisplay">₹0</h3>
-                        <span style="font-size:11px; color:#cbd5e1;">Available for Payout</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                            <span style="font-size:11px; color:#cbd5e1;">Available for Payout</span>
+                            <button type="button" onclick="openWithdrawalModal()" class="btn-aurora btn-gold" style="padding:4px 12px; font-size:11.5px; font-weight:800; cursor:pointer;">
+                                <i class="fas fa-hand-holding-dollar"></i> Withdraw
+                            </button>
+                        </div>
                     </div>
                     <div class="studio-card" style="margin:0;">
                         <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Total Notes Sales Volume</span>
@@ -703,6 +728,19 @@
                         <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">BBCC Platform Cut (20%)</span>
                         <h3 style="font-size:32px; color:#a855f7; font-family:'Space Grotesk',sans-serif;" id="platformCutDisplay">₹0</h3>
                         <span style="font-size:11px; color:#cbd5e1;">Platform Service Fee</span>
+                    </div>
+                </div>
+
+                <!-- Bank Account Status Warning Banner (Shown if bank details missing) -->
+                <div id="bankDetailsWarningBanner" style="display:none; background:rgba(239,68,68,0.1); border:1px solid #ef4444; border-radius:12px; padding:14px 18px; margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-triangle-exclamation" style="font-size:22px; color:#ef4444;"></i>
+                        <div>
+                            <strong style="color:#ffffff; font-size:13.5px;">Bank Account / UPI Details Missing</strong>
+                            <p style="color:#fca5a5; font-size:12px; margin-top:2px;">
+                                Your wallet share is safely held in the BBCC central pool. Please fill and save your Bank Account / UPI details below to unlock withdrawals.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -762,6 +800,41 @@
                             </thead>
                             <tbody id="earningsTableBody">
                                 <tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8;">Loading sales transactions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Withdrawals History Ledger -->
+                <div class="studio-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold);">
+                                <i class="fas fa-money-bill-transfer"></i> Wallet Payout & Withdrawal History
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Track payout settlement status, official Bank UTR numbers, and approval timestamps from the BBCC Central Directorate.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadWithdrawalHistory()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; cursor:pointer;">
+                            <i class="fas fa-rotate"></i> Refresh History
+                        </button>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="inquiry-table">
+                            <thead>
+                                <tr>
+                                    <th>Request Date</th>
+                                    <th>Requested Amount</th>
+                                    <th>Target Bank / UPI</th>
+                                    <th>Status</th>
+                                    <th>Bank UTR / Ref</th>
+                                    <th>Admin Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawalHistoryTbody">
+                                <tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">Loading withdrawal history...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -828,6 +901,21 @@
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Upload Director Photo (Optional)</label>
                             <input type="file" id="cpPhotoInput" accept="image/*" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Online Student Admission Fee in ₹ *</label>
+                            <input type="number" id="cpAdmissionFee" min="0" value="200" placeholder="e.g. 200" class="studio-input">
+                            <span style="font-size:11px; color:#94a3b8;">50/50 Revenue Split: 50% Platform / 50% Center Wallet.</span>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Microsite Theme Accent Color</label>
+                            <select id="cpThemeColor" class="studio-input" style="background:#0b1120;">
+                                <option value="gold">🏆 Royal Gold (Default)</option>
+                                <option value="cyan">🌊 Ocean Cyan</option>
+                                <option value="emerald">🌿 Emerald Green</option>
+                                <option value="purple">🔮 Royal Violet</option>
+                                <option value="rose">🌹 Imperial Rose</option>
+                            </select>
                         </div>
                         <div style="grid-column:1/-1;">
                             <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
@@ -1023,6 +1111,133 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         INDIAN FESTIVAL & SPECIAL DAYS BANNER SELECTOR MODAL
+         ============================================================ -->
+    <div class="cert-modal-overlay" id="festivalBannersModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:880px; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff; max-height:92vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <div>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold); display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-wand-magic-sparkles"></i> Indian Festival & Special Days Banner Library
+                    </h3>
+                    <p style="font-size:12px; color:#cbd5e1; margin-top:2px;">
+                        Select any pre-designed national festival or observance day banner. Customize text and 1-click publish!
+                    </p>
+                </div>
+                <button type="button" onclick="closeFestivalBannersModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <!-- Banner Selection Grid -->
+            <div id="festiveBannersGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; margin-bottom:20px;">
+                <div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">Loading festival templates...</div>
+            </div>
+
+            <!-- Customization Form for Selected Banner -->
+            <div id="festiveCustomizerBox" style="display:none; background:rgba(255,255,255,0.03); border:1px solid var(--border-glow); border-radius:14px; padding:18px;">
+                <h4 style="font-size:14px; color:var(--aurora-gold); margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                    <i class="fas fa-pen-nib"></i> Customize & Publish Selected Banner
+                </h4>
+                <input type="hidden" id="fbSelectedImage">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Banner Title / Festival Name *</label>
+                        <input type="text" id="fbTitleInput" required class="studio-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Special Concession / Offer Subtitle</label>
+                        <input type="text" id="fbSubtitleInput" class="studio-input">
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <span style="font-size:11.5px; color:#94a3b8;">
+                        <i class="fas fa-calendar-check"></i> Banner will remain active for 30 days and appear on the BBCC board homepage.
+                    </span>
+                    <button type="button" onclick="publishFestiveBanner()" id="btnPublishFestive" class="btn-aurora btn-gold" style="padding:8px 20px;">
+                        <i class="fas fa-cloud-arrow-up"></i> 1-Click Publish Banner
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PRE-BUILT COURSE TEMPLATES LIBRARY MODAL
+         ============================================================ -->
+    <div class="cert-modal-overlay" id="courseTemplatesModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:920px; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff; max-height:92vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <div>
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-graduation-cap"></i> Standard Course Curriculum & Batch Templates
+                    </h3>
+                    <p style="font-size:12px; color:#cbd5e1; margin-top:2px;">
+                        Select any standard educational course to auto-fill your course creation form. Set your local fee and launch instantly!
+                    </p>
+                </div>
+                <button type="button" onclick="closeCourseTemplatesModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div id="courseCategoryPills" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
+                <button type="button" class="btn-aurora active" onclick="filterCourseTemplates('all')" style="padding:5px 12px; font-size:12px; cursor:pointer;">All Courses</button>
+                <button type="button" class="btn-aurora" onclick="filterCourseTemplates('school')" style="padding:5px 12px; font-size:12px; cursor:pointer;">School / Boards (Class 1-12)</button>
+                <button type="button" class="btn-aurora" onclick="filterCourseTemplates('teacher')" style="padding:5px 12px; font-size:12px; cursor:pointer;">Teacher Prep (CTET/STET/TRE)</button>
+                <button type="button" class="btn-aurora" onclick="filterCourseTemplates('computer')" style="padding:5px 12px; font-size:12px; cursor:pointer;">Computer & IT (DCA/ADCA/Tally)</button>
+                <button type="button" class="btn-aurora" onclick="filterCourseTemplates('exam')" style="padding:5px 12px; font-size:12px; cursor:pointer;">Govt Exams & Entrance</button>
+            </div>
+
+            <!-- Templates Grid -->
+            <div id="courseTemplatesGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px;">
+                <div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">Loading course templates...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         REQUEST WALLET PAYOUT WITHDRAWAL MODAL
+         ============================================================ -->
+    <div class="cert-modal-overlay" id="withdrawalModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:480px; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-hand-holding-dollar"></i> Request Balance Withdrawal
+                </h3>
+                <button type="button" onclick="closeWithdrawalModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="submitWithdrawalRequest(event)">
+                <!-- Balances Card -->
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:14px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-size:12.5px; color:#94a3b8;">Available Wallet Balance:</span>
+                        <strong id="wmAvailableBalance" style="color:var(--aurora-gold); font-size:17px; font-family:'Space Grotesk',sans-serif;">₹0</strong>
+                    </div>
+                    <div id="wmBankSummary" style="font-size:11.5px; color:#cbd5e1; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px; margin-top:8px;">
+                        Loading payout bank account...
+                    </div>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Amount to Withdraw (₹) *</label>
+                    <input type="number" id="wmAmountInput" required min="50" step="1" placeholder="Enter amount (min ₹50)" class="studio-input" style="font-size:16px; font-family:'Space Grotesk',sans-serif; margin-top:6px;">
+                    <span style="font-size:11px; color:#94a3b8;">Max withdrawal: Your current wallet balance.</span>
+                </div>
+
+                <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); border-radius:10px; padding:10px 14px; margin-bottom:18px; font-size:11.5px; color:#7dd3fc;">
+                    <i class="fas fa-info-circle"></i> Once submitted, request is reviewed by BBCC Admin and disbursed with official Bank UTR reference.
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeWithdrawalModal()" style="background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer;">Cancel</button>
+                    <button type="submit" id="btnSubmitWithdraw" class="btn-aurora btn-gold" style="padding:8px 20px;">
+                        <i class="fas fa-paper-plane"></i> Submit Payout Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
@@ -1048,8 +1263,17 @@
                 loadStudents();
                 loadCoursesList();
                 loadEarningsLedger();
+                loadWithdrawalHistory();
                 loadInquiries();
                 loadRawMaterials();
+
+                // Dynamic Favicon sync
+                fetch('/api/public/config').then(r => r.json()).then(pub => {
+                    if (pub.success && pub.data && pub.data.boardLogo) {
+                        const df = document.getElementById('dynamicFavicon');
+                        if (df) df.href = pub.data.boardLogo;
+                    }
+                }).catch(()=>{});
             } catch(e) {
                 console.error(e);
             }
@@ -1062,6 +1286,13 @@
 
             document.getElementById('statFacultyCount').textContent = (c.teachers || []).length;
             document.getElementById('statBannersCount').textContent = (c.promotionalBanners || []).length;
+
+            // Bank details warning banner
+            const bWarn = document.getElementById('bankDetailsWarningBanner');
+            if (bWarn) {
+                const hasBank = c.bankDetails && c.bankDetails.accountNumber && c.bankDetails.ifscCode;
+                bWarn.style.display = hasBank ? 'none' : 'block';
+            }
 
             // Dues lockout check
             const lockoutCard = document.getElementById('lockoutCard');
@@ -1082,6 +1313,8 @@
             if (document.getElementById('cpFooterText')) document.getElementById('cpFooterText').value = c.footerText || '';
             document.getElementById('cpAddress').value = c.address || '';
             document.getElementById('cpDesc').value = c.description || '';
+            if (document.getElementById('cpAdmissionFee')) document.getElementById('cpAdmissionFee').value = c.admissionFee !== undefined ? c.admissionFee : 200;
+            if (document.getElementById('cpThemeColor')) document.getElementById('cpThemeColor').value = c.themeColor || 'gold';
 
             renderFacultyList(c.teachers || []);
             renderMaterialsList(c.materials || []);
@@ -1250,7 +1483,13 @@
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>';
                         return;
                     }
-                    tbody.innerHTML = data.data.map(s => `
+                    tbody.innerHTML = data.data.map(s => {
+                        const studentPhone = (s.mobile || s.phone || '').replace(/[^0-9]/g, '').slice(-10);
+                        const cName = centerProfile ? centerProfile.centerName : 'BBCC Affiliated Center';
+                        const waText = encodeURIComponent(`🎓 *Official Student Admission & Enrollment Receipt*\n\nStudent: ${s.name}\nRoll No: ${s.rollNo}\nCourse: ${s.course || s.courseName || 'Academic Course'}\nClass: ${s.classLevel || 'General'}\nInstitute: ${cName}\nStatus: ${s.status || 'Active & Verified'}\nVerify Online: ${window.location.origin}\n\n_BBCC SKILL HUB Central Directorate_`);
+                        const waHref = studentPhone ? `https://wa.me/91${studentPhone}?text=${waText}` : `https://wa.me/?text=${waText}`;
+
+                        return `
                         <tr>
                             <td><strong style="color:var(--aurora-gold); font-family:monospace;">${s.rollNo}</strong></td>
                             <td>${s.name}</td>
@@ -1259,7 +1498,10 @@
                             <td><span style="color:#10b981; font-weight:700;">${s.marksGrade || 'A+'}</span></td>
                             <td><span style="color:#10b981;">${s.status || 'Active'}</span></td>
                             <td>
-                                <div style="display:flex; gap:6px;">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <a href="${waHref}" target="_blank" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; text-decoration:none;" title="Send WhatsApp Receipt">
+                                        <i class="fab fa-whatsapp"></i> Receipt
+                                    </a>
                                     <button onclick="openEditStudentModal('${s._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px; border-radius:6px;" title="Edit Student">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -1269,7 +1511,7 @@
                                 </div>
                             </td>
                         </tr>
-                    `).join('');
+                    `;}).join('');
                 }
             } catch(e) {}
         }
@@ -1840,7 +2082,9 @@
                 headerNotice: document.getElementById('cpHeaderNotice').value.trim(),
                 footerText: document.getElementById('cpFooterText') ? document.getElementById('cpFooterText').value.trim() : '',
                 address: document.getElementById('cpAddress').value.trim(),
-                description: document.getElementById('cpDesc').value.trim()
+                description: document.getElementById('cpDesc').value.trim(),
+                admissionFee: Number(document.getElementById('cpAdmissionFee') ? document.getElementById('cpAdmissionFee').value : 200) || 200,
+                themeColor: document.getElementById('cpThemeColor') ? document.getElementById('cpThemeColor').value : 'gold'
             };
             if (clogo) payload.clogo = clogo;
             if (directorPhoto) payload.directorPhoto = directorPhoto;
@@ -1988,6 +2232,302 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Dues Online & Auto-Unblock';
                 alert('Connection error: ' + e.message);
+            }
+        // ============================================
+        // INDIAN FESTIVAL & SPECIAL DAYS BANNER LIBRARY
+        // ============================================
+        let globalFestivalBanners = [];
+
+        async function openFestivalBannersModal() {
+            const modal = document.getElementById('festivalBannersModal');
+            const grid = document.getElementById('festiveBannersGrid');
+            const customizer = document.getElementById('festiveCustomizerBox');
+            if (customizer) customizer.style.display = 'none';
+            modal.style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/public/banner-templates');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    globalFestivalBanners = data.data;
+                    grid.innerHTML = globalFestivalBanners.map((b, idx) => `
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between;">
+                            <img src="${b.image}" style="width:100%; height:130px; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1514565131-fce0801e5785?w=500&auto=format&fit=crop'">
+                            <div style="padding:12px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(245,158,11,0.15); color:var(--aurora-gold); font-weight:700;">${b.category || 'FESTIVAL'}</span>
+                                    </div>
+                                    <strong style="font-size:13px; color:#ffffff; display:block; margin-bottom:4px;">${b.title}</strong>
+                                    <div style="font-size:11.5px; color:#cbd5e1; margin-bottom:4px;">${b.subtitle || ''}</div>
+                                    <div style="font-size:11px; color:#38bdf8; font-weight:600;">${b.offerText || ''}</div>
+                                </div>
+                                <button type="button" onclick="selectFestiveBanner(${idx})" class="btn-aurora btn-gold" style="margin-top:10px; width:100%; padding:6px; font-size:11.5px; border-radius:6px; cursor:pointer;">
+                                    <i class="fas fa-check"></i> Select & Customize
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#ef4444; padding:20px;">Error loading templates.</div>';
+            }
+        }
+
+        function closeFestivalBannersModal() {
+            document.getElementById('festivalBannersModal').style.display = 'none';
+        }
+
+        function selectFestiveBanner(idx) {
+            const b = globalFestivalBanners[idx];
+            if (!b) return;
+            const customizer = document.getElementById('festiveCustomizerBox');
+            document.getElementById('fbTitleInput').value = b.title;
+            document.getElementById('fbSubtitleInput').value = b.offerText ? `${b.subtitle} — ${b.offerText}` : b.subtitle;
+            document.getElementById('fbSelectedImage').value = b.image;
+            customizer.style.display = 'block';
+            customizer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function publishFestiveBanner() {
+            const title = document.getElementById('fbTitleInput').value.trim();
+            const subtitle = document.getElementById('fbSubtitleInput').value.trim();
+            const image = document.getElementById('fbSelectedImage').value;
+            if (!title || !image) {
+                alert('Please select a festival banner template.');
+                return;
+            }
+
+            const btn = document.getElementById('btnPublishFestive');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
+            try {
+                const res = await fetch('/api/director/banners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        title: title,
+                        subtitle: subtitle,
+                        image: image,
+                        storageMode: 'normal'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 Festive Promotional Banner published live! It will run on the platform slider for 30 days.');
+                    closeFestivalBannersModal();
+                    loadBanners();
+                } else {
+                    alert(data.message || 'Error publishing banner');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> 1-Click Publish Banner';
+            }
+        }
+
+        // ============================================
+        // PRE-BUILT COURSE TEMPLATES CATALOG
+        // ============================================
+        let globalCourseTemplates = [];
+
+        async function openCourseTemplatesModal() {
+            const modal = document.getElementById('courseTemplatesModal');
+            modal.style.display = 'flex';
+            const grid = document.getElementById('courseTemplatesGrid');
+
+            try {
+                const res = await fetch('/api/public/course-templates');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    globalCourseTemplates = data.data;
+                    renderCourseTemplates('all');
+                }
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#ef4444; padding:20px;">Error loading course catalog.</div>';
+            }
+        }
+
+        function closeCourseTemplatesModal() {
+            document.getElementById('courseTemplatesModal').style.display = 'none';
+        }
+
+        function filterCourseTemplates(category) {
+            document.querySelectorAll('#courseCategoryPills button').forEach(b => b.classList.remove('active'));
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+            renderCourseTemplates(category);
+        }
+
+        function renderCourseTemplates(category) {
+            const grid = document.getElementById('courseTemplatesGrid');
+            if (!grid) return;
+            const filtered = (category === 'all') 
+                ? globalCourseTemplates 
+                : globalCourseTemplates.filter(c => c.category === category);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#94a3b8;">No courses found in this category.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                            <span style="font-size:10px; padding:2px 7px; border-radius:4px; background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700; text-transform:uppercase;">
+                                ${c.category || 'General'}
+                            </span>
+                            <span style="font-size:11px; color:#cbd5e1;"><i class="fas fa-clock"></i> ${c.duration || 'Flexible'}</span>
+                        </div>
+                        <h4 style="font-size:14px; font-weight:800; color:#ffffff; margin:0 0 6px 0;">${c.courseName}</h4>
+                        <div style="font-size:12px; color:var(--aurora-gold); margin-bottom:6px;">${c.subject} • ${c.classLevel}</div>
+                        <p style="font-size:11.5px; color:#94a3b8; line-height:1.4; margin:0 0 10px 0;">${c.highlights || c.description || ''}</p>
+                    </div>
+                    <div>
+                        <div style="font-size:11.5px; color:#34d399; margin-bottom:8px; font-weight:600;">
+                            Suggested: Online ₹${c.suggestedOnlineFee || 999} / Offline ₹${c.suggestedOfflineFee || 1999}
+                        </div>
+                        <button type="button" onclick="applyCourseTemplate('${c._id}')" class="btn-aurora" style="width:100%; padding:6px; font-size:12px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; cursor:pointer;">
+                            <i class="fas fa-plus"></i> Use This Template
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyCourseTemplate(cId) {
+            const c = globalCourseTemplates.find(x => x._id === cId);
+            if (!c) return;
+
+            document.getElementById('crsName').value = c.courseName;
+            document.getElementById('crsSubject').value = c.subject;
+            document.getElementById('crsClassLevel').value = c.classLevel;
+            document.getElementById('crsMode').value = c.mode || 'both';
+            document.getElementById('crsOnlineFee').value = c.suggestedOnlineFee || 999;
+            document.getElementById('crsOfflineFee').value = c.suggestedOfflineFee || 1999;
+            document.getElementById('crsBatchTiming').value = c.batchTiming || 'Mon-Fri Regular Batch';
+            document.getElementById('crsDesc').value = c.highlights || c.description || '';
+
+            closeCourseTemplatesModal();
+            switchTab('courses');
+            const offInput = document.getElementById('crsOfflineFee');
+            if (offInput) {
+                offInput.focus();
+                offInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // ============================================
+        // WALLET PAYOUT WITHDRAWAL & HISTORY
+        // ============================================
+        function openWithdrawalModal() {
+            const hasBank = centerProfile && centerProfile.bankDetails && centerProfile.bankDetails.accountNumber && centerProfile.bankDetails.ifscCode;
+            if (!hasBank) {
+                alert('⚠️ Please save your Bank Account Details first in the "Earnings & Bank" tab before requesting a withdrawal.');
+                switchTab('earnings');
+                const bForm = document.getElementById('bankHolder');
+                if (bForm) bForm.focus();
+                return;
+            }
+
+            document.getElementById('wmAvailableBalance').textContent = '₹' + (centerProfile.walletBalance || 0);
+            const bd = centerProfile.bankDetails || {};
+            document.getElementById('wmBankSummary').innerHTML = `
+                <div><strong>A/C Holder:</strong> ${bd.accountHolder || 'Institute'} | <strong>Bank:</strong> ${bd.bankName || 'Bank'}</div>
+                <div><strong>A/C No:</strong> <code>${bd.accountNumber}</code> | <strong>IFSC:</strong> <code>${bd.ifscCode}</code> ${bd.upiId ? `| <strong>UPI:</strong> ${bd.upiId}` : ''}</div>
+            `;
+            const inp = document.getElementById('wmAmountInput');
+            inp.value = '';
+            inp.max = centerProfile.walletBalance || 0;
+            document.getElementById('withdrawalModal').style.display = 'flex';
+        }
+
+        function closeWithdrawalModal() {
+            document.getElementById('withdrawalModal').style.display = 'none';
+        }
+
+        async function submitWithdrawalRequest(e) {
+            e.preventDefault();
+            const amount = Number(document.getElementById('wmAmountInput').value);
+            if (!amount || amount < 50) {
+                alert('Minimum withdrawal amount is ₹50.');
+                return;
+            }
+            if (amount > (centerProfile.walletBalance || 0)) {
+                alert(`Cannot withdraw more than your available wallet balance of ₹${centerProfile.walletBalance || 0}.`);
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitWithdraw');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const res = await fetch('/api/director/wallet/withdraw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ amount: amount })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 Withdrawal request submitted successfully! BBCC Admin will review and disburse with bank UTR.');
+                    closeWithdrawalModal();
+                    initDirectorStudio();
+                } else {
+                    alert(data.message || 'Error requesting withdrawal');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payout Request';
+            }
+        }
+
+        async function loadWithdrawalHistory() {
+            const tbody = document.getElementById('withdrawalHistoryTbody');
+            if (!tbody) return;
+
+            try {
+                const res = await fetch('/api/director/wallet/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No withdrawal requests made yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(w => {
+                        let statusPill = '';
+                        if (w.status === 'pending_approval') {
+                            statusPill = '<span style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid #f59e0b; padding:3px 8px; border-radius:10px; font-weight:700; font-size:11px;">PENDING APPROVAL</span>';
+                        } else if (w.status === 'approved') {
+                            statusPill = '<span style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981; padding:3px 8px; border-radius:10px; font-weight:700; font-size:11px;">APPROVED & DISBURSED</span>';
+                        } else {
+                            statusPill = '<span style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid #ef4444; padding:3px 8px; border-radius:10px; font-weight:700; font-size:11px;">REJECTED (REFUNDED)</span>';
+                        }
+
+                        const bd = w.bankDetails || {};
+                        const bdStr = bd.bankName ? `${bd.bankName} (${bd.accountNumber ? bd.accountNumber.slice(-4).padStart(bd.accountNumber.length, '•') : ''})` : (bd.upiId || 'Direct Bank');
+
+                        return `
+                            <tr>
+                                <td>${new Date(w.requestedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</td>
+                                <td><strong style="color:var(--aurora-gold);">₹${w.amount}</strong></td>
+                                <td>${bdStr}</td>
+                                <td>${statusPill}</td>
+                                <td><code>${w.utrNumber || '-'}</code></td>
+                                <td style="font-size:12px; color:#cbd5e1;">${w.adminNotes || '-'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#ef4444;">Error loading history.</td></tr>';
             }
         }
 

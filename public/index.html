@@ -4,6 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBCC SKILL HUB — Digital Skill & Coaching Institute Platform</title>
+    <!-- Dynamic Favicon Powered by Board Emblem -->
+    <link rel="icon" type="image/png" id="dynamicFavicon" href="/favicon.ico">
+    <!-- Google SEO & Metadata -->
+    <meta name="description" content="BBCC SKILL HUB — Premier Affiliated Coaching Institute Ecosystem. Verified institutes for BSEB, CBSE, NCERT Class 1-12, CTET, STET, BPSC TRE, DCA, ADCA, Tally Prime. Direct student online admission, e-library, roll number verification & board certification.">
+    <meta name="keywords" content="BBCC Skill Hub, coaching institute Bihar, BSEB coaching, CBSE tuition, CTET preparation, STET coaching, BPSC TRE batch, computer courses DCA ADCA, student admission portal">
+    <meta property="og:title" content="BBCC SKILL HUB — Digital Skill & Coaching Institute Platform">
+    <meta property="og:description" content="Search verified coaching centers, direct student admissions, e-library notes, roll number verification & board affiliated certification.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bbccskillhub.in">
+    <meta property="og:image" content="/favicon.ico">
+    <!-- Google Search Structured JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://bbccskillhub.in/#organization",
+          "name": "BBCC SKILL HUB",
+          "url": "https://bbccskillhub.in",
+          "logo": "https://bbccskillhub.in/favicon.ico",
+          "description": "Digital Skill & Affiliated Coaching Institute Platform providing certified admissions, faculty network, board exam preparation and vocational computer training."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://bbccskillhub.in/#website",
+          "url": "https://bbccskillhub.in",
+          "name": "BBCC SKILL HUB",
+          "publisher": { "@id": "https://bbccskillhub.in/#organization" }
+        }
+      ]
+    }
+    </script>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1255,14 +1288,78 @@
         .reveal-delay-3 { transition-delay: 0.3s; }
         .reveal-delay-4 { transition-delay: 0.4s; }
 
+        /* Founder & Faculty Showcase Enhancements */
+        .founder-card-dock {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        @media (max-width: 860px) {
+            .founder-card-dock {
+                grid-template-columns: 1fr !important;
+                text-align: center;
+                gap: 24px !important;
+                padding: 24px 18px !important;
+            }
+        }
+
+        #festivalBgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .festive-switcher-pill {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 90;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            border-radius: 30px;
+            padding: 7px 16px;
+            font-size: 12px;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.25s ease;
+        }
+
+        .festive-switcher-pill:hover {
+            border-color: var(--aurora-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(251, 191, 36, 0.25);
+        }
+
         @media print {
-            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container {
+            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container, #festivalBgCanvas, .festive-switcher-pill {
                 display: none !important;
             }
         }
     </style>
 </head>
 <body>
+
+    <!-- Canvas Festival Animated Background Engine -->
+    <canvas id="festivalBgCanvas"></canvas>
+
+    <!-- Floating Festival Theme Switcher Pill -->
+    <div id="festiveThemeBadge" class="festive-switcher-pill" onclick="cycleFestiveTheme()" title="Click to Switch Indian Festival Background Theme">
+        <span id="festiveThemeIcon">✨</span>
+        <span id="festiveThemeLabel" style="font-weight:700; color:var(--aurora-gold);">Festival Theme: Auto</span>
+        <span style="font-size:10px; opacity:0.8; padding:2px 7px; background:rgba(255,255,255,0.12); border-radius:10px;"><i class="fas fa-rotate"></i> Change</span>
+    </div>
 
     <!-- Ambient Aurora Floating Background Mesh -->
     <div class="ambient-mesh" aria-hidden="true">
@@ -1321,6 +1418,12 @@
             </a>
             <a href="#institutes" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-school"></i> Partner Institutes
+            </a>
+            <a href="#founder" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-user-tie"></i> Founder
+            </a>
+            <a href="#faculty-showcase" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-chalkboard-teacher"></i> Expert Faculty
             </a>
             <a href="/about" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-circle-info"></i> About
@@ -1487,6 +1590,79 @@
     </section>
 
     <!-- ============================================================
+         7B. BBCC FOUNDER & MANAGING DIRECTOR LEADERSHIP SHOWCASE
+         ============================================================ -->
+    <section class="universe-section" id="founder" style="position:relative; z-index:2;">
+        <div class="section-header-elite">
+            <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-user-tie"></i> Visionary Leadership
+            </span>
+            <h2 style="margin-top:10px;">BBCC Founder & Managing Director</h2>
+            <p>Guiding Bihar and India's next generation with accessible education, vocational computer skills, and transparent digital center governance.</p>
+        </div>
+
+        <div style="max-width:1050px; margin:0 auto; background:linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,27,75,0.7) 100%); border:1px solid rgba(251,191,36,0.35); border-radius:24px; padding:36px; box-shadow:0 20px 50px rgba(0,0,0,0.5); backdrop-filter:blur(16px);" class="founder-card-dock">
+            <div style="text-align:center;">
+                <div style="width:230px; height:230px; margin:0 auto; border-radius:50%; padding:6px; background:linear-gradient(135deg, #fbbf24, #f59e0b, #38bdf8); box-shadow:0 12px 30px rgba(251,191,36,0.35); position:relative;">
+                    <img id="founderPhotoDisplay" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80" alt="BBCC Founder" style="width:100%; height:100%; object-fit:cover; border-radius:50%; border:3px solid #030712;">
+                    <span style="position:absolute; bottom:10px; right:14px; background:var(--aurora-gold); color:#000; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 4px 12px rgba(0,0,0,0.4);" title="Verified Founder">
+                        <i class="fas fa-check"></i>
+                    </span>
+                </div>
+                <div style="margin-top:16px;">
+                    <span style="display:inline-block; padding:4px 12px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); border-radius:12px; color:#34d399; font-size:12px; font-weight:800; text-transform:uppercase;">
+                        <i class="fas fa-certificate"></i> Verified Founder & MD
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <h3 id="founderNameDisplay" style="font-family:'Cinzel', serif; font-size:30px; color:#ffffff; margin:0 0 4px; letter-spacing:0.5px;">
+                    Er. R. K. Bharti
+                </h3>
+                <div id="founderDesignationDisplay" style="font-size:16px; font-weight:700; color:var(--aurora-gold); margin-bottom:12px;">
+                    Founder & Managing Director — BBCC SKILL HUB
+                </div>
+                <div id="founderQualificationDisplay" style="font-size:13px; color:var(--text-dim); margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-graduation-cap" style="color:var(--aurora-cyan);"></i>
+                    <span>M.Tech, Educational Reformer & EdTech Visionary</span>
+                </div>
+
+                <div style="position:relative; background:rgba(0,0,0,0.35); border-left:4px solid var(--aurora-gold); border-radius:0 12px 12px 0; padding:18px 22px; margin-bottom:22px;">
+                    <i class="fas fa-quote-left" style="position:absolute; top:10px; left:8px; font-size:18px; color:rgba(251,191,36,0.25);"></i>
+                    <p id="founderMessageDisplay" style="font-size:15px; font-style:italic; line-height:1.7; color:#f1f5f9; margin:0; padding-left:14px;">
+                        "हमारा लक्ष्य प्रत्येक गांव और शहर के छात्र तक गुणवत्तापूर्ण शिक्षा और आधुनिक कंप्यूटर कौशल पहुंचाना है। BBCC से जुड़े कोचिंग संस्थानों को सशक्त बनाकर हम बिहार और भारत के युवाओं को आत्मनिर्भर और रोजगार-योग्य बना रहे हैं।"
+                    </p>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-building-columns" style="font-size:22px; color:var(--aurora-cyan);"></i>
+                        <div>
+                            <div style="font-size:14px; font-weight:800; color:#ffffff;">100% Affiliated</div>
+                            <div style="font-size:11px; color:var(--text-slate);">ISO 9001:2015 Standards</div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-hand-holding-dollar" style="font-size:22px; color:var(--aurora-gold);"></i>
+                        <div>
+                            <div style="font-size:14px; font-weight:800; color:#ffffff;">Transparent Split</div>
+                            <div style="font-size:11px; color:var(--text-slate);">Direct Center Wallet Payouts</div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-shield-halved" style="font-size:22px; color:var(--aurora-emerald);"></i>
+                        <div>
+                            <div style="font-size:14px; font-weight:800; color:#ffffff;">Govt Verified KYC</div>
+                            <div style="font-size:11px; color:var(--text-slate);">Aadhar & QR Marksheets</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
          8. STUDENT ROLL NUMBER & DIGITAL CERTIFICATE VERIFICATION
          ============================================================ -->
     <section class="universe-section" id="verify" style="padding-top:20px;">
@@ -1508,6 +1684,26 @@
                 </button>
             </form>
             <div id="verifyAlertBox" style="display:none; margin-top:14px; font-size:13px; padding:10px; border-radius:10px;"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         8B. VERIFIED STAR FACULTY & EXPERT TEACHERS SHOWCASE
+         ============================================================ -->
+    <section class="universe-section" id="faculty-showcase" style="position:relative; z-index:2;">
+        <div class="section-header-elite">
+            <span style="background:rgba(56,189,248,0.12); color:var(--aurora-cyan); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-chalkboard-teacher"></i> Expert Faculty Network
+            </span>
+            <h2 style="margin-top:10px;">Star Faculty & Subject Matter Experts</h2>
+            <p>Renowned educators teaching across affiliated coaching centers. Specialized mentorship for Board exams, Teacher recruitment (CTET/STET/TRE), and Computer Technology.</p>
+        </div>
+
+        <div class="institutes-grid" id="expertTeachersGrid" style="grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:12px;">Loading verified expert faculty network...</p>
+            </div>
         </div>
     </section>
 
@@ -1611,37 +1807,37 @@
                             </div>
                         </div>
 
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                             <div>
                                 <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Learning Mode *</label>
                                 <select id="admModeSelect" required onchange="updateAdmissionFeeDisplay()" class="modal-input-field">
-                                    <option value="Online">Online Class (Live Meet / Zoom)</option>
+                                    <option value="Online">Online Class (Live / App)</option>
                                     <option value="Physical">Physical Campus (Classroom)</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Course Tuition Fee</label>
-                                <div id="admFeeDisplayBadge" style="padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800; color:var(--aurora-gold); margin-top:5px;">
-                                    ₹0 (Select Course)
+                                <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Center Admission Fee *</label>
+                                <div id="admCenterFeeBadge" style="padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glow); border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:800; color:var(--aurora-gold); margin-top:5px;">
+                                    ₹200 (Center Enrollment Fee)
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Admission Payment Option -->
-                        <div id="admPaymentOptionsWrap" style="margin-top:12px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px;">
-                            <label style="font-size:12px; font-weight:800; color:var(--aurora-gold); display:flex; align-items:center; gap:6px;">
-                                <i class="fas fa-credit-card"></i> Admission Payment Preference
-                            </label>
-                            <div style="display:flex; gap:16px; margin-top:8px; flex-wrap:wrap;">
-                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#ffffff; cursor:pointer;">
-                                    <input type="radio" name="admPayPreference" value="online" checked style="accent-color:var(--aurora-gold);">
-                                    <span>Pay Tuition Fee Online via Razorpay</span>
-                                </label>
-                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#cbd5e1; cursor:pointer;">
-                                    <input type="radio" name="admPayPreference" value="offline" style="accent-color:var(--aurora-gold);">
-                                    <span>Register & Pay Fee at Institute Campus</span>
-                                </label>
+                        <!-- Clear Fee Separation Card -->
+                        <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div style="font-size:11px; color:var(--text-slate); text-transform:uppercase; font-weight:700;">Selected Course Fee</div>
+                                <div id="admCourseFeeBadge" style="font-size:13.5px; font-weight:700; color:var(--aurora-cyan);">₹0 (Tuition separate / batch enrollment)</div>
                             </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:11px; color:var(--text-slate); text-transform:uppercase; font-weight:700;">Payable Online Today</div>
+                                <div id="admTotalPayBadge" style="font-size:18px; font-weight:900; color:var(--aurora-gold);">₹200</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:10px; font-size:11.5px; color:#cbd5e1; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-shield-check" style="color:var(--aurora-emerald); font-size:14px;"></i>
+                            <span>Official student roll number & ID card is generated immediately upon secure Razorpay payment. Course fee is paid when regular batch classes commence.</span>
                         </div>
                     </div>
 
@@ -2267,11 +2463,14 @@
 
         async function initPortal() {
             initScrollAnimations();
+            initFestivalBg();
             await loadConfig();
             await loadPromotionalBanners();
             await loadCourses();
             await loadCenters();
             await loadBooks();
+            await loadFounderProfile();
+            await loadExpertTeachers();
             initScrollAnimations();
         }
 
@@ -2299,6 +2498,13 @@
                     }
                     if (publicConfig.boardLogo) {
                         document.getElementById('brandEmblemBox').innerHTML = `<img src="${publicConfig.boardLogo}" alt="Logo">`;
+                        const favEl = document.getElementById('dynamicFavicon');
+                        if (favEl) {
+                            favEl.href = publicConfig.boardLogo;
+                        }
+                    }
+                    if (publicConfig.activeFestivalTheme) {
+                        setFestivalTheme(publicConfig.activeFestivalTheme);
                     }
                     if (publicConfig.affiliationFee !== undefined) {
                         const feeStr = publicConfig.affiliationFee > 0 ? `₹${publicConfig.affiliationFee}` : 'FREE';
@@ -2649,6 +2855,120 @@
         }
 
         // ============================================
+        // 3B. BBCC FOUNDER & MANAGING DIRECTOR PROFILE
+        // ============================================
+        async function loadFounderProfile() {
+            try {
+                const res = await fetch('/api/public/founder');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const f = data.data;
+                    if (f.name && document.getElementById('founderNameDisplay')) {
+                        document.getElementById('founderNameDisplay').textContent = f.name;
+                    }
+                    if (f.designation && document.getElementById('founderDesignationDisplay')) {
+                        document.getElementById('founderDesignationDisplay').textContent = f.designation;
+                    }
+                    if (f.qualification && document.getElementById('founderQualificationDisplay')) {
+                        document.getElementById('founderQualificationDisplay').innerHTML = `<i class="fas fa-graduation-cap" style="color:var(--aurora-cyan);"></i> <span>${f.qualification}</span>`;
+                    }
+                    if (f.message && document.getElementById('founderMessageDisplay')) {
+                        document.getElementById('founderMessageDisplay').textContent = `"${f.message}"`;
+                    }
+                    if (f.photo && document.getElementById('founderPhotoDisplay')) {
+                        document.getElementById('founderPhotoDisplay').src = f.photo;
+                    }
+                }
+            } catch (e) {
+                console.error('Founder profile load error:', e);
+            }
+        }
+
+        // ============================================
+        // 3C. STAR FACULTY & EXPERT TEACHERS NETWORK
+        // ============================================
+        async function loadExpertTeachers() {
+            const grid = document.getElementById('expertTeachersGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch('/api/public/expert-teachers');
+                const data = await res.json();
+                let teachers = (data.success && data.data && data.data.length > 0) ? data.data : [];
+
+                if (teachers.length === 0) {
+                    teachers = [
+                        {
+                            name: 'Prof. Anand Verma',
+                            subject: 'Mathematics & Advanced Calculus',
+                            class: 'Class 10th - 12th BSEB/CBSE',
+                            qualification: 'M.Sc. Mathematics (Gold Medalist)',
+                            experience: '12+ Years Teaching',
+                            photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                            centerName: 'Patna Central Science Academy'
+                        },
+                        {
+                            name: 'Er. Rajesh Ranjan',
+                            subject: 'Computer & Digital Technologies (ADCA/Tally)',
+                            class: 'Vocational IT Diploma',
+                            qualification: 'B.Tech IT, Certified Tally Professional',
+                            experience: '9+ Years Experience',
+                            photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                            centerName: 'Mithila Digital IT Hub'
+                        },
+                        {
+                            name: 'Dr. Sunita Sharma',
+                            subject: 'Child Development & Pedagogy (CDP)',
+                            class: 'CTET Paper 1 & 2 / BPSC TRE',
+                            qualification: 'Ph.D. Education, UGC-NET Qualified',
+                            experience: '14+ Years Teacher Prep',
+                            photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+                            centerName: 'Magadh Teachers Training Center'
+                        },
+                        {
+                            name: 'Shri Manoj Kumar',
+                            subject: 'Physics & Conceptual Numerical Drills',
+                            class: 'Class 11th - 12th Board Core',
+                            qualification: 'M.Sc. Physics (DU)',
+                            experience: '11+ Years Board Prep',
+                            photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+                            centerName: 'Nalanda Career Institute'
+                        }
+                    ];
+                }
+
+                grid.innerHTML = teachers.map(t => `
+                    <div class="institute-card-elite" style="padding:22px; position:relative; overflow:hidden;">
+                        <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                            <img src="${t.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}" alt="${t.name}" style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-cyan); box-shadow:0 4px 14px rgba(56,189,248,0.25);">
+                            <div>
+                                <h4 style="font-family:'Cinzel',serif; font-size:16px; color:#ffffff; margin:0 0 4px;">${t.name}</h4>
+                                <span style="font-size:11.5px; font-weight:700; color:var(--aurora-cyan); background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:2px 8px; display:inline-block;">
+                                    <i class="fas fa-check-circle"></i> ${t.qualification || 'Verified Faculty'}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="font-size:13.5px; font-weight:700; color:var(--aurora-gold); margin-bottom:6px;">
+                            <i class="fas fa-book-open" style="margin-right:6px;"></i> ${t.subject}
+                        </div>
+                        <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+                            <i class="fas fa-layer-group" style="margin-right:6px; color:var(--aurora-emerald);"></i> ${t.class || 'All Classes'} &bull; <i class="fas fa-award" style="color:var(--aurora-gold); margin:0 4px 0 6px;"></i> ${t.experience || '3+ Yrs Exp'}
+                        </div>
+                        <div style="font-size:12px; color:var(--text-slate); margin-bottom:16px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px;">
+                            <i class="fas fa-school" style="color:var(--aurora-cyan);"></i>
+                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.centerName || 'BBCC Certified Center'}</span>
+                        </div>
+                        <button onclick="openDirectAdmissionModal('${t.centerId || ''}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center; font-size:12.5px; padding:9px 14px;">
+                            <i class="fas fa-user-plus"></i> Join Faculty Batch
+                        </button>
+                    </div>
+                `).join('');
+                initScrollAnimations();
+            } catch (e) {
+                console.error('Expert teachers load error:', e);
+            }
+        }
+
+        // ============================================
         // 4. STUDENT ROLL NUMBER & AADHAR VERIFICATION
         // ============================================
         async function verifyStudentRollNo(e) {
@@ -2701,15 +3021,16 @@
         }
 
         // ============================================
-        // 5. DIRECT STUDENT SELF-ADMISSION DESK (FULL KYC)
+        // 5. DIRECT STUDENT SELF-ADMISSION DESK (FULL KYC & FEE SEPARATION)
         // ============================================
+        let currentAdmissionFee = 200;
         let selectedAdmissionCourseObj = null;
 
         function populateAdmissionCentersDropdown() {
             const sel = document.getElementById('admCenterSelect');
             if (!sel) return;
             sel.innerHTML = '<option value="">-- Choose Institute --</option>' +
-                allCenters.map(c => `<option value="${c._id}">${c.centerName}</option>`).join('');
+                allCenters.map(c => `<option value="${c._id}">${c.centerName} (${c.district || c.city || 'Bihar'})</option>`).join('');
         }
 
         function openDirectAdmissionModal(preCenterId = '', preCourseId = '') {
@@ -2723,6 +3044,9 @@
                 const sel = document.getElementById('admCenterSelect');
                 sel.value = preCenterId;
                 onAdmissionCenterChange(preCourseId);
+            } else {
+                currentAdmissionFee = 200;
+                updateAdmissionFeeDisplay();
             }
 
             document.getElementById('studentAdmissionModalDock').style.display = 'flex';
@@ -2735,12 +3059,16 @@
         function onAdmissionCenterChange(targetCourseId = '') {
             const centerId = document.getElementById('admCenterSelect').value;
             const courseSel = document.getElementById('admCourseSelect');
-            courseSel.innerHTML = '<option value="">-- Select Target Course --</option>';
+            courseSel.innerHTML = '<option value="">-- Select Target Course (Optional) --</option>';
 
             if (!centerId) {
+                currentAdmissionFee = 200;
                 updateAdmissionFeeDisplay();
                 return;
             }
+
+            const center = allCenters.find(c => c._id === centerId);
+            currentAdmissionFee = (center && center.admissionFee !== undefined) ? Number(center.admissionFee) : 200;
 
             const centerCourses = allCourses.filter(c => c.centerId === centerId);
             if (centerCourses.length === 0) {
@@ -2760,7 +3088,7 @@
         function onAdmissionCourseChange() {
             const courseSel = document.getElementById('admCourseSelect');
             const selectedOpt = courseSel.options[courseSel.selectedIndex];
-            if (!selectedOpt || !selectedOpt.value) {
+            if (!selectedOpt || !selectedOpt.value || selectedOpt.value === 'general') {
                 selectedAdmissionCourseObj = null;
             } else {
                 selectedAdmissionCourseObj = {
@@ -2777,13 +3105,34 @@
 
         function updateAdmissionFeeDisplay() {
             const mode = document.getElementById('admModeSelect').value;
-            const badge = document.getElementById('admFeeDisplayBadge');
-            if (!selectedAdmissionCourseObj) {
-                badge.textContent = '₹0 (Select Course)';
-                return;
+            const centerFeeBadge = document.getElementById('admCenterFeeBadge');
+            const courseFeeBadge = document.getElementById('admCourseFeeBadge');
+            const totalPayBadge = document.getElementById('admTotalPayBadge');
+            const submitBtn = document.getElementById('btnSubmitAdmission');
+
+            if (centerFeeBadge) {
+                centerFeeBadge.textContent = `₹${currentAdmissionFee} (Center Admission Fee)`;
             }
-            const fee = mode === 'Online' ? selectedAdmissionCourseObj.onlineFee : selectedAdmissionCourseObj.offlineFee;
-            badge.textContent = `₹${fee} (${mode} Mode)`;
+
+            let courseFee = 0;
+            if (selectedAdmissionCourseObj) {
+                courseFee = mode === 'Online' ? selectedAdmissionCourseObj.onlineFee : selectedAdmissionCourseObj.offlineFee;
+                if (courseFeeBadge) {
+                    courseFeeBadge.textContent = `₹${courseFee} (${selectedAdmissionCourseObj.name})`;
+                }
+            } else {
+                if (courseFeeBadge) {
+                    courseFeeBadge.textContent = '₹0 (Course fee payable when batch commences)';
+                }
+            }
+
+            if (totalPayBadge) {
+                totalPayBadge.textContent = `₹${currentAdmissionFee}`;
+            }
+
+            if (submitBtn) {
+                submitBtn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${currentAdmissionFee} Admission Fee & Complete Enrollment`;
+            }
         }
 
         function fileToBase64(file) {
@@ -2836,26 +3185,26 @@
                     aadharDoc: aadharDocBase64
                 };
 
-                const payPref = document.querySelector('input[name="admPayPreference"]:checked') ? document.querySelector('input[name="admPayPreference"]:checked').value : 'offline';
-                const fee = selectedAdmissionCourseObj ? (mode === 'Online' ? selectedAdmissionCourseObj.onlineFee : selectedAdmissionCourseObj.offlineFee) : 0;
+                const payFee = currentAdmissionFee;
+                payload.admissionFee = payFee;
 
-                // If student chose Online Payment and fee > 0 -> Razorpay Gateway
-                if (payPref === 'online' && fee > 0) {
+                // Direct Student Online Self-Admission: Upfront Admission Fee Payment
+                if (payFee > 0) {
                     const orderRes = await fetch('/api/pay/create-admission-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ admissionData: payload, amount: fee })
+                        body: JSON.stringify({ admissionData: payload, amount: payFee })
                     });
                     const orderData = await orderRes.json();
 
                     if (!orderData.success) {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                        btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${payFee} Admission Fee & Complete Enrollment`;
                         alertBox.style.display = 'block';
                         alertBox.style.background = 'rgba(239,68,68,0.15)';
                         alertBox.style.border = '1px solid #ef4444';
                         alertBox.style.color = '#fca5a5';
-                        alertBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${orderData.message || 'Payment initiation failed. Please try offline option or contact admin.'}`;
+                        alertBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${orderData.message || 'Payment initiation failed. Please check internet connection or contact center.'}`;
                         return;
                     }
 
@@ -2866,7 +3215,7 @@
 
                     if (typeof Razorpay === 'undefined') {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                        btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${payFee} Admission Fee & Complete Enrollment`;
                         alertBox.style.display = 'block';
                         alertBox.textContent = 'Razorpay SDK is loading. Please check internet connection.';
                         return;
@@ -2877,7 +3226,7 @@
                         amount: orderData.amountInPaise,
                         currency: 'INR',
                         name: 'BBCC SKILL HUB',
-                        description: `Admission Fee: ${payload.course} (${payload.centerName})`,
+                        description: `Admission Fee: ${payload.centerName} (${payload.course})`,
                         order_id: orderData.orderId,
                         prefill: {
                             name: payload.name,
@@ -2899,7 +3248,7 @@
                                 });
                                 const vData = await verifyRes.json();
                                 btn.disabled = false;
-                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                                btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${payFee} Admission Fee & Complete Enrollment`;
 
                                 if (vData.success && vData.data) {
                                     showAdmissionSuccess(vData.data, payload);
@@ -2908,9 +3257,9 @@
                                         paymentId: resp.razorpay_payment_id,
                                         payerName: payload.name,
                                         payerPhone: payload.mobile,
-                                        itemTitle: `Course Admission: ${payload.course}`,
-                                        itemMeta: `${payload.centerName} (${payload.learningMode} Learning Mode)`,
-                                        totalPrice: fee,
+                                        itemTitle: `Center Admission Enrollment: ${payload.centerName}`,
+                                        itemMeta: `Course: ${payload.course} (${payload.learningMode} Learning Mode)`,
+                                        totalPrice: payFee,
                                         paidDate: new Date()
                                     });
                                 } else {
@@ -2922,7 +3271,7 @@
                                 }
                             } catch(e) {
                                 btn.disabled = false;
-                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                                btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${payFee} Admission Fee & Complete Enrollment`;
                                 alertBox.style.display = 'block';
                                 alertBox.textContent = 'Verification error: ' + e.message;
                             }
@@ -2930,7 +3279,7 @@
                         modal: {
                             ondismiss: function() {
                                 btn.disabled = false;
-                                btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Admission & Generate Student ID';
+                                btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${payFee} Admission Fee & Complete Enrollment`;
                             }
                         }
                     };
@@ -2940,7 +3289,7 @@
                     return;
                 }
 
-                // Direct Admission Submission (Campus / Offline or Fee=0)
+                // Fallback Free / Direct Campus Admission if Center Admission Fee = 0
                 const res = await fetch('/api/public/student-admission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3590,6 +3939,203 @@
 
         function closeTaxReceiptModal() {
             document.getElementById('taxReceiptModalDock').style.display = 'none';
+        }
+
+        // ============================================
+        // FESTIVAL-ADAPTIVE CANVAS ANIMATED BACKGROUND ENGINE
+        // ============================================
+        let festiveThemeMode = 'auto'; // 'auto' | 'diwali' | 'chhath' | 'holi' | 'tricolor' | 'eid' | 'celestial'
+        let currentEffectiveTheme = 'celestial';
+        let festiveCanvas = null;
+        let festiveCtx = null;
+        let festiveParticles = [];
+        let festiveAnimFrameId = null;
+
+        const FESTIVE_THEMES = ['auto', 'diwali', 'chhath', 'holi', 'tricolor', 'eid', 'celestial'];
+        const FESTIVE_THEME_CONFIGS = {
+            diwali: { icon: '🪔', label: 'Diwali (दीपावली)', color: '#fbbf24' },
+            chhath: { icon: '🌅', label: 'Chhath Puja (छठ पर्व)', color: '#f97316' },
+            holi: { icon: '🎨', label: 'Holi (होली)', color: '#ec4899' },
+            tricolor: { icon: '🇮🇳', label: 'Tiranga (तिरंगा)', color: '#10b981' },
+            eid: { icon: '🌙', label: 'Eid Mubarak (ईद)', color: '#34d399' },
+            celestial: { icon: '🌌', label: 'Celestial Space', color: '#38bdf8' }
+        };
+
+        function getAutoIndianFestivalTheme() {
+            const now = new Date();
+            const month = now.getMonth(); // 0 = Jan, 9 = Oct, 10 = Nov
+            if (month === 9 || month === 10) return 'diwali';
+            if (month === 2) return 'holi';
+            if (month === 7) return 'tricolor';
+            if (month === 0) return 'tricolor';
+            if (month === 3 || month === 4) return 'eid';
+            return 'diwali';
+        }
+
+        function setFestivalTheme(theme) {
+            festiveThemeMode = theme || 'auto';
+            if (festiveThemeMode === 'auto') {
+                currentEffectiveTheme = getAutoIndianFestivalTheme();
+            } else {
+                currentEffectiveTheme = festiveThemeMode;
+            }
+            updateFestiveBadgeUI();
+            resetFestivalParticles();
+        }
+
+        function cycleFestiveTheme() {
+            const currIdx = FESTIVE_THEMES.indexOf(festiveThemeMode);
+            const nextIdx = (currIdx + 1) % FESTIVE_THEMES.length;
+            setFestivalTheme(FESTIVE_THEMES[nextIdx]);
+        }
+
+        function updateFestiveBadgeUI() {
+            const iconEl = document.getElementById('festiveThemeIcon');
+            const labelEl = document.getElementById('festiveThemeLabel');
+            if (!labelEl) return;
+
+            const cfg = FESTIVE_THEME_CONFIGS[currentEffectiveTheme] || FESTIVE_THEME_CONFIGS.diwali;
+            if (iconEl) iconEl.textContent = cfg.icon;
+
+            if (festiveThemeMode === 'auto') {
+                labelEl.innerHTML = `Festival: <strong>Auto (${cfg.label})</strong>`;
+            } else {
+                labelEl.innerHTML = `Festival: <strong>${cfg.label}</strong>`;
+            }
+            labelEl.style.color = cfg.color;
+        }
+
+        function initFestivalBg() {
+            festiveCanvas = document.getElementById('festivalBgCanvas');
+            if (!festiveCanvas) return;
+            festiveCtx = festiveCanvas.getContext('2d');
+
+            function resize() {
+                festiveCanvas.width = window.innerWidth;
+                festiveCanvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            setFestivalTheme(publicConfig.activeFestivalTheme || 'auto');
+            startFestivalAnimation();
+        }
+
+        function resetFestivalParticles() {
+            festiveParticles = [];
+            const count = Math.min(75, Math.floor(window.innerWidth / 18));
+            const w = festiveCanvas ? festiveCanvas.width : window.innerWidth;
+            const h = festiveCanvas ? festiveCanvas.height : window.innerHeight;
+
+            for (let i = 0; i < count; i++) {
+                festiveParticles.push(createFestiveParticle(w, h, true));
+            }
+        }
+
+        function createFestiveParticle(w, h, randomY = false) {
+            const p = {
+                x: Math.random() * w,
+                y: randomY ? Math.random() * h : h + 10,
+                radius: Math.random() * 3 + 1.2,
+                speedY: -(Math.random() * 1.2 + 0.3),
+                speedX: (Math.random() - 0.5) * 0.8,
+                alpha: Math.random() * 0.7 + 0.3,
+                fadeSpeed: Math.random() * 0.008 + 0.002,
+                color: '#fbbf24',
+                flare: Math.random() > 0.8,
+                phase: Math.random() * Math.PI * 2
+            };
+
+            if (currentEffectiveTheme === 'diwali') {
+                const colors = ['#fbbf24', '#f59e0b', '#f97316', '#fde047', '#ffedd5'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.5 + 0.4);
+                p.radius = Math.random() * 3.5 + 1.2;
+            } else if (currentEffectiveTheme === 'chhath') {
+                const colors = ['#ea580c', '#f97316', '#fbbf24', '#fdba74', '#fff7ed'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.0 + 0.2);
+                p.speedX = (Math.random() - 0.4) * 0.6;
+            } else if (currentEffectiveTheme === 'holi') {
+                const colors = ['#ec4899', '#f43f5e', '#a855f7', '#38bdf8', '#10b981', '#facc15'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.radius = Math.random() * 4 + 1.5;
+                p.speedY = (Math.random() - 0.3) * 0.8;
+                p.speedX = Math.random() * 1.2 + 0.4;
+            } else if (currentEffectiveTheme === 'tricolor') {
+                const colors = ['#f97316', '#ffffff', '#10b981'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.1 + 0.3);
+                p.speedX = (Math.random() - 0.5) * 0.5;
+            } else if (currentEffectiveTheme === 'eid') {
+                const colors = ['#10b981', '#34d399', '#6ee7b7', '#f8fafc', '#fbbf24'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 0.9 + 0.2);
+                p.speedX = (Math.random() - 0.5) * 0.4;
+            } else {
+                const colors = ['#38bdf8', '#818cf8', '#c084fc', '#ffffff'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 0.6 + 0.1);
+                p.speedX = (Math.random() - 0.5) * 0.3;
+            }
+            return p;
+        }
+
+        function startFestivalAnimation() {
+            if (festiveAnimFrameId) cancelAnimationFrame(festiveAnimFrameId);
+
+            function render() {
+                if (!festiveCtx || !festiveCanvas) return;
+                festiveCtx.clearRect(0, 0, festiveCanvas.width, festiveCanvas.height);
+
+                const w = festiveCanvas.width;
+                const h = festiveCanvas.height;
+
+                for (let i = 0; i < festiveParticles.length; i++) {
+                    const p = festiveParticles[i];
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.phase += 0.03;
+
+                    if (currentEffectiveTheme === 'chhath' && i === 0) {
+                        const grad = festiveCtx.createRadialGradient(w / 2, 0, 10, w / 2, 0, w * 0.6);
+                        grad.addColorStop(0, 'rgba(251, 146, 60, 0.12)');
+                        grad.addColorStop(1, 'rgba(251, 146, 60, 0)');
+                        festiveCtx.fillStyle = grad;
+                        festiveCtx.fillRect(0, 0, w, h);
+                    }
+
+                    if (p.y < -20 || p.y > h + 20 || p.x < -20 || p.x > w + 20) {
+                        festiveParticles[i] = createFestiveParticle(w, h, false);
+                        continue;
+                    }
+
+                    festiveCtx.save();
+                    festiveCtx.globalAlpha = p.alpha * (0.8 + 0.2 * Math.sin(p.phase));
+                    festiveCtx.fillStyle = p.color;
+                    festiveCtx.shadowColor = p.color;
+                    festiveCtx.shadowBlur = p.flare ? 14 : 6;
+
+                    festiveCtx.beginPath();
+                    festiveCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    festiveCtx.fill();
+
+                    if (currentEffectiveTheme === 'diwali' && p.flare) {
+                        festiveCtx.beginPath();
+                        festiveCtx.moveTo(p.x, p.y);
+                        festiveCtx.lineTo(p.x - p.speedX * 3, p.y - p.speedY * 5);
+                        festiveCtx.strokeStyle = p.color;
+                        festiveCtx.lineWidth = p.radius * 0.6;
+                        festiveCtx.stroke();
+                    }
+
+                    festiveCtx.restore();
+                }
+
+                festiveAnimFrameId = requestAnimationFrame(render);
+            }
+
+            render();
         }
 
         // ============================================

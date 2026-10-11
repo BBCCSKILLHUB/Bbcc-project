@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" id="dynamicFavicon" href="/favicon.ico">
 
     <style>
         :root {
@@ -230,6 +231,9 @@
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('transactions')">
                 <i class="fas fa-receipt"></i> Payment Transactions
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('payouts')">
+                <i class="fas fa-money-bill-transfer"></i> Withdrawals & Payouts
             </button>
         </aside>
 
@@ -607,6 +611,161 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- 5. Festival-Adaptive Background Theme Selector -->
+                <div class="card-console" style="border-left:4px solid #f59e0b;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--admin-gold); display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-sparkles"></i> Indian Festival-Adaptive Animated Homepage Background
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Control the live animated background on the public website. Auto-mode dynamically detects national festivals (Diwali, Chhath Puja, Holi, Independence/Republic Day, Eid), or you can lock a festival theme manually.</p>
+                    </div>
+                    <form onsubmit="saveFestivalTheme(event)">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:16px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Active Animated Festival Theme</label>
+                                <select id="setActiveFestivalTheme" class="console-input" style="margin-top:6px;">
+                                    <option value="auto">🌟 Auto Calendar Detect (Recommended)</option>
+                                    <option value="diwali">🪔 Diwali Golden Sparkles & Diyas</option>
+                                    <option value="chhath">🌅 Chhath Puja Surya Arghya Rays</option>
+                                    <option value="holi">🎨 Holi Vibrant Gulal Clouds</option>
+                                    <option value="tricolor">🇮🇳 Tiranga Independence / Republic Day</option>
+                                    <option value="eid">🌙 Eid Emerald Moon & Stars</option>
+                                    <option value="celestial">🌌 Celestial Obsidian (Classic Dark)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Festival Theme
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 6. Founder & Leadership Profile -->
+                <div class="card-console" style="border-left:4px solid #ec4899;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f472b6; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-user-tie"></i> BBCC Founder & Leadership Profile
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Appears prominently on the public homepage with photo, name, designation, qualification, vision statement, and digital signature.</p>
+                    </div>
+                    <form onsubmit="saveFounderProfile(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Name *</label>
+                                <input type="text" id="setFounderName" required placeholder="e.g. Er. R. K. Bharti" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Designation / Title *</label>
+                                <input type="text" id="setFounderDesignation" required placeholder="Founder & Managing Director" class="console-input">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Qualification / Background</label>
+                                <input type="text" id="setFounderQualification" placeholder="M.Tech, Educational Reformer" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Photo (Upload Image or paste URL)</label>
+                                <input type="file" id="setFounderPhotoFile" accept="image/*" class="console-input" style="padding:9px;" onchange="handleFounderPhotoUpload(event)">
+                                <input type="hidden" id="setFounderPhotoBase64">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder's Vision / Mission Message</label>
+                            <textarea id="setFounderMessage" rows="3" class="console-input" placeholder="Our mission at BBCC SKILL HUB is to empower every coaching center..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Founder Profile
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 7. Official Bill / Invoice Template Designer -->
+                <div class="card-console" style="border-left:4px solid #3b82f6;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#60a5fa; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-file-invoice"></i> Student Fee Bill & Receipt Template Designer
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize the official fee invoice generated when students pay admission/course fees online or offline.</p>
+                    </div>
+                    <form onsubmit="saveBillTemplate(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Header Directorate Line</label>
+                                <input type="text" id="setBillHeader" placeholder="BBCC SKILL HUB CENTRAL DIRECTORATE" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Invoice Title</label>
+                                <input type="text" id="setBillTitle" placeholder="OFFICIAL STUDENT FEE & ADMISSION RECEIPT" class="console-input">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Authorized Signatory Name</label>
+                                <input type="text" id="setBillSignatory" placeholder="DIRECTOR GENERAL" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Signatory Designation</label>
+                                <input type="text" id="setBillSignatoryTitle" placeholder="Authorized Certification Officer" class="console-input">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Receipt Terms & Conditions</label>
+                            <textarea id="setBillTerms" rows="2" class="console-input" placeholder="1. Admission fee is non-refundable..."></textarea>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Footer Note</label>
+                            <input type="text" id="setBillFooter" placeholder="Thank you for choosing certified education..." class="console-input">
+                        </div>
+                        <button type="submit" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Bill Template
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 8. Central Certificate Template Designer -->
+                <div class="card-console" style="border-left:4px solid #8b5cf6;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#a78bfa; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-certificate"></i> Affiliation & Student Certificate Template Designer
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize border styling, titles, and examination authority names for central certificates.</p>
+                    </div>
+                    <form onsubmit="saveCertTemplate(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Certificate Board Heading</label>
+                                <input type="text" id="setCertBoardTitle" placeholder="BBCC SKILL HUB" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Sub-Header / Authority Text</label>
+                                <input type="text" id="setCertSubTitle" placeholder="CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION" class="console-input">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Decorative Border Style</label>
+                                <select id="setCertBorderStyle" class="console-input" style="margin-top:6px;">
+                                    <option value="gold-double">🏆 Royal Double Gold Border</option>
+                                    <option value="royal-navy">🔷 Regal Navy & Platinum Border</option>
+                                    <option value="emerald-modern">🌿 Modern Emerald Security Border</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Examination Controller Name</label>
+                                <input type="text" id="setCertSignatory" placeholder="CONTROLLER OF EXAMINATIONS" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Controller Designation</label>
+                                <input type="text" id="setCertSignatoryTitle" placeholder="Central Directorate" class="console-input">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Certificate Template
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <!-- TAB 5: AFFILIATIONS DESK -->
@@ -735,6 +894,60 @@
                     </div>
                     <div id="adminGalleryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px;">
                         <div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">Loading gallery photos...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: WITHDRAWALS & PAYOUTS DESK -->
+            <div class="admin-tab" id="tab-payouts">
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-money-bill-transfer" style="color:var(--admin-gold);"></i> Coaching Center Withdrawals & Payouts Desk
+                            </h3>
+                            <p style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">
+                                Review director wallet withdrawal requests, verify linked bank accounts/UPI, and submit bank UTR reference numbers to approve payouts.
+                            </p>
+                        </div>
+                        <button onclick="loadAdminPayouts()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh Payouts
+                        </button>
+                    </div>
+
+                    <!-- Quick Summary Badges -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 16px;">
+                            <div style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Pending Approval</div>
+                            <div id="statPendingPayouts" style="font-size:22px; font-weight:800; color:#f59e0b; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 16px;">
+                            <div style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Approved & Disbursed</div>
+                            <div id="statApprovedPayouts" style="font-size:22px; font-weight:800; color:#10b981; margin-top:4px;">₹0</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 16px;">
+                            <div style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Total Requests</div>
+                            <div id="statTotalPayoutsCount" style="font-size:22px; font-weight:800; color:#38bdf8; margin-top:4px;">0</div>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Center Name & Username</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Bank / UPI Details</th>
+                                    <th>Request Date</th>
+                                    <th>Status</th>
+                                    <th>UTR / Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payoutsTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8;">Loading withdrawal requests...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -932,6 +1145,95 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         APPROVE PAYOUT MODAL (WITH UTR INPUT)
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="approvePayoutModal">
+        <div class="admin-modal-box" style="max-width:520px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border-glow); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; color:#10b981; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-check-circle"></i> Approve Center Payout
+                </h3>
+                <button type="button" onclick="closeApprovePayoutModal()" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="submitApprovePayout(event)">
+                <input type="hidden" id="apPayoutId">
+                
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:14px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-size:12.5px; color:#94a3b8;">Center:</span>
+                        <strong id="apCenterName" style="color:#ffffff; font-size:13px;">-</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-size:12.5px; color:#94a3b8;">Payout Amount:</span>
+                        <strong id="apAmount" style="color:var(--admin-gold); font-size:16px;">₹0</strong>
+                    </div>
+                    <div id="apBankDetailsBox" style="font-size:12px; color:#cbd5e1; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px; margin-top:8px;">
+                        Loading bank details...
+                    </div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Bank Transaction UTR / Ref Number *</label>
+                    <input type="text" id="apUtrNumber" required placeholder="e.g. UTR123456789012 or IMPS Reference" class="console-input" style="font-family:monospace; margin-top:6px;">
+                    <span style="font-size:11px; color:#94a3b8;">Enter the official bank transfer UTR or UPI Transaction ID.</span>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Admin Remarks / Notes (Optional)</label>
+                    <input type="text" id="apAdminNotes" placeholder="e.g. Disbursed via ICICI Netbanking" class="console-input" style="margin-top:6px;">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeApprovePayoutModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
+                    <button type="submit" class="btn-aurora" style="background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; font-weight:700;">
+                        <i class="fas fa-check"></i> Confirm Payout & Disburse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         REJECT PAYOUT MODAL (REFUNDS WALLET BALANCE)
+         ============================================================ -->
+    <div class="admin-modal-overlay" id="rejectPayoutModal">
+        <div class="admin-modal-box" style="max-width:480px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(239,68,68,0.3); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; color:#ef4444; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-circle-xmark"></i> Reject Payout Request
+                </h3>
+                <button type="button" onclick="closeRejectPayoutModal()" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="submitRejectPayout(event)">
+                <input type="hidden" id="rejPayoutId">
+                
+                <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:12px; padding:14px; margin-bottom:16px;">
+                    <div style="font-size:13px; color:#fca5a5; margin-bottom:6px;">
+                        <strong>Warning:</strong> Rejecting this request will immediately refund the amount back into the center's wallet.
+                    </div>
+                    <div style="font-size:12px; color:#cbd5e1;">
+                        Center: <strong id="rejCenterName" style="color:#ffffff;">-</strong> | Amount: <strong id="rejAmount" style="color:var(--admin-gold);">₹0</strong>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Reason for Rejection *</label>
+                    <textarea id="rejReason" required rows="3" class="console-input" placeholder="e.g. Invalid IFSC Code or Bank Account details mismatched" style="margin-top:6px;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeRejectPayoutModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
+                    <button type="submit" class="btn-aurora" style="background:#ef4444; color:#ffffff; font-weight:700;">
+                        <i class="fas fa-ban"></i> Confirm Rejection & Refund
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
@@ -953,6 +1255,7 @@
             if (tId === 'settings') loadSettingsData();
             if (tId === 'affiliations') loadAffiliations();
             if (tId === 'transactions') loadTransactions();
+            if (tId === 'payouts') loadAdminPayouts();
         }
 
         // ============================================
@@ -1257,6 +1560,45 @@
                     if (rzpIdInput) rzpIdInput.value = cfg.razorpayKeyId || '';
                     if (rzpSecretInput) rzpSecretInput.placeholder = 'Enter Razorpay Secret Key';
                 }
+
+                // Dynamic Favicon
+                if (cfg.boardLogo) {
+                    const df = document.getElementById('dynamicFavicon');
+                    if (df) df.href = cfg.boardLogo;
+                }
+
+                // Festival Theme
+                if (document.getElementById('setActiveFestivalTheme')) {
+                    document.getElementById('setActiveFestivalTheme').value = cfg.activeFestivalTheme || 'auto';
+                }
+
+                // Founder Profile
+                if (cfg.founderProfile) {
+                    if (document.getElementById('setFounderName')) document.getElementById('setFounderName').value = cfg.founderProfile.name || '';
+                    if (document.getElementById('setFounderDesignation')) document.getElementById('setFounderDesignation').value = cfg.founderProfile.designation || '';
+                    if (document.getElementById('setFounderQualification')) document.getElementById('setFounderQualification').value = cfg.founderProfile.qualification || '';
+                    if (document.getElementById('setFounderMessage')) document.getElementById('setFounderMessage').value = cfg.founderProfile.message || '';
+                    if (document.getElementById('setFounderPhotoBase64')) document.getElementById('setFounderPhotoBase64').value = cfg.founderProfile.photo || '';
+                }
+
+                // Bill Template
+                if (cfg.billTemplate) {
+                    if (document.getElementById('setBillHeader')) document.getElementById('setBillHeader').value = cfg.billTemplate.headerText || '';
+                    if (document.getElementById('setBillTitle')) document.getElementById('setBillTitle').value = cfg.billTemplate.title || '';
+                    if (document.getElementById('setBillSignatory')) document.getElementById('setBillSignatory').value = cfg.billTemplate.signatoryName || '';
+                    if (document.getElementById('setBillSignatoryTitle')) document.getElementById('setBillSignatoryTitle').value = cfg.billTemplate.signatoryTitle || '';
+                    if (document.getElementById('setBillTerms')) document.getElementById('setBillTerms').value = cfg.billTemplate.terms || '';
+                    if (document.getElementById('setBillFooter')) document.getElementById('setBillFooter').value = cfg.billTemplate.footerText || '';
+                }
+
+                // Certificate Template
+                if (cfg.certTemplate) {
+                    if (document.getElementById('setCertBoardTitle')) document.getElementById('setCertBoardTitle').value = cfg.certTemplate.boardTitle || '';
+                    if (document.getElementById('setCertSubTitle')) document.getElementById('setCertSubTitle').value = cfg.certTemplate.subTitle || '';
+                    if (document.getElementById('setCertBorderStyle')) document.getElementById('setCertBorderStyle').value = cfg.certTemplate.borderStyle || 'gold-double';
+                    if (document.getElementById('setCertSignatory')) document.getElementById('setCertSignatory').value = cfg.certTemplate.signatoryName || '';
+                    if (document.getElementById('setCertSignatoryTitle')) document.getElementById('setCertSignatoryTitle').value = cfg.certTemplate.signatoryTitle || '';
+                }
             } catch(e) {
                 console.error('loadSettingsData error:', e);
             }
@@ -1460,6 +1802,307 @@
                 }
             } catch(err) {
                 alert('Network error saving CMS: ' + err.message);
+            }
+        }
+
+        // ============================================
+        // TEMPLATES & FOUNDER SETTINGS HANDLERS
+        // ============================================
+        function handleFounderPhotoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('setFounderPhotoBase64').value = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveFestivalTheme(e) {
+            e.preventDefault();
+            const theme = document.getElementById('setActiveFestivalTheme').value;
+            try {
+                const res = await fetch('/api/admin/settings/templates', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ activeFestivalTheme: theme })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Homepage Festival Background Theme updated successfully!');
+                } else {
+                    alert(data.message || 'Error updating festival theme');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        async function saveFounderProfile(e) {
+            e.preventDefault();
+            const name = document.getElementById('setFounderName').value.trim();
+            const designation = document.getElementById('setFounderDesignation').value.trim();
+            const qualification = document.getElementById('setFounderQualification').value.trim();
+            const message = document.getElementById('setFounderMessage').value.trim();
+            const photo = document.getElementById('setFounderPhotoBase64').value;
+
+            try {
+                const res = await fetch('/api/admin/settings/templates', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        founderProfile: { name, designation, qualification, message, photo }
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Founder & Leadership Profile updated successfully!');
+                } else {
+                    alert(data.message || 'Error saving founder profile');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        async function saveBillTemplate(e) {
+            e.preventDefault();
+            const headerText = document.getElementById('setBillHeader').value.trim();
+            const title = document.getElementById('setBillTitle').value.trim();
+            const signatoryName = document.getElementById('setBillSignatory').value.trim();
+            const signatoryTitle = document.getElementById('setBillSignatoryTitle').value.trim();
+            const terms = document.getElementById('setBillTerms').value.trim();
+            const footerText = document.getElementById('setBillFooter').value.trim();
+
+            try {
+                const res = await fetch('/api/admin/settings/templates', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        billTemplate: { headerText, title, signatoryName, signatoryTitle, terms, footerText }
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Official Student Fee Bill & Receipt Template saved!');
+                } else {
+                    alert(data.message || 'Error saving bill template');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        async function saveCertTemplate(e) {
+            e.preventDefault();
+            const boardTitle = document.getElementById('setCertBoardTitle').value.trim();
+            const subTitle = document.getElementById('setCertSubTitle').value.trim();
+            const borderStyle = document.getElementById('setCertBorderStyle').value;
+            const signatoryName = document.getElementById('setCertSignatory').value.trim();
+            const signatoryTitle = document.getElementById('setCertSignatoryTitle').value.trim();
+
+            try {
+                const res = await fetch('/api/admin/settings/templates', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        certTemplate: { boardTitle, subTitle, borderStyle, signatoryName, signatoryTitle }
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Affiliation & Student Certificate Template saved!');
+                } else {
+                    alert(data.message || 'Error saving certificate template');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        // ============================================
+        // COACHING CENTER WITHDRAWALS & PAYOUTS DESK
+        // ============================================
+        let globalPayouts = [];
+
+        async function loadAdminPayouts() {
+            const tbody = document.getElementById('payoutsTbody');
+            if (!tbody) return;
+            try {
+                const res = await fetch('/api/admin/payouts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    globalPayouts = data.data;
+
+                    let pendingCount = 0;
+                    let approvedSum = 0;
+                    globalPayouts.forEach(p => {
+                        if (p.status === 'pending_approval') pendingCount++;
+                        if (p.status === 'approved') approvedSum += Number(p.amount) || 0;
+                    });
+
+                    const statPending = document.getElementById('statPendingPayouts');
+                    const statApproved = document.getElementById('statApprovedPayouts');
+                    const statTotal = document.getElementById('statTotalPayoutsCount');
+                    if (statPending) statPending.textContent = pendingCount;
+                    if (statApproved) statApproved.textContent = '₹' + approvedSum.toLocaleString('en-IN');
+                    if (statTotal) statTotal.textContent = globalPayouts.length;
+
+                    if (globalPayouts.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">No center withdrawal requests submitted yet.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = globalPayouts.map(p => {
+                        const bd = p.bankDetails || {};
+                        const bdHtml = `
+                            <div style="font-size:12px; line-height:1.4;">
+                                <strong>${bd.accountHolder || 'N/A'}</strong><br>
+                                <span style="color:#94a3b8;">${bd.bankName || 'Bank'}:</span> <code>${bd.accountNumber || 'N/A'}</code><br>
+                                <span style="color:#94a3b8;">IFSC:</span> <code>${bd.ifscCode || 'N/A'}</code>
+                                ${bd.upiId ? `<br><span style="color:#94a3b8;">UPI:</span> <code>${bd.upiId}</code>` : ''}
+                            </div>
+                        `;
+
+                        let statusBadge = '';
+                        if (p.status === 'pending_approval') {
+                            statusBadge = '<span style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; padding:4px 10px; border-radius:12px; font-weight:700; font-size:11px;">PENDING APPROVAL</span>';
+                        } else if (p.status === 'approved') {
+                            statusBadge = '<span style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:4px 10px; border-radius:12px; font-weight:700; font-size:11px;">APPROVED & DISBURSED</span>';
+                        } else {
+                            statusBadge = '<span style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 10px; border-radius:12px; font-weight:700; font-size:11px;">REJECTED</span>';
+                        }
+
+                        let actionsHtml = '-';
+                        if (p.status === 'pending_approval') {
+                            actionsHtml = `
+                                <div style="display:flex; gap:6px;">
+                                    <button onclick="openApprovePayoutModal('${p._id}')" class="btn-aurora" style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; padding:5px 10px; font-size:11px;">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button onclick="openRejectPayoutModal('${p._id}')" class="btn-aurora" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:5px 10px; font-size:11px;">
+                                        <i class="fas fa-xmark"></i> Reject
+                                    </button>
+                                </div>
+                            `;
+                        }
+
+                        return `
+                            <tr>
+                                <td>
+                                    <strong>${p.centerName}</strong><br>
+                                    <span style="font-size:11.5px; color:var(--admin-gold);">@${p.username}</span>
+                                </td>
+                                <td><strong style="color:var(--admin-gold); font-size:15px;">₹${p.amount}</strong></td>
+                                <td>${bdHtml}</td>
+                                <td>${new Date(p.requestedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</td>
+                                <td>${statusBadge}</td>
+                                <td style="font-size:12px;">
+                                    ${p.utrNumber ? `<div><span style="color:#94a3b8;">UTR:</span> <code>${p.utrNumber}</code></div>` : ''}
+                                    ${p.adminNotes ? `<div style="color:#cbd5e1; font-style:italic;">${p.adminNotes}</div>` : '-'}
+                                </td>
+                                <td>${actionsHtml}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#ef4444;">Error loading payouts ledger.</td></tr>';
+            }
+        }
+
+        function openApprovePayoutModal(payoutId) {
+            const p = globalPayouts.find(x => x._id === payoutId);
+            if (!p) return;
+            document.getElementById('apPayoutId').value = p._id;
+            document.getElementById('apCenterName').textContent = `${p.centerName} (@${p.username})`;
+            document.getElementById('apAmount').textContent = `₹${p.amount}`;
+            document.getElementById('apUtrNumber').value = '';
+            document.getElementById('apAdminNotes').value = '';
+
+            const bd = p.bankDetails || {};
+            document.getElementById('apBankDetailsBox').innerHTML = `
+                <div><strong>A/C Holder:</strong> ${bd.accountHolder || 'N/A'}</div>
+                <div><strong>Bank Name:</strong> ${bd.bankName || 'N/A'} | <strong>A/C:</strong> ${bd.accountNumber || 'N/A'}</div>
+                <div><strong>IFSC:</strong> ${bd.ifscCode || 'N/A'} ${bd.upiId ? `| <strong>UPI:</strong> ${bd.upiId}` : ''}</div>
+            `;
+            document.getElementById('approvePayoutModal').style.display = 'flex';
+        }
+
+        function closeApprovePayoutModal() {
+            document.getElementById('approvePayoutModal').style.display = 'none';
+        }
+
+        async function submitApprovePayout(e) {
+            e.preventDefault();
+            const id = document.getElementById('apPayoutId').value;
+            const utr = document.getElementById('apUtrNumber').value.trim();
+            const adminNotes = document.getElementById('apAdminNotes').value.trim();
+            if (!utr) {
+                alert('Please provide bank transfer UTR or Reference Number.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/payouts/${id}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ utr, adminNotes })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Payout approved and marked disbursed successfully!');
+                    closeApprovePayoutModal();
+                    loadAdminPayouts();
+                } else {
+                    alert(data.message || 'Error approving payout');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        function openRejectPayoutModal(payoutId) {
+            const p = globalPayouts.find(x => x._id === payoutId);
+            if (!p) return;
+            document.getElementById('rejPayoutId').value = p._id;
+            document.getElementById('rejCenterName').textContent = `${p.centerName} (@${p.username})`;
+            document.getElementById('rejAmount').textContent = `₹${p.amount}`;
+            document.getElementById('rejReason').value = '';
+            document.getElementById('rejectPayoutModal').style.display = 'flex';
+        }
+
+        function closeRejectPayoutModal() {
+            document.getElementById('rejectPayoutModal').style.display = 'none';
+        }
+
+        async function submitRejectPayout(e) {
+            e.preventDefault();
+            const id = document.getElementById('rejPayoutId').value;
+            const reason = document.getElementById('rejReason').value.trim();
+            if (!reason) {
+                alert('Please state reason for rejection.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/payouts/${id}/reject`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Payout request rejected. Funds refunded back to coaching center wallet.');
+                    closeRejectPayoutModal();
+                    loadAdminPayouts();
+                } else {
+                    alert(data.message || 'Error rejecting payout');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
             }
         }
 

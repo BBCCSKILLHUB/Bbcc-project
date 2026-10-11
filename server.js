@@ -249,9 +249,11 @@ const CenterSchema = new mongoose.Schema({
         ifscCode: { type: String, default: '' },
         upiId: { type: String, default: '' }
     },
-    walletBalance: { type: Number, default: 0 }, // 80% net center earnings
+    walletBalance: { type: Number, default: 0 }, // Net center earnings
     totalSalesVolume: { type: Number, default: 0 },
-    totalPlatformCut: { type: Number, default: 0 }, // 20% BBCC platform share
+    totalPlatformCut: { type: Number, default: 0 }, // BBCC platform share
+    admissionFee: { type: Number, default: 200 }, // Center's custom admission fee
+    themeColor: { type: String, default: 'gold' }, // 'gold', 'emerald', 'cyan', 'rose'
     // Courses & Batch Schedules (Online vs Physical Classroom)
     courses: [{
         courseName: { type: String, required: true },
@@ -454,7 +456,57 @@ const SettingsSchema = new mongoose.Schema({
         title: { type: String, default: '' },
         image: { type: String, required: true },
         uploadedAt: { type: Date, default: Date.now }
-    }]
+    }],
+    // Bill / Invoice Template Designer
+    billTemplate: {
+        headerText: { type: String, default: 'BBCC SKILL HUB CENTRAL DIRECTORATE' },
+        title: { type: String, default: 'OFFICIAL STUDENT FEE & ADMISSION RECEIPT' },
+        terms: { type: String, default: '1. Admission & exam fee once paid is non-refundable. 2. Central verification valid via official roll number.' },
+        footerText: { type: String, default: 'Thank you for choosing certified education. BBCC SKILL HUB — Digital Skill & Coaching Platform.' },
+        signatoryName: { type: String, default: 'DIRECTOR GENERAL' },
+        signatoryTitle: { type: String, default: 'Authorized Certification Officer' },
+        logo: { type: String, default: '' }
+    },
+    // Certificate Template Designer
+    certTemplate: {
+        boardTitle: { type: String, default: 'BBCC SKILL HUB' },
+        subTitle: { type: String, default: 'CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION' },
+        borderStyle: { type: String, default: 'gold-double' }, // 'gold-double', 'royal-navy', 'emerald-modern'
+        sealLogo: { type: String, default: '' },
+        signatoryName: { type: String, default: 'CONTROLLER OF EXAMINATIONS' },
+        signatoryTitle: { type: String, default: 'Central Directorate' }
+    },
+    // Founder & Leadership Profile
+    founderProfile: {
+        name: { type: String, default: 'Er. R. K. Bharti' },
+        photo: { type: String, default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop' },
+        designation: { type: String, default: 'Founder & Managing Director' },
+        qualification: { type: String, default: 'M.Tech, Educational Reformer & EdTech Visionary' },
+        message: { type: String, default: 'Our mission at BBCC SKILL HUB is to empower every coaching center across India with cutting-edge digital infrastructure, authentic syllabus resources, and transparent revenue growth.' },
+        signature: { type: String, default: '' }
+    },
+    // Festival Theme for Homepage Background
+    activeFestivalTheme: { type: String, default: 'auto' } // 'auto', 'diwali', 'chhath', 'holi', 'tricolor', 'eid', 'celestial'
+}, { timestamps: true });
+
+// 1.9 Center Withdrawal Requests Schema
+const WithdrawalRequestSchema = new mongoose.Schema({
+    centerId: { type: mongoose.Schema.Types.ObjectId, ref: 'TuitionCenter', required: true },
+    centerName: { type: String, required: true },
+    username: { type: String, required: true },
+    amount: { type: Number, required: true },
+    bankDetails: {
+        accountHolder: { type: String, default: '' },
+        bankName: { type: String, default: '' },
+        accountNumber: { type: String, default: '' },
+        ifscCode: { type: String, default: '' },
+        upiId: { type: String, default: '' }
+    },
+    status: { type: String, default: 'pending_approval' }, // 'pending_approval', 'approved', 'rejected'
+    utrNumber: { type: String, default: '' },
+    adminNotes: { type: String, default: '' },
+    requestedAt: { type: Date, default: Date.now },
+    processedAt: { type: Date }
 }, { timestamps: true });
 
 // Compile Models
@@ -466,6 +518,7 @@ const AffiliationApplication = mongoose.model('AffiliationApplication', Affiliat
 const AdmissionInquiry = mongoose.model('AdmissionInquiry', AdmissionInquirySchema);
 const PaymentTransaction = mongoose.model('PaymentTransaction', PaymentTransactionSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
+const WithdrawalRequest = mongoose.model('WithdrawalRequest', WithdrawalRequestSchema);
 
 // ============================================================
 // 2. HELPER UTILITIES & AUTH MIDDLEWARES
@@ -831,6 +884,10 @@ app.get('/api/public/config', async (req, res) => {
             geminiConfigured: !!(settings.geminiApiKey && settings.geminiApiKey.trim()),
             banners: settings.banners || [],
             gallery: settings.gallery || [],
+            billTemplate: settings.billTemplate || {},
+            certTemplate: settings.certTemplate || {},
+            founderProfile: settings.founderProfile || {},
+            activeFestivalTheme: settings.activeFestivalTheme || 'auto',
             razorpayKeyId: keyId || '',
             razorpayConfigured: !!keyId
         };
@@ -923,6 +980,367 @@ app.get('/api/public/center/:id', async (req, res) => {
         setCache(cacheKey, center, 20000);
         res.json({ success: true, data: center });
     } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.4B Favicon Endpoint (Dynamic Board Logo as Favicon)
+app.get('/favicon.ico', async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        if (settings && settings.boardLogo) {
+            if (settings.boardLogo.startsWith('data:image')) {
+                const parts = settings.boardLogo.split(';base64,');
+                const mime = parts[0].replace('data:', '');
+                const imgBuf = Buffer.from(parts[1], 'base64');
+                res.setHeader('Content-Type', mime);
+                return res.send(imgBuf);
+            }
+            if (settings.boardLogo.startsWith('http') || settings.boardLogo.startsWith('/')) {
+                return res.redirect(settings.boardLogo);
+            }
+        }
+    } catch(e) {}
+    const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#030712" stroke="#fbbf24" stroke-width="6"/><path d="M50 20 L76 34 L76 66 L50 80 L24 66 L24 34 Z" fill="none" stroke="#fbbf24" stroke-width="4"/><text x="50" y="58" font-family="sans-serif" font-size="24" font-weight="900" fill="#fbbf24" text-anchor="middle">B</text></svg>`;
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(defaultSvg);
+});
+
+// 4.4C In-Built Indian Festivals & Special Days Promotional Banners Catalog
+app.get('/api/public/banner-templates', (req, res) => {
+    const templates = [
+        {
+            id: 'diwali-dhamaka',
+            name: 'Happy Deepawali Maha Dhamaka',
+            festival: 'Diwali',
+            category: 'festival',
+            defaultTitle: 'Happy Deepawali 2026 Batch Offer',
+            defaultSubtitle: 'Flat 25% Off on All New Batch Admissions | Special Festive Gift',
+            image: 'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?w=1200&auto=format&fit=crop',
+            tag: 'Shubh Deepawali'
+        },
+        {
+            id: 'chhath-puja',
+            name: 'Chhath Puja Mahaparv Shubhkaamnayein',
+            festival: 'Chhath Puja',
+            category: 'festival',
+            defaultTitle: 'Chhath Puja Mahaparv Special Batch',
+            defaultSubtitle: 'Sacred Surya Arghya Blessings | High Scoring Batches Open',
+            image: 'https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop',
+            tag: 'Surya Dev Blessings'
+        },
+        {
+            id: 'holi-milan',
+            name: 'Holi Rango Ka Tyohar Admission Dhamaka',
+            festival: 'Holi',
+            category: 'festival',
+            defaultTitle: 'Holi Celebration Career Batch 2026',
+            defaultSubtitle: 'Fill Your Future With Success Colors | Free Study Material Pack',
+            image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop',
+            tag: 'Rango Ka Utsav'
+        },
+        {
+            id: 'eid-mubarak',
+            name: 'Eid-ul-Fitr Mubarak Special Scholarship',
+            festival: 'Eid',
+            category: 'festival',
+            defaultTitle: 'Eid Mubarak Educational Scholarship Batch',
+            defaultSubtitle: 'Special Enrolment Concession for Meritorious Students',
+            image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&auto=format&fit=crop',
+            tag: 'Eid Mubarak'
+        },
+        {
+            id: 'independence-day',
+            name: '15th August Independence Day Patriotic Batch',
+            festival: 'Independence Day',
+            category: 'national_day',
+            defaultTitle: 'Azadi Ka Amrit Mahotsav — Desh Ka Bhavishya',
+            defaultSubtitle: 'Join India\'s Top Certified Faculty | Admissions Open',
+            image: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1200&auto=format&fit=crop',
+            tag: '15 August Jai Hind'
+        },
+        {
+            id: 'republic-day',
+            name: '26th January Republic Day Special Batch',
+            festival: 'Republic Day',
+            category: 'national_day',
+            defaultTitle: 'Gantantra Diwas Academic Excellence Scheme',
+            defaultSubtitle: 'Empowering Youth With Modern Skill Education',
+            image: 'https://images.unsplash.com/photo-1596405344246-8a615d1390ae?w=1200&auto=format&fit=crop',
+            tag: '26 January Gantantra'
+        },
+        {
+            id: 'teachers-day',
+            name: '5th September Teachers\' Day Special Tribute',
+            festival: 'Teachers\' Day',
+            category: 'observance',
+            defaultTitle: 'Teachers\' Day Mentorship Batch 2026',
+            defaultSubtitle: 'Guided by Master Educators & Certified Subject Experts',
+            image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop',
+            tag: 'Guru Shishya Parampara'
+        },
+        {
+            id: 'children-day',
+            name: '14th November Children\'s Day Smart Batch',
+            festival: 'Children\'s Day',
+            category: 'observance',
+            defaultTitle: 'Bal Diwas Foundation Batch (Class 6th-10th)',
+            defaultSubtitle: 'Special Focus on Board Exam Basics & Conceptual Clarity',
+            image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop',
+            tag: 'Happy Children\'s Day'
+        },
+        {
+            id: 'new-year',
+            name: 'Happy New Year 2027 Fresh Resolution Batch',
+            festival: 'New Year',
+            category: 'festival',
+            defaultTitle: 'New Year 2027 Fresh Batch Starts Today',
+            defaultSubtitle: 'Crash Courses, Test Series & Mock Exams at Special Fee',
+            image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1200&auto=format&fit=crop',
+            tag: 'Happy New Year'
+        },
+        {
+            id: 'raksha-bandhan',
+            name: 'Raksha Bandhan Beti Padhao Scholarship',
+            festival: 'Raksha Bandhan',
+            category: 'festival',
+            defaultTitle: 'Raksha Bandhan Beti Shiksha Protsahan',
+            defaultSubtitle: 'Special 40% Fee Concession for Female Students',
+            image: 'https://images.unsplash.com/photo-1629853380482-faee17c66cb1?w=1200&auto=format&fit=crop',
+            tag: 'Raksha Bandhan Special'
+        }
+    ];
+    res.json({ success: true, data: templates });
+});
+
+// 4.4D In-Built Educational Courses & Batch Templates Catalog
+app.get('/api/public/course-templates', (req, res) => {
+    const templates = [
+        // SCHOOL & BOARDS (BSEB, CBSE, NCERT)
+        {
+            id: 'bseb-class-10-matric',
+            category: 'School & Board Education',
+            board: 'BSEB Bihar Board',
+            classLevel: 'Class 10th',
+            courseName: 'Class 10th Matric Board Super Target Batch',
+            subject: 'Maths, Science & SST (All Subjects)',
+            suggestedFee: 1500,
+            batchTiming: 'Morning 7:00 AM - 9:00 AM',
+            description: 'Comprehensive matric syllabus coverage, question bank analysis, monthly test series & guaranteed 1st division target.'
+        },
+        {
+            id: 'cbse-class-10-board',
+            category: 'School & Board Education',
+            board: 'CBSE',
+            classLevel: 'Class 10th',
+            courseName: 'CBSE Class 10th Board Exam Foundation',
+            subject: 'Mathematics & Science (NCERT Exemplar)',
+            suggestedFee: 2000,
+            batchTiming: 'Evening 4:00 PM - 6:00 PM',
+            description: 'Strict NCERT aligned conceptual lectures, case study questions, assertion-reasoning drill, sample papers.'
+        },
+        {
+            id: 'class-12-science-pcm',
+            category: 'School & Board Education',
+            board: 'BSEB / CBSE',
+            classLevel: 'Class 12th',
+            courseName: 'Class 12th Science Stream (PCM Core)',
+            subject: 'Physics, Chemistry & Mathematics',
+            suggestedFee: 3500,
+            batchTiming: 'Morning 6:30 AM - 9:30 AM',
+            description: 'Deep derivation practice, numerical solving shortcuts, board model papers & board practical preparation.'
+        },
+        {
+            id: 'class-12-science-pcb',
+            category: 'School & Board Education',
+            board: 'BSEB / CBSE',
+            classLevel: 'Class 12th',
+            courseName: 'Class 12th Science Stream (PCB Core)',
+            subject: 'Physics, Chemistry & Biology',
+            suggestedFee: 3500,
+            batchTiming: 'Morning 8:00 AM - 11:00 AM',
+            description: 'Complete NCERT diagrams, high-yield biological processes, organic chemistry mechanisms, model papers.'
+        },
+        {
+            id: 'class-11-12-commerce',
+            category: 'School & Board Education',
+            board: 'BSEB / CBSE',
+            classLevel: 'Class 11th & 12th',
+            courseName: 'Class 11th & 12th Commerce Master Batch',
+            subject: 'Accountancy, Business Studies & Economics',
+            suggestedFee: 2500,
+            batchTiming: 'Evening 3:00 PM - 5:00 PM',
+            description: 'Journal ledger mastery, balance sheet preparation, macro economics graphs, case studies & board revision.'
+        },
+        {
+            id: 'class-11-12-arts',
+            category: 'School & Board Education',
+            board: 'BSEB / State Board',
+            classLevel: 'Class 11th & 12th',
+            courseName: 'Class 11th & 12th Arts Stream Special Batch',
+            subject: 'History, Political Science, Geography & Hindi',
+            suggestedFee: 1800,
+            batchTiming: 'Morning 10:00 AM - 12:00 PM',
+            description: 'Chapter-wise subjective answer writing practice, map pointing, objective MCQ fast test series.'
+        },
+        {
+            id: 'class-6-to-8-middle',
+            category: 'School & Board Education',
+            board: 'NCERT / All Boards',
+            classLevel: 'Class 6th to 8th',
+            courseName: 'Junior Middle School Foundation Batch',
+            subject: 'Mathematics, Science & English Grammar',
+            suggestedFee: 1000,
+            batchTiming: 'Evening 4:00 PM - 5:30 PM',
+            description: 'Strengthening fundamental calculation speed, English translation, science experiments & school homework assistance.'
+        },
+
+        // TEACHER TRAINING & COMPETITIVE (CTET, STET, TRE)
+        {
+            id: 'ctet-paper-1-primary',
+            category: 'Teacher Training & Govt Exam',
+            board: 'CTET (CBSE Central)',
+            classLevel: 'Primary (Class 1-5)',
+            courseName: 'CTET Paper 1 Special Success Batch',
+            subject: 'CDP, EVS, Maths, Hindi & English Pedagogy',
+            suggestedFee: 2500,
+            batchTiming: 'Morning 7:00 AM - 10:00 AM',
+            description: 'Child development theories (Piaget, Vygotsky, Kohlberg), pedagogy tricks, previous year 10-year papers & mock tests.'
+        },
+        {
+            id: 'ctet-paper-2-upper',
+            category: 'Teacher Training & Govt Exam',
+            board: 'CTET (CBSE Central)',
+            classLevel: 'Upper Primary (Class 6-8)',
+            courseName: 'CTET Paper 2 (Maths & Science / SST)',
+            subject: 'Advanced CDP, Science/Maths or Social Science Pedagogy',
+            suggestedFee: 3000,
+            batchTiming: 'Evening 5:00 PM - 8:00 PM',
+            description: 'In-depth conceptual pedagogy, NCERT summary books, time management strategies & live doubt clearing.'
+        },
+        {
+            id: 'bpsc-tre-special',
+            category: 'Teacher Training & Govt Exam',
+            board: 'BPSC TRE Special',
+            classLevel: 'PRT, TGT & PGT',
+            courseName: 'BPSC TRE (Teacher Recruitment) Special Batch',
+            subject: 'General Studies, SCERT/NCERT & Concerned Subject',
+            suggestedFee: 3500,
+            batchTiming: 'Morning 8:00 AM - 12:00 PM',
+            description: 'Bihar special GK, national movement, mathematics & reasoning, subject specific depth for high merit ranking.'
+        },
+        {
+            id: 'stet-paper-1-2',
+            category: 'Teacher Training & Govt Exam',
+            board: 'BSEB STET',
+            classLevel: 'Secondary & Sr. Secondary',
+            courseName: 'Bihar STET Paper 1 & Paper 2 Comprehensive Batch',
+            subject: 'Specific Subject + Art of Teaching & Other Skills',
+            suggestedFee: 2800,
+            batchTiming: 'Evening 6:00 PM - 8:30 PM',
+            description: 'Targeted qualifying score preparation, Art of Teaching 50-mark mastery, 100-mark core subject deep dive.'
+        },
+
+        // COMPUTER & DIGITAL SKILLS
+        {
+            id: 'dca-computer-diploma',
+            category: 'Computer & Digital Skills',
+            board: 'BBCC Digital Board',
+            classLevel: 'All Students & Job Aspirants',
+            courseName: 'DCA (Diploma in Computer Applications - 6 Months)',
+            subject: 'Windows, MS Word, Excel, PowerPoint, Internet & Typing',
+            suggestedFee: 3000,
+            batchTiming: 'Daily 1 Hour Lab + Theory (Flexible)',
+            description: 'Complete hands-on practical computer training, office documentation, billing spreadsheets & Hindi/English typing.'
+        },
+        {
+            id: 'adca-advance-diploma',
+            category: 'Computer & Digital Skills',
+            board: 'BBCC Digital Board',
+            classLevel: 'Graduates & 12th Pass',
+            courseName: 'ADCA (Advanced Diploma in Computer Applications - 1 Year)',
+            subject: 'DCA + Tally Prime, Photoshop, CorelDraw, Web Basics & DTP',
+            suggestedFee: 5000,
+            batchTiming: 'Daily 1.5 Hours Lab (Morning/Evening)',
+            description: 'Professional career course covering graphic design, complete business accounting with GST, and advanced Excel analytics.'
+        },
+        {
+            id: 'tally-prime-gst',
+            category: 'Computer & Digital Skills',
+            board: 'BBCC Digital Board',
+            classLevel: 'Commerce & Job Seekers',
+            courseName: 'Tally Prime with GST Professional Accounting',
+            subject: 'Voucher Entry, Inventory, GST Filing, TDS & Payroll',
+            suggestedFee: 3500,
+            batchTiming: 'Evening 5:00 PM - 6:30 PM',
+            description: 'Job-oriented business accounts training with real company case studies, balance sheet generation & GST returns.'
+        },
+
+        // COMPETITIVE EXAMS
+        {
+            id: 'ssc-gd-railway-police',
+            category: 'Govt Competitive Exams',
+            board: 'Staff Selection / Railway',
+            classLevel: '10th & 12th Pass',
+            courseName: 'Bihar Police Constable & SSC GD Target Batch',
+            subject: 'Maths, Reasoning, GK/GS & Hindi/English',
+            suggestedFee: 2000,
+            batchTiming: 'Morning 6:30 AM - 9:30 AM',
+            description: 'Speed calculation shortcuts, recurring exam questions, daily 50-question mock test sheet with negative marking drill.'
+        }
+    ];
+    res.json({ success: true, data: templates });
+});
+
+// 4.4E Aggregated Verified Expert Teachers for Homepage
+app.get('/api/public/expert-teachers', async (req, res) => {
+    try {
+        const cached = getCache('public_teachers');
+        if (cached) return res.json({ success: true, data: cached });
+
+        const centers = await TuitionCenter.find(
+            { isBlocked: false, 'teachers.0': { $exists: true } },
+            { centerName: 1, username: 1, clogo: 1, teachers: 1 }
+        ).lean();
+
+        const allTeachers = [];
+        centers.forEach(c => {
+            (c.teachers || []).forEach(t => {
+                allTeachers.push({
+                    name: t.name,
+                    subject: t.subject,
+                    class: t.class || 'All Classes',
+                    qualification: t.qualification || 'Certified Faculty',
+                    experience: t.experience || '3+ Years',
+                    photo: t.photo || '',
+                    centerName: c.centerName,
+                    centerUsername: c.username,
+                    centerLogo: c.clogo || ''
+                });
+            });
+        });
+
+        setCache('public_teachers', allTeachers, 25000);
+        res.json({ success: true, data: allTeachers });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.4F BBCC Founder & Leadership Profile
+app.get('/api/public/founder', async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        const profile = (settings && settings.founderProfile) ? settings.founderProfile : {
+            name: 'Er. R. K. Bharti',
+            photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop',
+            designation: 'Founder & Managing Director',
+            qualification: 'M.Tech, Educational Reformer & EdTech Visionary',
+            message: 'Our mission at BBCC SKILL HUB is to empower every coaching center across India with cutting-edge digital infrastructure, authentic syllabus resources, and transparent revenue growth.',
+            signature: ''
+        };
+        res.json({ success: true, data: profile });
+    } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -2596,6 +3014,11 @@ app.post('/api/pay/verify-admission-order', async (req, res) => {
             });
         }
 
+        // 50/50 Revenue Split for Admission Fee (50% BBCC / 50% Coaching Center)
+        const admissionTotal = txn ? txn.amount : (student.feePaid || 0);
+        const centerShare = Math.round(admissionTotal * 0.50);
+        const platformCut = admissionTotal - centerShare;
+
         await PaymentTransaction.findOneAndUpdate(
             { orderId: razorpay_order_id },
             {
@@ -2603,9 +3026,25 @@ app.post('/api/pay/verify-admission-order', async (req, res) => {
                 paymentId: razorpay_payment_id,
                 signature: razorpay_signature,
                 studentId: student._id.toString(),
+                centerShare: centerShare,
+                platformCut: platformCut,
                 paidAt: new Date()
             }
         );
+
+        if (adm.centerId && centerShare > 0) {
+            try {
+                const targetCenter = await TuitionCenter.findById(adm.centerId);
+                if (targetCenter) {
+                    targetCenter.walletBalance = (targetCenter.walletBalance || 0) + centerShare;
+                    targetCenter.totalSalesVolume = (targetCenter.totalSalesVolume || 0) + admissionTotal;
+                    targetCenter.totalPlatformCut = (targetCenter.totalPlatformCut || 0) + platformCut;
+                    await targetCenter.save();
+                }
+            } catch(we) {
+                console.error('Admission wallet credit error:', we.message);
+            }
+        }
 
         try {
             await AdmissionInquiry.create({
@@ -2847,7 +3286,7 @@ app.put('/api/director/profile', verifyDirector, async (req, res) => {
         const allowed = [
             'contactNumber', 'whatsappNumber', 'email', 'address', 'description',
             'encryptedCallLink', 'clogo', 'directorPhoto', 'fromClass', 'toClass',
-            'headerNotice', 'footerText', 'socials'
+            'headerNotice', 'footerText', 'socials', 'bankDetails', 'admissionFee', 'themeColor'
         ];
         allowed.forEach(k => {
             if (req.body[k] !== undefined) center[k] = req.body[k];
@@ -2856,6 +3295,79 @@ app.put('/api/director/profile', verifyDirector, async (req, res) => {
         await center.save();
         res.json({ success: true, message: 'Institute profile updated successfully!', data: center });
     } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 7.2B Director Wallet Withdrawal Request
+app.post('/api/director/wallet/withdraw', verifyDirector, async (req, res) => {
+    try {
+        const center = await TuitionCenter.findById(req.center.centerId);
+        if (!center) return res.status(404).json({ success: false, message: 'Institute not found' });
+
+        const { amount } = req.body;
+        const withdrawAmount = Math.round(Number(amount) || 0);
+
+        // Check if bank details are added
+        const b = center.bankDetails || {};
+        const hasAccount = (b.accountNumber && b.accountNumber.trim()) && (b.ifscCode && b.ifscCode.trim());
+        const hasUpi = b.upiId && b.upiId.trim();
+
+        if (!hasAccount && !hasUpi) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bank details missing! Please enter your Bank Account Number & IFSC or UPI ID in the Earnings & Bank Details tab before requesting withdrawal.'
+            });
+        }
+
+        if (withdrawAmount <= 0) {
+            return res.status(400).json({ success: false, message: 'Please enter a valid withdrawal amount (> 0)' });
+        }
+
+        const currentBalance = Math.max(0, Number(center.walletBalance) || 0);
+        if (withdrawAmount > currentBalance) {
+            return res.status(400).json({
+                success: false,
+                message: `Insufficient wallet balance. Available balance is ₹${currentBalance}.`
+            });
+        }
+
+        // Reserve funds by deducting from wallet balance
+        center.walletBalance = currentBalance - withdrawAmount;
+        await center.save();
+
+        const wr = await WithdrawalRequest.create({
+            centerId: center._id,
+            centerName: center.centerName,
+            username: center.username,
+            amount: withdrawAmount,
+            bankDetails: {
+                accountHolder: b.accountHolder || center.directorName,
+                bankName: b.bankName || '',
+                accountNumber: b.accountNumber || '',
+                ifscCode: b.ifscCode || '',
+                upiId: b.upiId || ''
+            },
+            status: 'pending_approval'
+        });
+
+        res.json({
+            success: true,
+            message: `Withdrawal request for ₹${withdrawAmount} submitted successfully! Your payout is pending BBCC Central Directorate approval.`,
+            data: wr,
+            newBalance: center.walletBalance
+        });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 7.2C Director Withdrawal History
+app.get('/api/director/wallet/history', verifyDirector, async (req, res) => {
+    try {
+        const list = await WithdrawalRequest.find({ centerId: req.center.centerId }).sort({ createdAt: -1 });
+        res.json({ success: true, data: list });
+    } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -4055,6 +4567,101 @@ app.delete('/api/admin/gallery/:gid', verifySuperAdmin, async (req, res) => {
         settings.gallery = settings.gallery.filter(g => g._id.toString() !== req.params.gid);
         await settings.save();
         res.json({ success: true, message: 'Photo removed from Gallery' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.17 Super Admin Payout Requests Management
+app.get('/api/admin/payouts', verifySuperAdmin, async (req, res) => {
+    try {
+        const list = await WithdrawalRequest.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: list });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/payouts/:id/approve', verifySuperAdmin, async (req, res) => {
+    try {
+        const { utrNumber, adminNotes } = req.body;
+        const wr = await WithdrawalRequest.findById(req.params.id);
+        if (!wr) return res.status(404).json({ success: false, message: 'Payout request not found' });
+        if (wr.status !== 'pending_approval') {
+            return res.status(400).json({ success: false, message: `Request is already ${wr.status}` });
+        }
+
+        wr.status = 'approved';
+        wr.utrNumber = (utrNumber || 'BANK-UTR-' + Date.now()).trim();
+        wr.adminNotes = (adminNotes || 'Approved by Super Admin').trim();
+        wr.processedAt = new Date();
+        await wr.save();
+
+        res.json({
+            success: true,
+            message: `Payout of ₹${wr.amount} approved successfully! Bank UTR recorded: ${wr.utrNumber}`,
+            data: wr
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/payouts/:id/reject', verifySuperAdmin, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const wr = await WithdrawalRequest.findById(req.params.id);
+        if (!wr) return res.status(404).json({ success: false, message: 'Payout request not found' });
+        if (wr.status !== 'pending_approval') {
+            return res.status(400).json({ success: false, message: `Request is already ${wr.status}` });
+        }
+
+        // Refund reserved funds back to center wallet
+        const center = await TuitionCenter.findById(wr.centerId);
+        if (center) {
+            center.walletBalance = (center.walletBalance || 0) + wr.amount;
+            await center.save();
+        }
+
+        wr.status = 'rejected';
+        wr.adminNotes = (reason || 'Rejected by Administrator. Funds refunded to wallet.').trim();
+        wr.processedAt = new Date();
+        await wr.save();
+
+        res.json({
+            success: true,
+            message: `Payout rejected and ₹${wr.amount} refunded back to center wallet balance.`,
+            data: wr
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.18 Super Admin Template & Founder Settings Update
+app.put('/api/admin/settings/templates', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        const { billTemplate, certTemplate, founderProfile, activeFestivalTheme } = req.body;
+        if (billTemplate) settings.billTemplate = { ...settings.billTemplate, ...billTemplate };
+        if (certTemplate) settings.certTemplate = { ...settings.certTemplate, ...certTemplate };
+        if (founderProfile) settings.founderProfile = { ...settings.founderProfile, ...founderProfile };
+        if (activeFestivalTheme) settings.activeFestivalTheme = activeFestivalTheme;
+
+        await settings.save();
+        clearCache('public_config');
+        res.json({
+            success: true,
+            message: 'Template and Founder settings updated successfully!',
+            data: {
+                billTemplate: settings.billTemplate,
+                certTemplate: settings.certTemplate,
+                founderProfile: settings.founderProfile,
+                activeFestivalTheme: settings.activeFestivalTheme
+            }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
