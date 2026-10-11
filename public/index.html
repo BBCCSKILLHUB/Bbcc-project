@@ -2497,9 +2497,10 @@
                         document.getElementById('footerCustomTextDisplay').innerHTML = `© 2026 <strong>${publicConfig.boardTitle || 'BBCC SKILL HUB'}</strong>. ${publicConfig.footerText}`;
                     }
                     if (publicConfig.boardLogo) {
-                        document.getElementById('brandEmblemBox').innerHTML = `<img src="${publicConfig.boardLogo}" alt="Logo">`;
+                        document.getElementById('brandEmblemBox').innerHTML = `<img src="${publicConfig.boardLogo}" alt="Logo" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-graduation-cap\\'></i>';">`;
                         const favEl = document.getElementById('dynamicFavicon');
                         if (favEl) {
+                            favEl.onerror = () => { favEl.href = '/favicon.ico'; };
                             favEl.href = publicConfig.boardLogo;
                         }
                     }
@@ -2530,7 +2531,7 @@
             }
             grid.innerHTML = items.map(img => `
                 <div class="gallery-card">
-                    <img src="${img.image}" alt="${img.title || 'Campus Photo'}">
+                    <img src="${img.image}" alt="${img.title || 'Campus Photo'}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop';">
                     <div class="gallery-card-caption">
                         <i class="fas fa-camera-retro" style="color:var(--aurora-gold); margin-right:6px;"></i> ${img.title || 'Campus Event'}
                     </div>
@@ -2819,7 +2820,7 @@
                     <div>
                         <div class="inst-header-dock">
                             <div class="inst-logo-box">
-                                ${c.clogo ? `<img src="${c.clogo}" alt="${c.centerName}">` : `<i class="fas fa-school"></i>`}
+                                ${c.clogo ? `<img src="${c.clogo}" alt="${c.centerName}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-school\\'></i>';">` : `<i class="fas fa-school"></i>`}
                             </div>
                             <div class="inst-info-dock">
                                 <h4>${c.centerName}</h4>
@@ -2829,7 +2830,7 @@
 
                         <div class="inst-director-dock">
                             <div class="director-avatar-box">
-                                ${c.directorPhoto ? `<img src="${c.directorPhoto}" alt="${c.directorName}">` : `<i class="fas fa-user-tie"></i>`}
+                                ${c.directorPhoto ? `<img src="${c.directorPhoto}" alt="${c.directorName}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-user-tie\\'></i>';">` : `<i class="fas fa-user-tie"></i>`}
                             </div>
                             <div>
                                 <div style="font-size:10.5px; color:var(--text-slate); text-transform:uppercase;">Director</div>
@@ -3583,7 +3584,18 @@
                     <div class="vault-book-card">
                         <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}', '${encodeURIComponent(centerName || '')}', '${b.targetCenterId || 'all'}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
                             ${b.thumbnail ? `
-                                <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img">
+                                <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img" onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
+                                <div class="book-spine-3d" style="display:none;">
+                                    <div class="spine-ribbon"></div>
+                                    <div class="bookmark-tag"></div>
+                                    <div class="embossed-gold-seal">
+                                        <i class="fas ${fileType === 'pdf' ? 'fa-book-bookmark' : 'fa-file-lines'}"></i>
+                                    </div>
+                                    <div class="book-title-embossed">${safeTitle}</div>
+                                    <div style="font-size:10.5px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
+                                        ${b.subject || 'General'} • ${b.classLevel || 'All'}
+                                    </div>
+                                </div>
                             ` : `
                                 <div class="book-spine-3d">
                                     <div class="spine-ribbon"></div>
