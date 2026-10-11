@@ -23,43 +23,145 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'BBCC_AURORA_SECURE_TOKEN_2026_@KEY';
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/bbcc_portal';
 
-// Helper: Safely convert large base64 data to lightweight server disk files
-// Prevents MongoDB from hitting the strict 16MB BSON document size limit
-function saveBase64ToFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf') {
-    if (!dataUriOrBase64 || typeof dataUriOrBase64 !== 'string') return '';
-    // If it's already a URL or server path, return as is
-    if (dataUriOrBase64.startsWith('http://') || dataUriOrBase64.startsWith('https://') || dataUriOrBase64.startsWith('/uploads/')) {
-        return dataUriOrBase64;
+// ============================================================
+// DUAL ASSET STORAGE ENGINE (Normal: GitHub public/data | Important: MongoDB)
+// ============================================================
+const GITHUB_REPO = process.env.GITHUB_REPO || 'BBCCSKILLHUB/Bbcc-project';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+
+// Asynchronously sync uploaded assets directly into GitHub repository (public/data)
+async function syncFileToGitHub(relPath, base64Content, commitMessage = 'upload: new asset') {
+    if (!GITHUB_TOKEN || !GITHUB_REPO) return;
+    try {
+        const cleanPath = relPath.replace(/\\/g, '/').replace(/^\/+/, '');
+        const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${cleanPath}`;
+
+        let sha = undefined;
+        try {
+            const checkRes = await fetch(url, {
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'User-Agent': 'BBCC-Storage-Engine',
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            if (checkRes.ok) {
+                const existing = await checkRes.json();
+                sha = existing.sha;
+            }
+        } catch (e) {}
+
+        const putBody = {
+            message: commitMessage,
+            content: base64Content,
+            branch: 'main'
+        };
+        if (sha) putBody.sha = sha;
+
+        const putRes = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'User-Agent': 'BBCC-Storage-Engine',
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(putBody)
+        });
+
+        if (putRes.ok) {
+            console.log(`[GitHub Storage] Auto-synced to repo: ${cleanPath}`);
+        } else {
+            const err = await putRes.text();
+            console.warn(`[GitHub Storage] Notice for ${cleanPath}:`, err.slice(0, 120));
+        }
+    } catch (err) {
+        console.warn(`[GitHub Storage] Background sync notice:`, err.message);
     }
-    let ext = defaultExt;
-    let base64Data = dataUriOrBase64;
-    const match = dataUriOrBase64.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
-    if (match) {
-        const mime = match[1];
-        base64Data = match[2];
-        if (mime.includes('pdf')) ext = 'pdf';
-        else if (mime.includes('jpeg') || mime.includes('jpg')) ext = 'jpg';
-        else if (mime.includes('png')) ext = 'png';
-        else if (mime.includes('webp')) ext = 'webp';
-        else if (mime.includes('word') || mime.includes('officedocument')) ext = 'docx';
-    } else if (dataUriOrBase64.length < 300) {
-        // Just a short string, not a base64 file payload
-        return dataUriOrBase64;
+}
+
+// Unified Asset Storage Function:
+// - 'normal' (Default): Saves into public/data/${subDir}/${filename} AND syncs to GitHub repository
+// - 'important': Saves directly in MongoDB document IF size <= 2.5MB;
+//   If size > 2.5MB (exceeds safe limit): Automatically routes to GitHub public/data to protect MongoDB from crashing!
+function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf', storageMode = 'normal', title = '') {
+    if (!dataUriOrBase64 || typeof dataUriOrBase64 !== 'string') {
+        return { fileUrl: '', storageUsed: 'none', isRawData: false };
     }
 
+    // If it's already an existing URL or server path
+    if (dataUriOrBase64.startsWith('http://') || dataUriOrBase64.startsWith('https://') || 
+        dataUriOrBase64.startsWith('/data/') || dataUriOrBase64.startsWith('/uploads/')) {
+        return { fileUrl: dataUriOrBase64, storageUsed: 'existing', isRawData: false };
+    }
+
+    let ext = defaultExt;
+    let base64Data = dataUriOrBase64;
+    let mimeType = '';
+    const match = dataUriOrBase64.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
+    if (match) {
+        mimeType = match[1];
+        base64Data = match[2];
+        if (mimeType.includes('pdf')) ext = 'pdf';
+        else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
+        else if (mimeType.includes('png')) ext = 'png';
+        else if (mimeType.includes('webp')) ext = 'webp';
+        else if (mimeType.includes('word') || mimeType.includes('officedocument')) ext = 'docx';
+    } else if (dataUriOrBase64.length < 300) {
+        return { fileUrl: dataUriOrBase64, storageUsed: 'text', isRawData: false };
+    }
+
+    const approxByteSize = Math.round(base64Data.length * 0.75);
+    const SAFE_MONGO_LIMIT = 2.5 * 1024 * 1024; // 2.5MB safe limit to keep MongoDB fast and avoid 16MB document cap
+
+    const isImportant = (storageMode === 'important');
+    const exceedsLimit = approxByteSize > SAFE_MONGO_LIMIT;
+
+    // CASE 1: Important mode AND within safe limit -> Store directly in MongoDB
+    if (isImportant && !exceedsLimit) {
+        return {
+            fileUrl: dataUriOrBase64,
+            storageUsed: 'mongodb',
+            isRawData: true,
+            sizeBytes: approxByteSize
+        };
+    }
+
+    // CASE 2: Normal mode (Default) OR Important mode that exceeds safe MongoDB limit
+    // -> Save to GitHub public/data folder on server disk AND push to GitHub repository!
     try {
-        const targetDir = path.join(__dirname, 'public', 'uploads', subDir);
+        const targetDir = path.join(__dirname, 'public', 'data', subDir);
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
-        const filename = `${subDir}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
+        const safeBaseName = title ? title.slice(0, 30).replace(/[^a-zA-Z0-9_-]/g, '_') : subDir;
+        const filename = `${safeBaseName}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
         const filePath = path.join(targetDir, filename);
         fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
-        return `/uploads/${subDir}/${filename}`;
+
+        const publicUrl = `/data/${subDir}/${filename}`;
+        const relGitHubPath = `public/data/${subDir}/${filename}`;
+
+        // Asynchronously push to GitHub repository
+        syncFileToGitHub(relGitHubPath, base64Data, `upload: save ${subDir} asset (${title || filename}) to GitHub public/data`).catch(() => {});
+
+        return {
+            fileUrl: publicUrl,
+            storageUsed: exceedsLimit && isImportant ? 'github_fallback' : 'github_data',
+            isRawData: false,
+            sizeBytes: approxByteSize,
+            filename: filename
+        };
     } catch (e) {
-        console.error('saveBase64ToFile error:', e.message);
-        return dataUriOrBase64;
+        console.error('saveAssetFile error:', e.message);
+        return { fileUrl: dataUriOrBase64, storageUsed: 'mongodb_fallback', isRawData: true };
     }
+}
+
+// Backward-compatible helper that returns the URL string
+function saveBase64ToFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf', storageMode = 'normal', title = '') {
+    const res = saveAssetFile(dataUriOrBase64, subDir, defaultExt, storageMode, title);
+    return res.fileUrl;
 }
 
 // Middlewares
@@ -68,6 +170,7 @@ app.use(express.json({ limit: '80mb' }));
 app.use(express.urlencoded({ extended: true, limit: '80mb' }));
 // High-performance static caching
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
+app.use('/data', express.static(path.join(__dirname, 'public', 'data'), { maxAge: '1d', etag: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), { maxAge: '1d', etag: true }));
 
 // Ultra-fast In-Memory Cache (drops Atlas latency from ~600ms to <2ms)
@@ -2796,14 +2899,17 @@ app.delete('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
 app.post('/api/director/banners', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
-        const { title, subtitle, image, link } = req.body;
+        const { title, subtitle, image, link, storageMode } = req.body;
         if (!image) return res.status(400).json({ success: false, message: 'Banner image is required' });
+
+        const mode = storageMode === 'important' ? 'important' : 'normal';
+        const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || center.centerName).trim());
 
         const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
         center.promotionalBanners.push({
             title: (title || '').trim(),
             subtitle: (subtitle || '').trim(),
-            image: image,
+            image: imgAsset.fileUrl,
             link: (link || '').trim(),
             active: true,
             expiresAt: expiresAt,
@@ -2811,6 +2917,7 @@ app.post('/api/director/banners', verifyDirector, async (req, res) => {
         });
 
         await center.save();
+        clearCache();
         res.json({ success: true, message: 'Promotional banner uploaded! Valid for 30 days.', data: center.promotionalBanners });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3090,21 +3197,23 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
 app.post('/api/director/materials', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
-        const { title, description, price, fileType, pdf, file, link, isRawData } = req.body;
+        const { title, description, price, fileType, pdf, file, link, isRawData, storageMode } = req.body;
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
 
         const itemPrice = Math.max(0, Number(price) || 0);
-        const savedFilePath = saveBase64ToFile(pdf || file, 'materials', fileType || 'pdf');
+        const mode = storageMode === 'important' ? 'important' : 'normal';
+        const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, title.trim());
 
         center.materials.push({
             title: title.trim(),
             description: description || '',
             price: itemPrice,
             fileType: fileType || 'pdf',
-            pdf: savedFilePath,
-            file: savedFilePath,
+            pdf: fileAsset.fileUrl,
+            file: fileAsset.fileUrl,
             link: link || '',
-            isRawData: Boolean(isRawData)
+            isRawData: Boolean(fileAsset.isRawData || isRawData),
+            storageMode: fileAsset.storageUsed
         });
 
         await center.save();
@@ -3119,12 +3228,13 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 classLevel: 'All Classes',
                 description: description || '',
                 fileType: fileType || 'pdf',
-                pdf: savedFilePath,
-                file: savedFilePath,
+                pdf: fileAsset.fileUrl,
+                file: fileAsset.fileUrl,
                 price: itemPrice,
                 targetCenterId: center._id.toString(),
                 targetCenterName: center.centerName,
-                isRawData: Boolean(isRawData),
+                isRawData: Boolean(fileAsset.isRawData || isRawData),
+                storageMode: fileAsset.storageUsed,
                 createdAt: new Date()
             });
             await sm.save();
@@ -3133,7 +3243,16 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
         }
 
         clearCache();
-        res.json({ success: true, message: 'Study material uploaded successfully!', data: center.materials });
+        res.json({
+            success: true,
+            message: fileAsset.storageUsed === 'github_fallback'
+                ? 'Study material saved to GitHub public/data (auto-routed because file exceeded MongoDB safe limit)!'
+                : (fileAsset.storageUsed === 'mongodb'
+                    ? 'Study material saved to MongoDB Vault!'
+                    : 'Study material uploaded successfully to GitHub public/data!'),
+            data: center.materials,
+            storageUsed: fileAsset.storageUsed
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -3149,16 +3268,19 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
         if (!mat) return res.status(404).json({ success: false, message: 'Material not found' });
 
         const oldTitle = mat.title;
-        const { title, description, price, pdf, file, fileType } = req.body;
+        const { title, description, price, pdf, file, fileType, storageMode } = req.body;
         if (title) mat.title = title.trim();
         if (description !== undefined) mat.description = description.trim();
         if (price !== undefined) mat.price = Math.max(0, Number(price) || 0);
 
         if (pdf || file) {
-            const savedFilePath = saveBase64ToFile(pdf || file, 'materials', fileType || 'pdf');
-            if (savedFilePath) {
-                mat.pdf = savedFilePath;
-                mat.file = savedFilePath;
+            const mode = storageMode === 'important' ? 'important' : 'normal';
+            const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, (title || oldTitle).trim());
+            if (fileAsset.fileUrl) {
+                mat.pdf = fileAsset.fileUrl;
+                mat.file = fileAsset.fileUrl;
+                mat.isRawData = Boolean(fileAsset.isRawData);
+                mat.storageMode = fileAsset.storageUsed;
             }
         }
 
@@ -3453,7 +3575,8 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             price,
             targetCenterId,
             targetCenterName,
-            isRawData
+            isRawData,
+            storageMode
         } = req.body;
 
         if (!title) return res.status(400).json({ success: false, message: 'Document title is required' });
@@ -3462,8 +3585,9 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
 
         const safeExt = (fileType || 'pdf').toLowerCase();
-        const savedFile = saveBase64ToFile(file, 'materials', safeExt);
-        const savedThumb = thumbnail ? saveBase64ToFile(thumbnail, 'branding', 'jpg') : '';
+        const mode = storageMode === 'important' ? 'important' : 'normal';
+        const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, title.trim());
+        const thumbAsset = thumbnail ? saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', title.trim()) : null;
 
         sm.notes.push({
             title: title.trim(),
@@ -3471,19 +3595,28 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             classLevel: classLevel || 'All Classes',
             description: description || '',
             fileType: safeExt,
-            thumbnail: savedThumb || thumbnail || '',
-            file: savedFile || file || '',
-            pdf: savedFile || file || '',
+            thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
+            file: fileAsset.fileUrl || file || '',
+            pdf: fileAsset.fileUrl || file || '',
             fileName: fileName || `${title.replace(/[^a-zA-Z0-9]/g, '_')}.${safeExt}`,
             price: Math.max(0, Number(price) || 0),
             targetCenterId: targetCenterId || 'all',
             targetCenterName: targetCenterName || 'All Centers (Universal)',
-            isRawData: Boolean(isRawData)
+            isRawData: Boolean(fileAsset.isRawData || isRawData),
+            storageMode: fileAsset.storageUsed
         });
 
         await sm.save();
         clearCache();
-        res.json({ success: true, message: 'Document added to Central E-Library!' });
+        res.json({
+            success: true,
+            message: fileAsset.storageUsed === 'github_fallback'
+                ? 'Document saved to GitHub public/data (auto-routed because file exceeded MongoDB safe limit)!'
+                : (fileAsset.storageUsed === 'mongodb'
+                    ? 'Document saved to MongoDB Vault!'
+                    : 'Document added to Central E-Library on GitHub public/data!'),
+            storageUsed: fileAsset.storageUsed
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -3510,7 +3643,8 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
             price,
             targetCenterId,
             targetCenterName,
-            isRawData
+            isRawData,
+            storageMode
         } = req.body;
 
         const safeExt = fileType ? fileType.toLowerCase() : (note.fileType || 'pdf').toLowerCase();
@@ -3520,13 +3654,16 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         if (description !== undefined) note.description = description;
         if (fileType !== undefined) note.fileType = safeExt;
         if (thumbnail !== undefined && thumbnail !== '') {
-            const savedThumb = saveBase64ToFile(thumbnail, 'branding', 'jpg');
-            note.thumbnail = savedThumb || thumbnail;
+            const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || note.title).trim());
+            note.thumbnail = thumbAsset.fileUrl || thumbnail;
         }
         if (file !== undefined && file !== '') {
-            const savedFile = saveBase64ToFile(file, 'materials', safeExt);
-            note.file = savedFile || file;
-            note.pdf = savedFile || file;
+            const mode = storageMode === 'important' ? 'important' : 'normal';
+            const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, (title || note.title).trim());
+            note.file = fileAsset.fileUrl || file;
+            note.pdf = fileAsset.fileUrl || file;
+            note.isRawData = Boolean(fileAsset.isRawData);
+            note.storageMode = fileAsset.storageUsed;
         }
         if (fileName !== undefined) note.fileName = fileName;
         if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
@@ -3885,13 +4022,27 @@ app.delete('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) =>
 // 8.16 Board Campus Photo Gallery Management
 app.post('/api/admin/gallery', verifySuperAdmin, async (req, res) => {
     try {
-        const { image, title } = req.body;
+        const { image, title, storageMode } = req.body;
         if (!image) return res.status(400).json({ success: false, message: 'Image required' });
         let settings = await Settings.findOne();
         if (!settings) settings = await Settings.create({});
-        settings.gallery.push({ image, title: title || 'Campus Highlight' });
+        
+        const mode = storageMode === 'important' ? 'important' : 'normal';
+        const imgAsset = saveAssetFile(image, 'photos', 'jpg', mode, (title || 'Campus Highlight').trim());
+        
+        settings.gallery.push({
+            image: imgAsset.fileUrl || image,
+            title: title || 'Campus Highlight',
+            storageMode: imgAsset.storageUsed
+        });
         await settings.save();
-        res.json({ success: true, message: 'Photo added to Board Gallery!', data: settings.gallery });
+        clearCache('public_config');
+        res.json({
+            success: true,
+            message: `Photo added to Board Gallery! (Stored via: ${imgAsset.storageUsed})`,
+            storageMode: imgAsset.storageUsed,
+            data: settings.gallery
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

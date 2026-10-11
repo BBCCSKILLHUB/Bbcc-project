@@ -1052,6 +1052,209 @@
             color: var(--text-slate);
         }
 
+        /* ============================================================
+           BBCC DYNAMIC ANIMATIONS & VISITOR ENGAGEMENT ENGINE
+           ============================================================ */
+        /* Ambient Floating Aurora Mesh */
+        .ambient-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.18;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .ambient-orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
+            top: -120px;
+            left: 8%;
+            animation: floatOrb1 20s ease-in-out infinite alternate;
+        }
+
+        .ambient-orb-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+            bottom: -80px;
+            right: 5%;
+            animation: floatOrb2 25s ease-in-out infinite alternate;
+        }
+
+        .ambient-orb-3 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            top: 45%;
+            left: 50%;
+            animation: floatOrb3 28s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb1 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 40px) scale(1.12); }
+            100% { transform: translate(-30px, -50px) scale(0.92); }
+        }
+
+        @keyframes floatOrb2 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, -60px) scale(1.15); }
+            100% { transform: translate(40px, 30px) scale(0.95); }
+        }
+
+        @keyframes floatOrb3 {
+            0% { transform: translate(-50%, 0) scale(1); }
+            50% { transform: translate(-40%, 50px) scale(1.1); }
+            100% { transform: translate(-60%, -40px) scale(0.9); }
+        }
+
+        /* Shimmering Text Header */
+        .hero-title {
+            background: linear-gradient(135deg, #ffffff 10%, #fbbf24 45%, #38bdf8 70%, #f59e0b 95%) !important;
+            background-size: 250% auto !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            animation: textFlowShimmer 9s ease-in-out infinite alternate;
+        }
+
+        @keyframes textFlowShimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* Floating Badge Animation */
+        .hero-tag {
+            animation: gentleLevitation 4.5s ease-in-out infinite alternate;
+            box-shadow: 0 4px 18px rgba(251, 191, 36, 0.2);
+        }
+
+        @keyframes gentleLevitation {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-7px); }
+        }
+
+        /* Live Pulsing Dot */
+        .live-pulse-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: livePulseAnim 1.8s infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes livePulseAnim {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Button Light Shimmer Streak */
+        .btn-aurora {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-aurora::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -80%;
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+            transform: rotate(25deg);
+            pointer-events: none;
+            transition: none;
+        }
+
+        .btn-aurora:hover::after {
+            left: 140%;
+            transition: left 0.7s ease-in-out;
+        }
+
+        /* Elite 3D Hover Lifts & Border Glows */
+        .stat-card-elite,
+        .course-card-elite,
+        .institute-card-elite,
+        .book-card-elite,
+        .verification-desk-box {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease !important;
+            will-change: transform;
+        }
+
+        .stat-card-elite:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 18px 35px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.25) !important;
+            border-color: rgba(251, 191, 36, 0.55) !important;
+        }
+
+        .course-card-elite:hover,
+        .institute-card-elite:hover,
+        .book-card-elite:hover {
+            transform: translateY(-7px) !important;
+            box-shadow: 0 22px 45px -12px rgba(0, 0, 0, 0.85), 0 0 24px rgba(56, 189, 248, 0.22) !important;
+            border-color: rgba(56, 189, 248, 0.5) !important;
+        }
+
+        /* Bharti AI Floating Widget Pulse & Shake */
+        .bharti-bubble-launcher {
+            animation: launcherFloat 3.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes launcherFloat {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.04); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        /* Scroll Reveal Utility Classes */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-on-scroll.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.93);
+            transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-scale.revealed {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Staggered delay helpers */
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
         @media print {
             .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container {
                 display: none !important;
@@ -1060,6 +1263,13 @@
     </style>
 </head>
 <body>
+
+    <!-- Ambient Aurora Floating Background Mesh -->
+    <div class="ambient-mesh" aria-hidden="true">
+        <div class="ambient-orb ambient-orb-1"></div>
+        <div class="ambient-orb ambient-orb-2"></div>
+        <div class="ambient-orb ambient-orb-3"></div>
+    </div>
 
     <!-- 1. Running Breaking News Marquee -->
     <div class="marquee-container">
@@ -1127,6 +1337,7 @@
     <!-- 4. Hero Section -->
     <section class="hero-universe">
         <div class="hero-tag">
+            <span class="live-pulse-dot"></span>
             <i class="fas fa-shield-halved"></i> Officially Recognized Digital Institute Network
         </div>
         <h2 class="hero-title" id="heroTagline">Empowering Certified Learning & Partner Institutes</h2>
@@ -1996,12 +2207,72 @@
         let currentSlideIdx = 0;
         let sliderInterval = null;
 
+        // Animated Numeric Counters
+        function animateStatCounter(elId, targetNum, suffix = '+') {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const target = parseInt(targetNum, 10);
+            if (isNaN(target) || target <= 0) {
+                el.textContent = '0' + suffix;
+                return;
+            }
+            const duration = 1400; // ms
+            const startTime = performance.now();
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // easeOutCubic curve
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(ease * target);
+                el.textContent = current + suffix;
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    el.textContent = target + suffix;
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Smooth Viewport Scroll Observer
+        let scrollObserverInstance = null;
+        function initScrollAnimations() {
+            const targets = document.querySelectorAll('.universe-section, .hero-universe, .stat-card-elite, .verification-desk-box, .section-header-elite');
+            targets.forEach((el, idx) => {
+                if (!el.classList.contains('reveal-on-scroll')) {
+                    el.classList.add('reveal-on-scroll');
+                    if (idx % 3 === 1) el.classList.add('reveal-delay-1');
+                    if (idx % 3 === 2) el.classList.add('reveal-delay-2');
+                }
+            });
+
+            if ('IntersectionObserver' in window) {
+                if (!scrollObserverInstance) {
+                    scrollObserverInstance = new IntersectionObserver((entries, obs) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('revealed');
+                                obs.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+                }
+                document.querySelectorAll('.reveal-on-scroll:not(.revealed), .reveal-scale:not(.revealed)').forEach(el => {
+                    scrollObserverInstance.observe(el);
+                });
+            } else {
+                document.querySelectorAll('.reveal-on-scroll, .reveal-scale').forEach(el => el.classList.add('revealed'));
+            }
+        }
+
         async function initPortal() {
+            initScrollAnimations();
             await loadConfig();
             await loadPromotionalBanners();
             await loadCourses();
             await loadCenters();
             await loadBooks();
+            initScrollAnimations();
         }
 
         async function loadConfig() {
@@ -2184,8 +2455,9 @@
                 const data = await res.json();
                 if (data.success && data.data) {
                     allCourses = data.data;
-                    document.getElementById('statCoursesCount').textContent = allCourses.length + '+';
+                    animateStatCounter('statCoursesCount', allCourses.length);
                     filterCoursesList();
+                    initScrollAnimations();
                 } else {
                     renderCourses([]);
                 }
@@ -2317,9 +2589,10 @@
                 const data = await res.json();
                 if (data.success && data.data) {
                     allCenters = data.data;
-                    document.getElementById('statCentersCount').textContent = allCenters.length + '+';
+                    animateStatCounter('statCentersCount', allCenters.length);
                     renderCenters(allCenters);
                     populateAdmissionCentersDropdown();
+                    initScrollAnimations();
                 } else {
                     renderCenters([]);
                 }
@@ -2913,8 +3186,9 @@
                 const data = await res.json();
                 if (data.success && data.data && data.data.notes) {
                     allBooks = data.data.notes;
-                    document.getElementById('statBooksCount').textContent = allBooks.length + '+';
+                    animateStatCounter('statBooksCount', allBooks.length);
                     filterVaultBooks();
+                    initScrollAnimations();
                 } else {
                     renderBooks([]);
                 }

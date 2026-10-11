@@ -340,6 +340,26 @@
                             </div>
                         </div>
 
+                        <!-- Storage Destination Selector (Normal vs Important) -->
+                        <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:12px 16px; border-radius:10px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:8px;">
+                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
+                            </label>
+                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
+                                    <input type="radio" name="adminBookStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                                    <span><strong>Normal</strong> (GitHub Data Folder / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
+                                    <input type="radio" name="adminBookStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
+                                </label>
+                            </div>
+                            <div style="font-size:11px; color:#94a3b8; margin-top:6px;">
+                                <i class="fas fa-shield-alt"></i> Safe fallback: If Important file exceeds 2.5MB safe limit, it automatically routes to GitHub data storage safely.
+                            </div>
+                        </div>
+
                         <div style="margin-bottom:14px;">
                             <label style="font-size:12px; color:#cbd5e1;">Custom Thumbnail Image (Optional — if blank, 3D Book Cover auto-generates)</label>
                             <input type="file" id="vbThumbInput" accept="image/*" class="console-input">
@@ -669,15 +689,35 @@
             <div class="admin-tab" id="tab-gallery">
                 <div class="card-console">
                     <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Upload Campus & Felicitation Photo</h3>
-                    <form onsubmit="uploadGalleryPhoto(event)" style="display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:end;">
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1;">Photo Caption / Title *</label>
-                            <input type="text" id="galTitleInput" required placeholder="e.g. Annual Academic Awards 2026" class="console-input">
+                    <form onsubmit="uploadGalleryPhoto(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:12px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Photo Caption / Title *</label>
+                                <input type="text" id="galTitleInput" required placeholder="e.g. Annual Academic Awards 2026" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;">Select Image File *</label>
+                                <input type="file" id="galFileInput" required accept="image/*" class="console-input">
+                            </div>
                         </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1;">Select Image File *</label>
-                            <input type="file" id="galFileInput" required accept="image/*" class="console-input">
+
+                        <!-- Storage Destination Selector -->
+                        <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
+                            </label>
+                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
+                                    <input type="radio" name="adminGalStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                                    <span><strong>Normal</strong> (GitHub Photos / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
+                                    <input type="radio" name="adminGalStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
+                                </label>
+                            </div>
                         </div>
+
                         <div>
                             <button type="submit" id="btnUploadGal" class="btn-aurora btn-gold" style="padding:12px 20px;">
                                 <i class="fas fa-upload"></i> Upload to Gallery
@@ -867,6 +907,23 @@
                     <input type="file" id="edBookFileInput" accept=".pdf,.doc,.docx" class="console-input">
                 </div>
 
+                <!-- Storage Destination Selector for Replaced File -->
+                <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
+                    <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                        <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
+                    </label>
+                    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
+                            <input type="radio" name="edBookStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                            <span><strong>Normal</strong> (GitHub / CDN) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
+                            <input type="radio" name="edBookStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
+                            <span><strong>Important</strong> (MongoDB Direct)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:16px;">
                     <button type="button" onclick="closeBookEditor()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
                     <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Document Changes</button>
@@ -1007,6 +1064,9 @@
             await new Promise(r => reader.onload = r);
             const imageBase64 = reader.result;
 
+            const storageModeEl = document.querySelector('input[name="adminGalStorageMode"]:checked');
+            const storageMode = storageModeEl ? storageModeEl.value : 'normal';
+
             try {
                 const res = await fetch('/api/admin/gallery', {
                     method: 'POST',
@@ -1014,7 +1074,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ title, image: imageBase64 })
+                    body: JSON.stringify({ title, image: imageBase64, storageMode })
                 });
                 const data = await res.json();
                 btn.disabled = false;
@@ -1656,6 +1716,9 @@
                 thumbBase64 = reader.result;
             }
 
+            const storageModeEl = document.querySelector('input[name="adminBookStorageMode"]:checked');
+            const storageMode = storageModeEl ? storageModeEl.value : 'normal';
+
             const res = await fetch('/api/admin/books', {
                 method: 'POST',
                 headers: {
@@ -1669,7 +1732,8 @@
                     fileName: fileInput.files[0] ? fileInput.files[0].name : `${title}.pdf`,
                     targetCenterId,
                     targetCenterName,
-                    isRawData
+                    isRawData,
+                    storageMode
                 })
             });
 
@@ -1729,6 +1793,8 @@
                 await new Promise(r => reader.onload = r);
                 payload.file = reader.result;
                 payload.fileName = fileInput.files[0].name;
+                const edModeEl = document.querySelector('input[name="edBookStorageMode"]:checked');
+                payload.storageMode = edModeEl ? edModeEl.value : 'normal';
             }
 
             const res = await fetch(`/api/admin/books/${id}`, {
