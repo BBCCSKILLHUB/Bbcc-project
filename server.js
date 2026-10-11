@@ -986,42 +986,43 @@ async function initSystem() {
             }
         }
 
-        // 3. Ensure StudyMaterial has verified notes
+        // 3. Ensure StudyMaterial has verified notes & valid PDF links
         let smDoc = await StudyMaterial.findOne();
         if (!smDoc) {
             smDoc = await StudyMaterial.create({ notes: [], videos: [] });
         }
-        if (smDoc.notes.length < 3 && pdb.studyMaterials && pdb.studyMaterials.notes) {
-            const existingTitles = new Set(smDoc.notes.map(n => (n.title || '').trim().toLowerCase()));
+        if (pdb.studyMaterials && pdb.studyMaterials.notes) {
             for (const pn of pdb.studyMaterials.notes) {
-                if (!existingTitles.has((pn.title || '').trim().toLowerCase())) {
+                const titleLower = (pn.title || '').trim().toLowerCase();
+                const existingNote = smDoc.notes.find(n => (n.title || '').trim().toLowerCase() === titleLower || n._id.toString() === pn._id.toString());
+                if (existingNote) {
+                    existingNote.file = pn.file;
+                    existingNote.pdf = pn.pdf;
+                    existingNote.thumbnail = pn.thumbnail;
+                    existingNote.hasFile = true;
+                } else {
                     smDoc.notes.push(pn);
                 }
             }
             await smDoc.save();
-            console.log('✅ Seeded educational PDF notes into StudyMaterial vault');
+            console.log('✅ Synchronized educational PDF notes into StudyMaterial vault');
         }
 
-        // 4. Ensure Settings has valid promotional banners and clean logo
+        // 4. Ensure Settings has valid restored logo, gallery, founder & promotional banners
         let settingsDoc = await Settings.findOne();
         if (settingsDoc) {
-            if (settingsDoc.boardLogo && settingsDoc.boardLogo.startsWith('/data/')) {
-                const cleanLogo = settingsDoc.boardLogo.replace(/^\/+/, '');
-                const localLogoPath = path.join(__dirname, 'public', cleanLogo);
-                if (!fs.existsSync(localLogoPath)) {
-                    const ghLogo = await fetchFileFromGitHub(`public/${cleanLogo}`);
-                    if (!ghLogo) {
-                        settingsDoc.boardLogo = '';
-                        await settingsDoc.save();
-                        console.log('🧹 Cleaned missing boardLogo in Settings');
-                    }
-                }
+            settingsDoc.boardLogo = '/data/branding/logo.png';
+            if (pdb.settings && pdb.settings.founderProfile) {
+                settingsDoc.founderProfile = pdb.settings.founderProfile;
+            }
+            if (pdb.settings && pdb.settings.gallery && pdb.settings.gallery.length > 0) {
+                settingsDoc.gallery = pdb.settings.gallery;
             }
             if ((!settingsDoc.banners || settingsDoc.banners.length === 0) && pdb.settings && pdb.settings.banners) {
                 settingsDoc.banners = pdb.settings.banners;
-                await settingsDoc.save();
-                console.log('✅ Seeded festival promotional banners into Settings');
             }
+            await settingsDoc.save();
+            console.log('✅ Synchronized Settings logo, founder, gallery & banners');
         }
     } catch (e) {
         console.error('System init notice:', e.message);

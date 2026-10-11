@@ -6,17 +6,17 @@
     "heroDesc": "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
     "newsMarquee": "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live",
     "affiliationFee": 999,
-    "boardLogo": "",
+    "boardLogo": "/data/branding/logo.png",
     "phone": "+91 98765 43210",
     "email": "admin@bbccskillhub.org",
     "address": "BBCC Central Directorate, Patna, Bihar - 800001",
     "activeFestivalTheme": "auto",
     "founderProfile": {
-      "name": "Dr. Brajesh Bhushan",
-      "photo": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
+      "name": "Santosh Kumar",
+      "photo": "/data/photos/Santosh_Sir.jpg",
       "designation": "Founder & Managing Director",
-      "qualification": "M.Tech, Ph.D. in Computer Science & Educational Leadership",
-      "message": "हमारा लक्ष्य प्रत्येक गांव और शहर के छात्र तक गुणवत्तापूर्ण शिक्षा और आधुनिक कंप्यूटर कौशल पहुंचाना है। BBCC से जुड़े कोचिंग संस्थानों को सशक्त बनाकर हम बिहार और भारत के युवाओं को आत्मनिर्भर और रोजगार-योग्य बना रहे हैं।",
+      "qualification": "B.Ed, EdTech Visionary & Institutional Leader",
+      "message": "हमारा उद्देश्य प्रत्येक छात्र और कोचिंग संस्थान को आधुनिक डिजिटल प्लेटफॉर्म और उत्कृष्ट अध्ययन सामग्री प्रदान करना है।",
       "signature": ""
     },
     "billTemplate": {
@@ -37,7 +37,16 @@
         "image": ""
       }
     ],
-    "gallery": []
+    "gallery": [
+      {
+        "title": "BBCC Digital Campus Hub",
+        "image": "/data/photos/BBCC_1791744014313_277950.png"
+      },
+      {
+        "title": "Santosh Sir (Founder & MD)",
+        "image": "/data/photos/Santosh_Sir_1791744121119_2fde29.jpg"
+      }
+    ]
   },
   "admins": [
     {
@@ -219,6 +228,54 @@
   ],
   "studyMaterials": {
     "notes": [
+      {
+        "_id": "6acbd1820c4de4d3a7b0f788",
+        "title": "Class 9th Notes Book",
+        "subject": "All Subjects Comprehensive Notes",
+        "classLevel": "Class 9th",
+        "description": "Authentic textbook syllabus comprehensive handwritten notes & practice questions.",
+        "fileType": "pdf",
+        "thumbnail": "/data/branding/Class_9th_History_1791742338264_232d59.png",
+        "file": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "pdf": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "price": 0,
+        "targetCenterId": "all",
+        "targetCenterName": "All Centers (Universal)",
+        "isRawData": true,
+        "downloadCount": 42
+      },
+      {
+        "_id": "6acbd740a72281dff07bdff5",
+        "title": "CDP Notes Book (CTET / STET)",
+        "subject": "Child Development & Pedagogy",
+        "classLevel": "CTET / STET / BPSC TRE",
+        "description": "Complete pedagogy guide with theories, case study analysis, and previous exam questions.",
+        "fileType": "pdf",
+        "thumbnail": "/data/branding/CDP_notes_book_1791743808557_19ea47.jpg",
+        "file": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "pdf": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "price": 0,
+        "targetCenterId": "all",
+        "targetCenterName": "All Centers (Universal)",
+        "isRawData": true,
+        "downloadCount": 29
+      },
+      {
+        "_id": "6acbd910a72281dff07be02d",
+        "title": "Class 9th Economics & Social Science",
+        "subject": "Economics & Social Science",
+        "classLevel": "Class 9th",
+        "description": "NCERT syllabus detailed concepts, chapter summaries, and high scoring model answers.",
+        "fileType": "pdf",
+        "thumbnail": "/data/branding/Class_9th_Economics_1791744272847_99c8b7.png",
+        "file": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "pdf": "/data/materials/CLASS_9th_NOTES_BOOK.pdf",
+        "price": 0,
+        "targetCenterId": "all",
+        "targetCenterName": "All Centers (Universal)",
+        "isRawData": true,
+        "downloadCount": 35
+      },
       {
         "_id": "note_univ_001",
         "title": "Class 10th All Subjects Board Model Question Papers with Solutions",
