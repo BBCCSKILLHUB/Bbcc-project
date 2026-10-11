@@ -945,38 +945,51 @@
                     <div style="font-size:13px; color:var(--inst-gold); margin-top:4px;" id="inmPriceText">MRP: ₹49</div>
                 </div>
 
-                <!-- Enrolled Student Free Download -->
-                <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:14px; padding:16px; margin-bottom:16px;">
-                    <div style="font-size:13px; font-weight:800; color:#34d399; margin-bottom:6px;">
-                        <i class="fas fa-id-card"></i> Enrolled Student? 100% Free Unlock
-                    </div>
-                    <p style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
-                        Enter your 12-digit Aadhar Number or Roll Number to verify your enrollment with this institute and download instantly for ₹0.
-                    </p>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="inmStudentQuery" placeholder="Enter Aadhar or Roll No" class="inst-input" style="flex:1;">
-                        <button type="button" onclick="verifyEnrolledStudentNotes()" class="btn-return-bbcc" style="background:#10b981; color:#fff; border:none; padding:8px 16px; font-size:12px; cursor:pointer;">
-                            <i class="fas fa-unlock"></i> Unlock
-                        </button>
-                    </div>
-                    <div id="inmVerifyMsg" style="font-size:12px; margin-top:8px; display:none;"></div>
+                <!-- Verified Download Success Card -->
+                <div id="inmSuccessBox" style="display:none; background:rgba(16,185,129,0.12); border:1px solid #10b981; border-radius:14px; padding:20px; text-align:center; margin-bottom:16px;">
+                    <i class="fas fa-circle-check" style="color:#34d399; font-size:38px; margin-bottom:10px; display:inline-block;"></i>
+                    <h4 style="color:#fff; font-size:16px; margin:0 0 6px;">Access Verified Successfully!</h4>
+                    <p style="font-size:12px; color:#cbd5e1; margin-bottom:14px;">Your study material is unlocked and ready for download.</p>
+                    <a id="inmManualDownloadBtn" href="#" download="study_document.pdf" target="_blank" class="btn-return-bbcc" style="display:inline-flex; justify-content:center; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-size:13.5px; font-weight:800; padding:10px 22px; text-decoration:none; cursor:pointer; box-shadow:0 0 15px rgba(16,185,129,0.4);">
+                        <i class="fas fa-file-arrow-down" style="margin-right:6px;"></i> Download Study Material (PDF)
+                    </a>
+                    <div style="font-size:11px; color:#94a3b8; margin-top:8px;">Your download starts automatically. Click above if it did not start.</div>
                 </div>
 
-                <!-- Non-Enrolled Outsiders Payment -->
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px;">
-                    <div style="font-size:13px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">
-                        <i class="fas fa-bolt"></i> Non-Enrolled? Buy at MRP
+                <div id="inmOptionsWrap">
+                    <!-- Enrolled Student Free Download -->
+                    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:14px; padding:16px; margin-bottom:16px;">
+                        <div style="font-size:13px; font-weight:800; color:#34d399; margin-bottom:6px;">
+                            <i class="fas fa-id-card"></i> Enrolled Student? 100% Free Unlock
+                        </div>
+                        <p style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
+                            Enter your 12-digit Aadhar Number or Roll Number to verify your enrollment with this institute and download instantly for ₹0.
+                        </p>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="inmStudentQuery" placeholder="Enter Aadhar or Roll No" class="inst-input" style="flex:1;">
+                            <button type="button" onclick="verifyEnrolledStudentNotes()" class="btn-return-bbcc" style="background:#10b981; color:#fff; border:none; padding:8px 16px; font-size:12px; cursor:pointer;">
+                                <i class="fas fa-unlock"></i> Unlock
+                            </button>
+                        </div>
+                        <div id="inmVerifyMsg" style="font-size:12px; margin-top:8px; display:none;"></div>
                     </div>
-                    <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">
-                        Students not enrolled at this center can purchase direct instant access via Razorpay.
-                    </p>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
-                        <input type="text" id="inmPayerName" placeholder="Your Name" class="inst-input">
-                        <input type="tel" id="inmPayerPhone" placeholder="Mobile Number" class="inst-input">
+
+                    <!-- Non-Enrolled Outsiders Payment -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px;">
+                        <div style="font-size:13px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">
+                            <i class="fas fa-bolt"></i> Non-Enrolled? Buy at MRP
+                        </div>
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">
+                            Students not enrolled at this center can purchase direct instant access via Razorpay.
+                        </p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                            <input type="text" id="inmPayerName" placeholder="Your Name" class="inst-input">
+                            <input type="tel" id="inmPayerPhone" placeholder="Mobile Number" class="inst-input">
+                        </div>
+                        <button type="button" id="inmPayBtn" onclick="payViaRazorpayForNotes()" class="btn-return-bbcc" style="width:100%; justify-content:center; background:var(--gold-gradient); color:#050811; font-size:13px; font-weight:800; cursor:pointer;">
+                            <i class="fas fa-credit-card"></i> Pay & Instant Download
+                        </button>
                     </div>
-                    <button type="button" id="inmPayBtn" onclick="payViaRazorpayForNotes()" class="btn-return-bbcc" style="width:100%; justify-content:center; background:var(--gold-gradient); color:#050811; font-size:13px; font-weight:800; cursor:pointer;">
-                        <i class="fas fa-credit-card"></i> Pay & Instant Download
-                    </button>
                 </div>
             </div>
         </div>
@@ -1243,6 +1256,11 @@
             if (savedName) document.getElementById('inmPayerName').value = savedName;
             if (savedPhone) document.getElementById('inmPayerPhone').value = savedPhone;
 
+            const sBox = document.getElementById('inmSuccessBox');
+            const oWrap = document.getElementById('inmOptionsWrap');
+            if (sBox) sBox.style.display = 'none';
+            if (oWrap) oWrap.style.display = 'block';
+
             document.getElementById('inmVerifyMsg').style.display = 'none';
             document.getElementById('instNotesModalDock').style.display = 'flex';
         }
@@ -1278,9 +1296,19 @@
                 const data = await res.json();
                 if (data.success && data.free) {
                     localStorage.setItem('bbcc_student_aadhar', query);
-                    msgEl.style.color = '#34d399';
-                    msgEl.innerHTML = `<i class="fas fa-check-circle"></i> <b>${data.message || 'Enrolled Student Verified! Free access granted.'}</b>`;
-                    triggerDownloadFile(data.file, data.fileName);
+                    const dlPayload = data.downloadUrl || data.file;
+                    triggerDownloadFile(dlPayload, data.fileName);
+
+                    const sBox = document.getElementById('inmSuccessBox');
+                    const oWrap = document.getElementById('inmOptionsWrap');
+                    const dlBtn = document.getElementById('inmManualDownloadBtn');
+                    if (dlBtn && dlPayload) {
+                        dlBtn.href = dlPayload;
+                        dlBtn.download = data.fileName || 'study_document.pdf';
+                        dlBtn.target = '_blank';
+                    }
+                    if (oWrap) oWrap.style.display = 'none';
+                    if (sBox) sBox.style.display = 'block';
                 } else {
                     msgEl.style.color = '#fbbf24';
                     msgEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Free download is strictly reserved for students enrolled in this institute. You can purchase below via Razorpay.`;
@@ -1325,8 +1353,18 @@
                 }
 
                 if (data.free) {
-                    triggerDownloadFile(data.file, data.fileName);
-                    closeInstNotesModal();
+                    const dlPayload = data.downloadUrl || data.file;
+                    triggerDownloadFile(dlPayload, data.fileName);
+                    const sBox = document.getElementById('inmSuccessBox');
+                    const oWrap = document.getElementById('inmOptionsWrap');
+                    const dlBtn = document.getElementById('inmManualDownloadBtn');
+                    if (dlBtn && dlPayload) {
+                        dlBtn.href = dlPayload;
+                        dlBtn.download = data.fileName || 'study_document.pdf';
+                        dlBtn.target = '_blank';
+                    }
+                    if (oWrap) oWrap.style.display = 'none';
+                    if (sBox) sBox.style.display = 'block';
                     return;
                 }
 
@@ -1353,9 +1391,19 @@
                             });
                             const vData = await vRes.json();
                             if (vData.success) {
-                                alert('Payment Successful! Downloading your study material now...');
-                                triggerDownloadFile(vData.file, vData.fileName);
-                                closeInstNotesModal();
+                                const dlPayload = vData.downloadUrl || vData.file;
+                                triggerDownloadFile(dlPayload, vData.fileName);
+
+                                const sBox = document.getElementById('inmSuccessBox');
+                                const oWrap = document.getElementById('inmOptionsWrap');
+                                const dlBtn = document.getElementById('inmManualDownloadBtn');
+                                if (dlBtn && dlPayload) {
+                                    dlBtn.href = dlPayload;
+                                    dlBtn.download = vData.fileName || 'study_document.pdf';
+                                    dlBtn.target = '_blank';
+                                }
+                                if (oWrap) oWrap.style.display = 'none';
+                                if (sBox) sBox.style.display = 'block';
                             } else {
                                 alert(vData.message || 'Payment verification failed');
                             }
@@ -1381,9 +1429,12 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = fileName || 'study_document.pdf';
+            a.target = '_blank';
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
+            setTimeout(() => {
+                if (a.parentNode) a.parentNode.removeChild(a);
+            }, 250);
         }
 
         async function loadCenterCourses(centerId) {

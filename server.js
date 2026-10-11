@@ -864,7 +864,10 @@ app.get('/api/public/books', async (req, res) => {
         }
 
         // Include ALL notes (Universal + Coaching Center uploaded notes) on BBCC SKILL HUB homepage
-        const sanitizedNotes = sm.notes.map(n => {
+        const existingNoteIds = new Set((sm.notes || []).map(n => n._id.toString()));
+        const existingTitles = new Set((sm.notes || []).map(n => (n.title || '').trim().toLowerCase()));
+
+        const sanitizedNotes = (sm.notes || []).map(n => {
             const isTargetCenter = n.targetCenterId && n.targetCenterId !== 'all';
             const isEnrolledFree = enrolledCenterId && isTargetCenter && (enrolledCenterId === n.targetCenterId.toString());
             return {
@@ -886,6 +889,41 @@ app.get('/api/public/books', async (req, res) => {
                 createdAt: n.createdAt
             };
         });
+
+        // Also merge materials uploaded directly to TuitionCenter repositories
+        try {
+            const centersWithMaterials = await TuitionCenter.find({ 'materials.0': { $exists: true } }, { centerName: 1, materials: 1 }).lean();
+            for (const c of centersWithMaterials) {
+                if (!c.materials) continue;
+                for (const m of c.materials) {
+                    const midStr = m._id ? m._id.toString() : '';
+                    const mTitleLower = (m.title || '').trim().toLowerCase();
+                    if (midStr && !existingNoteIds.has(midStr) && !existingTitles.has(mTitleLower)) {
+                        existingNoteIds.add(midStr);
+                        existingTitles.add(mTitleLower);
+                        const isEnrolledFree = enrolledCenterId && (enrolledCenterId === c._id.toString());
+                        sanitizedNotes.push({
+                            _id: m._id,
+                            title: m.title,
+                            subject: c.centerName,
+                            classLevel: 'All Classes',
+                            description: m.description || '',
+                            fileType: m.fileType || 'pdf',
+                            thumbnail: '',
+                            price: isEnrolledFree ? 0 : (m.price || 0),
+                            originalPrice: m.price || 0,
+                            isEnrolledFree: Boolean(isEnrolledFree),
+                            targetCenterId: c._id.toString(),
+                            targetCenterName: c.centerName,
+                            isRawData: m.isRawData || false,
+                            hasFile: !!(m.pdf || m.file),
+                            downloadCount: m.downloadCount || 0,
+                            createdAt: m.createdAt || new Date()
+                        });
+                    }
+                }
+            }
+        } catch (cErr) {}
 
         const resultData = {
             notes: sanitizedNotes,
@@ -1618,11 +1656,13 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                 paidAt: new Date()
             });
 
+            const freeDownloadUrl = `/api/pay/download-file?docId=${encodeURIComponent(note._id.toString())}`;
             return res.json({
                 success: true,
                 free: true,
                 enrolledBenefit: isEnrolledStudent,
-                file: note.file || note.pdf,
+                file: note.file || note.pdf || freeDownloadUrl,
+                downloadUrl: freeDownloadUrl,
                 fileName: note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf')),
                 fileType: note.fileType || 'pdf',
                 message: isEnrolledStudent
@@ -1762,10 +1802,71 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Payment verification failed: Signature mismatch' });
         }
 
-        const sm = await StudyMaterial.findOne();
-        const note = sm && sm.notes ? (sm.notes.id(docId) || sm.notes.find(n => n._id.toString() === docId)) : null;
-
         const tx = await PaymentTransaction.findOne({ orderId: razorpay_order_id });
+        const targetDocId = (docId || (tx ? tx.docId : '') || '').toString();
+
+        // 1. Search in Central StudyMaterial repository
+        let note = null;
+        let parentSm = null;
+        let sourceCenter = null;
+
+        const sm = await StudyMaterial.findOne();
+        if (sm && sm.notes && sm.notes.length > 0) {
+            if (targetDocId) {
+                note = sm.notes.id(targetDocId) || sm.notes.find(n => n._id.toString() === targetDocId);
+            }
+            if (!note && tx && tx.docTitle) {
+                note = sm.notes.find(n => n.title && n.title.trim().toLowerCase() === tx.docTitle.trim().toLowerCase());
+            }
+            if (note) parentSm = sm;
+        }
+
+        // 2. Search in Coaching Center Materials (TuitionCenter.materials)
+        if (!note) {
+            if (targetDocId) {
+                sourceCenter = await TuitionCenter.findOne({ 'materials._id': targetDocId });
+            }
+            if (!sourceCenter && tx && tx.centerId) {
+                sourceCenter = await TuitionCenter.findById(tx.centerId);
+            }
+            if (!sourceCenter && tx && tx.docTitle) {
+                sourceCenter = await TuitionCenter.findOne({ 'materials.title': tx.docTitle });
+            }
+            // Fallback: search all active centers
+            if (!sourceCenter && targetDocId) {
+                const allCenters = await TuitionCenter.find({ 'materials.0': { $exists: true } });
+                for (const c of allCenters) {
+                    if (c.materials && c.materials.some(m => m._id.toString() === targetDocId)) {
+                        sourceCenter = c;
+                        break;
+                    }
+                }
+            }
+
+            if (sourceCenter && sourceCenter.materials) {
+                const mat = (targetDocId && (sourceCenter.materials.id(targetDocId) || sourceCenter.materials.find(m => m._id.toString() === targetDocId)))
+                    || (tx && tx.docTitle && sourceCenter.materials.find(m => m.title && m.title.trim().toLowerCase() === tx.docTitle.trim().toLowerCase()))
+                    || sourceCenter.materials[0];
+                if (mat) {
+                    note = {
+                        _id: mat._id,
+                        title: mat.title,
+                        description: mat.description,
+                        price: mat.price || 0,
+                        file: mat.file || mat.pdf || mat.link,
+                        pdf: mat.pdf || mat.file || mat.link,
+                        fileType: mat.fileType || 'pdf',
+                        fileName: (mat.title || 'study_document').replace(/[^a-zA-Z0-9]/g, '_') + '.' + (mat.fileType || 'pdf'),
+                        targetCenterId: sourceCenter._id.toString(),
+                        targetCenterName: sourceCenter.centerName,
+                        isRawData: mat.isRawData,
+                        _matRef: mat
+                    };
+                }
+            }
+        }
+
+        // Revenue split and transaction completion
         if (tx) {
             const centerShare = Math.round(tx.amount * 0.80);
             const platformCut = tx.amount - centerShare;
@@ -1775,6 +1876,8 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
             tx.centerShare = centerShare;
             tx.platformCut = platformCut;
             tx.paidAt = new Date();
+            if (targetDocId && !tx.docId) tx.docId = targetDocId;
+            if (note && note.title && !tx.docTitle) tx.docTitle = note.title;
             await tx.save();
 
             // Credit Center Wallet
@@ -1797,20 +1900,179 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
             }
         }
 
-        if (note) {
+        // Increment download count and persist
+        if (parentSm && note) {
             note.downloadCount = (note.downloadCount || 0) + 1;
-            await sm.save();
+            await parentSm.save();
+        } else if (sourceCenter && note && note._matRef) {
+            note._matRef.downloadCount = (note._matRef.downloadCount || 0) + 1;
+            await sourceCenter.save();
         }
+
+        // Prepare file payload & filename
+        let filePayload = note ? (note.file || note.pdf || note.link || '') : '';
+        const fileExt = (note && note.fileType) ? note.fileType.toLowerCase() : 'pdf';
+        const rawTitle = (note && note.title) ? note.title : 'study_document';
+        const cleanFileName = (note && note.fileName)
+            ? note.fileName
+            : `${rawTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}.${fileExt}`;
+
+        // If file is raw base64, save directly to server disk to ensure reliable downloading
+        if (filePayload && filePayload.startsWith('data:')) {
+            const savedDiskPath = saveBase64ToFile(filePayload, 'materials', fileExt);
+            if (savedDiskPath) {
+                filePayload = savedDiskPath;
+                if (parentSm && note.file !== undefined) {
+                    note.file = savedDiskPath;
+                    note.pdf = savedDiskPath;
+                    parentSm.save().catch(() => {});
+                } else if (sourceCenter && note._matRef) {
+                    note._matRef.file = savedDiskPath;
+                    note._matRef.pdf = savedDiskPath;
+                    sourceCenter.save().catch(() => {});
+                }
+            }
+        }
+
+        const resolvedDocId = (note && note._id) ? note._id.toString() : targetDocId;
+        const downloadUrl = `/api/pay/download-file?orderId=${encodeURIComponent(razorpay_order_id)}&docId=${encodeURIComponent(resolvedDocId)}`;
 
         res.json({
             success: true,
             message: 'Payment verified successfully! Document is downloading.',
-            file: note ? (note.file || note.pdf) : null,
-            fileName: note ? (note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf'))) : 'study_document.pdf'
+            orderId: razorpay_order_id,
+            downloadUrl: downloadUrl,
+            file: filePayload || downloadUrl,
+            fileName: cleanFileName
         });
     } catch (err) {
         console.error('Verify doc payment error:', err);
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5.2B Direct Secured Document Downloader (Serves File with Content-Disposition Attachment)
+app.get('/api/pay/download-file', async (req, res) => {
+    try {
+        const { orderId, docId } = req.query;
+        let isAuthorized = false;
+        let targetDocId = (docId || '').toString();
+        let docTitle = '';
+
+        if (orderId) {
+            const tx = await PaymentTransaction.findOne({ orderId: orderId.trim() });
+            if (tx && tx.status === 'paid') {
+                isAuthorized = true;
+                if (!targetDocId && tx.docId) targetDocId = tx.docId.toString();
+                docTitle = tx.docTitle || '';
+            }
+        }
+
+        // Search for note
+        let note = null;
+        const sm = await StudyMaterial.findOne();
+        if (sm && sm.notes && sm.notes.length > 0) {
+            if (targetDocId) {
+                note = sm.notes.id(targetDocId) || sm.notes.find(n => n._id.toString() === targetDocId);
+            }
+            if (!note && docTitle) {
+                note = sm.notes.find(n => n.title && n.title.trim().toLowerCase() === docTitle.trim().toLowerCase());
+            }
+        }
+
+        if (!note) {
+            let center = null;
+            if (targetDocId) {
+                center = await TuitionCenter.findOne({ 'materials._id': targetDocId });
+                if (!center) {
+                    const allCenters = await TuitionCenter.find({ 'materials.0': { $exists: true } });
+                    center = allCenters.find(c => c.materials && c.materials.some(m => m._id.toString() === targetDocId));
+                }
+            }
+            if (!center && docTitle) {
+                center = await TuitionCenter.findOne({ 'materials.title': docTitle });
+            }
+            if (center && center.materials) {
+                const mat = (targetDocId && (center.materials.id(targetDocId) || center.materials.find(m => m._id.toString() === targetDocId)))
+                    || (docTitle && center.materials.find(m => m.title && m.title.trim().toLowerCase() === docTitle.trim().toLowerCase()))
+                    || center.materials[0];
+                if (mat) {
+                    note = {
+                        _id: mat._id,
+                        title: mat.title,
+                        price: mat.price || 0,
+                        file: mat.file || mat.pdf || mat.link,
+                        fileType: mat.fileType || 'pdf',
+                        fileName: (mat.title || 'study_document').replace(/[^a-zA-Z0-9]/g, '_') + '.' + (mat.fileType || 'pdf')
+                    };
+                }
+            }
+        }
+
+        if (!note) {
+            return res.status(404).send('Study document not found in system library.');
+        }
+
+        // Free documents require no payment
+        if (Number(note.price) === 0) {
+            isAuthorized = true;
+        }
+
+        if (!isAuthorized) {
+            return res.status(403).send('Unauthorized: Payment confirmation required to download this document.');
+        }
+
+        let file = note.file || note.pdf || note.link || '';
+        const fileExt = (note.fileType || 'pdf').toLowerCase();
+        let fileName = note.fileName || `${(note.title || 'study_document').replace(/[^a-zA-Z0-9_-]/g, '_')}.${fileExt}`;
+
+        if (!file) {
+            return res.status(404).send('Document file payload is currently empty.');
+        }
+
+        // 1. If it's a server uploaded file path e.g. /uploads/materials/...
+        if (file.startsWith('/uploads/')) {
+            const relPath = file.startsWith('/') ? file.slice(1) : file;
+            const fullPath = path.join(__dirname, 'public', relPath);
+            if (fs.existsSync(fullPath)) {
+                return res.download(fullPath, fileName);
+            }
+        }
+
+        // 2. If it's an external URL
+        if (file.startsWith('http://') || file.startsWith('https://')) {
+            return res.redirect(file);
+        }
+
+        // 3. If it's a base64 data URI
+        if (file.startsWith('data:')) {
+            const diskPath = saveBase64ToFile(file, 'materials', fileExt);
+            if (diskPath) {
+                const fullPath = path.join(__dirname, 'public', diskPath.slice(1));
+                if (fs.existsSync(fullPath)) {
+                    return res.download(fullPath, fileName);
+                }
+            }
+            const match = file.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
+            if (match) {
+                const mime = match[1];
+                const buf = Buffer.from(match[2], 'base64');
+                res.setHeader('Content-Type', mime);
+                res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+                return res.send(buf);
+            }
+        }
+
+        // 4. Check if file exists relative to public
+        const fallbackPath = path.join(__dirname, 'public', file);
+        if (fs.existsSync(fallbackPath)) {
+            return res.download(fallbackPath, fileName);
+        }
+
+        res.status(404).send('Document file could not be located on server disk.');
+    } catch (e) {
+        console.error('Download file error:', e);
+        res.status(500).send('Internal server error during document download.');
     }
 });
 
@@ -2067,6 +2329,7 @@ app.post('/api/pay/verify-affiliation-order', async (req, res) => {
             }
         );
 
+        clearCache();
         res.json({
             success: true,
             message: 'Affiliation fee verified! Your coaching center is now officially registered, activated, and live on the BBCC homepage!',
@@ -2380,6 +2643,7 @@ app.post('/api/pay/verify-coaching-unblock', verifyDirector, async (req, res) =>
             }
         );
 
+        clearCache();
         res.json({
             success: true,
             message: 'Payment verified! Your coaching center portal is now 100% unblocked and reactivated.'
@@ -3197,16 +3461,20 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         let sm = await StudyMaterial.findOne();
         if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
 
+        const safeExt = (fileType || 'pdf').toLowerCase();
+        const savedFile = saveBase64ToFile(file, 'materials', safeExt);
+        const savedThumb = thumbnail ? saveBase64ToFile(thumbnail, 'branding', 'jpg') : '';
+
         sm.notes.push({
             title: title.trim(),
             subject: subject || 'General',
             classLevel: classLevel || 'All Classes',
             description: description || '',
-            fileType: (fileType || 'pdf').toLowerCase(),
-            thumbnail: thumbnail || '',
-            file: file || '',
-            pdf: file || '',
-            fileName: fileName || `${title.replace(/[^a-zA-Z0-9]/g, '_')}.${fileType || 'pdf'}`,
+            fileType: safeExt,
+            thumbnail: savedThumb || thumbnail || '',
+            file: savedFile || file || '',
+            pdf: savedFile || file || '',
+            fileName: fileName || `${title.replace(/[^a-zA-Z0-9]/g, '_')}.${safeExt}`,
             price: Math.max(0, Number(price) || 0),
             targetCenterId: targetCenterId || 'all',
             targetCenterName: targetCenterName || 'All Centers (Universal)',
@@ -3214,6 +3482,7 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         });
 
         await sm.save();
+        clearCache();
         res.json({ success: true, message: 'Document added to Central E-Library!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3244,15 +3513,20 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
             isRawData
         } = req.body;
 
+        const safeExt = fileType ? fileType.toLowerCase() : (note.fileType || 'pdf').toLowerCase();
         if (title !== undefined) note.title = title.trim();
         if (subject !== undefined) note.subject = subject.trim();
         if (classLevel !== undefined) note.classLevel = classLevel.trim();
         if (description !== undefined) note.description = description;
-        if (fileType !== undefined) note.fileType = fileType.toLowerCase();
-        if (thumbnail !== undefined && thumbnail !== '') note.thumbnail = thumbnail;
+        if (fileType !== undefined) note.fileType = safeExt;
+        if (thumbnail !== undefined && thumbnail !== '') {
+            const savedThumb = saveBase64ToFile(thumbnail, 'branding', 'jpg');
+            note.thumbnail = savedThumb || thumbnail;
+        }
         if (file !== undefined && file !== '') {
-            note.file = file;
-            note.pdf = file;
+            const savedFile = saveBase64ToFile(file, 'materials', safeExt);
+            note.file = savedFile || file;
+            note.pdf = savedFile || file;
         }
         if (fileName !== undefined) note.fileName = fileName;
         if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
@@ -3261,6 +3535,7 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         if (isRawData !== undefined) note.isRawData = Boolean(isRawData);
 
         await sm.save();
+        clearCache();
         res.json({ success: true, message: 'Document updated successfully!', data: note });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3274,6 +3549,7 @@ app.delete('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         if (!sm) return res.status(404).json({ success: false, message: 'Vault empty' });
         sm.notes = sm.notes.filter(n => n._id.toString() !== req.params.id);
         await sm.save();
+        clearCache();
         res.json({ success: true, message: 'Document removed from E-Library' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3323,11 +3599,15 @@ app.put('/api/admin/settings', verifySuperAdmin, async (req, res) => {
         if (phone !== undefined) settings.phone = phone.trim();
         if (email !== undefined) settings.email = email.trim();
         if (address !== undefined) settings.address = address.trim();
-        if (boardLogo !== undefined) settings.boardLogo = boardLogo;
+        if (boardLogo !== undefined) {
+            settings.boardLogo = saveBase64ToFile(boardLogo, 'branding', 'png');
+        }
         if (newsMarquee !== undefined) settings.newsMarquee = newsMarquee;
         if (affiliationFee !== undefined) settings.affiliationFee = Math.max(0, Number(affiliationFee));
 
         await settings.save();
+        activeGeminiModelCache.clear();
+        clearCache();
         res.json({ success: true, message: 'Settings & Platform CMS updated successfully!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

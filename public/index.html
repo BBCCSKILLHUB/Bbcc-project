@@ -1880,6 +1880,17 @@
                     </tbody>
                 </table>
 
+                <!-- DIRECT STUDY MATERIAL PDF DOWNLOAD BUTTON -->
+                <div id="rcptDownloadSection" style="margin-bottom:18px; padding:16px; background:rgba(16,185,129,0.12); border:1px solid #10b981; border-radius:12px; text-align:center;">
+                    <div style="font-size:13.5px; font-weight:800; color:#34d399; margin-bottom:8px;">
+                        <i class="fas fa-circle-check"></i> Payment Verified! Your PDF is Unlocked & Ready
+                    </div>
+                    <a id="rcptDownloadBtn" href="#" download="study_document.pdf" target="_blank" class="btn-aurora btn-aurora-gold" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; font-size:13.5px; font-weight:800; text-decoration:none; box-shadow:0 0 15px rgba(251,191,36,0.35);">
+                        <i class="fas fa-file-arrow-down"></i> Download Study Material (PDF)
+                    </a>
+                    <div style="font-size:11.5px; color:#cbd5e1; margin-top:6px;">Your file download starts automatically. Click above anytime if it did not start.</div>
+                </div>
+
                 <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:14px;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <i class="fas fa-stamp" style="color:var(--aurora-gold); font-size:22px;"></i>
@@ -3174,8 +3185,9 @@
 
                             const vData = await verifyRes.json();
                             if (vData.success) {
-                                triggerDownload(vData.file, vData.fileName);
-                                showDockSuccess(vData.file, vData.fileName);
+                                const dlPayload = vData.downloadUrl || vData.file;
+                                triggerDownload(dlPayload, vData.fileName);
+                                showDockSuccess(dlPayload, vData.fileName);
                                 openTaxReceiptModal({
                                     orderId: resp.razorpay_order_id,
                                     paymentId: resp.razorpay_payment_id,
@@ -3184,7 +3196,10 @@
                                     itemTitle: document.getElementById('dockDocTitle').textContent,
                                     itemMeta: document.getElementById('dockDocSpecs').textContent,
                                     totalPrice: price,
-                                    paidDate: new Date()
+                                    paidDate: new Date(),
+                                    file: dlPayload,
+                                    downloadUrl: dlPayload,
+                                    fileName: vData.fileName
                                 });
                             } else {
                                 btn.disabled = false;
@@ -3222,8 +3237,9 @@
                     body: JSON.stringify({ docId })
                 });
                 const data = await res.json();
-                if (data.success && data.file) {
-                    triggerDownload(data.file, data.fileName || 'study_document.pdf');
+                if (data.success && (data.downloadUrl || data.file)) {
+                    const dl = data.downloadUrl || data.file;
+                    triggerDownload(dl, data.fileName || 'study_document.pdf');
                 } else {
                     alert(data.message || 'Document unavailable');
                 }
@@ -3237,9 +3253,10 @@
             const a = document.createElement('a');
             a.href = payload;
             a.download = fileName || 'study_document.pdf';
+            a.target = '_blank';
             document.body.appendChild(a);
             a.click();
-            setTimeout(() => a.remove(), 100);
+            setTimeout(() => a.remove(), 250);
         }
 
         function showDockAlert(msg, isError) {
@@ -3257,6 +3274,7 @@
             if (link && payload) {
                 link.href = payload;
                 link.download = fileName || 'document.pdf';
+                link.target = '_blank';
             }
             document.getElementById('dockSuccessView').style.display = 'block';
         }
@@ -3280,6 +3298,18 @@
             document.getElementById('rcptGstPrice').textContent = `₹${gst}`;
             document.getElementById('rcptTotalPrice').textContent = `₹${price.toFixed(2)}`;
             document.getElementById('rcptDateDisplay').textContent = 'Date: ' + (info.paidDate ? new Date(info.paidDate).toLocaleString() : new Date().toLocaleString());
+
+            // Bind document download button inside tax receipt modal
+            if (info.downloadUrl || info.file) {
+                const dlBtn = document.getElementById('rcptDownloadBtn');
+                if (dlBtn) {
+                    dlBtn.href = info.downloadUrl || info.file;
+                    dlBtn.download = info.fileName || 'study_document.pdf';
+                    dlBtn.target = '_blank';
+                }
+                const dlSec = document.getElementById('rcptDownloadSection');
+                if (dlSec) dlSec.style.display = 'block';
+            }
 
             document.getElementById('taxReceiptModalDock').style.display = 'flex';
         }
