@@ -2395,7 +2395,7 @@
 
     <!-- Client Script -->
     <script>
-        let publicConfig = null;
+        let publicConfig = {};
         let allBooks = [];
         let allCenters = [];
         let allCourses = [];
@@ -2462,16 +2462,16 @@
         }
 
         async function initPortal() {
-            initScrollAnimations();
-            initFestivalBg();
-            await loadConfig();
-            await loadPromotionalBanners();
-            await loadCourses();
-            await loadCenters();
-            await loadBooks();
-            await loadFounderProfile();
-            await loadExpertTeachers();
-            initScrollAnimations();
+            try { initScrollAnimations(); } catch(e) { console.warn('Animations notice:', e); }
+            try { await loadConfig(); } catch(e) { console.warn('Config notice:', e); }
+            try { initFestivalBg(); } catch(e) { console.warn('FestivalBg notice:', e); }
+            try { await loadPromotionalBanners(); } catch(e) { console.warn('Banners notice:', e); }
+            try { await loadCourses(); } catch(e) { console.warn('Courses notice:', e); }
+            try { await loadCenters(); } catch(e) { console.warn('Centers notice:', e); }
+            try { await loadBooks(); } catch(e) { console.warn('Books notice:', e); }
+            try { await loadFounderProfile(); } catch(e) { console.warn('Founder notice:', e); }
+            try { await loadExpertTeachers(); } catch(e) { console.warn('Faculty notice:', e); }
+            try { initScrollAnimations(); } catch(e) {}
         }
 
         async function loadConfig() {
@@ -4029,7 +4029,8 @@
             resize();
             window.addEventListener('resize', resize);
 
-            setFestivalTheme(publicConfig.activeFestivalTheme || 'auto');
+            const theme = (publicConfig && publicConfig.activeFestivalTheme) ? publicConfig.activeFestivalTheme : 'auto';
+            setFestivalTheme(theme);
             startFestivalAnimation();
         }
 
