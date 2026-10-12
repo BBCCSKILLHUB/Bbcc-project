@@ -2314,11 +2314,13 @@
     </div>
 
     <!-- ============================================================
-         FLOATING BHARTI AI HELPLINE INTERACTIVE WIDGET
+         FLOATING BHARTI COUNSELING HELPLINE INTERACTIVE WIDGET
          ============================================================ -->
-    <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()">
-        <i class="fas fa-heart" style="color:#ef4444; animation:heartbeat 1.5s infinite;"></i>
-        <span>BHARTI AI Helpline</span>
+    <div class="bharti-bubble-launcher" onclick="toggleBhartiChat()" title="Talk to Bharti - Chief Academic Counselor">
+        <div style="width:24px; height:24px; border-radius:50%; background:#10b981; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:12px;">
+            <i class="fas fa-headset"></i>
+        </div>
+        <span>Bharti Helpline</span>
     </div>
 
     <style>
@@ -2334,12 +2336,12 @@
     <div class="bharti-chat-panel" id="bhartiChatPanel">
         <div class="bharti-chat-header">
             <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:36px; height:36px; border-radius:50%; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:#050811;">
-                    <i class="fas fa-robot"></i>
+                <div style="width:38px; height:38px; border-radius:50%; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:#050811; font-size:17px; box-shadow:0 0 12px rgba(245,158,11,0.5);">
+                    <i class="fas fa-headset"></i>
                 </div>
                 <div>
-                    <h4 style="font-size:14px; margin:0; color:#ffffff;">BHARTI Academic AI</h4>
-                    <span style="font-size:11px; color:#10b981;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Caring Counseling</span>
+                    <h4 style="font-size:13.5px; font-weight:800; margin:0; color:#ffffff; letter-spacing:0.3px;">BHARTI — Chief Academic Counselor</h4>
+                    <span style="font-size:10.5px; color:#34d399;"><i class="fas fa-circle" style="font-size:8px;"></i> Live Senior Mentor Desk (24x7)</span>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -2352,7 +2354,7 @@
 
         <div class="bharti-chat-body" id="bhartiChatMessages">
             <div class="bharti-msg bharti-msg-ai">
-                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ, आपकी अपनी पढ़ाई और करियर मार्गदर्शिका। घबराइए मत, आपकी जो भी समस्या या सवाल हो—चाहे कोचिंग एडमिशन हो या नोट्स, मुझसे खुलकर पूछिए बेटा!
+                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ — BBCC SKILL HUB और Bal Bharti Coaching Center की Chief Academic Counselor एवं Senior Mentor। घबराइए मत, आपकी जो भी समस्या या सवाल हो — चाहे एडमिशन, फीस, किताबें, परीक्षा की तैयारी या डायरेक्टर सर से बात करनी हो — मुझसे निसंकोच पूछिए बेटा!
             </div>
         </div>
 
@@ -3963,24 +3965,32 @@
         let festiveParticles = [];
         let festiveAnimFrameId = null;
 
-        const FESTIVE_THEMES = ['auto', 'diwali', 'chhath', 'holi', 'tricolor', 'eid', 'celestial'];
+        const FESTIVE_THEMES = ['auto', 'diwali', 'ganesh_chaturthi', 'janmashtami', 'durga_puja', 'saraswati_puja', 'chhath', 'holi', 'tricolor', 'eid', 'shivratri', 'celestial'];
         const FESTIVE_THEME_CONFIGS = {
             diwali: { icon: '🪔', label: 'Diwali (दीपावली)', color: '#fbbf24' },
+            ganesh_chaturthi: { icon: '🐘', label: 'Ganesh Chaturthi (गणेश चतुर्थी)', color: '#f59e0b' },
+            janmashtami: { icon: '🪈', label: 'Krishna Janmashtami (जन्माष्टमी)', color: '#38bdf8' },
+            durga_puja: { icon: '🔱', label: 'Durga Puja & Navratri (दुर्गा पूजा)', color: '#ef4444' },
+            saraswati_puja: { icon: '🪕', label: 'Saraswati Puja (सरस्वती पूजा)', color: '#facc15' },
             chhath: { icon: '🌅', label: 'Chhath Puja (छठ पर्व)', color: '#f97316' },
             holi: { icon: '🎨', label: 'Holi (होली)', color: '#ec4899' },
             tricolor: { icon: '🇮🇳', label: 'Tiranga (तिरंगा)', color: '#10b981' },
             eid: { icon: '🌙', label: 'Eid Mubarak (ईद)', color: '#34d399' },
+            shivratri: { icon: '🔱', label: 'Maha Shivratri (महाशिवरात्रि)', color: '#818cf8' },
             celestial: { icon: '🌌', label: 'Celestial Space', color: '#38bdf8' }
         };
 
         function getAutoIndianFestivalTheme() {
             const now = new Date();
-            const month = now.getMonth(); // 0 = Jan, 9 = Oct, 10 = Nov
-            if (month === 9 || month === 10) return 'diwali';
-            if (month === 2) return 'holi';
-            if (month === 7) return 'tricolor';
-            if (month === 0) return 'tricolor';
-            if (month === 3 || month === 4) return 'eid';
+            const month = now.getMonth(); // 0 = Jan, 8 = Sep, 9 = Oct, 10 = Nov
+            if (month === 8) return 'ganesh_chaturthi'; // September
+            if (month === 7) return 'janmashtami'; // August
+            if (month === 9) return 'durga_puja'; // October
+            if (month === 10) return 'diwali'; // November
+            if (month === 0) return 'saraswati_puja'; // January
+            if (month === 1) return 'shivratri'; // February
+            if (month === 2) return 'holi'; // March
+            if (month === 3 || month === 4) return 'eid'; // April - May
             return 'diwali';
         }
 
@@ -4064,6 +4074,26 @@
                 p.color = colors[Math.floor(Math.random() * colors.length)];
                 p.speedY = -(Math.random() * 1.5 + 0.4);
                 p.radius = Math.random() * 3.5 + 1.2;
+            } else if (currentEffectiveTheme === 'ganesh_chaturthi') {
+                const colors = ['#f59e0b', '#d97706', '#ef4444', '#fde047', '#ffedd5'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.3 + 0.3);
+                p.radius = Math.random() * 3.5 + 1.2;
+            } else if (currentEffectiveTheme === 'janmashtami') {
+                const colors = ['#0ea5e9', '#38bdf8', '#0284c7', '#fbbf24', '#10b981', '#fde047'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.1 + 0.3);
+                p.speedX = (Math.random() - 0.5) * 0.8;
+            } else if (currentEffectiveTheme === 'durga_puja') {
+                const colors = ['#ef4444', '#dc2626', '#fbbf24', '#f97316', '#ffe4e6'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.4 + 0.4);
+                p.radius = Math.random() * 3.8 + 1.5;
+            } else if (currentEffectiveTheme === 'saraswati_puja') {
+                const colors = ['#facc15', '#fde047', '#ffffff', '#fef08a', '#f59e0b'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 0.9 + 0.2);
+                p.speedX = (Math.random() - 0.5) * 0.4;
             } else if (currentEffectiveTheme === 'chhath') {
                 const colors = ['#ea580c', '#f97316', '#fbbf24', '#fdba74', '#fff7ed'];
                 p.color = colors[Math.floor(Math.random() * colors.length)];
@@ -4084,6 +4114,11 @@
                 const colors = ['#10b981', '#34d399', '#6ee7b7', '#f8fafc', '#fbbf24'];
                 p.color = colors[Math.floor(Math.random() * colors.length)];
                 p.speedY = -(Math.random() * 0.9 + 0.2);
+                p.speedX = (Math.random() - 0.5) * 0.4;
+            } else if (currentEffectiveTheme === 'shivratri') {
+                const colors = ['#60a5fa', '#818cf8', '#34d399', '#e0e7ff', '#c7d2fe'];
+                p.color = colors[Math.floor(Math.random() * colors.length)];
+                p.speedY = -(Math.random() * 1.0 + 0.2);
                 p.speedX = (Math.random() - 0.5) * 0.4;
             } else {
                 const colors = ['#38bdf8', '#818cf8', '#c084fc', '#ffffff'];
@@ -4284,6 +4319,27 @@
 
                 let html = `<div>${data.reply || 'नमस्ते बेटा! मैं आपकी सहायता के लिए हमेशा उपस्थित हूँ।'}</div>`;
 
+                if (data.ticket) {
+                    html += `
+                        <div class="bharti-ticket-escalation-card" style="margin-top:10px; background:linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(180,83,9,0.2) 100%); border:1px solid #f59e0b; border-radius:12px; padding:12px; text-align:left;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:11px; font-weight:800; color:#fbbf24; text-transform:uppercase; letter-spacing:0.5px;">
+                                    <i class="fas fa-ticket"></i> कॉल-बैक टिकट जनरेट हुआ
+                                </span>
+                                <span style="background:#f59e0b; color:#0b1120; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px;">
+                                    ${data.ticket.ticketId}
+                                </span>
+                            </div>
+                            <div style="font-size:12px; color:#ffffff; font-weight:700; margin-bottom:4px;">
+                                <i class="fas fa-phone-volume" style="color:#34d399;"></i> 15–30 मिनट के अंदर फोन कॉल की गारंटी
+                            </div>
+                            <div style="font-size:11px; color:#cbd5e1; line-height:1.4;">
+                                आपकी समस्या सीधे सेंटर डायरेक्टर और सुपर एडमिन हेल्पडेस्क पर एस्केलेट कर दी गई है। हमारे अधिकारी जल्द ही आपसे संपर्क करेंगे।
+                            </div>
+                        </div>
+                    `;
+                }
+
                 if (data.encryptedCallLink || data.directorPhone) {
                     html += `
                         <div class="bharti-action-card">
@@ -4322,7 +4378,7 @@
                     speakBhartiReply(data.reply);
                 }
             } catch(err) {
-                loadBubble.innerHTML = '<span style="color:#fca5a5;">भारती AI से संपर्क करने में समस्या हुई। कृपया दोबारा प्रयास करें बेटा।</span>';
+                loadBubble.innerHTML = '<span style="color:#fca5a5;">भारती काउंसलर से संपर्क करने में समस्या हुई। कृपया दोबारा प्रयास करें बेटा।</span>';
             }
         }
 

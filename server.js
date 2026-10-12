@@ -213,6 +213,15 @@ function saveBase64ToFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'p
     return res.fileUrl;
 }
 
+// Security Headers Middleware
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '80mb' }));
@@ -387,6 +396,7 @@ const CenterSchema = new mongoose.Schema({
         description: { type: String, default: '' },
         price: { type: Number, default: 0 }, // MRP in INR (20% platform cut, 80% center wallet)
         fileType: { type: String, default: 'pdf' },
+        thumbnail: { type: String, default: '' },
         pdf: { type: String, default: '' },
         file: { type: String, default: '' },
         link: { type: String, default: '' },
@@ -531,6 +541,8 @@ const SettingsSchema = new mongoose.Schema({
     affiliationFee: { type: Number, default: 999 }, // Admin decided affiliation fee
     // Google Gemini AI Key
     geminiApiKey: { type: String, default: '' },
+    // Groq AI API Key (Free llama-3.3-70b-versatile via groq.com)
+    groqApiKey: { type: String, default: '' },
     // Razorpay Gateway
     razorpayKeyId: { type: String, default: '' },
     razorpayKeySecret: { type: String, default: '' },
@@ -599,6 +611,23 @@ const WithdrawalRequestSchema = new mongoose.Schema({
     processedAt: { type: Date }
 }, { timestamps: true });
 
+// 1.10 Support & Academic Callback Escalation Tickets Schema
+const SupportTicketSchema = new mongoose.Schema({
+    ticketId: { type: String, required: true, unique: true },
+    studentName: { type: String, default: 'Student / Parent' },
+    phone: { type: String, required: true },
+    centerId: { type: String, default: 'central' },
+    centerName: { type: String, default: 'BBCC Central Directorate' },
+    category: { type: String, default: 'Academic Counseling & Callback' },
+    issueSummary: { type: String, required: true },
+    userChatSnippet: { type: String, default: '' },
+    status: { type: String, default: 'CALLBACK_SCHEDULED' }, // 'OPEN', 'CALLBACK_SCHEDULED', 'RESOLVED'
+    scheduledCallback: { type: String, default: 'Within 15-30 Minutes' },
+    assignedOfficer: { type: String, default: 'Senior Academic Counselor' },
+    resolutionNotes: { type: String, default: '' },
+    resolvedAt: { type: Date }
+}, { timestamps: true });
+
 // Compile Models
 const Admin = mongoose.model('Admin', AdminSchema);
 const TuitionCenter = mongoose.model('TuitionCenter', CenterSchema);
@@ -609,6 +638,7 @@ const AdmissionInquiry = mongoose.model('AdmissionInquiry', AdmissionInquirySche
 const PaymentTransaction = mongoose.model('PaymentTransaction', PaymentTransactionSchema);
 const Settings = mongoose.model('Settings', SettingsSchema);
 const WithdrawalRequest = mongoose.model('WithdrawalRequest', WithdrawalRequestSchema);
+const SupportTicket = mongoose.model('SupportTicket', SupportTicketSchema);
 
 // ============================================================
 // 2. HELPER UTILITIES & AUTH MIDDLEWARES
@@ -816,6 +846,63 @@ async function callGoogleGemini({ apiKey, prompt, systemInstruction = '', maxTok
 
     const errMsg = lastError?.message || (lastError ? JSON.stringify(lastError) : 'All candidate models failed');
     throw new Error(`Gemini API Error: ${errMsg}. Please verify that the Generative Language API is enabled for your Google Cloud Project at https://aistudio.google.com/app/apikey`);
+}
+
+// Free Groq Cloud AI Engine (llama-3.3-70b-versatile & llama-3.1-8b-instant via groq.com)
+async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens = 800, temperature = 0.6 }) {
+    const cleanKey = (apiKey || process.env.GROQ_API_KEY || '').trim();
+    if (!cleanKey) {
+        throw new Error('Groq API Key is not configured. Get a free API key at https://console.groq.com/keys');
+    }
+
+    const messages = [];
+    if (systemInstruction) {
+        messages.push({ role: 'system', content: systemInstruction });
+    }
+    messages.push({ role: 'user', content: prompt });
+
+    const modelsToTry = [
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant',
+        'mixtral-8x7b-32768',
+        'gemma2-9b-it'
+    ];
+
+    let lastError = null;
+    for (const model of modelsToTry) {
+        try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${cleanKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    temperature: temperature,
+                    max_tokens: maxTokens
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.choices && data.choices[0] && data.choices[0].message) {
+                return {
+                    success: true,
+                    text: data.choices[0].message.content.trim(),
+                    modelUsed: `Groq (${model})`
+                };
+            }
+
+            if (data && data.error) {
+                lastError = new Error(data.error.message || `Groq error on ${model}`);
+            }
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    throw lastError || new Error('All Groq models failed');
 }
 
 // Super Admin Authentication Middleware
@@ -1220,11 +1307,73 @@ app.get('/favicon.ico', async (req, res) => {
 app.get('/api/public/banner-templates', (req, res) => {
     const templates = [
         {
+            id: 'ganesh-chaturthi',
+            name: 'Ganesh Chaturthi Mahotsav — Vighnaharta Batch',
+            festival: 'Ganesh Chaturthi',
+            category: 'festival',
+            title: 'Shri Ganesh Chaturthi Vidya Aarambh Batch 2026',
+            defaultTitle: 'Shri Ganesh Chaturthi Vidya Aarambh Batch 2026',
+            subtitle: 'Vighnaharta Blessings: Flat 30% Festive Concession | Complete Course Pack',
+            defaultSubtitle: 'Vighnaharta Blessings: Flat 30% Festive Concession | Complete Course Pack',
+            image: '/data/branding/logo.png',
+            tag: 'Shri Ganesh Utsav'
+        },
+        {
+            id: 'krishna-janmashtami',
+            name: 'Shri Krishna Janmashtami Gyan Utsav',
+            festival: 'Janmashtami',
+            category: 'festival',
+            title: 'Janmashtami Mahotsav — Krishna Gyan Career Batch',
+            defaultTitle: 'Janmashtami Mahotsav — Krishna Gyan Career Batch',
+            subtitle: 'Master Concepts With Wisdom & Dedication | Special Course Kit Free',
+            defaultSubtitle: 'Master Concepts With Wisdom & Dedication | Special Course Kit Free',
+            image: '/data/branding/logo.png',
+            tag: 'Jai Shri Krishna'
+        },
+        {
+            id: 'durga-puja',
+            name: 'Shardiya Navratri & Durga Puja Mahaparv',
+            festival: 'Durga Puja',
+            category: 'festival',
+            title: 'Durga Puja Mahaparv Super 50 Batch 2026',
+            defaultTitle: 'Durga Puja Mahaparv Super 50 Batch 2026',
+            subtitle: 'Maa Durga Blessings: 100% Scholarship for Top Scorers | Apply Today',
+            defaultSubtitle: 'Maa Durga Blessings: 100% Scholarship for Top Scorers | Apply Today',
+            image: '/data/branding/logo.png',
+            tag: 'Shubh Durga Puja'
+        },
+        {
+            id: 'saraswati-puja',
+            name: 'Basant Panchami & Saraswati Puja Vidya Vardaan',
+            festival: 'Saraswati Puja',
+            category: 'festival',
+            title: 'Maa Saraswati Vidya Vardani Batch 2026-27',
+            defaultTitle: 'Maa Saraswati Vidya Vardani Batch 2026-27',
+            subtitle: 'Goddess of Knowledge Blessings | Complete Board Syllabus & Notes Pack',
+            defaultSubtitle: 'Goddess of Knowledge Blessings | Complete Board Syllabus & Notes Pack',
+            image: '/data/branding/logo.png',
+            tag: 'Maa Saraswati Puja'
+        },
+        {
+            id: 'maha-shivratri',
+            name: 'Maha Shivratri Academic Sankalp Batch',
+            festival: 'Maha Shivratri',
+            category: 'festival',
+            title: 'Maha Shivratri Academic Sankalp Batch',
+            defaultTitle: 'Maha Shivratri Academic Sankalp Batch',
+            subtitle: 'Determination, Focus & 1st Division Target | Dedicated Faculty Mentorship',
+            defaultSubtitle: 'Determination, Focus & 1st Division Target | Dedicated Faculty Mentorship',
+            image: '/data/branding/logo.png',
+            tag: 'Har Har Mahadev'
+        },
+        {
             id: 'diwali-dhamaka',
             name: 'Happy Deepawali Maha Dhamaka',
             festival: 'Diwali',
             category: 'festival',
+            title: 'Happy Deepawali 2026 Batch Offer',
             defaultTitle: 'Happy Deepawali 2026 Batch Offer',
+            subtitle: 'Flat 25% Off on All New Batch Admissions | Special Festive Gift',
             defaultSubtitle: 'Flat 25% Off on All New Batch Admissions | Special Festive Gift',
             image: 'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?w=1200&auto=format&fit=crop',
             tag: 'Shubh Deepawali'
@@ -1234,7 +1383,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: 'Chhath Puja Mahaparv Shubhkaamnayein',
             festival: 'Chhath Puja',
             category: 'festival',
+            title: 'Chhath Puja Mahaparv Special Batch',
             defaultTitle: 'Chhath Puja Mahaparv Special Batch',
+            subtitle: 'Sacred Surya Arghya Blessings | High Scoring Batches Open',
             defaultSubtitle: 'Sacred Surya Arghya Blessings | High Scoring Batches Open',
             image: 'https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop',
             tag: 'Surya Dev Blessings'
@@ -1244,7 +1395,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: 'Holi Rango Ka Tyohar Admission Dhamaka',
             festival: 'Holi',
             category: 'festival',
+            title: 'Holi Celebration Career Batch 2026',
             defaultTitle: 'Holi Celebration Career Batch 2026',
+            subtitle: 'Fill Your Future With Success Colors | Free Study Material Pack',
             defaultSubtitle: 'Fill Your Future With Success Colors | Free Study Material Pack',
             image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop',
             tag: 'Rango Ka Utsav'
@@ -1254,7 +1407,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: 'Eid-ul-Fitr Mubarak Special Scholarship',
             festival: 'Eid',
             category: 'festival',
+            title: 'Eid Mubarak Educational Scholarship Batch',
             defaultTitle: 'Eid Mubarak Educational Scholarship Batch',
+            subtitle: 'Special Enrolment Concession for Meritorious Students',
             defaultSubtitle: 'Special Enrolment Concession for Meritorious Students',
             image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&auto=format&fit=crop',
             tag: 'Eid Mubarak'
@@ -1264,7 +1419,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: '15th August Independence Day Patriotic Batch',
             festival: 'Independence Day',
             category: 'national_day',
+            title: 'Azadi Ka Amrit Mahotsav — Desh Ka Bhavishya',
             defaultTitle: 'Azadi Ka Amrit Mahotsav — Desh Ka Bhavishya',
+            subtitle: 'Join India\'s Top Certified Faculty | Admissions Open',
             defaultSubtitle: 'Join India\'s Top Certified Faculty | Admissions Open',
             image: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1200&auto=format&fit=crop',
             tag: '15 August Jai Hind'
@@ -1274,7 +1431,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: '26th January Republic Day Special Batch',
             festival: 'Republic Day',
             category: 'national_day',
+            title: 'Gantantra Diwas Academic Excellence Scheme',
             defaultTitle: 'Gantantra Diwas Academic Excellence Scheme',
+            subtitle: 'Empowering Youth With Modern Skill Education',
             defaultSubtitle: 'Empowering Youth With Modern Skill Education',
             image: 'https://images.unsplash.com/photo-1596405344246-8a615d1390ae?w=1200&auto=format&fit=crop',
             tag: '26 January Gantantra'
@@ -1284,7 +1443,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: '5th September Teachers\' Day Special Tribute',
             festival: 'Teachers\' Day',
             category: 'observance',
+            title: 'Teachers\' Day Mentorship Batch 2026',
             defaultTitle: 'Teachers\' Day Mentorship Batch 2026',
+            subtitle: 'Guided by Master Educators & Certified Subject Experts',
             defaultSubtitle: 'Guided by Master Educators & Certified Subject Experts',
             image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop',
             tag: 'Guru Shishya Parampara'
@@ -1294,7 +1455,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: '14th November Children\'s Day Smart Batch',
             festival: 'Children\'s Day',
             category: 'observance',
+            title: 'Bal Diwas Foundation Batch (Class 6th-10th)',
             defaultTitle: 'Bal Diwas Foundation Batch (Class 6th-10th)',
+            subtitle: 'Special Focus on Board Exam Basics & Conceptual Clarity',
             defaultSubtitle: 'Special Focus on Board Exam Basics & Conceptual Clarity',
             image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop',
             tag: 'Happy Children\'s Day'
@@ -1304,7 +1467,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: 'Happy New Year 2027 Fresh Resolution Batch',
             festival: 'New Year',
             category: 'festival',
+            title: 'New Year 2027 Fresh Batch Starts Today',
             defaultTitle: 'New Year 2027 Fresh Batch Starts Today',
+            subtitle: 'Crash Courses, Test Series & Mock Exams at Special Fee',
             defaultSubtitle: 'Crash Courses, Test Series & Mock Exams at Special Fee',
             image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1200&auto=format&fit=crop',
             tag: 'Happy New Year'
@@ -1314,7 +1479,9 @@ app.get('/api/public/banner-templates', (req, res) => {
             name: 'Raksha Bandhan Beti Padhao Scholarship',
             festival: 'Raksha Bandhan',
             category: 'festival',
+            title: 'Raksha Bandhan Beti Shiksha Protsahan',
             defaultTitle: 'Raksha Bandhan Beti Shiksha Protsahan',
+            subtitle: 'Special 40% Fee Concession for Female Students',
             defaultSubtitle: 'Special 40% Fee Concession for Female Students',
             image: 'https://images.unsplash.com/photo-1629853380482-faee17c66cb1?w=1200&auto=format&fit=crop',
             tag: 'Raksha Bandhan Special'
@@ -2218,10 +2385,10 @@ app.get('/api/student/classroom', verifyStudent, async (req, res) => {
     }
 });
 
-// 4.12 BHARTI AI Academic & Center Helpline Assistant (Powered by Google Gemini + Warm Human Emotion)
+// 4.12 BHARTI Chief Counselor Helpline Assistant (Powered by Groq Cloud Llama 3.3 / Gemini + DB Context)
 app.post('/api/public/bharti-chat', async (req, res) => {
     try {
-        const { message, centerId } = req.body;
+        const { message, centerId, callerPhone, callerName } = req.body;
         if (!message || !message.trim()) {
             return res.status(400).json({ success: false, message: 'Message prompt required' });
         }
@@ -2229,14 +2396,16 @@ app.post('/api/public/bharti-chat', async (req, res) => {
         const q = message.trim().toLowerCase();
         let targetCenter = null;
 
+        // Fetch all centers for platform-wide awareness
+        const allCenters = await TuitionCenter.find({ isBlocked: false });
+
         // Context check if conversation is already scoped to a specific center
         if (centerId && mongoose.Types.ObjectId.isValid(centerId)) {
-            targetCenter = await TuitionCenter.findById(centerId);
+            targetCenter = allCenters.find(c => c._id.toString() === centerId.toString()) || null;
         }
 
         // If not specified, search centers database for matches
         if (!targetCenter) {
-            const allCenters = await TuitionCenter.find({ isBlocked: false });
             targetCenter = allCenters.find(c =>
                 q.includes(c.centerName.toLowerCase()) ||
                 q.includes(c.username.toLowerCase()) ||
@@ -2244,7 +2413,6 @@ app.post('/api/public/bharti-chat', async (req, res) => {
                 (c.address && q.includes(c.address.toLowerCase()))
             );
 
-            // If still no direct match, check if student asks for top/any center
             if (!targetCenter && (q.includes('coaching') || q.includes('admission') || q.includes('center') || q.includes('director') || q.includes('contact') || q.includes('phone') || q.includes('call') || q.includes('help'))) {
                 targetCenter = allCenters[0] || null;
             }
@@ -2258,71 +2426,144 @@ app.post('/api/public/bharti-chat', async (req, res) => {
             encCall = targetCenter.encryptedCallLink || `https://meet.bbccskillhub.org/call/${targetCenter.username}`;
             dirPhone = targetCenter.contactNumber || targetCenter.whatsappNumber || '+91 98765 43210';
             const cleanMobile = dirPhone.replace(/[^0-9]/g, '').slice(-10);
-            dirWa = `https://wa.me/91${cleanMobile}?text=${encodeURIComponent(`Namaste Director ${targetCenter.directorName}, I am contacting you through BHARTI AI Helpline regarding admission at ${targetCenter.centerName}.`)}`;
+            dirWa = `https://wa.me/91${cleanMobile}?text=${encodeURIComponent(`Namaste Director ${targetCenter.directorName}, I am contacting you through BHARTI Helpline regarding admission at ${targetCenter.centerName}.`)}`;
         } else {
             encCall = 'https://meet.bbccskillhub.org/call/central-helpline';
             dirPhone = '+91 98765 43210';
             dirWa = 'https://wa.me/919876543210?text=Hello%20BBCC%20Platform,%20I%20need%20academic%20assistance.';
         }
 
-        let replyText = '';
+        // Check if user requests escalation, human callback, or provides phone number
+        const phoneMatch = message.match(/(?:\+91[\-\s]?)?[6789]\d{9}/);
+        const extractedPhone = callerPhone || (phoneMatch ? phoneMatch[0].replace(/[^0-9]/g, '').slice(-10) : '');
+        const isEscalationRequested = (
+            q.includes('call back') || q.includes('callback') || q.includes('phone karo') ||
+            q.includes('baat karao') || q.includes('baat karni hai') || q.includes('human') ||
+            q.includes('director se') || q.includes('admin se') || q.includes('agent') ||
+            q.includes('shikayat') || q.includes('complaint') || q.includes('ticket') ||
+            Boolean(extractedPhone)
+        );
 
-        // Check if Super Admin configured Google Gemini API key
+        let createdTicket = null;
+        if (isEscalationRequested && extractedPhone) {
+            try {
+                const tktId = `TKT-BBCC-${Math.floor(100000 + Math.random() * 900000)}`;
+                createdTicket = await SupportTicket.create({
+                    ticketId: tktId,
+                    studentName: callerName || 'Student / Parent Inquiry',
+                    phone: extractedPhone,
+                    centerId: targetCenter ? targetCenter._id.toString() : 'central',
+                    centerName: targetCenter ? targetCenter.centerName : 'BBCC Central Directorate',
+                    category: q.includes('fee') ? 'Fee Inquiry & Assistance' : (q.includes('admission') ? 'Direct Admission Callback' : 'Counseling & Support Callback'),
+                    issueSummary: message.trim(),
+                    userChatSnippet: message.trim(),
+                    status: 'CALLBACK_SCHEDULED',
+                    scheduledCallback: 'Within 15-30 Minutes',
+                    assignedOfficer: targetCenter ? `Director ${targetCenter.directorName}` : 'Senior Academic Counselor'
+                });
+            } catch (tErr) {
+                console.error('Support ticket creation notice:', tErr.message);
+            }
+        }
+
+        // Fetch live platform knowledge: summary of centers, courses & books
+        const centersSummary = allCenters.slice(0, 8).map(c =>
+            `• Center: "${c.centerName}" | Director: "${c.directorName}" | Phone: "${c.contactNumber || c.whatsappNumber || 'N/A'}" | Classes: "${c.fromClass} to ${c.toClass}" | Admission Fee: ₹${c.admissionFee || 200}`
+        ).join('\n');
+
+        let booksCount = 0;
+        try {
+            const sm = await StudyMaterial.findOne();
+            booksCount = sm && sm.notes ? sm.notes.length : 0;
+        } catch(e) {}
+
+        const dbContext = `
+[BBCC PLATFORM LIVE DATABASE CONTEXT]
+- Central Platform: Bal Bharti Coaching Center (BBCC SKILL HUB)
+- Verified Affiliated Centers: ${allCenters.length} active institutes
+- E-Library Notes & Textbooks: ${booksCount}+ certified books & syllabus materials
+- Supported Boards: BSEB (Bihar Board), CBSE, NCERT (Class 1st to 12th)
+- Teacher Training Batches: CTET, STET, TRE Teacher Recruitment
+- Skill & Computer Courses: DCA, ADCA, Tally Prime with GST, Typing
+- Direct Admissions: Students can enroll online directly; 100% payments route through BBCC Central Escrow Gateway.
+- Revenue Model: Central gateway holds funds; 50% admission and 80% course cut released to center upon Admin approval of withdrawal request.
+- Active Partner Centers:
+${centersSummary}
+${targetCenter ? `Current Scoped Center: "${targetCenter.centerName}" (Director: ${targetCenter.directorName}, Phone: ${dirPhone}, Address: ${targetCenter.address || 'Certified Center'})` : ''}
+`;
+
+        const bhartiSystemPrompt = `Aap BBCC SKILL HUB (Bal Bharti Coaching Center) ki Chief Academic Counselor aur Senior Academic Advisor hain jinka naam 'BHARTI' hai.
+STRICT PERSONA RULES:
+1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main Bharti hoon — aapki apni Senior Academic Counselor aur Didi'.
+2. Aap dil se chaahne wali baddi behen ya maa ki tarah atyant prem, samman, dharas aur apnapan ke sath vidyarthiyon aur unke mata-pita se baat karti hain ('Beta', 'Aap', 'Bilkul chinta mat kijiye, main aapke sath hoon').
+3. Aapke paas platform ke sabhi verified coaching centers, courses, fees, syllabus aur notes ka poora live data hai. Vidyarthiyon ki har samasya ka thos samadhan dein.
+4. Agar user kisi Director ya Admin se baat karna chahe, ya complaint kare, ya callback maange:
+   - Unhe bataiye ki unka Support Callback Ticket generate ho raha hai aur hamare Senior Academic Counselor ya Center Director agle 15-30 minute ke andar unhe call karenge.
+   - Agar unhone apna phone number nahi diya hai, toh prem se unka 10-digit mobile number maange taaki turant callback schedule ho sake.
+5. Jawab madhur, spasht, helpful aur dharas dene wala rakhein (Hindi/Hinglish). Maximum 2-3 short paragraphs.`;
+
+        let replyText = '';
         const settings = await Settings.findOne();
+        const groqKey = settings?.groqApiKey?.trim() || process.env.GROQ_API_KEY || '';
         const geminiKey = settings?.geminiApiKey?.trim() || process.env.GEMINI_API_KEY || '';
 
-        if (geminiKey) {
+        // Priority 1: Free Groq Cloud (llama-3.3-70b-versatile)
+        if (groqKey) {
             try {
-                const centerContext = targetCenter
-                    ? `Coaching Center: "${targetCenter.centerName}", Director: "${targetCenter.directorName}", Phone: "${dirPhone}", Address: "${targetCenter.address || 'Certified Center'}", Classes: "${targetCenter.fromClass} to ${targetCenter.toClass}", Encrypted Call Link: "${encCall}".`
-                    : `BBCC SKILL HUB Central Platform, Helpline Phone: "${dirPhone}", Encrypted Call Link: "${encCall}".`;
+                const groqRes = await callGroqChat({
+                    apiKey: groqKey,
+                    prompt: `User message: "${message}"\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID lovingly.` : ''}\n\nContext:\n${dbContext}`,
+                    systemInstruction: bhartiSystemPrompt,
+                    temperature: 0.6,
+                    maxTokens: 750
+                });
+                if (groqRes && groqRes.text) {
+                    replyText = groqRes.text;
+                }
+            } catch (grErr) {
+                console.warn('BHARTI Groq call notice:', grErr.message);
+            }
+        }
 
-                const geminiPrompt = `Aap BBCC SKILL HUB ki pyari, sneh-mayi aur emotional AI academic counselor & helpline guide ho jiska naam 'BHARTI AI' hai.
-Aap ek dil se chahne wali baddi behen ya maa ki tarah behad prem, samman, dharas aur apnapan ke sath vidyarthiyon aur unke mata-pita se baat karti hain.
-Hamesha 'Beta', 'Meri pyari beti / mere pyare bete', 'Aap', 'Aap bilkul chinta mat kijiye, main aapke sath hoon' jaise prem-bhare shabdon ka prayog kijiye.
-Unki padhai, admission, batch ya samasya ko dhyan se suniye.
-Agar koi problem ya complaint hai:
-1. Sabse pehle unhe pyar se samjhaiye aur dharas bandhaiye.
-2. Unhe bataiye ki unki private aur safe baat-cheet ke liye humne sabse pehle Encrypted Helpline Call Link di hai (jahan bina personal number reveal kiye encrypted call se guidance le sakte hain).
-3. Uske baad Center Director ka call aur WhatsApp number bhi lovingly dijiye taaki unki har pareshani turant hal ho sake.
-Context Information: ${centerContext}
-User ka sandesh: "${message}"
-Jawab sundar, madhur, emotional, Hindi/Hinglish mein aur helpful rakhein (maximum 2-3 short paragraphs).`;
-
+        // Priority 2: Google Gemini Fallback
+        if (!replyText && geminiKey) {
+            try {
+                const geminiPrompt = `${bhartiSystemPrompt}\n\nContext:\n${dbContext}\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID lovingly.` : ''}\n\nUser message: "${message}"`;
                 const aiRes = await callGoogleGemini({
                     apiKey: geminiKey,
                     prompt: geminiPrompt,
                     temperature: 0.7,
                     maxTokens: 600
                 });
-
                 if (aiRes && aiRes.text) {
                     replyText = aiRes.text;
                 }
             } catch (gErr) {
-                console.error('BHARTI Gemini call notice:', gErr.message);
+                console.warn('BHARTI Gemini call notice:', gErr.message);
             }
         }
 
+        // Priority 3: Intelligent Empathetic Human Rule Engine
         if (!replyText) {
-            // Warm, emotional fallbacks if Gemini key not set or during network failure
-            if (targetCenter) {
+            if (createdTicket) {
+                replyText = `Namaste beta! Aap bilkul chinta mat kijiye, maine aapka **Support Callback Ticket** generate kar diya hai: **${createdTicket.ticketId}**! Hamare Senior Academic Counseling Officer agle **15 se 30 minute** ke andar aapke number (**${createdTicket.phone}**) par call karenge aur aapki saari pareshani ka turant hal nikalenge. Main aapke sath hoon beta!`;
+            } else if (isEscalationRequested && !extractedPhone) {
+                replyText = `Namaste beta! Main samajh rahi hoon ki aap seedhe hamare Director ya Senior Counselor se baat karna chahte hain. Aap bilkul befikra rahiye—kripya apna **10-digit mobile number** yahan message mein likh dijiye. Main turant aapka **Priority Callback Ticket** generate kar dungi aur agle 15-30 minute mein hamare counseling officer aapse seedhe phone par baat karenge!`;
+            } else if (targetCenter) {
                 if (q.includes('fee') || q.includes('fees') || q.includes('paisa')) {
-                    replyText = `Namaste mere pyare beta! Aap fees ya batch timing ko lekar bilkul tension mat lijiye. **${targetCenter.centerName}** mein Director **${targetCenter.directorName}** ji bahut sahyog karte hain aur deserving students ke liye scholarship suvidha bhi hai. Sabse pehle aap bina kisi jhijhak ke hamari **Encrypted Helpline Call Link** par connect kijiye jahan hamare counselors aapko pura support denge. Sath hi aap Director sir ko seedhe call ya WhatsApp bhi kar sakte hain, wo aapse bahut prem se baat karenge!`;
+                    replyText = `Namaste mere pyare beta! Aap fees ya batch timing ko lekar bilkul tension mat lijiye. **${targetCenter.centerName}** mein Director **${targetCenter.directorName}** ji bahut sahyog karte hain aur deserving students ke liye scholarship suvidha bhi hai (Admission Fee: ₹${targetCenter.admissionFee || 200}). Sabse pehle aap bina kisi jhijhak ke hamari **Encrypted Helpline Call Link** par connect kijiye. Sath hi aap Director sir ko seedhe call ya WhatsApp bhi kar sakte hain!`;
                 } else if (q.includes('admission') || q.includes('enroll') || q.includes('join') || q.includes('dakhila')) {
-                    replyText = `Namaste beta! Yeh sunkar bahut khushi hui ki aap **${targetCenter.centerName}** (${targetCenter.fromClass} se ${targetCenter.toClass}) mein padhai shuru karna chahte hain! Director **${targetCenter.directorName}** ji ke margdarshan mein yahan shandar taiyari hoti hai. Admission aur batch schedule ke liye: Pehle aap hamari **Encrypted Helpline Call Link** par judein, aur doosra aap Director sir ke personal number ya WhatsApp par sidhe baat kar sakte hain. Padhai mein khoob aage badhiye!`;
-                } else if (q.includes('problem') || q.includes('complaint') || q.includes('issue') || q.includes('help') || q.includes('pareshani')) {
-                    replyText = `Beta, aap bilkul ghabraiye mat, main aur poori BBCC team aapke sath hain. **${targetCenter.centerName}** se judi har pareshani ko hum prathmikta se hal karenge. Sabse pehle, aap hamari secure **Encrypted Helpline Call Link** par tap kijiye taaki confidential baat ho sake. Aur doosra, maine seedhe Director **${targetCenter.directorName}** ji ka direct phone aur WhatsApp number bhi provide kiya hai. Chinta chodiye aur relax kijiye!`;
+                    replyText = `Namaste beta! Yeh sunkar bahut khushi hui ki aap **${targetCenter.centerName}** (${targetCenter.fromClass} se ${targetCenter.toClass}) mein padhai shuru karna chahte hain! Director **${targetCenter.directorName}** ji ke margdarshan mein yahan shandar taiyari hoti hai. Aap homepage se 1-click Direct Admission le sakte hain, ya Director sir se phone aur WhatsApp par baat kar sakte hain!`;
                 } else {
-                    replyText = `Namaste mere pyare beta! Main BHARTI hoon, aapki apni BBCC Academic Didi. **${targetCenter.centerName}** (*${targetCenter.address || 'BBCC Affiliated Center'}*) ke baare mein aap jo bhi janna chahte hain, main madad karungi. Pehle aap hamari **Encrypted Voice/Video Helpline** par connect ho sakte hain, aur doosra aap Director **${targetCenter.directorName}** ji se direct phone ya WhatsApp par baat kar sakte hain. Khush rahiye aur man lagakar padhiye!`;
+                    replyText = `Namaste mere pyare beta! Main **Bharti** hoon, aapki apni BBCC Academic Didi aur Senior Counselor. **${targetCenter.centerName}** (*${targetCenter.address || 'BBCC Affiliated Center'}*) ke baare mein aap jo bhi janna chahte hain—chahe notes hon ya batch—main madad karungi. Aap humse encrypted call ya niche diye direct phone par bhi sampark kar sakte hain!`;
                 }
             } else {
                 if (q.includes('book') || q.includes('note') || q.includes('pdf') || q.includes('library')) {
-                    replyText = `Namaste beta! Hamare **Central E-Library Vault** mein aapko syllabus aur standard textbook notes milenge. Jo free notes hain wo aap turant download kar sakte hain, aur premium notes 1-click Razorpay checkout se direct milte hain. Agar koi bhi sawal ho toh pehle hamari **Encrypted Digital Helpline** par connect kijiye ya seedhe Central Platform helpline par call kijiye!`;
-                } else if (q.includes('affiliat') || q.includes('register') || q.includes('open') || q.includes('coaching')) {
-                    replyText = `Namaste Sir/Madam! Koi bhi coaching ya tuition center hamare homepage se direct online affiliation le sakta hai. Registration ke baad instantly verified affiliation certificate milta hai aur center live show hone lagta hai! Agar registration mein koi bhi help chahiye toh pehle hamari **Encrypted Helpline Call Line** use karein ya humse seedhe call par judein!`;
+                    replyText = `Namaste beta! Hamare **Central E-Library Vault** mein aapko NCERT, BSEB aur standard syllabus textbook notes milenge. Jo free notes hain wo aap turant download kar sakte hain, aur premium notes direct unlock hote hain. Agar koi specific subject ka note chahiye toh mujhe bataiye!`;
+                } else if (q.includes('course') || q.includes('batch') || q.includes('class')) {
+                    replyText = `Namaste beta! Hamare network mein Class 1st se 12th (BSEB & CBSE), Teacher Training (CTET, STET, TRE) aur Vocational/Computer Courses (DCA, ADCA, Tally) ke shandar live aur offline batches chal rahe hain. Aap jis class ya exam ki taiyari kar rahe hain, mujhe batayein, main best batch suggest karungi!`;
                 } else {
-                    replyText = `Namaste mere pyare beta/beti! Main **BHARTI AI** hoon, aapki apni 24/7 BBCC Academic Mentor. Chahe coaching chuni ho, roll number verify karna ho ya padhai mein koi guidance chahiye ho, main dil se aapke sath hoon. Sabse pehle aap hamari **Encrypted Secure Helpline** par connect kar sakte hain, ya niche diye gaye phone aur WhatsApp par humse baat kar sakte hain!`;
+                    replyText = `Namaste mere pyare beta/beti! Main **Bharti** hoon, aapki apni 24/7 Academic Mentor aur Career Counselor. Chahe admission lena ho, coaching chunna ho ya notes padhna ho, main dil se aapke sath hoon. Aap mujhse bina kisi jhijhak ke sawal poochhiye beta!`;
                 }
             }
         }
@@ -2334,8 +2575,126 @@ Jawab sundar, madhur, emotional, Hindi/Hinglish mein aur helpful rakhein (maximu
             directorName: targetCenter ? targetCenter.directorName : 'Director General',
             encryptedCallLink: encCall,
             directorPhone: dirPhone,
-            whatsappLink: dirWa
+            whatsappLink: dirWa,
+            ticket: createdTicket ? {
+                ticketId: createdTicket.ticketId,
+                status: createdTicket.status,
+                phone: createdTicket.phone,
+                scheduledCallback: createdTicket.scheduledCallback,
+                assignedOfficer: createdTicket.assignedOfficer,
+                centerName: createdTicket.centerName
+            } : null
         });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.13 Public Support Callback Ticket Generation (Direct Form or Chat)
+app.post('/api/public/support-ticket', async (req, res) => {
+    try {
+        const { studentName, phone, centerId, issueSummary, category } = req.body;
+        if (!phone || !phone.trim()) {
+            return res.status(400).json({ success: false, message: 'Valid contact mobile number required' });
+        }
+
+        const cleanMobile = phone.replace(/[^0-9]/g, '').slice(-10);
+        if (cleanMobile.length !== 10) {
+            return res.status(400).json({ success: false, message: 'Please provide a valid 10-digit mobile number' });
+        }
+
+        let cName = 'BBCC Central Directorate';
+        let assigned = 'Senior Academic Counselor';
+        if (centerId && centerId !== 'central' && mongoose.Types.ObjectId.isValid(centerId)) {
+            const c = await TuitionCenter.findById(centerId);
+            if (c) {
+                cName = c.centerName;
+                assigned = `Director ${c.directorName}`;
+            }
+        }
+
+        const tktId = `TKT-BBCC-${Math.floor(100000 + Math.random() * 900000)}`;
+        const ticket = await SupportTicket.create({
+            ticketId: tktId,
+            studentName: (studentName || 'Student / Parent').trim(),
+            phone: cleanMobile,
+            centerId: centerId || 'central',
+            centerName: cName,
+            category: category || 'Academic Counseling & Callback',
+            issueSummary: (issueSummary || 'Requested callback from counselor or center director').trim(),
+            status: 'CALLBACK_SCHEDULED',
+            scheduledCallback: 'Within 15-30 Minutes',
+            assignedOfficer: assigned
+        });
+
+        res.json({
+            success: true,
+            message: `Support ticket ${tktId} generated! Callback scheduled within 15-30 minutes.`,
+            ticket: ticket
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.14 Super Admin Support Tickets Management Desk
+app.get('/api/admin/tickets', verifySuperAdmin, async (req, res) => {
+    try {
+        const tickets = await SupportTicket.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: tickets });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/tickets/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const { status, resolutionNotes, assignedOfficer } = req.body;
+        const ticket = await SupportTicket.findById(req.params.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Support ticket not found' });
+
+        if (status) ticket.status = status;
+        if (resolutionNotes !== undefined) ticket.resolutionNotes = resolutionNotes;
+        if (assignedOfficer !== undefined) ticket.assignedOfficer = assignedOfficer;
+        if (status === 'RESOLVED') ticket.resolvedAt = new Date();
+
+        await ticket.save();
+        res.json({ success: true, message: 'Ticket updated successfully', data: ticket });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.15 Coaching Director Support Tickets Desk
+app.get('/api/director/tickets', verifyDirector, async (req, res) => {
+    try {
+        const tickets = await SupportTicket.find({
+            $or: [
+                { centerId: req.center.centerId },
+                { centerName: new RegExp(req.center.username || '', 'i') }
+            ]
+        }).sort({ createdAt: -1 });
+        res.json({ success: true, data: tickets });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/director/tickets/:id', verifyDirector, async (req, res) => {
+    try {
+        const { status, resolutionNotes } = req.body;
+        const ticket = await SupportTicket.findOne({
+            _id: req.params.id,
+            centerId: req.center.centerId
+        });
+        if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found for this center' });
+
+        if (status) ticket.status = status;
+        if (resolutionNotes !== undefined) ticket.resolutionNotes = resolutionNotes;
+        if (status === 'RESOLVED') ticket.resolvedAt = new Date();
+
+        await ticket.save();
+        res.json({ success: true, message: 'Ticket marked resolved', data: ticket });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -3751,7 +4110,72 @@ app.delete('/api/director/banners/:bid', verifyDirector, async (req, res) => {
         const center = await TuitionCenter.findById(req.center.centerId);
         center.promotionalBanners = center.promotionalBanners.filter(b => b._id.toString() !== req.params.bid);
         await center.save();
+        clearCache();
         res.json({ success: true, message: 'Promotional banner deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Update Promotional Banner by Director (Interactive WYSIWYG Card Editor)
+app.put('/api/director/banners/:bid', verifyDirector, async (req, res) => {
+    try {
+        const center = await TuitionCenter.findById(req.center.centerId);
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const banner = center.promotionalBanners.id(req.params.bid) || center.promotionalBanners.find(b => b._id.toString() === req.params.bid);
+        if (!banner) return res.status(404).json({ success: false, message: 'Banner not found' });
+
+        const { title, subtitle, image, link, renewThirtyDays, storageMode } = req.body;
+        if (title !== undefined) banner.title = title.trim();
+        if (subtitle !== undefined) banner.subtitle = subtitle.trim();
+        if (link !== undefined) banner.link = link.trim();
+
+        if (image !== undefined && image.trim() !== '') {
+            const mode = storageMode === 'important' ? 'important' : 'normal';
+            const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || banner.title || center.centerName).trim());
+            if (imgAsset.fileUrl) banner.image = imgAsset.fileUrl;
+        }
+
+        if (renewThirtyDays) {
+            banner.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
+
+        await center.save();
+        clearCache();
+        res.json({ success: true, message: 'Banner updated successfully!', data: banner });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Update Promotional Banner by Super Admin
+app.put('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) => {
+    try {
+        const center = await TuitionCenter.findById(req.params.cid);
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const banner = center.promotionalBanners.id(req.params.bid) || center.promotionalBanners.find(b => b._id.toString() === req.params.bid);
+        if (!banner) return res.status(404).json({ success: false, message: 'Banner not found' });
+
+        const { title, subtitle, image, link, renewThirtyDays, storageMode } = req.body;
+        if (title !== undefined) banner.title = title.trim();
+        if (subtitle !== undefined) banner.subtitle = subtitle.trim();
+        if (link !== undefined) banner.link = link.trim();
+
+        if (image !== undefined && image.trim() !== '') {
+            const mode = storageMode === 'important' ? 'important' : 'normal';
+            const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || banner.title || center.centerName).trim());
+            if (imgAsset.fileUrl) banner.image = imgAsset.fileUrl;
+        }
+
+        if (renewThirtyDays) {
+            banner.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
+
+        await center.save();
+        clearCache();
+        res.json({ success: true, message: 'Banner updated successfully by Admin!', data: banner });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -4019,18 +4443,20 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
 app.post('/api/director/materials', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
-        const { title, description, price, fileType, pdf, file, link, isRawData, storageMode } = req.body;
+        const { title, description, price, fileType, pdf, file, link, isRawData, storageMode, thumbnail } = req.body;
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
 
         const itemPrice = Math.max(0, Number(price) || 0);
         const mode = storageMode === 'important' ? 'important' : 'normal';
         const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, title.trim());
+        const thumbAsset = thumbnail ? saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', title.trim()) : null;
 
         center.materials.push({
             title: title.trim(),
             description: description || '',
             price: itemPrice,
             fileType: fileType || 'pdf',
+            thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
             pdf: fileAsset.fileUrl,
             file: fileAsset.fileUrl,
             link: link || '',
@@ -4050,6 +4476,7 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 classLevel: 'All Classes',
                 description: description || '',
                 fileType: fileType || 'pdf',
+                thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
                 pdf: fileAsset.fileUrl,
                 file: fileAsset.fileUrl,
                 price: itemPrice,
@@ -4090,10 +4517,15 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
         if (!mat) return res.status(404).json({ success: false, message: 'Material not found' });
 
         const oldTitle = mat.title;
-        const { title, description, price, pdf, file, fileType, storageMode } = req.body;
+        const { title, description, price, pdf, file, fileType, storageMode, thumbnail } = req.body;
         if (title) mat.title = title.trim();
         if (description !== undefined) mat.description = description.trim();
         if (price !== undefined) mat.price = Math.max(0, Number(price) || 0);
+
+        if (thumbnail !== undefined && thumbnail !== '') {
+            const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || oldTitle).trim());
+            mat.thumbnail = thumbAsset.fileUrl || thumbnail;
+        }
 
         if (pdf || file) {
             const mode = storageMode === 'important' ? 'important' : 'normal';
@@ -4120,6 +4552,7 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
                     if (title) note.title = title.trim();
                     if (description !== undefined) note.description = description.trim();
                     if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
+                    if (mat.thumbnail) note.thumbnail = mat.thumbnail;
                     if (mat.pdf) {
                         note.pdf = mat.pdf;
                         note.file = mat.file;
@@ -4555,6 +4988,9 @@ app.put('/api/admin/settings', verifySuperAdmin, async (req, res) => {
         if (geminiApiKey !== undefined && geminiApiKey.trim() !== '') {
             settings.geminiApiKey = geminiApiKey.trim();
         }
+        if (req.body.groqApiKey !== undefined && req.body.groqApiKey.trim() !== '') {
+            settings.groqApiKey = req.body.groqApiKey.trim();
+        }
         if (phone !== undefined) settings.phone = phone.trim();
         if (email !== undefined) settings.email = email.trim();
         if (address !== undefined) settings.address = address.trim();
@@ -4598,9 +5034,36 @@ app.get('/api/admin/settings', verifySuperAdmin, async (req, res) => {
                 razorpayKeySecretMasked: settings.razorpayKeySecret ? '••••••••' + settings.razorpayKeySecret.slice(-4) : '',
                 hasGeminiKey: Boolean(settings.geminiApiKey && settings.geminiApiKey.trim()),
                 geminiApiKeyMasked: settings.geminiApiKey ? '••••••••' + settings.geminiApiKey.slice(-4) : '',
+                hasGroqKey: Boolean((settings.groqApiKey && settings.groqApiKey.trim()) || process.env.GROQ_API_KEY),
+                groqApiKeyMasked: settings.groqApiKey ? '••••••••' + settings.groqApiKey.slice(-4) : (process.env.GROQ_API_KEY ? '••••••••ENV' : ''),
                 razorpayConfigured: Boolean(settings.razorpayKeyId && settings.razorpayKeySecret),
-                geminiConfigured: Boolean(settings.geminiApiKey)
+                geminiConfigured: Boolean(settings.geminiApiKey),
+                groqConfigured: Boolean(settings.groqApiKey || process.env.GROQ_API_KEY)
             }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Test Groq Cloud Connectivity
+app.post('/api/admin/test-groq', verifySuperAdmin, async (req, res) => {
+    try {
+        const testKey = req.body.apiKey ? req.body.apiKey.trim() : '';
+        const settings = await Settings.findOne();
+        const keyToUse = testKey || settings?.groqApiKey || process.env.GROQ_API_KEY;
+        if (!keyToUse) return res.status(400).json({ success: false, message: 'No Groq API Key provided or configured. Get a free key at https://console.groq.com/keys' });
+
+        const result = await callGroqChat({
+            apiKey: keyToUse,
+            prompt: 'Test connectivity: Return exactly "OK - Connected to Groq Cloud Llama 3.3"'
+        });
+
+        res.json({
+            success: true,
+            message: 'Groq Cloud API Connection Successful!',
+            modelUsed: result.modelUsed,
+            response: result.text
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
