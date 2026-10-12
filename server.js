@@ -1153,35 +1153,16 @@ async function initSystem() {
             console.warn('DB Sanitizer notice:', dbSanErr.message);
         }
 
-        // 1. Ensure Partner Coaching Centers exist in MongoDB
-        const pdb = loadPortalDb();
-        const centerCount = await TuitionCenter.countDocuments();
-        if (centerCount < 3 && pdb.centers && pdb.centers.length > 0) {
-            for (const pc of pdb.centers) {
-                const existing = await TuitionCenter.findOne({ username: pc.username });
-                if (!existing) {
-                    const hashedPassword = pc.password ? await bcrypt.hash(pc.password, 10) : await bcrypt.hash('director123', 10);
-                    await TuitionCenter.create({
-                        ...pc,
-                        password: hashedPassword
-                    });
-                    console.log(`✅ Seeded partner coaching center to MongoDB: ${pc.centerName}`);
-                }
+        // 1. Clean up legacy demo coaching centers if present in MongoDB
+        try {
+            const removed = await TuitionCenter.deleteMany({
+                username: { $in: ['patna-science', 'mithila-it', 'magadh-teachers'] }
+            });
+            if (removed && removed.deletedCount > 0) {
+                console.log(`🧹 Removed ${removed.deletedCount} legacy demo coaching centers from MongoDB.`);
             }
-        }
-
-        // 2. Ensure every center in MongoDB has active pre-built educational courses
-        const centersWithoutCourses = await TuitionCenter.find({ $or: [{ courses: { $size: 0 } }, { courses: { $exists: false } }] });
-        if (centersWithoutCourses.length > 0 && pdb.centers && pdb.centers[0] && pdb.centers[0].courses) {
-            const templateCourses = pdb.centers[0].courses;
-            for (const c of centersWithoutCourses) {
-                c.courses = templateCourses.map(tc => ({
-                    ...tc,
-                    _id: new mongoose.Types.ObjectId()
-                }));
-                await c.save();
-                console.log(`✅ Seeded pre-built curriculum courses for center: ${c.centerName}`);
-            }
+        } catch (cleanErr) {
+            console.warn('Demo centers cleanup notice:', cleanErr.message);
         }
 
         // 3. Ensure StudyMaterial has verified notes & valid PDF links
@@ -1273,6 +1254,17 @@ app.get('/api/public/config', async (req, res) => {
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
+});
+
+// 4.1B Lightweight Ping Endpoint (For Render Free Tier Keep-Alive & Health Monitoring)
+app.get('/api/public/ping', (req, res) => {
+    res.json({
+        success: true,
+        status: 'online',
+        uptime: Math.round(process.uptime()),
+        timestamp: new Date().toISOString(),
+        service: 'BBCC SKILL HUB Digital Platform'
+    });
 });
 
 // 4.2 Aggregated Dual Promotional Banners (Auto-Expires in 30 Days)
@@ -4474,12 +4466,24 @@ app.post('/api/director/teachers', verifyDirector, async (req, res) => {
         const { name, subject, qualification, photo, phone, experience, class: cls } = req.body;
         if (!name || !subject) return res.status(400).json({ success: false, message: 'Name and Subject required' });
 
+        let savedPhoto = photo || '';
+        if (savedPhoto && savedPhoto.startsWith('data:image')) {
+            try {
+                const photoAsset = saveAssetFile(savedPhoto, 'branding', 'png', 'normal', (name || 'teacher').trim());
+                if (photoAsset && photoAsset.url) {
+                    savedPhoto = photoAsset.url;
+                }
+            } catch (pErr) {
+                console.warn('Teacher photo save notice:', pErr.message);
+            }
+        }
+
         center.teachers.push({
             name: name.trim(),
             subject: subject.trim(),
             class: cls || 'All',
             qualification: qualification || 'Certified Faculty',
-            photo: photo || '',
+            photo: savedPhoto,
             phone: phone || '',
             experience: experience || '3+ Years'
         });
@@ -5911,7 +5915,41 @@ async function startServer() {
         console.log(`🚀 BBCC Skill Hub Engine listening on port ${PORT}`);
         console.log(`🔗 Portal URL: http://localhost:${PORT}`);
         console.log(`🌐 Data Engine: ${isMongoConnected ? 'MongoDB Active' : 'GitHub / Local Persistent Engine Active'}`);
+        initRenderKeepAlive();
     });
+}
+
+// ============================================================
+// RENDER FREE TIER SLEEP-PREVENTION HEARTBEAT (12-Minute Keep-Alive)
+// ============================================================
+function initRenderKeepAlive() {
+    const renderUrl = (process.env.RENDER_EXTERNAL_URL || 'https://balbharticoachingcenter.onrender.com').trim();
+    if (!renderUrl) return;
+
+    const pingTarget = `${renderUrl.replace(/\/+$/, '')}/api/public/ping`;
+    console.log(`💓 Render 24/7 Keep-Alive Heartbeat configured for: ${pingTarget}`);
+
+    // Initial ping after 30 seconds
+    setTimeout(async () => {
+        try {
+            await fetch(pingTarget, { headers: { 'User-Agent': 'BBCC-KeepAlive-Heartbeat/1.0' } });
+            console.log(`💓 Initial Render keep-alive ping dispatched successfully`);
+        } catch(e) {}
+    }, 30000);
+
+    // Ping every 12 minutes (720,000 ms) to reset Render's 15-minute inactivity idle counter
+    setInterval(async () => {
+        try {
+            const res = await fetch(pingTarget, {
+                headers: { 'User-Agent': 'BBCC-KeepAlive-Heartbeat/1.0' }
+            });
+            if (res.ok) {
+                console.log(`💓 [${new Date().toLocaleTimeString('en-IN')}] Render keep-alive ping successful`);
+            }
+        } catch (err) {
+            console.warn(`💓 Render self-ping notice:`, err.message);
+        }
+    }, 12 * 60 * 1000);
 }
 
 startServer();

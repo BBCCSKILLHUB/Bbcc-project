@@ -2,10 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>BBCC SKILL HUB — Digital Skill & Coaching Institute Platform</title>
     <!-- Dynamic Favicon Powered by Board Emblem -->
     <link rel="icon" type="image/png" id="dynamicFavicon" href="/favicon.ico">
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BBCC">
+    <link rel="apple-touch-icon" href="/data/branding/logo.png">
     <!-- Google SEO & Metadata -->
     <meta name="description" content="BBCC SKILL HUB — Premier Affiliated Coaching Institute Ecosystem. Verified institutes for BSEB, CBSE, NCERT Class 1-12, CTET, STET, BPSC TRE, DCA, ADCA, Tally Prime. Direct student online admission, e-library, roll number verification & board certification.">
     <meta name="keywords" content="BBCC Skill Hub, coaching institute Bihar, BSEB coaching, CBSE tuition, CTET preparation, STET coaching, BPSC TRE batch, computer courses DCA ADCA, student admission portal">
@@ -1342,8 +1350,117 @@
             box-shadow: 0 12px 36px rgba(251, 191, 36, 0.25);
         }
 
+        /* ============================================================
+           MOBILE NATIVE APP DOCK & INSTALL BANNER (App Experience)
+           ============================================================ */
+        .mobile-app-dock {
+            display: none;
+        }
+
+        .pwa-install-banner {
+            display: none;
+            position: fixed;
+            bottom: 74px;
+            left: 14px;
+            right: 14px;
+            z-index: 10000;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.25);
+            backdrop-filter: blur(16px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: slideUpBanner 0.4s ease-out;
+        }
+
+        @keyframes slideUpBanner {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 819px) {
+            body {
+                padding-bottom: 74px; /* Space for Mobile App Dock */
+            }
+
+            .mobile-app-dock {
+                display: flex !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 62px;
+                background: rgba(3, 7, 18, 0.96);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(251, 191, 36, 0.25);
+                z-index: 9990;
+                justify-content: space-around;
+                align-items: center;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+            }
+
+            .app-dock-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 10.5px;
+                font-weight: 700;
+                gap: 4px;
+                flex: 1;
+                height: 100%;
+                transition: all 0.2s;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .app-dock-item i {
+                font-size: 18px;
+                transition: transform 0.2s;
+            }
+
+            .app-dock-item:active i,
+            .app-dock-item.active i {
+                transform: scale(1.15);
+                color: var(--aurora-gold);
+            }
+
+            .app-dock-item.active {
+                color: var(--aurora-gold);
+            }
+
+            .bharti-bubble-launcher {
+                bottom: 76px !important;
+                right: 16px !important;
+                padding: 10px 16px !important;
+                font-size: 12.5px !important;
+            }
+
+            .bharti-chat-panel {
+                bottom: 76px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                max-width: 100% !important;
+                height: calc(100vh - 90px) !important;
+            }
+
+            .festive-switcher-pill {
+                bottom: 76px !important;
+                left: 14px !important;
+                padding: 6px 12px !important;
+                font-size: 11px !important;
+            }
+        }
+
         @media print {
-            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container, #festivalBgCanvas, .festive-switcher-pill {
+            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container, #festivalBgCanvas, .festive-switcher-pill, .mobile-app-dock, .pwa-install-banner {
                 display: none !important;
             }
         }
@@ -4768,7 +4885,102 @@
             }
         }
 
+        // ============================================================
+        // PWA SERVICE WORKER & MOBILE APP INSTALLATION MANAGER
+        // ============================================================
+        let deferredPrompt = null;
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW register notice:', err));
+            });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner && !sessionStorage.getItem('bbcc_pwa_dismissed')) {
+                banner.style.display = 'flex';
+            }
+        });
+
+        async function triggerPwaInstall() {
+            if (!deferredPrompt) {
+                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                    alert('Safari पर शेयर (Share) बटन दबाएं और "Add to Home Screen" चुनें।');
+                } else {
+                    alert('BBCC App आपके ब्राउज़र मेनू (⋮) से "Install App" या "Add to Home Screen" करके इंस्टॉल कर सकते हैं।');
+                }
+                return;
+            }
+            deferredPrompt.prompt();
+            const choiceResult = await deferredPrompt.userChoice;
+            if (choiceResult && choiceResult.outcome === 'accepted') {
+                console.log('User accepted the PWA install prompt');
+            }
+            deferredPrompt = null;
+            dismissPwaBanner();
+        }
+
+        function dismissPwaBanner() {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'none';
+            sessionStorage.setItem('bbcc_pwa_dismissed', 'true');
+        }
+
+        function activateDockItem(el) {
+            document.querySelectorAll('.app-dock-item').forEach(item => item.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
         document.addEventListener('DOMContentLoaded', initPortal);
     </script>
+
+    <!-- ============================================================
+         MOBILE NATIVE APP BOTTOM DOCK (Native Mobile Experience)
+         ============================================================ -->
+    <nav class="mobile-app-dock" aria-label="Mobile App Navigation">
+        <a href="#" class="app-dock-item active" onclick="activateDockItem(this)">
+            <i class="fas fa-house"></i>
+            <span>होम</span>
+        </a>
+        <a href="#courses" class="app-dock-item" onclick="activateDockItem(this)">
+            <i class="fas fa-graduation-cap"></i>
+            <span>कोर्सेज</span>
+        </a>
+        <a href="#vault" class="app-dock-item" onclick="activateDockItem(this)">
+            <i class="fas fa-book-bookmark"></i>
+            <span>ई-लाइब्रेरी</span>
+        </a>
+        <a href="javascript:void(0)" class="app-dock-item" onclick="activateDockItem(this); toggleBhartiChat();">
+            <i class="fas fa-robot" style="color:var(--aurora-gold);"></i>
+            <span>भारती AI</span>
+        </a>
+        <a href="/login" class="app-dock-item" onclick="activateDockItem(this)">
+            <i class="fas fa-user-shield"></i>
+            <span>पोर्टल</span>
+        </a>
+    </nav>
+
+    <!-- ============================================================
+         PWA ONE-CLICK APP INSTALL BANNER (Android / iOS Prompt)
+         ============================================================ -->
+    <div id="pwaInstallBanner" class="pwa-install-banner">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="/data/branding/logo.png" alt="BBCC" style="width:38px; height:38px; border-radius:10px; object-fit:contain; background:rgba(255,255,255,0.06); padding:2px;">
+            <div>
+                <strong style="font-size:13px; color:#ffffff; display:block;">BBCC App इंस्टॉल करें</strong>
+                <span style="font-size:11px; color:#cbd5e1;">तेज़ एक्सेस के लिए होम स्क्रीन पर जोड़ें</span>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btnPwaInstall" onclick="triggerPwaInstall()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; font-weight:800;">
+                <i class="fas fa-download"></i> इंस्टॉल
+            </button>
+            <button onclick="dismissPwaBanner()" style="background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer; padding:4px 8px;" title="Dismiss">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
 </body>
 </html>

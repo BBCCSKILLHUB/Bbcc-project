@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Director Studio — BBCC SKILL HUB</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -536,6 +540,15 @@
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Experience</label>
                             <input type="text" id="facExp" placeholder="e.g. 5+ Years" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-camera"></i> Teacher Photo (Upload)</label>
+                            <input type="file" id="facPhotoInput" accept="image/*" class="studio-input" onchange="handleFacPhotoUpload(event)">
+                            <input type="hidden" id="facPhotoBase64" value="">
+                            <div id="facPhotoPreviewBox" style="display:none; align-items:center; gap:8px; margin-top:6px;">
+                                <img id="facPhotoThumb" src="" alt="Teacher Photo" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold);">
+                                <span style="font-size:11.5px; color:#34d399; font-weight:700;"><i class="fas fa-check-circle"></i> Photo Ready</span>
+                            </div>
                         </div>
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
                             <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Add Faculty</button>
@@ -1811,21 +1824,40 @@
             if (data.success) loadStudents();
         }
 
+        function handleFacPhotoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById('facPhotoBase64').value = evt.target.result;
+                const prevBox = document.getElementById('facPhotoPreviewBox');
+                const thumb = document.getElementById('facPhotoThumb');
+                if (prevBox && thumb) {
+                    thumb.src = evt.target.result;
+                    prevBox.style.display = 'flex';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         // Faculty
         function renderFacultyList(teachers) {
             const dock = document.getElementById('facultyListDock');
             if (!teachers || teachers.length === 0) {
-                dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No faculty members added yet.</div>';
+                dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No faculty members added yet. Add your teachers above with photo!</div>';
                 return;
             }
             dock.innerHTML = teachers.map(t => `
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:#ffffff; font-size:14.5px;">${t.name}</strong>
-                        <div style="color:var(--aurora-gold); font-size:12.5px; font-weight:700;">${t.subject}</div>
-                        <div style="font-size:11.5px; color:#94a3b8;">${t.qualification} • ${t.experience}</div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
+                        <div>
+                            <strong style="color:#ffffff; font-size:14.5px;">${t.name}</strong>
+                            <div style="color:var(--aurora-gold); font-size:12.5px; font-weight:700;">${t.subject}</div>
+                            <div style="font-size:11.5px; color:#94a3b8;">${t.qualification || 'Certified Faculty'} • ${t.experience || 'Experienced'}</div>
+                        </div>
                     </div>
-                    <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                    <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1838,7 +1870,8 @@
                 name: document.getElementById('facName').value.trim(),
                 subject: document.getElementById('facSubject').value.trim(),
                 qualification: document.getElementById('facQual').value.trim(),
-                experience: document.getElementById('facExp').value.trim()
+                experience: document.getElementById('facExp').value.trim(),
+                photo: document.getElementById('facPhotoBase64').value || ''
             };
 
             const res = await fetch('/api/director/teachers', {
@@ -1851,9 +1884,14 @@
             });
             const data = await res.json();
             if (data.success) {
-                alert('Faculty added!');
+                alert('Faculty member added successfully with photo!');
                 e.target.reset();
+                document.getElementById('facPhotoBase64').value = '';
+                const prevBox = document.getElementById('facPhotoPreviewBox');
+                if (prevBox) prevBox.style.display = 'none';
                 initDirectorStudio();
+            } else {
+                alert(data.message || 'Failed to add faculty');
             }
         }
 

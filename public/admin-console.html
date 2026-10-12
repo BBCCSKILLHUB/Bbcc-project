@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin Command Console — BBCC SKILL HUB</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2459,6 +2463,9 @@
                                 <button onclick="toggleBlockCenter('${c._id}', ${!c.isBlocked})" style="padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; border:none; cursor:pointer; background:${c.isBlocked ? '#10b981' : '#ef4444'}; color:#ffffff; margin-left:6px;">
                                     ${c.isBlocked ? 'Unblock' : 'Suspend'}
                                 </button>
+                                <button onclick="deleteCenterDirect('${c._id}', '${(c.centerName || '').replace(/'/g, "\\'")}')" style="padding:4px 8px; border-radius:6px; font-size:12px; font-weight:700; border:1px solid #ef4444; cursor:pointer; background:rgba(239,68,68,0.15); color:#fca5a5; margin-left:6px;" title="Permanently Delete Center">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                                 <a href="/center/${c.username || c._id}" target="_blank" style="color:var(--admin-gold); margin-left:8px; text-decoration:none;">View</a>
                             </td>
                         </tr>
@@ -2551,6 +2558,20 @@
                 alert('Center deleted');
                 closeCenterEditor();
                 loadCentersList();
+            }
+        }
+
+        async function deleteCenterDirect(id, name) {
+            if (!confirm(`Are you sure you want to permanently delete "${name}"? This will remove all its courses, data, and access.`)) return;
+            const res = await fetch(`/api/admin/centers/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadCentersList();
+            } else {
+                alert(data.message || 'Error deleting center');
             }
         }
 
