@@ -2331,6 +2331,32 @@
             42% { transform: scale(1.3); }
             70% { transform: scale(1); }
         }
+
+        .bharti-typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+        }
+        .bharti-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--aurora-gold, #fbbf24);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bhartiTypingDot 1.4s infinite ease-in-out both;
+        }
+        .bharti-dot:nth-child(1) { animation-delay: -0.32s; }
+        .bharti-dot:nth-child(2) { animation-delay: -0.16s; }
+        .bharti-dot:nth-child(3) { animation-delay: 0s; }
+        @keyframes bhartiTypingDot {
+            0%, 80%, 100% { transform: scale(0.35); opacity: 0.35; }
+            40% { transform: scale(1); opacity: 1; }
+        }
     </style>
 
     <div class="bharti-chat-panel" id="bhartiChatPanel">
@@ -2352,24 +2378,30 @@
             </div>
         </div>
 
-        <div class="bharti-chat-body" id="bhartiChatMessages">
-            <div class="bharti-msg bharti-msg-ai">
-                नमस्ते बेटा! मैं <strong>भारती</strong> हूँ — BBCC SKILL HUB और Bal Bharti Coaching Center की Chief Academic Counselor एवं Senior Mentor। घबराइए मत, आपकी जो भी समस्या या सवाल हो — चाहे एडमिशन, फीस, किताबें, परीक्षा की तैयारी या डायरेक्टर सर से बात करनी हो — मुझसे निसंकोच पूछिए बेटा!
+        <!-- Visitor Profile Sub-Bar -->
+        <div id="bhartiVisitorBar" style="padding:6px 14px; background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(255,255,255,0.06); font-size:11.5px; display:flex; justify-content:space-between; align-items:center;">
+            <div id="bhartiVisitorText" style="color:#cbd5e1; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-user-circle" style="color:var(--aurora-gold);"></i> <span id="bvNameDisplay">Visitor</span>
             </div>
+            <button type="button" onclick="resetVisitorProfile()" style="background:none; border:none; color:var(--aurora-gold); cursor:pointer; font-size:11px; text-decoration:underline;">
+                <i class="fas fa-language"></i> भाषा / प्रोफाइल बदलें
+            </button>
+        </div>
+
+        <div class="bharti-chat-body" id="bhartiChatMessages">
+            <!-- Messages rendered dynamically by initBhartiChat() -->
         </div>
 
         <!-- Quick Prompt Chips -->
-        <div style="padding:6px 14px; background:rgba(255,255,255,0.02); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; border-top:1px solid var(--border-subtle);">
-            <button onclick="sendQuickPrompt('मुझे क्लास 10th के लिए बेस्ट कोचिंग बताइए')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Class 10 Coaching</button>
-            <button onclick="sendQuickPrompt('मुझे कोचिंग डायरेक्टर सर से बात करनी है')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Director Contact</button>
-            <button onclick="sendQuickPrompt('ऑनलाइन क्लासरूम कैसे जॉइन करूँ?')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer;">Online Classroom</button>
+        <div id="bhartiQuickChips" style="padding:6px 14px; background:rgba(255,255,255,0.02); display:flex; gap:6px; overflow-x:auto; white-space:nowrap; border-top:1px solid var(--border-subtle);">
+            <!-- Rendered according to chosen language -->
         </div>
 
         <form class="bharti-chat-input-bar" onsubmit="submitBhartiMessage(event)">
             <button type="button" id="btnMicToggle" onclick="toggleSpeechRecognition()" title="Voice Microphone Input" style="background:none; border:none; color:#cbd5e1; font-size:16px; cursor:pointer; padding:0 8px;">
                 <i class="fas fa-microphone"></i>
             </button>
-            <input type="text" id="bhartiUserInput" required placeholder="Type or speak your question beta..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
+            <input type="text" id="bhartiUserInput" required placeholder="अपना सवाल पूछें / Type your message..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#ffffff; font-size:13px; outline:none;">
             <button type="submit" id="btnBhartiSend" style="background:var(--gold-gradient); border:none; color:#050811; padding:0 16px; border-radius:10px; font-weight:700; cursor:pointer;">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -2473,6 +2505,7 @@
             try { await loadBooks(); } catch(e) { console.warn('Books notice:', e); }
             try { await loadFounderProfile(); } catch(e) { console.warn('Founder notice:', e); }
             try { await loadExpertTeachers(); } catch(e) { console.warn('Faculty notice:', e); }
+            try { initBhartiChat(); } catch(e) { console.warn('Bharti init notice:', e); }
             try { initScrollAnimations(); } catch(e) {}
         }
 
@@ -4269,11 +4302,207 @@
             }
         }
 
+        let visitorProfile = null;
+        let onboardingStep = 'ready'; // 'lang' | 'mobile' | 'name' | 'ready'
+        let pendingLang = 'hi';
+        let pendingMobile = '';
+
+        const LANG_CONFIGS = {
+            hi: {
+                label: 'हिन्दी',
+                askMobile: 'धन्यवाद! कृपया अपना **10 अंकों का मोबाइल नंबर** दर्ज करें (ताकि आवश्यकता पड़ने पर हमारे काउंसलर आपसे सीधे संपर्क कर सकें):',
+                askName: 'बहुत बढ़िया! कृपया अपना **शुभ नाम** बताइए:',
+                welcome: (name) => `स्वागत है **${name} जी**! 🙏 मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। अब आप निःसंकोच कोई भी सवाल पूछ सकते हैं — जैसे कोर्स, फीस, सिलेबस, किताबें या एडमिशन।`,
+                chips: [
+                    'Class 10th का सिलेबस क्या है?',
+                    'ADCA कोर्स की फीस कितनी है?',
+                    'डायरेक्टर सर से बात करनी है',
+                    'ऑनलाइन एडमिशन कैसे लें?'
+                ],
+                invalidPhone: 'कृपया एक वैध 10 अंकों का मोबाइल नंबर दर्ज करें (उदा. 9876543210):',
+                invalidName: 'कृपया अपना नाम दर्ज करें:'
+            },
+            en: {
+                label: 'English',
+                askMobile: 'Thank you! Please enter your **10-digit mobile number** (so our counselors can assist you directly if needed):',
+                askName: 'Great! Please enter your **full name**:',
+                welcome: (name) => `Welcome, **${name}**! 🙏 I am **Bharti** — Chief Academic Counselor at BBCC SKILL HUB. Feel free to ask anything about our courses, fees, syllabus, books, or admissions!`,
+                chips: [
+                    'What is the Class 10 syllabus?',
+                    'What is the ADCA course fee?',
+                    'I want to speak with the Director',
+                    'How to take online admission?'
+                ],
+                invalidPhone: 'Please enter a valid 10-digit mobile number (e.g. 9876543210):',
+                invalidName: 'Please enter your name:'
+            },
+            bho: {
+                label: 'भोजपुरी',
+                askMobile: 'धन्यवाद! कृपा करके आपन **10 अंक के मोबाइल नंबर** दर्ज करीं (ताकि जरूरत पड़ला पर हमनी के अधिकारी राउर से बात कर सके):',
+                askName: 'बहुत नीक! राउर **शुभ नाम** का ह? बताईं:',
+                welcome: (name) => `स्वागत बा **${name} जी**! 🙏 हम **भारती** हईं — BBCC SKILL HUB के Chief Academic Counselor। अब रउआ जे भी पूछे के मन होखे — कोर्स, फीस, सिलेबस, किताब चाहे एडमिशन — खुल के पूछीं!`,
+                chips: [
+                    '10वीं के सिलेबस का बा?',
+                    'ADCA कोर्स के फीस कतना बा?',
+                    'डायरेक्टर सर से बात करे के बा',
+                    'ऑनलाइन एडमिशन कइसे होई?'
+                ],
+                invalidPhone: 'कृपा करके सही 10 अंक के मोबाइल नंबर लिखीं (उदा. 9876543210):',
+                invalidName: 'कृपा करके आपन नाम लिखीं:'
+            },
+            hinglish: {
+                label: 'Hinglish',
+                askMobile: 'Thank you! Please apna **10-digit mobile number** enter kijiye (so our counseling team can connect if needed):',
+                askName: 'Awesome! Please apna **good name** batayein:',
+                welcome: (name) => `Welcome **${name} ji**! 🙏 Main **Bharti** hoon — BBCC SKILL HUB ki Chief Academic Counselor. Ab aap bina kisi jhijhak ke koi bhi sawal poochh sakte hain — jaise course, fees, syllabus, books ya admission!`,
+                chips: [
+                    'Class 10th ka syllabus kya hai?',
+                    'ADCA course ki fees kitni hai?',
+                    'Director sir se baat karni hai',
+                    'Online admission kaise le sakte hain?'
+                ],
+                invalidPhone: 'Please valid 10-digit mobile number enter kijiye (e.g. 9876543210):',
+                invalidName: 'Please apna name enter kijiye:'
+            }
+        };
+
+        function initBhartiChat() {
+            try {
+                const stored = localStorage.getItem('bbcc_visitor_profile');
+                if (stored) {
+                    visitorProfile = JSON.parse(stored);
+                }
+            } catch(e) {}
+
+            const chatBody = document.getElementById('bhartiChatMessages');
+            if (!chatBody) return;
+            chatBody.innerHTML = '';
+
+            if (visitorProfile && visitorProfile.name && visitorProfile.mobile) {
+                onboardingStep = 'ready';
+                updateVisitorBar();
+                renderChips(visitorProfile.language || 'hi');
+
+                const cfg = LANG_CONFIGS[visitorProfile.language] || LANG_CONFIGS.hi;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'bharti-msg bharti-msg-ai';
+                msgDiv.innerHTML = cfg.welcome(visitorProfile.name);
+                chatBody.appendChild(msgDiv);
+            } else {
+                onboardingStep = 'lang';
+                updateVisitorBar();
+                renderLanguagePicker();
+            }
+        }
+
+        function updateVisitorBar() {
+            const bar = document.getElementById('bhartiVisitorBar');
+            const nameEl = document.getElementById('bvNameDisplay');
+            if (!bar || !nameEl) return;
+
+            if (visitorProfile && visitorProfile.name) {
+                bar.style.display = 'flex';
+                const langLabel = LANG_CONFIGS[visitorProfile.language]?.label || 'हिन्दी';
+                nameEl.innerHTML = `<strong>${visitorProfile.name}</strong> (${langLabel})`;
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function renderLanguagePicker() {
+            const chatBody = document.getElementById('bhartiChatMessages');
+            const input = document.getElementById('bhartiUserInput');
+            if (input) {
+                input.placeholder = 'कृपया ऊपर अपनी भाषा चुनें / Choose language above...';
+                input.disabled = true;
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bharti-msg bharti-msg-ai';
+            bubble.innerHTML = `
+                <div style="font-weight:700; margin-bottom:6px; color:#ffffff;">
+                    🙏 Welcome to BBCC SKILL HUB!
+                </div>
+                <div>बातचीत के लिए अपनी पसंदीदा भाषा चुनें / Please choose your preferred language:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+                    <button type="button" onclick="selectVisitorLanguage('hi')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; border-radius:20px; cursor:pointer;">
+                        🇮🇳 हिन्दी (Hindi)
+                    </button>
+                    <button type="button" onclick="selectVisitorLanguage('en')" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:6px 14px; font-size:12px; border-radius:20px; cursor:pointer;">
+                        🇬🇧 English
+                    </button>
+                    <button type="button" onclick="selectVisitorLanguage('bho')" class="btn-aurora" style="background:rgba(234,179,8,0.15); border:1px solid #eab308; color:#fde047; padding:6px 14px; font-size:12px; border-radius:20px; cursor:pointer;">
+                        🌾 भोजपुरी (Bhojpuri)
+                    </button>
+                    <button type="button" onclick="selectVisitorLanguage('hinglish')" class="btn-aurora" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#d8b4fe; padding:6px 14px; font-size:12px; border-radius:20px; cursor:pointer;">
+                        🔤 Hinglish
+                    </button>
+                </div>
+            `;
+            chatBody.appendChild(bubble);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function selectVisitorLanguage(lang) {
+            pendingLang = lang;
+            onboardingStep = 'mobile';
+
+            const chatBody = document.getElementById('bhartiChatMessages');
+            const input = document.getElementById('bhartiUserInput');
+            const cfg = LANG_CONFIGS[lang] || LANG_CONFIGS.hi;
+
+            // Show user selection
+            const userDiv = document.createElement('div');
+            userDiv.className = 'bharti-msg bharti-msg-user';
+            userDiv.textContent = cfg.label;
+            chatBody.appendChild(userDiv);
+
+            // Bharti prompt for mobile
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'bharti-msg bharti-msg-ai';
+            aiDiv.innerHTML = cfg.askMobile;
+            chatBody.appendChild(aiDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            if (input) {
+                input.disabled = false;
+                input.type = 'tel';
+                input.value = '';
+                input.placeholder = 'e.g. 9876543210 (10-Digit Mobile)...';
+                input.focus();
+            }
+        }
+
+        function renderChips(lang) {
+            const chipsEl = document.getElementById('bhartiQuickChips');
+            if (!chipsEl) return;
+            const cfg = LANG_CONFIGS[lang] || LANG_CONFIGS.hi;
+            chipsEl.innerHTML = cfg.chips.map(chip => `
+                <button type="button" onclick="sendQuickPrompt('${chip.replace(/'/g, "\\'")}')" style="background:rgba(251,191,36,0.1); border:1px solid var(--border-glow); color:var(--aurora-gold); border-radius:16px; padding:4px 10px; font-size:11.5px; cursor:pointer; white-space:nowrap;">
+                    ${chip}
+                </button>
+            `).join('');
+        }
+
+        function resetVisitorProfile() {
+            localStorage.removeItem('bbcc_visitor_profile');
+            visitorProfile = null;
+            onboardingStep = 'lang';
+            pendingLang = 'hi';
+            pendingMobile = '';
+            initBhartiChat();
+        }
+
         function toggleBhartiChat() {
             const panel = document.getElementById('bhartiChatPanel');
-            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-            if (panel.style.display === 'flex') {
-                document.getElementById('bhartiUserInput').focus();
+            const isOpening = panel.style.display !== 'flex';
+            panel.style.display = isOpening ? 'flex' : 'none';
+            if (isOpening) {
+                if (!document.getElementById('bhartiChatMessages').hasChildNodes()) {
+                    initBhartiChat();
+                }
+                const input = document.getElementById('bhartiUserInput');
+                if (input && !input.disabled) input.focus();
             }
         }
 
@@ -4289,8 +4518,88 @@
             if (!msg) return;
 
             const chatBody = document.getElementById('bhartiChatMessages');
-            
-            // Append User Message
+            const cfg = LANG_CONFIGS[pendingLang || visitorProfile?.language || 'hi'] || LANG_CONFIGS.hi;
+
+            // Step 1: Mobile Number Input
+            if (onboardingStep === 'mobile') {
+                const cleanPhone = msg.replace(/[^0-9]/g, '').slice(-10);
+                if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'bharti-msg bharti-msg-user';
+                    userDiv.textContent = msg;
+                    chatBody.appendChild(userDiv);
+
+                    const aiDiv = document.createElement('div');
+                    aiDiv.className = 'bharti-msg bharti-msg-ai';
+                    aiDiv.innerHTML = `<span style="color:#fca5a5;">${cfg.invalidPhone}</span>`;
+                    chatBody.appendChild(aiDiv);
+                    input.value = '';
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    return;
+                }
+
+                pendingMobile = cleanPhone;
+                onboardingStep = 'name';
+
+                const userDiv = document.createElement('div');
+                userDiv.className = 'bharti-msg bharti-msg-user';
+                userDiv.textContent = cleanPhone;
+                chatBody.appendChild(userDiv);
+
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'bharti-msg bharti-msg-ai';
+                aiDiv.innerHTML = cfg.askName;
+                chatBody.appendChild(aiDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                input.value = '';
+                input.type = 'text';
+                input.placeholder = 'e.g. Rahul Sharma (Your Name)...';
+                input.focus();
+                return;
+            }
+
+            // Step 2: Name Input
+            if (onboardingStep === 'name') {
+                if (msg.length < 2) {
+                    const aiDiv = document.createElement('div');
+                    aiDiv.className = 'bharti-msg bharti-msg-ai';
+                    aiDiv.innerHTML = `<span style="color:#fca5a5;">${cfg.invalidName}</span>`;
+                    chatBody.appendChild(aiDiv);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    return;
+                }
+
+                visitorProfile = {
+                    name: msg,
+                    mobile: pendingMobile,
+                    language: pendingLang
+                };
+                localStorage.setItem('bbcc_visitor_profile', JSON.stringify(visitorProfile));
+                onboardingStep = 'ready';
+
+                updateVisitorBar();
+                renderChips(visitorProfile.language);
+
+                const userDiv = document.createElement('div');
+                userDiv.className = 'bharti-msg bharti-msg-user';
+                userDiv.textContent = msg;
+                chatBody.appendChild(userDiv);
+
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'bharti-msg bharti-msg-ai';
+                aiDiv.innerHTML = cfg.welcome(visitorProfile.name);
+                chatBody.appendChild(aiDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                input.value = '';
+                input.type = 'text';
+                input.placeholder = 'अपना सवाल पूछें / Ask your question...';
+                input.focus();
+                return;
+            }
+
+            // Regular Chat Conversation
             const userMsgDiv = document.createElement('div');
             userMsgDiv.className = 'bharti-msg bharti-msg-user';
             userMsgDiv.textContent = msg;
@@ -4298,10 +4607,18 @@
             input.value = '';
             chatBody.scrollTop = chatBody.scrollHeight;
 
-            // Loading AI bubble
+            // Sleek Typing Indicator Dots Animation
             const loadBubble = document.createElement('div');
             loadBubble.className = 'bharti-msg bharti-msg-ai';
-            loadBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भारती सोच रही हैं बेटा...';
+            loadBubble.id = 'bhartiTypingBubble';
+            loadBubble.innerHTML = `
+                <div class="bharti-typing-indicator">
+                    <span class="bharti-dot"></span>
+                    <span class="bharti-dot"></span>
+                    <span class="bharti-dot"></span>
+                    <span style="font-size:11.5px; color:#cbd5e1; margin-left:6px; font-weight:600;">भारती लिख रही हैं...</span>
+                </div>
+            `;
             chatBody.appendChild(loadBubble);
             chatBody.scrollTop = chatBody.scrollHeight;
 
@@ -4309,7 +4626,12 @@
                 const res = await fetch('/api/public/bharti-chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: msg })
+                    body: JSON.stringify({
+                        message: msg,
+                        callerName: visitorProfile ? visitorProfile.name : undefined,
+                        callerPhone: visitorProfile ? visitorProfile.mobile : undefined,
+                        language: visitorProfile ? visitorProfile.language : undefined
+                    })
                 });
                 const data = await res.json();
                 loadBubble.remove();
@@ -4317,8 +4639,9 @@
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'bharti-msg bharti-msg-ai';
 
-                let html = `<div>${data.reply || 'नमस्ते बेटा! मैं आपकी सहायता के लिए हमेशा उपस्थित हूँ।'}</div>`;
+                let html = `<div>${data.reply || 'नमस्ते! मैं आपकी सहायता के लिए उपस्थित हूँ।'}</div>`;
 
+                // Render Callback Escalation Ticket only if generated
                 if (data.ticket) {
                     html += `
                         <div class="bharti-ticket-escalation-card" style="margin-top:10px; background:linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(180,83,9,0.2) 100%); border:1px solid #f59e0b; border-radius:12px; padding:12px; text-align:left;">
@@ -4340,7 +4663,8 @@
                     `;
                 }
 
-                if (data.encryptedCallLink || data.directorPhone) {
+                // Render Direct Contact Card ONLY when specifically needed/requested
+                if (data.showDirectContactCard && (data.encryptedCallLink || data.directorPhone)) {
                     html += `
                         <div class="bharti-action-card">
                             <span style="font-size:11px; color:var(--aurora-gold); font-weight:800; text-transform:uppercase;">
@@ -4378,7 +4702,12 @@
                     speakBhartiReply(data.reply);
                 }
             } catch(err) {
-                loadBubble.innerHTML = '<span style="color:#fca5a5;">भारती काउंसलर से संपर्क करने में समस्या हुई। कृपया दोबारा प्रयास करें बेटा।</span>';
+                loadBubble.remove();
+                const errBubble = document.createElement('div');
+                errBubble.className = 'bharti-msg bharti-msg-ai';
+                errBubble.innerHTML = '<span style="color:#fca5a5;">भारती काउंसलर से संपर्क करने में समस्या हुई। कृपया दोबारा प्रयास करें।</span>';
+                chatBody.appendChild(errBubble);
+                chatBody.scrollTop = chatBody.scrollHeight;
             }
         }
 

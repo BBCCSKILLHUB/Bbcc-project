@@ -2470,10 +2470,10 @@ app.get('/api/student/classroom', verifyStudent, async (req, res) => {
     }
 });
 
-// 4.12 BHARTI Chief Counselor Helpline Assistant (Powered by Groq Cloud Llama 3.3 / Gemini + DB Context)
+// 4.12 BHARTI Chief Counselor Helpline Assistant (Powered by Groq Cloud / Gemini + Live DB Context)
 app.post('/api/public/bharti-chat', async (req, res) => {
     try {
-        const { message, centerId, callerPhone, callerName } = req.body;
+        const { message, centerId, callerPhone, callerName, language } = req.body;
         if (!message || !message.trim()) {
             return res.status(400).json({ success: false, message: 'Message prompt required' });
         }
@@ -2526,8 +2526,20 @@ app.post('/api/public/bharti-chat', async (req, res) => {
             q.includes('baat karao') || q.includes('baat karni hai') || q.includes('human') ||
             q.includes('director se') || q.includes('admin se') || q.includes('agent') ||
             q.includes('shikayat') || q.includes('complaint') || q.includes('ticket') ||
-            Boolean(extractedPhone)
+            Boolean(phoneMatch)
         );
+
+        // Only show director/central phone card when specifically relevant
+        const needsContactCard = Boolean(
+            isEscalationRequested ||
+            q.includes('contact') || q.includes('phone') || q.includes('call') ||
+            q.includes('number') || q.includes('director') || q.includes('baat') ||
+            q.includes('helpline') || q.includes('whatsapp') || q.includes('sampark')
+        );
+
+        const visitorName = (callerName || '').trim();
+        const visitorTitle = visitorName ? `${visitorName} ji` : 'Aap';
+        const userLang = (language || 'hi').toLowerCase(); // 'hi', 'en', 'bho', 'hinglish'
 
         let createdTicket = null;
         if (isEscalationRequested && extractedPhone) {
@@ -2535,7 +2547,7 @@ app.post('/api/public/bharti-chat', async (req, res) => {
                 const tktId = `TKT-BBCC-${Math.floor(100000 + Math.random() * 900000)}`;
                 createdTicket = await SupportTicket.create({
                     ticketId: tktId,
-                    studentName: callerName || 'Student / Parent Inquiry',
+                    studentName: visitorName || 'Student / Parent Inquiry',
                     phone: extractedPhone,
                     centerId: targetCenter ? targetCenter._id.toString() : 'central',
                     centerName: targetCenter ? targetCenter.centerName : 'BBCC Central Directorate',
@@ -2577,27 +2589,35 @@ ${centersSummary}
 ${targetCenter ? `Current Scoped Center: "${targetCenter.centerName}" (Director: ${targetCenter.directorName}, Phone: ${dirPhone}, Address: ${targetCenter.address || 'Certified Center'})` : ''}
 `;
 
+        const langNameMap = {
+            'hi': 'Hindi (हिन्दी)',
+            'en': 'English',
+            'bho': 'Bhojpuri (भोजपुरी)',
+            'hinglish': 'Hinglish (Hindi written in Roman script)'
+        };
+        const activeLangName = langNameMap[userLang] || 'Hindi';
+
         const bhartiSystemPrompt = `Aap BBCC SKILL HUB (Bal Bharti Coaching Center) ki Chief Academic Counselor aur Senior Academic Advisor hain jinka naam 'BHARTI' hai.
 STRICT PERSONA RULES:
-1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main Bharti hoon — aapki apni Senior Academic Counselor aur Didi'.
-2. Aap dil se chaahne wali baddi behen ya maa ki tarah atyant prem, samman, dharas aur apnapan ke sath vidyarthiyon aur unke mata-pita se baat karti hain ('Beta', 'Aap', 'Bilkul chinta mat kijiye, main aapke sath hoon').
-3. Aapke paas platform ke sabhi verified coaching centers, courses, fees, syllabus aur notes ka poora live data hai. Vidyarthiyon ki har samasya ka thos samadhan dein.
-4. Agar user kisi Director ya Admin se baat karna chahe, ya complaint kare, ya callback maange:
-   - Unhe bataiye ki unka Support Callback Ticket generate ho raha hai aur hamare Senior Academic Counselor ya Center Director agle 15-30 minute ke andar unhe call karenge.
-   - Agar unhone apna phone number nahi diya hai, toh prem se unka 10-digit mobile number maange taaki turant callback schedule ho sake.
-5. Jawab madhur, spasht, helpful aur dharas dene wala rakhein (Hindi/Hinglish). Maximum 2-3 short paragraphs.`;
+1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main Bharti hoon — BBCC SKILL HUB ki Chief Academic Counselor'.
+2. STRICT RULE: KABHI BHI visitor ya vidyarthi ko 'Beta' ya 'Beti' NAHI bolna hai! Visitor ko hamesha aadar aur samman ke sath unke naam se sambodhit karein: '${visitorTitle}' (ya 'Aap' / 'Sir' / 'Ma'am').
+3. Bhasha (Language): Visitor ne '${activeLangName}' bhasha chuni hai. Unhe kripya strictly usi bhasha mein shishtata aur samman ke sath uttar dein.
+4. Live platform knowledge: Aapke paas platform ke sabhi verified coaching centers, courses, fees, syllabus aur notes ka poora live data hai. Visitor ke sawal ka spasht, sachha, helpful aur accurate javab dein.
+5. Agar visitor kisi Director ya Admin se baat karna chahe, ya callback maange, ya complaint kare:
+   - Unhe bataiye ki unka Support Callback Ticket schedule ho gaya hai aur 15-30 minute ke andar hamare counseling officer aapse seedhe phone par baat karenge.
+6. Jawab shisht, spasht, professional aur helpful rakhein. Maximum 2-3 short paragraphs. KABHI 'Beta' NA BOLEIN.`;
 
         let replyText = '';
         const settings = await Settings.findOne();
         const groqKey = settings?.groqApiKey?.trim() || process.env.GROQ_API_KEY || '';
         const geminiKey = settings?.geminiApiKey?.trim() || process.env.GEMINI_API_KEY || '';
 
-        // Priority 1: Free Groq Cloud (llama-3.3-70b-versatile)
+        // Priority 1: Free Groq Cloud (llama-3.3-70b-versatile / dynamic active models)
         if (groqKey) {
             try {
                 const groqRes = await callGroqChat({
                     apiKey: groqKey,
-                    prompt: `User message: "${message}"\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID lovingly.` : ''}\n\nContext:\n${dbContext}`,
+                    prompt: `User (${visitorTitle}) in language (${activeLangName}): "${message}"\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID politely.` : ''}\n\nContext:\n${dbContext}`,
                     systemInstruction: bhartiSystemPrompt,
                     temperature: 0.6,
                     maxTokens: 750
@@ -2613,7 +2633,7 @@ STRICT PERSONA RULES:
         // Priority 2: Google Gemini Fallback
         if (!replyText && geminiKey) {
             try {
-                const geminiPrompt = `${bhartiSystemPrompt}\n\nContext:\n${dbContext}\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID lovingly.` : ''}\n\nUser message: "${message}"`;
+                const geminiPrompt = `${bhartiSystemPrompt}\n\nContext:\n${dbContext}\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID politely.` : ''}\n\nUser (${visitorTitle}) in language (${activeLangName}): "${message}"`;
                 const aiRes = await callGoogleGemini({
                     apiKey: geminiKey,
                     prompt: geminiPrompt,
@@ -2628,39 +2648,96 @@ STRICT PERSONA RULES:
             }
         }
 
-        // Priority 3: Intelligent Empathetic Human Rule Engine
+        // Priority 3: Intelligent Empathetic Human Rule Engine (Multilingual, Polite, strictly NO "beta")
         if (!replyText) {
             if (createdTicket) {
-                replyText = `Namaste beta! Aap bilkul chinta mat kijiye, maine aapka **Support Callback Ticket** generate kar diya hai: **${createdTicket.ticketId}**! Hamare Senior Academic Counseling Officer agle **15 se 30 minute** ke andar aapke number (**${createdTicket.phone}**) par call karenge aur aapki saari pareshani ka turant hal nikalenge. Main aapke sath hoon beta!`;
-            } else if (isEscalationRequested && !extractedPhone) {
-                replyText = `Namaste beta! Main samajh rahi hoon ki aap seedhe hamare Director ya Senior Counselor se baat karna chahte hain. Aap bilkul befikra rahiye—kripya apna **10-digit mobile number** yahan message mein likh dijiye. Main turant aapka **Priority Callback Ticket** generate kar dungi aur agle 15-30 minute mein hamare counseling officer aapse seedhe phone par baat karenge!`;
-            } else if (targetCenter) {
-                if (q.includes('fee') || q.includes('fees') || q.includes('paisa')) {
-                    replyText = `Namaste mere pyare beta! Aap fees ya batch timing ko lekar bilkul tension mat lijiye. **${targetCenter.centerName}** mein Director **${targetCenter.directorName}** ji bahut sahyog karte hain aur deserving students ke liye scholarship suvidha bhi hai (Admission Fee: ₹${targetCenter.admissionFee || 200}). Sabse pehle aap bina kisi jhijhak ke hamari **Encrypted Helpline Call Link** par connect kijiye. Sath hi aap Director sir ko seedhe call ya WhatsApp bhi kar sakte hain!`;
-                } else if (q.includes('admission') || q.includes('enroll') || q.includes('join') || q.includes('dakhila')) {
-                    replyText = `Namaste beta! Yeh sunkar bahut khushi hui ki aap **${targetCenter.centerName}** (${targetCenter.fromClass} se ${targetCenter.toClass}) mein padhai shuru karna chahte hain! Director **${targetCenter.directorName}** ji ke margdarshan mein yahan shandar taiyari hoti hai. Aap homepage se 1-click Direct Admission le sakte hain, ya Director sir se phone aur WhatsApp par baat kar sakte hain!`;
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! Your Priority Callback Ticket **${createdTicket.ticketId}** has been successfully scheduled. Our Senior Academic Counselor will call you at **${createdTicket.phone}** within **15 to 30 minutes**.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! राउर **सपोर्ट कॉलबैक टिकट ${createdTicket.ticketId}** दर्ज हो गइल बा। हमनी के सीनियर अधिकारी **15 से 30 मिनट** के भीतर राउर मोबाइल नंबर (**${createdTicket.phone}**) पर फोन क के पूरा बात समझिहें।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Aapka **Support Callback Ticket ${createdTicket.ticketId}** generate ho gaya hai. Hamare Senior Academic Counseling Officer agle **15 se 30 minute** ke andar aapke number (**${createdTicket.phone}**) par call karenge.`;
                 } else {
-                    replyText = `Namaste mere pyare beta! Main **Bharti** hoon, aapki apni BBCC Academic Didi aur Senior Counselor. **${targetCenter.centerName}** (*${targetCenter.address || 'BBCC Affiliated Center'}*) ke baare mein aap jo bhi janna chahte hain—chahe notes hon ya batch—main madad karungi. Aap humse encrypted call ya niche diye direct phone par bhi sampark kar sakte hain!`;
+                    replyText = `नमस्ते ${visitorTitle}! आपका **सपोर्ट कॉलबैक टिकट ${createdTicket.ticketId}** सफलतापूर्वक दर्ज कर लिया गया है। हमारे वरिष्ठ काउंसलिंग अधिकारी अगले **15 से 30 मिनट** के अंदर आपके मोबाइल नंबर (**${createdTicket.phone}**) पर संपर्क करेंगे।`;
+                }
+            } else if (isEscalationRequested && !extractedPhone) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! To schedule a direct callback from our Center Director or Senior Counselor, please share your **10-digit mobile number**. I will immediately create a Priority Ticket for you.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! डायरेक्टर सर से बात करे खातिर कृपा करके आपन **10 अंक के मोबाइल नंबर** लिखीं। हम तुरंत राउर कॉलबैक टिकट बना देब।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Director sir se baat karne ke liye kripya apna **10-digit mobile number** enter kijiye. Main turant aapka Priority Callback Ticket generate kar dungi.`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! डायरेक्टर सर या वरिष्ठ सलाहकार से सीधे फोन पर बात करने के लिए कृपया अपना **10 अंकों का मोबाइल नंबर** दर्ज करें। मैं तुरंत आपका कॉलबैक टिकट जनरेट कर दूँगी।`;
+                }
+            } else if (q.includes('syllabus') || q.includes('class') || q.includes('subject') || q.includes('10th') || q.includes('12th')) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! BBCC SKILL HUB covers the complete curriculum for Classes 1 to 12 (BSEB, CBSE, and NCERT). We offer comprehensive subject notes, test papers, and expert faculty mentoring across Mathematics, Science, Social Sciences, Hindi, and English.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! BBCC SKILL HUB पर कक्षा 1 से 12वीं ले (BSEB, CBSE, NCERT) के पूरा सिलेबस बहुत नीमन से पढ़ावल जाला। गणित, विज्ञान, सामाजिक विज्ञान आ भाषा के सभ विषय के पूरा नोट्स ई-लाइब्रेरी में उपलब्ध बा।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! BBCC SKILL HUB par Class 1st se 12th (BSEB, CBSE, NCERT) ka complete syllabus cover hota hai. Maths, Science, Social Science, Hindi aur English ke complete chapter-wise notes hamari E-Library mein available hain.`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! BBCC SKILL HUB पर कक्षा 1 से 12वीं तक (BSEB, CBSE, NCERT) का पूरा पाठ्यक्रम उपलब्ध है। गणित, विज्ञान, सामाजिक विज्ञान, हिंदी और अंग्रेजी के अध्यायवार प्रमाणित नोट्स और मॉडल टेस्ट पेपर्स आप हमारी ई-लाइब्रेरी से प्राप्त कर सकते हैं।`;
+                }
+            } else if (q.includes('fee') || q.includes('fees') || q.includes('paisa') || q.includes('charge') || q.includes('cost')) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! The online admission fee across verified BBCC centers is just ₹${targetCenter?.admissionFee || 200} (with merit scholarship waivers available). Individual computer and board coaching courses range between ₹499 and ₹2,500.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! ऑनलाइन एडमिशन फीस खाली ₹${targetCenter?.admissionFee || 200} बा, आ मेधावी छात्रन खातिर फीस में स्कॉलरशिप छूट भी मिलेला। कोर्स फीस ₹499 से ₹2500 के बीच बा।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Online admission registration fee sirf ₹${targetCenter?.admissionFee || 200} hai aur deserving students ke liye scholarship suvidha bhi hai. Courses ki fees ₹499 se ₹2500 ke beech hai.`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! ऑनलाइन एडमिशन रजिस्ट्रेशन शुल्क मात्र ₹${targetCenter?.admissionFee || 200} है (जिसमें मेधावी विद्यार्थियों के लिए विशेष छूट भी उपलब्ध है)। विभिन्न कोर्सेज (DCA, ADCA, Tally, बोर्ड बैचेज) का शुल्क ₹499 से ₹2500 के बीच है।`;
+                }
+            } else if (q.includes('adca') || q.includes('dca') || q.includes('tally') || q.includes('course') || q.includes('computer')) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! BBCC offers government-aligned professional skill courses including ADCA (Advanced Diploma in Computer Applications), DCA, Tally Prime with GST, and High-Speed Typing with central digital certifications.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! हमनी के यहाँ ADCA (एडवांस्ड डिप्लोमा), DCA, टैली प्राइम विथ जीएसटी आ टाइपिंग के प्रैक्टिकल ट्रेनिंग आ सरकारी मान्यता प्राप्त सर्टिफिकेट मिलेला।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! BBCC par job-oriented courses jaise ADCA, DCA, Tally Prime with GST aur Computer Typing live practical training ke sath sikhaye jaate hain.`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! BBCC SKILL HUB पर रोजगारोन्मुखी कंप्यूटर कोर्सेज जैसे ADCA (12 माह), DCA (6 माह), Tally Prime with GST और टाइपिंग की संपूर्ण प्रैक्टिकल ट्रेनिंग दी जाती है और केंद्रीय प्रमाणपत्र भी जारी होता है।`;
+                }
+            } else if (q.includes('admission') || q.includes('enroll') || q.includes('join') || q.includes('dakhila')) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! Direct admission is 100% digital. Simply click "Direct Admission" on our portal homepage, select your preferred coaching center and course, and get your roll number instantly.`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! एडमिशन लेवे खातिर पोर्टल के होमपेज पर "Direct Admission" पर क्लिक करीं, सेंटर आ क्लास चुनीं, आ तुरंत ऑनलाइन रसीद पा लीं।`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Admission lena bahut simple hai. Homepage par "Direct Admission" par click karke aap apna favorite center aur course choose karke enroll kar sakte hain.`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! BBCC SKILL HUB में एडमिशन प्रक्रिया 100% पारदर्शी और ऑनलाइन है। आप पोर्टल होमपेज पर "Direct Admission" पर क्लिक करके सीधे अपना पसंदीदा सेंटर और बैच चुनकर नामांकन कर सकते हैं।`;
                 }
             } else {
-                if (q.includes('book') || q.includes('note') || q.includes('pdf') || q.includes('library')) {
-                    replyText = `Namaste beta! Hamare **Central E-Library Vault** mein aapko NCERT, BSEB aur standard syllabus textbook notes milenge. Jo free notes hain wo aap turant download kar sakte hain, aur premium notes direct unlock hote hain. Agar koi specific subject ka note chahiye toh mujhe bataiye!`;
-                } else if (q.includes('course') || q.includes('batch') || q.includes('class')) {
-                    replyText = `Namaste beta! Hamare network mein Class 1st se 12th (BSEB & CBSE), Teacher Training (CTET, STET, TRE) aur Vocational/Computer Courses (DCA, ADCA, Tally) ke shandar live aur offline batches chal rahe hain. Aap jis class ya exam ki taiyari kar rahe hain, mujhe batayein, main best batch suggest karungi!`;
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! I am **Bharti**, Chief Academic Counselor at BBCC SKILL HUB. I can help you with course admissions, syllabus notes, coaching center guidance, and exam preparation. How may I assist you today?`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! हम **भारती** हईं, BBCC SKILL HUB के Chief Academic Counselor। कोर्स, फीस, सिलेबस, किताब चाहे एडमिशन से जुड़ल कवनो भी सवाल होखे, खुल के पूछीं!`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Main **Bharti** hoon, BBCC SKILL HUB ki Chief Academic Counselor. Course, fees, syllabus, books ya coaching admission se juda koi bhi sawal ho, aap bina jhijhak poochhiye!`;
                 } else {
-                    replyText = `Namaste mere pyare beta/beti! Main **Bharti** hoon, aapki apni 24/7 Academic Mentor aur Career Counselor. Chahe admission lena ho, coaching chunna ho ya notes padhna ho, main dil se aapke sath hoon. Aap mujhse bina kisi jhijhak ke sawal poochhiye beta!`;
+                    replyText = `नमस्ते ${visitorTitle}! मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। कोर्स, फीस, सिलेबस, ई-लाइब्रेरी बुक्स या कोचिंग एडमिशन से जुड़ा आपका कोई भी सवाल हो, कृपया पूछें। मैं आपकी पूरी सहायता करूँगी।`;
                 }
             }
         }
 
+        // Clean out any accidental "beta" from AI model outputs to strictly honor user request
+        replyText = replyText.replace(/\bbeta\b/gi, visitorTitle || 'Aap')
+                             .replace(/\bbeti\b/gi, visitorTitle || 'Aap')
+                             .replace(/बेटा/g, visitorTitle ? `${visitorTitle}` : 'आप')
+                             .replace(/बेटी/g, visitorTitle ? `${visitorTitle}` : 'आप');
+
         res.json({
             success: true,
             reply: replyText,
-            centerName: targetCenter ? targetCenter.centerName : 'BBCC Central Directorate',
-            directorName: targetCenter ? targetCenter.directorName : 'Director General',
-            encryptedCallLink: encCall,
-            directorPhone: dirPhone,
-            whatsappLink: dirWa,
+            showDirectContactCard: needsContactCard,
+            centerName: needsContactCard ? (targetCenter ? targetCenter.centerName : 'BBCC Central Directorate') : '',
+            directorName: needsContactCard ? (targetCenter ? targetCenter.directorName : 'Director General') : '',
+            encryptedCallLink: needsContactCard ? encCall : '',
+            directorPhone: needsContactCard ? dirPhone : '',
+            whatsappLink: needsContactCard ? dirWa : '',
             ticket: createdTicket ? {
                 ticketId: createdTicket.ticketId,
                 status: createdTicket.status,
