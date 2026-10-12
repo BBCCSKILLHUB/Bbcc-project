@@ -4306,18 +4306,19 @@
         let onboardingStep = 'ready'; // 'lang' | 'mobile' | 'name' | 'ready'
         let pendingLang = 'hi';
         let pendingMobile = '';
+        let chatHistory = [];
 
         const LANG_CONFIGS = {
             hi: {
                 label: 'हिन्दी',
                 askMobile: 'धन्यवाद! कृपया अपना **10 अंकों का मोबाइल नंबर** दर्ज करें (ताकि आवश्यकता पड़ने पर हमारे काउंसलर आपसे सीधे संपर्क कर सकें):',
                 askName: 'बहुत बढ़िया! कृपया अपना **शुभ नाम** बताइए:',
-                welcome: (name) => `स्वागत है **${name} जी**! 🙏 मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। अब आप निःसंकोच कोई भी सवाल पूछ सकते हैं — जैसे कोर्स, फीस, सिलेबस, किताबें या एडमिशन।`,
+                welcome: (name) => `स्वागत है **${name} जी**! 🙏 मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। अब आप निःसंकोच कोई भी सवाल पूछ सकते हैं — जैसे कोर्स, फीस, सिलेबस, किताबें, टिकट स्टेटस या पेमेंट ट्रैकिंग।`,
                 chips: [
-                    'Class 10th का सिलेबस क्या है?',
-                    'ADCA कोर्स की फीस कितनी है?',
-                    'डायरेक्टर सर से बात करनी है',
-                    'ऑनलाइन एडमिशन कैसे लें?'
+                    'Class 10th नोट्स PDF डाउनलोड',
+                    'मेरा टिकट स्टेटस चेक करें',
+                    'पेमेंट ट्रैक करें',
+                    'ADCA कोर्स की फीस कितनी है?'
                 ],
                 invalidPhone: 'कृपया एक वैध 10 अंकों का मोबाइल नंबर दर्ज करें (उदा. 9876543210):',
                 invalidName: 'कृपया अपना नाम दर्ज करें:'
@@ -4326,12 +4327,12 @@
                 label: 'English',
                 askMobile: 'Thank you! Please enter your **10-digit mobile number** (so our counselors can assist you directly if needed):',
                 askName: 'Great! Please enter your **full name**:',
-                welcome: (name) => `Welcome, **${name}**! 🙏 I am **Bharti** — Chief Academic Counselor at BBCC SKILL HUB. Feel free to ask anything about our courses, fees, syllabus, books, or admissions!`,
+                welcome: (name) => `Welcome, **${name}**! 🙏 I am **Bharti** — Chief Academic Counselor at BBCC SKILL HUB. Feel free to ask anything about courses, fees, syllabus, books, ticket tracking, or payment verification!`,
                 chips: [
-                    'What is the Class 10 syllabus?',
-                    'What is the ADCA course fee?',
-                    'I want to speak with the Director',
-                    'How to take online admission?'
+                    'Download Class 10th Notes PDF',
+                    'Check My Ticket Status',
+                    'Track Payment Record',
+                    'ADCA Course Fees'
                 ],
                 invalidPhone: 'Please enter a valid 10-digit mobile number (e.g. 9876543210):',
                 invalidName: 'Please enter your name:'
@@ -4340,12 +4341,12 @@
                 label: 'भोजपुरी',
                 askMobile: 'धन्यवाद! कृपा करके आपन **10 अंक के मोबाइल नंबर** दर्ज करीं (ताकि जरूरत पड़ला पर हमनी के अधिकारी राउर से बात कर सके):',
                 askName: 'बहुत नीक! राउर **शुभ नाम** का ह? बताईं:',
-                welcome: (name) => `स्वागत बा **${name} जी**! 🙏 हम **भारती** हईं — BBCC SKILL HUB के Chief Academic Counselor। अब रउआ जे भी पूछे के मन होखे — कोर्स, फीस, सिलेबस, किताब चाहे एडमिशन — खुल के पूछीं!`,
+                welcome: (name) => `स्वागत बा **${name} जी**! 🙏 हम **भारती** हईं — BBCC SKILL HUB के Chief Academic Counselor। अब रउआ जे भी पूछे के मन होखे — कोर्स, फीस, सिलेबस, किताब, टिकट स्टेटस चाहे पेमेंट — खुल के पूछीं!`,
                 chips: [
-                    '10वीं के सिलेबस का बा?',
-                    'ADCA कोर्स के फीस कतना बा?',
-                    'डायरेक्टर सर से बात करे के बा',
-                    'ऑनलाइन एडमिशन कइसे होई?'
+                    '10वीं के नोट्स PDF डाउनलोड',
+                    'हमार टिकट स्टेटस बतावल जाव',
+                    'पेमेंट ट्रैक करीं',
+                    'ADCA कोर्स के फीस'
                 ],
                 invalidPhone: 'कृपा करके सही 10 अंक के मोबाइल नंबर लिखीं (उदा. 9876543210):',
                 invalidName: 'कृपा करके आपन नाम लिखीं:'
@@ -4354,12 +4355,12 @@
                 label: 'Hinglish',
                 askMobile: 'Thank you! Please apna **10-digit mobile number** enter kijiye (so our counseling team can connect if needed):',
                 askName: 'Awesome! Please apna **good name** batayein:',
-                welcome: (name) => `Welcome **${name} ji**! 🙏 Main **Bharti** hoon — BBCC SKILL HUB ki Chief Academic Counselor. Ab aap bina kisi jhijhak ke koi bhi sawal poochh sakte hain — jaise course, fees, syllabus, books ya admission!`,
+                welcome: (name) => `Welcome **${name} ji**! 🙏 Main **Bharti** hoon — BBCC SKILL HUB ki Chief Academic Counselor. Ab aap bina kisi jhijhak ke koi bhi sawal poochh sakte hain — jaise course, fees, syllabus, books, ticket status ya payment!`,
                 chips: [
-                    'Class 10th ka syllabus kya hai?',
-                    'ADCA course ki fees kitni hai?',
-                    'Director sir se baat karni hai',
-                    'Online admission kaise le sakte hain?'
+                    'Class 10th Notes PDF Download',
+                    'Mera Ticket Status Check Karo',
+                    'Payment Track Karo',
+                    'ADCA Course Details'
                 ],
                 invalidPhone: 'Please valid 10-digit mobile number enter kijiye (e.g. 9876543210):',
                 invalidName: 'Please apna name enter kijiye:'
@@ -4487,6 +4488,7 @@
         function resetVisitorProfile() {
             localStorage.removeItem('bbcc_visitor_profile');
             visitorProfile = null;
+            chatHistory = [];
             onboardingStep = 'lang';
             pendingLang = 'hi';
             pendingMobile = '';
@@ -4607,6 +4609,9 @@
             input.value = '';
             chatBody.scrollTop = chatBody.scrollHeight;
 
+            // Multi-Turn Memory: Record user prompt
+            chatHistory.push({ role: 'user', content: msg });
+
             // Sleek Typing Indicator Dots Animation
             const loadBubble = document.createElement('div');
             loadBubble.className = 'bharti-msg bharti-msg-ai';
@@ -4630,26 +4635,116 @@
                         message: msg,
                         callerName: visitorProfile ? visitorProfile.name : undefined,
                         callerPhone: visitorProfile ? visitorProfile.mobile : undefined,
-                        language: visitorProfile ? visitorProfile.language : undefined
+                        language: visitorProfile ? visitorProfile.language : undefined,
+                        history: chatHistory.slice(-8)
                     })
                 });
                 const data = await res.json();
                 loadBubble.remove();
+
+                if (data.reply) {
+                    chatHistory.push({ role: 'assistant', content: data.reply });
+                }
 
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'bharti-msg bharti-msg-ai';
 
                 let html = `<div>${data.reply || 'नमस्ते! मैं आपकी सहायता के लिए उपस्थित हूँ।'}</div>`;
 
-                // Render Callback Escalation Ticket only if generated
+                // 1. In-Chat Direct PDF Notes & Material Download Cards
+                if (data.downloadCards && data.downloadCards.length > 0) {
+                    html += `
+                        <div class="bharti-download-cards-container" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+                            <span style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px;">
+                                <i class="fas fa-file-pdf"></i> ई-लाइब्रेरी प्रमाणित अध्ययन सामग्री (E-Library Notes)
+                            </span>
+                            ${data.downloadCards.map(c => `
+                                <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(56,189,248,0.35); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                                    <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                                        <div style="width:36px; height:36px; border-radius:8px; background:rgba(56,189,248,0.15); display:flex; align-items:center; justify-content:center; color:#38bdf8; font-size:16px; flex-shrink:0;">
+                                            <i class="fas fa-book-open"></i>
+                                        </div>
+                                        <div style="min-width:0;">
+                                            <div style="font-size:12.5px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                                            <div style="font-size:11px; color:#94a3b8;">${c.subject} • ${c.classLevel}</div>
+                                        </div>
+                                    </div>
+                                    <a href="${c.downloadUrl}" target="_blank" download class="btn-aurora btn-aurora-gold" style="padding:6px 12px; font-size:11.5px; text-decoration:none; flex-shrink:0; white-space:nowrap;">
+                                        <i class="fas fa-download"></i> ${c.isFree ? 'Download PDF' : 'Get PDF'}
+                                    </a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                // 2. Real-time Support Ticket Tracking Card
+                if (data.ticketStatusCard) {
+                    const t = data.ticketStatusCard;
+                    const isRes = t.status === 'RESOLVED';
+                    const stBg = isRes ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)';
+                    const stCol = isRes ? '#34d399' : '#fbbf24';
+                    const stBdr = isRes ? '#10b981' : '#f59e0b';
+                    html += `
+                        <div class="bharti-ticket-status-card" style="margin-top:10px; background:linear-gradient(135deg, rgba(30,58,138,0.25) 0%, rgba(15,23,42,0.45) 100%); border:1px solid #38bdf8; border-radius:12px; padding:12px; text-align:left;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px;">
+                                    <i class="fas fa-ticket-alt"></i> टिकट स्टेटस ट्रैकिंग
+                                </span>
+                                <span style="background:#38bdf8; color:#0b1120; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:10px; font-family:monospace;">
+                                    ${t.ticketId}
+                                </span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                                <span style="padding:2px 8px; border-radius:6px; font-size:10.5px; font-weight:700; background:${stBg}; color:${stCol}; border:1px solid ${stBdr};">
+                                    ● ${t.status}
+                                </span>
+                                <span style="font-size:11px; color:#cbd5e1;">⏱ ${t.scheduledCallback || '15-30 Mins'}</span>
+                            </div>
+                            <div style="font-size:11.5px; color:#cbd5e1; line-height:1.4;">
+                                <div><strong>अधिकारी:</strong> ${t.assignedOfficer || 'Senior Academic Counselor'}</div>
+                                <div><strong>संबद्ध केंद्र:</strong> ${t.centerName || 'BBCC Central Directorate'}</div>
+                                ${t.resolutionNotes ? `<div style="margin-top:4px; color:#a7f3d0;"><strong>अपडेट:</strong> ${t.resolutionNotes}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 3. Real-time Payment & Transaction Ledger Card
+                if (data.paymentCard) {
+                    const p = data.paymentCard;
+                    const isSuccess = p.status === 'paid' || p.status === 'SUCCESS';
+                    html += `
+                        <div class="bharti-payment-card" style="margin-top:10px; background:linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,78,59,0.25) 100%); border:1px solid #10b981; border-radius:12px; padding:12px; text-align:left;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:11px; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:0.5px;">
+                                    <i class="fas fa-receipt"></i> पेमेंट रिकॉर्ड सत्यापित
+                                </span>
+                                <span style="background:#10b981; color:#0b1120; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:10px;">
+                                    ₹${p.amount}
+                                </span>
+                            </div>
+                            <div style="font-size:12px; color:#ffffff; font-weight:700; margin-bottom:4px;">
+                                <span style="color:#34d399;"><i class="fas fa-check-circle"></i> ${isSuccess ? 'SUCCESS (सफल)' : p.status.toUpperCase()}</span>
+                                <span style="color:#cbd5e1; font-size:11px; margin-left:6px; font-family:monospace;">${p.orderId}</span>
+                            </div>
+                            <div style="font-size:11.5px; color:#cbd5e1; line-height:1.4;">
+                                <div><strong>मद / विषय:</strong> ${p.docTitle || p.purpose}</div>
+                                <div style="font-size:11px; color:#94a3b8; margin-top:2px;">तारीख: ${new Date(p.paidAt || p.createdAt).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 4. Render Callback Escalation Ticket only if generated
                 if (data.ticket) {
                     html += `
                         <div class="bharti-ticket-escalation-card" style="margin-top:10px; background:linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(180,83,9,0.2) 100%); border:1px solid #f59e0b; border-radius:12px; padding:12px; text-align:left;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                 <span style="font-size:11px; font-weight:800; color:#fbbf24; text-transform:uppercase; letter-spacing:0.5px;">
-                                    <i class="fas fa-ticket"></i> कॉल-बैक टिकट जनरेट हुआ
+                                    <i class="fas fa-ticket-alt"></i> कॉल-बैक टिकट दर्ज हुआ
                                 </span>
-                                <span style="background:#f59e0b; color:#0b1120; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px;">
+                                <span style="background:#f59e0b; color:#0b1120; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; font-family:monospace;">
                                     ${data.ticket.ticketId}
                                 </span>
                             </div>
@@ -4657,39 +4752,22 @@
                                 <i class="fas fa-phone-volume" style="color:#34d399;"></i> 15–30 मिनट के अंदर फोन कॉल की गारंटी
                             </div>
                             <div style="font-size:11px; color:#cbd5e1; line-height:1.4;">
-                                आपकी समस्या सीधे सेंटर डायरेक्टर और सुपर एडमिन हेल्पडेस्क पर एस्केलेट कर दी गई है। हमारे अधिकारी जल्द ही आपसे संपर्क करेंगे।
+                                आपकी समस्या सीधे सीनियर एकेडमिक हेल्पडेस्क पर शेड्यूल कर दी गई है। हमारे अधिकारी जल्द ही आपके नंबर पर संपर्क करेंगे।
                             </div>
                         </div>
                     `;
                 }
 
-                // Render Direct Contact Card ONLY when specifically needed/requested
-                if (data.showDirectContactCard && (data.encryptedCallLink || data.directorPhone)) {
+                // 5. Render Central Contact Card ONLY when specifically needed
+                if (data.showDirectContactCard && data.encryptedCallLink) {
                     html += `
                         <div class="bharti-action-card">
                             <span style="font-size:11px; color:var(--aurora-gold); font-weight:800; text-transform:uppercase;">
-                                <i class="fas fa-headset"></i> डायरेक्ट सहायता केंद्र: ${data.centerName || 'BBCC सेंटर'}
+                                <i class="fas fa-headset"></i> डायरेक्ट सहायता केंद्र: BBCC Central Directorate
                             </span>
-
-                            ${data.encryptedCallLink ? `
-                                <a href="${data.encryptedCallLink}" target="_blank" class="btn-aurora btn-aurora-gold" style="font-size:12px; padding:7px 12px; text-decoration:none; justify-content:center;">
-                                    <i class="fas fa-lock"></i> 1. सिक्योर एन्क्रिप्टेड कॉल लिंक से जुड़ें
-                                </a>
-                            ` : ''}
-
-                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
-                                ${data.directorPhone ? `
-                                    <a href="tel:${data.directorPhone}" class="btn-aurora btn-aurora-outline" style="flex:1; font-size:12px; padding:7px 10px; text-decoration:none; justify-content:center;">
-                                        <i class="fas fa-phone"></i> 2. कॉल: ${data.directorPhone}
-                                    </a>
-                                ` : ''}
-
-                                ${data.whatsappLink ? `
-                                    <a href="${data.whatsappLink}" target="_blank" class="btn-aurora btn-aurora-outline" style="background:rgba(16,185,129,0.15); border-color:#10b981; color:#34d399; font-size:12px; padding:7px 10px; text-decoration:none; justify-content:center;">
-                                        <i class="fab fa-whatsapp"></i> WhatsApp
-                                    </a>
-                                ` : ''}
-                            </div>
+                            <a href="${data.encryptedCallLink}" target="_blank" class="btn-aurora btn-aurora-gold" style="font-size:12px; padding:7px 12px; text-decoration:none; justify-content:center;">
+                                <i class="fas fa-lock"></i> सिक्योर एन्क्रिप्टेड कॉल लिंक से जुड़ें
+                            </a>
                         </div>
                     `;
                 }

@@ -1943,14 +1943,17 @@
                         </td>
                         <td>
                             <div style="display:flex; gap:6px; align-items:center;">
-                                <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Namaste! Regarding your BBCC Support Ticket ${t.ticketId}, our counseling team is contacting you.`)}" target="_blank" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; text-decoration:none;">
+                                <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Namaste! Regarding your BBCC Support Ticket ${t.ticketId}, our counseling team is contacting you.`)}" target="_blank" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; text-decoration:none;" title="WhatsApp Visitor">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 ${!isResolved ? `
-                                    <button onclick="resolveAdminTicket('${t._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:11px;">
+                                    <button onclick="resolveAdminTicket('${t._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:11px;" title="Mark Resolved">
                                         <i class="fas fa-check"></i> Resolve
                                     </button>
                                 ` : '<span style="color:#10b981; font-size:11px;"><i class="fas fa-check-double"></i> Done</span>'}
+                                <button onclick="deleteAdminTicket('${t._id}', '${t.ticketId}')" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171;" title="Delete Ticket">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -1974,6 +1977,26 @@
                     loadAdminTickets();
                 } else {
                     alert(data.message || 'Error updating ticket');
+                }
+            } catch(err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function deleteAdminTicket(tId, ticketCode) {
+            if (!confirm(`Are you sure you want to permanently delete Support Ticket ${ticketCode || ''}?`)) return;
+            try {
+                const res = await fetch(`/api/admin/tickets/${tId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadAdminTickets();
+                } else {
+                    alert(data.message || 'Error deleting ticket');
                 }
             } catch(err) {
                 alert('Error: ' + err.message);

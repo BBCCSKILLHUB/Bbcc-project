@@ -749,7 +749,7 @@ async function discoverGeminiModels(apiKey) {
     return fallback;
 }
 
-async function callGoogleGemini({ apiKey, prompt, systemInstruction = '', maxTokens = 600, temperature = 0.7 }) {
+async function callGoogleGemini({ apiKey, prompt, history = [], systemInstruction = '', maxTokens = 600, temperature = 0.7 }) {
     if (!apiKey || !apiKey.trim()) {
         throw new Error('Google Gemini API key is not configured');
     }
@@ -787,8 +787,20 @@ async function callGoogleGemini({ apiKey, prompt, systemInstruction = '', maxTok
     for (const cand of candidates) {
         try {
             const endpoint = `https://generativelanguage.googleapis.com/${cand.ver}/models/${cand.model}:generateContent?key=${cleanKey}`;
+            const contents = [];
+            if (Array.isArray(history) && history.length > 0) {
+                for (const h of history) {
+                    if (h && h.content) {
+                        const role = (h.role === 'assistant' || h.role === 'model') ? 'model' : 'user';
+                        contents.push({ role, parts: [{ text: String(h.content) }] });
+                    }
+                }
+            }
+            if (prompt) {
+                contents.push({ role: 'user', parts: [{ text: prompt }] });
+            }
             const reqBody = {
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                contents: contents.length > 0 ? contents : [{ role: 'user', parts: [{ text: prompt || '' }] }],
                 generationConfig: {
                     temperature: temperature,
                     maxOutputTokens: maxTokens
@@ -926,7 +938,7 @@ async function getAvailableGroqModels(apiKey) {
 }
 
 // Free Groq Cloud AI Engine with Dynamic Model Fallback
-async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens = 800, temperature = 0.6 }) {
+async function callGroqChat({ apiKey, prompt, history = [], systemInstruction = '', maxTokens = 800, temperature = 0.6 }) {
     const cleanKey = (apiKey || process.env.GROQ_API_KEY || '').trim();
     if (!cleanKey) {
         throw new Error('Groq API Key is not configured. Get a free API key at https://console.groq.com/keys');
@@ -936,7 +948,17 @@ async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens 
     if (systemInstruction) {
         messages.push({ role: 'system', content: systemInstruction });
     }
-    messages.push({ role: 'user', content: prompt });
+    if (Array.isArray(history) && history.length > 0) {
+        for (const h of history) {
+            if (h && h.content) {
+                const role = (h.role === 'assistant' || h.role === 'model') ? 'assistant' : 'user';
+                messages.push({ role, content: String(h.content) });
+            }
+        }
+    }
+    if (prompt) {
+        messages.push({ role: 'user', content: prompt });
+    }
 
     const modelsToTry = await getAvailableGroqModels(cleanKey);
 
@@ -2473,7 +2495,7 @@ app.get('/api/student/classroom', verifyStudent, async (req, res) => {
 // 4.12 BHARTI Chief Counselor Helpline Assistant (Powered by Groq Cloud / Gemini + Live DB Context)
 app.post('/api/public/bharti-chat', async (req, res) => {
     try {
-        const { message, centerId, callerPhone, callerName, language } = req.body;
+        const { message, centerId, callerPhone, callerName, language, history } = req.body;
         if (!message || !message.trim()) {
             return res.status(400).json({ success: false, message: 'Message prompt required' });
         }
@@ -2503,69 +2525,164 @@ app.post('/api/public/bharti-chat', async (req, res) => {
             }
         }
 
-        let encCall = '';
-        let dirPhone = '';
-        let dirWa = '';
-
-        if (targetCenter) {
-            encCall = targetCenter.encryptedCallLink || `https://meet.bbccskillhub.org/call/${targetCenter.username}`;
-            dirPhone = targetCenter.contactNumber || targetCenter.whatsappNumber || '+91 98765 43210';
-            const cleanMobile = dirPhone.replace(/[^0-9]/g, '').slice(-10);
-            dirWa = `https://wa.me/91${cleanMobile}?text=${encodeURIComponent(`Namaste Director ${targetCenter.directorName}, I am contacting you through BHARTI Helpline regarding admission at ${targetCenter.centerName}.`)}`;
-        } else {
-            encCall = 'https://meet.bbccskillhub.org/call/central-helpline';
-            dirPhone = '+91 98765 43210';
-            dirWa = 'https://wa.me/919876543210?text=Hello%20BBCC%20Platform,%20I%20need%20academic%20assistance.';
-        }
-
-        // Check if user requests escalation, human callback, or provides phone number
+        // Extract user phone & identify visitor
         const phoneMatch = message.match(/(?:\+91[\-\s]?)?[6789]\d{9}/);
         const extractedPhone = callerPhone || (phoneMatch ? phoneMatch[0].replace(/[^0-9]/g, '').slice(-10) : '');
-        const isEscalationRequested = (
-            q.includes('call back') || q.includes('callback') || q.includes('phone karo') ||
-            q.includes('baat karao') || q.includes('baat karni hai') || q.includes('human') ||
-            q.includes('director se') || q.includes('admin se') || q.includes('agent') ||
-            q.includes('shikayat') || q.includes('complaint') || q.includes('ticket') ||
-            Boolean(phoneMatch)
-        );
-
-        // Only show director/central phone card when specifically relevant
-        const needsContactCard = Boolean(
-            isEscalationRequested ||
-            q.includes('contact') || q.includes('phone') || q.includes('call') ||
-            q.includes('number') || q.includes('director') || q.includes('baat') ||
-            q.includes('helpline') || q.includes('whatsapp') || q.includes('sampark')
-        );
-
         const visitorName = (callerName || '').trim();
         const visitorTitle = visitorName ? `${visitorName} ji` : 'Aap';
         const userLang = (language || 'hi').toLowerCase(); // 'hi', 'en', 'bho', 'hinglish'
 
-        let createdTicket = null;
-        if (isEscalationRequested && extractedPhone) {
+        // ----------------------------------------------------
+        // FEATURE 1: TICKET TRACKING IN CHAT (Real-time lookup)
+        // ----------------------------------------------------
+        let trackedTicket = null;
+        const tktMatch = message.match(/TKT[-_]?(?:BBCC[-_]?)?\d{4,8}/i) || message.match(/TKT[-_]?[A-Z0-9]{4,12}/i);
+        const isTicketQuery = Boolean(tktMatch) || (
+            (q.includes('ticket') || q.includes('status') || q.includes('track') || q.includes('shikayat') || q.includes('complaint')) &&
+            Boolean(extractedPhone)
+        );
+
+        if (tktMatch) {
+            const cleanTkt = tktMatch[0].trim();
+            trackedTicket = await SupportTicket.findOne({
+                ticketId: new RegExp(`^${cleanTkt.replace(/[-_]/g, '[-_]?')}$`, 'i')
+            });
+        }
+        if (!trackedTicket && isTicketQuery && extractedPhone) {
+            trackedTicket = await SupportTicket.findOne({ phone: extractedPhone }).sort({ createdAt: -1 });
+        }
+
+        // ----------------------------------------------------
+        // FEATURE 2: PAYMENT TRACKING IN CHAT (Live ledger query)
+        // ----------------------------------------------------
+        let trackedPayment = null;
+        const payMatch = message.match(/(?:pay|order)_[a-zA-Z0-9]{8,25}/i) || message.match(/(?:FREE|ENROLLED|AFF)[a-zA-Z0-9_]{6,25}/i);
+        const isPaymentQuery = Boolean(payMatch) || (
+            (q.includes('payment') || q.includes('paisa') || q.includes('transaction') || q.includes('receipt') || q.includes('kat gaya') || q.includes('pay status') || q.includes('fee paid')) &&
+            Boolean(extractedPhone)
+        );
+
+        if (payMatch) {
+            const cleanPay = payMatch[0].trim();
+            trackedPayment = await PaymentTransaction.findOne({
+                $or: [
+                    { paymentId: new RegExp(`^${cleanPay}$`, 'i') },
+                    { orderId: new RegExp(`^${cleanPay}$`, 'i') }
+                ]
+            });
+        }
+        if (!trackedPayment && isPaymentQuery && extractedPhone) {
+            trackedPayment = await PaymentTransaction.findOne({ payerPhone: extractedPhone }).sort({ createdAt: -1 });
+        }
+
+        // ----------------------------------------------------
+        // FEATURE 3: IN-CHAT PDF NOTES & STUDY MATERIAL MATCHER
+        // ----------------------------------------------------
+        let downloadCards = [];
+        const isPdfSearch = (
+            q.includes('pdf') || q.includes('download') || q.includes('kitab') || q.includes('book') ||
+            q.includes('notes') || q.includes('syllabus') || q.includes('study material') ||
+            q.includes('class 9') || q.includes('class 10') || q.includes('class 11') || q.includes('class 12') ||
+            q.includes('adca') || q.includes('dca') || q.includes('tally') || q.includes('typing') ||
+            q.includes('cdp') || q.includes('ctet') || q.includes('science') || q.includes('math') ||
+            q.includes('history') || q.includes('physics') || q.includes('chemistry') || q.includes('biology')
+        );
+
+        if (isPdfSearch) {
             try {
-                const tktId = `TKT-BBCC-${Math.floor(100000 + Math.random() * 900000)}`;
-                createdTicket = await SupportTicket.create({
-                    ticketId: tktId,
-                    studentName: visitorName || 'Student / Parent Inquiry',
+                const sm = await StudyMaterial.findOne();
+                if (sm && Array.isArray(sm.notes) && sm.notes.length > 0) {
+                    const stopWords = new Set(['kya', 'hai', 'ka', 'ki', 'ke', 'ko', 'me', 'mein', 'par', 'chahiye', 'kaise', 'milega', 'bhejo', 'download', 'pdf', 'notes', 'the', 'a', 'an', 'in', 'of', 'for', 'and', 'to', 'do']);
+                    const words = q.split(/[\s,.\-_?]+/).filter(w => w.length > 1 && !stopWords.has(w));
+
+                    const scored = sm.notes.map(n => {
+                        let score = 0;
+                        const t = (n.title || '').toLowerCase();
+                        const s = (n.subject || '').toLowerCase();
+                        const cl = (n.classLevel || '').toLowerCase();
+                        const d = (n.description || '').toLowerCase();
+
+                        words.forEach(w => {
+                            if (t.includes(w)) score += 5;
+                            if (s.includes(w)) score += 3;
+                            if (cl.includes(w)) score += 4;
+                            if (d.includes(w)) score += 1;
+                        });
+                        return { note: n, score };
+                    }).filter(item => item.score > 0)
+                      .sort((a, b) => b.score - a.score);
+
+                    const topMatches = scored.slice(0, 3).map(item => item.note);
+                    const chosen = topMatches.length > 0 ? topMatches : sm.notes.slice(0, 2);
+
+                    downloadCards = chosen.map(n => ({
+                        id: n._id ? n._id.toString() : '',
+                        title: n.title,
+                        subject: n.subject || 'All Subjects',
+                        classLevel: n.classLevel || 'General',
+                        downloadUrl: n.pdf || n.file || n.downloadUrl || (n._id ? `/api/public/download-doc/${n._id}` : '#'),
+                        thumbnail: n.thumbnail || '',
+                        price: typeof n.price === 'number' ? n.price : 0,
+                        isFree: !n.price || n.price === 0
+                    }));
+                }
+            } catch (mErr) {
+                console.error('Note matching notice:', mErr.message);
+            }
+        }
+
+        // ----------------------------------------------------
+        // FEATURE 4: SMART ESCALATION & DIRECTOR PRIVACY
+        // Bharti tries to solve the problem FIRST in chat!
+        // Tickets are strictly generated ONLY when explicitly requested or unresolved.
+        // Director personal mobile numbers are NEVER disclosed in chat.
+        // ----------------------------------------------------
+        const isExplicitEscalation = (
+            q.includes('call back') || q.includes('callback') || q.includes('phone karo') ||
+            q.includes('baat karao') || q.includes('baat karni hai') || q.includes('human') ||
+            q.includes('director se baat') || q.includes('admin se baat') || q.includes('agent se baat') ||
+            q.includes('shikayat darj') || q.includes('complaint register') || q.includes('ticket generate') ||
+            q.includes('ticket banao')
+        );
+
+        let createdTicket = null;
+        if (isExplicitEscalation && extractedPhone && !trackedTicket) {
+            try {
+                // Check if user already has an active pending ticket in past 24 hours to prevent duplicates
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const existingActiveTicket = await SupportTicket.findOne({
                     phone: extractedPhone,
-                    centerId: targetCenter ? targetCenter._id.toString() : 'central',
-                    centerName: targetCenter ? targetCenter.centerName : 'BBCC Central Directorate',
-                    category: q.includes('fee') ? 'Fee Inquiry & Assistance' : (q.includes('admission') ? 'Direct Admission Callback' : 'Counseling & Support Callback'),
-                    issueSummary: message.trim(),
-                    userChatSnippet: message.trim(),
-                    status: 'CALLBACK_SCHEDULED',
-                    scheduledCallback: 'Within 15-30 Minutes',
-                    assignedOfficer: targetCenter ? `Director ${targetCenter.directorName}` : 'Senior Academic Counselor'
-                });
+                    status: { $in: ['CALLBACK_SCHEDULED', 'OPEN'] },
+                    createdAt: { $gte: oneDayAgo }
+                }).sort({ createdAt: -1 });
+
+                if (existingActiveTicket) {
+                    trackedTicket = existingActiveTicket;
+                } else {
+                    const tktId = `TKT-BBCC-${Math.floor(100000 + Math.random() * 900000)}`;
+                    createdTicket = await SupportTicket.create({
+                        ticketId: tktId,
+                        studentName: visitorName || 'Student / Parent Inquiry',
+                        phone: extractedPhone,
+                        centerId: targetCenter ? targetCenter._id.toString() : 'central',
+                        centerName: targetCenter ? targetCenter.centerName : 'BBCC Central Directorate',
+                        category: q.includes('fee') ? 'Fee Inquiry & Assistance' : (q.includes('admission') ? 'Direct Admission Callback' : 'Counseling & Support Callback'),
+                        issueSummary: message.trim(),
+                        userChatSnippet: message.trim(),
+                        status: 'CALLBACK_SCHEDULED',
+                        scheduledCallback: 'Within 15-30 Minutes',
+                        assignedOfficer: 'Senior Academic Counselor'
+                    });
+                }
             } catch (tErr) {
                 console.error('Support ticket creation notice:', tErr.message);
             }
         }
 
         // Fetch live platform knowledge: summary of centers, courses & books
+        // (Note: Director personal numbers are withheld from public chat to protect privacy)
         const centersSummary = allCenters.slice(0, 8).map(c =>
-            `• Center: "${c.centerName}" | Director: "${c.directorName}" | Phone: "${c.contactNumber || c.whatsappNumber || 'N/A'}" | Classes: "${c.fromClass} to ${c.toClass}" | Admission Fee: ₹${c.admissionFee || 200}`
+            `• Center: "${c.centerName}" | Director: "${c.directorName}" | Classes: "${c.fromClass} to ${c.toClass}" | Admission Fee: ₹${c.admissionFee || 200}`
         ).join('\n');
 
         let booksCount = 0;
@@ -2583,10 +2700,42 @@ app.post('/api/public/bharti-chat', async (req, res) => {
 - Teacher Training Batches: CTET, STET, TRE Teacher Recruitment
 - Skill & Computer Courses: DCA, ADCA, Tally Prime with GST, Typing
 - Direct Admissions: Students can enroll online directly; 100% payments route through BBCC Central Escrow Gateway.
-- Revenue Model: Central gateway holds funds; 50% admission and 80% course cut released to center upon Admin approval of withdrawal request.
+- Privacy & Escalation Policy: All inquiries are addressed centrally. No director personal phone number is shared in chat.
 - Active Partner Centers:
 ${centersSummary}
-${targetCenter ? `Current Scoped Center: "${targetCenter.centerName}" (Director: ${targetCenter.directorName}, Phone: ${dirPhone}, Address: ${targetCenter.address || 'Certified Center'})` : ''}
+${targetCenter ? `Current Scoped Center: "${targetCenter.centerName}" (Director: ${targetCenter.directorName}, Address: ${targetCenter.address || 'Certified Center'})` : ''}
+
+${trackedTicket ? `
+[LIVE TICKET TRACKING RECORD FOUND]:
+- Ticket ID: ${trackedTicket.ticketId}
+- Status: ${trackedTicket.status}
+- Phone: ${trackedTicket.phone}
+- Student Name: ${trackedTicket.studentName}
+- Center: ${trackedTicket.centerName || 'BBCC Central Directorate'}
+- Assigned Officer: ${trackedTicket.assignedOfficer || 'Senior Academic Counselor'}
+- Scheduled Callback: ${trackedTicket.scheduledCallback || 'Within 15-30 Minutes'}
+- Resolution Notes: ${trackedTicket.resolutionNotes || 'In Progress'}
+- Created At: ${trackedTicket.createdAt}
+(Tell the user about this ticket status accurately and reassuringly!)
+` : ''}
+
+${trackedPayment ? `
+[LIVE PAYMENT TRANSACTION RECORD FOUND]:
+- Order ID: ${trackedPayment.orderId}
+- Payment ID: ${trackedPayment.paymentId || 'N/A'}
+- Amount: ₹${trackedPayment.amount}
+- Status: ${trackedPayment.status.toUpperCase()}
+- Item / Purpose: ${trackedPayment.docTitle || trackedPayment.purpose}
+- Payer Name: ${trackedPayment.payerName}
+- Date: ${trackedPayment.createdAt}
+(Confirm this payment transaction to the user clearly!)
+` : ''}
+
+${downloadCards.length > 0 ? `
+[MATCHED E-LIBRARY PDF STUDY MATERIALS]:
+${downloadCards.map(d => `• Title: "${d.title}" | Subject: "${d.subject}" | Class: "${d.classLevel}" | Price: ${d.isFree ? 'FREE' : '₹' + d.price}`).join('\n')}
+(Inform the visitor that direct 1-click Download PDF cards have been provided below in the chat!)
+` : ''}
 `;
 
         const langNameMap = {
@@ -2600,24 +2749,25 @@ ${targetCenter ? `Current Scoped Center: "${targetCenter.centerName}" (Director:
         const bhartiSystemPrompt = `Aap BBCC SKILL HUB (Bal Bharti Coaching Center) ki Chief Academic Counselor aur Senior Academic Advisor hain jinka naam 'BHARTI' hai.
 STRICT PERSONA RULES:
 1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main Bharti hoon — BBCC SKILL HUB ki Chief Academic Counselor'.
-2. STRICT RULE: KABHI BHI visitor ya vidyarthi ko 'Beta' ya 'Beti' NAHI bolna hai! Visitor ko hamesha aadar aur samman ke sath unke naam se sambodhit karein: '${visitorTitle}' (ya 'Aap' / 'Sir' / 'Ma'am').
-3. Bhasha (Language): Visitor ne '${activeLangName}' bhasha chuni hai. Unhe kripya strictly usi bhasha mein shishtata aur samman ke sath uttar dein.
-4. Live platform knowledge: Aapke paas platform ke sabhi verified coaching centers, courses, fees, syllabus aur notes ka poora live data hai. Visitor ke sawal ka spasht, sachha, helpful aur accurate javab dein.
-5. Agar visitor kisi Director ya Admin se baat karna chahe, ya callback maange, ya complaint kare:
-   - Unhe bataiye ki unka Support Callback Ticket schedule ho gaya hai aur 15-30 minute ke andar hamare counseling officer aapse seedhe phone par baat karenge.
-6. Jawab shisht, spasht, professional aur helpful rakhein. Maximum 2-3 short paragraphs. KABHI 'Beta' NA BOLEIN.`;
+2. STRICT RESPECT RULE: KABHI BHI visitor ya vidyarthi ko 'Beta' ya 'Beti' NAHI bolna hai! Visitor ko hamesha aadar aur samman ke sath unke naam se sambodhit karein: '${visitorTitle}' (ya 'Aap' / 'Sir' / 'Ma'am').
+3. STRICT PRIVACY RULE: Aap KABHI BHI kisi Director ya Teacher ka personal phone number chat mein NAHI dengi. Agar visitor direct sampark maange, toh unhe batayein ki security aur transparent record ke liye Central Support Callback Ticket darj kiya jata hai jisse hamare counseling officer unhe seedhe call karte hain. Central Directorate Helpline: +91 98765 43210.
+4. Problem-Solver First Policy: Visitor ke sawal, syllabus, course, fees, ticket status, payment tracking aur PDF download ki har samasya ko pehle chat mein hi solve karne ki poori koshish karein. Ticket sirf tab darj karein jab visitor ne explicit call back maanga ho ya samasya chat mein solve na ho paye.
+5. Bhasha (Language): Visitor ne '${activeLangName}' bhasha chuni hai. Unhe strictly usi bhasha mein shishtata aur samman ke sath uttar dein.
+6. Conversation Memory: Aap purani baaton ka sandarbh dhyan mein rakh kar aage baat karein taaki visitor ko baar baar dohrana na pade.
+7. Jawab shisht, spasht, professional aur helpful rakhein. Maximum 2-3 short paragraphs. KABHI 'Beta' ya 'Beti' NA BOLEIN.`;
 
         let replyText = '';
         const settings = await Settings.findOne();
         const groqKey = settings?.groqApiKey?.trim() || process.env.GROQ_API_KEY || '';
         const geminiKey = settings?.geminiApiKey?.trim() || process.env.GEMINI_API_KEY || '';
 
-        // Priority 1: Free Groq Cloud (llama-3.3-70b-versatile / dynamic active models)
+        // Priority 1: Free Groq Cloud (llama-3.3-70b-versatile / dynamic active models) with Multi-Turn Memory
         if (groqKey) {
             try {
                 const groqRes = await callGroqChat({
                     apiKey: groqKey,
-                    prompt: `User (${visitorTitle}) in language (${activeLangName}): "${message}"\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID politely.` : ''}\n\nContext:\n${dbContext}`,
+                    prompt: `User (${visitorTitle}) in language (${activeLangName}): "${message}"\n\n${createdTicket ? `NOTE: New Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID politely.` : ''}\n\nContext:\n${dbContext}`,
+                    history: Array.isArray(history) ? history.slice(-8) : [],
                     systemInstruction: bhartiSystemPrompt,
                     temperature: 0.6,
                     maxTokens: 750
@@ -2630,13 +2780,14 @@ STRICT PERSONA RULES:
             }
         }
 
-        // Priority 2: Google Gemini Fallback
+        // Priority 2: Google Gemini Fallback with Multi-Turn Memory
         if (!replyText && geminiKey) {
             try {
                 const geminiPrompt = `${bhartiSystemPrompt}\n\nContext:\n${dbContext}\n\n${createdTicket ? `NOTE: Support Ticket ${createdTicket.ticketId} has been created for callback within 15-30 minutes. Mention this ticket ID politely.` : ''}\n\nUser (${visitorTitle}) in language (${activeLangName}): "${message}"`;
                 const aiRes = await callGoogleGemini({
                     apiKey: geminiKey,
                     prompt: geminiPrompt,
+                    history: Array.isArray(history) ? history.slice(-8) : [],
                     temperature: 0.7,
                     maxTokens: 600
                 });
@@ -2650,7 +2801,41 @@ STRICT PERSONA RULES:
 
         // Priority 3: Intelligent Empathetic Human Rule Engine (Multilingual, Polite, strictly NO "beta")
         if (!replyText) {
-            if (createdTicket) {
+            if (trackedTicket) {
+                const st = trackedTicket.status;
+                const stText = st === 'RESOLVED' ? 'Resolved / Completed' : (st === 'CALLBACK_SCHEDULED' ? 'Callback Scheduled (Within 15-30 Mins)' : 'Open / In Process');
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! I found your Support Ticket **${trackedTicket.ticketId}**.\n\n• **Status**: ${stText}\n• **Center / Unit**: ${trackedTicket.centerName || 'BBCC Central Directorate'}\n• **Assigned Officer**: ${trackedTicket.assignedOfficer || 'Senior Academic Counselor'}\n• **Resolution Notes**: ${trackedTicket.resolutionNotes || 'Our counseling desk is actively reviewing your request.'}`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! राउर **सपोर्ट टिकट ${trackedTicket.ticketId}** के स्टेटस मिल गइल बा:\n\n• **स्थिति**: ${stText}\n• **सेंटर**: ${trackedTicket.centerName || 'BBCC सेंट्रल'}\n• **जिम्मेदार अधिकारी**: ${trackedTicket.assignedOfficer || 'सीनियर काउंसलर'}\n• **अपडेट**: ${trackedTicket.resolutionNotes || 'राउर आवेदन पर काम चालू बा।'}`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Aapke **Support Ticket ${trackedTicket.ticketId}** ka status mil gaya hai:\n\n• **Status**: ${stText}\n• **Center**: ${trackedTicket.centerName || 'BBCC Central Directorate'}\n• **Assigned Counselor**: ${trackedTicket.assignedOfficer || 'Senior Counselor'}\n• **Latest Update**: ${trackedTicket.resolutionNotes || 'Counseling team aapse jald hi connect karegi.'}`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! आपके **सपोर्ट टिकट ${trackedTicket.ticketId}** का विवरण प्राप्त हुआ:\n\n• **वर्तमान स्थिति**: ${stText}\n• **संबद्ध केंद्र**: ${trackedTicket.centerName || 'BBCC Central Directorate'}\n• **काउंसलिंग अधिकारी**: ${trackedTicket.assignedOfficer || 'वरिष्ठ शैक्षिक सलाहकार'}\n• **नवीनतम विवरण**: ${trackedTicket.resolutionNotes || 'काउंसलिंग डेस्क आपकी सहायता में संलग्न है।'}`;
+                }
+            } else if (trackedPayment) {
+                const isPaid = trackedPayment.status === 'paid' || trackedPayment.status === 'SUCCESS';
+                const pStatusText = isPaid ? 'SUCCESS / VERIFIED (सफल)' : trackedPayment.status.toUpperCase();
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! Your payment record has been verified:\n\n• **Order ID**: ${trackedPayment.orderId}\n• **Payment ID**: ${trackedPayment.paymentId || 'Verified'}\n• **Amount**: ₹${trackedPayment.amount}\n• **Status**: ${pStatusText}\n• **Item**: ${trackedPayment.docTitle || trackedPayment.purpose}`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! राउर पेमेंट के जानकारी मिल गइल:\n\n• **ऑर्डर आईडी**: ${trackedPayment.orderId}\n• **रकम**: ₹${trackedPayment.amount}\n• **स्थिति**: ${pStatusText}\n• **कोर्स / किताब**: ${trackedPayment.docTitle || trackedPayment.purpose}`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Aapka payment record verify ho gaya hai:\n\n• **Order ID**: ${trackedPayment.orderId}\n• **Payment ID**: ${trackedPayment.paymentId || 'Verified'}\n• **Amount**: ₹${trackedPayment.amount}\n• **Status**: ${pStatusText}\n• **Course / Book**: ${trackedPayment.docTitle || trackedPayment.purpose}`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! आपका भुगतान विवरण सत्यापित कर लिया गया है:\n\n• **ऑर्डर आईडी**: ${trackedPayment.orderId}\n• **पेमेंट आईडी**: ${trackedPayment.paymentId || 'Verified'}\n• **राशि**: ₹${trackedPayment.amount}\n• **स्थिति**: ${pStatusText}\n• **पाठ्यक्रम / पुस्तक**: ${trackedPayment.docTitle || trackedPayment.purpose}`;
+                }
+            } else if (downloadCards.length > 0) {
+                if (userLang === 'en') {
+                    replyText = `Hello ${visitorTitle}! I found the relevant syllabus study materials from our E-Library. You can directly view and download them using the 1-click Download buttons below:`;
+                } else if (userLang === 'bho') {
+                    replyText = `प्रणाम ${visitorTitle}! ई-लाइब्रेरी से राउर विषय के किताब आ नोट्स मिल गइल बा। नीचे दिहल गइल बटन पर क्लिक क के रउआ सीधे PDF डाउनलोड क सकिला:`;
+                } else if (userLang === 'hinglish') {
+                    replyText = `Namaste ${visitorTitle}! Hamari E-Library se aapke maange gaye syllabus notes mil gaye hain. Neeche diye gaye Download buttons par click karke aap direct PDF prapt kar sakte hain:`;
+                } else {
+                    replyText = `नमस्ते ${visitorTitle}! हमारी ई-लाइब्रेरी से आपके विषय के प्रमाणित अध्ययन नोट्स प्राप्त हो गए हैं। नीचे दिए गए 1-क्लिक डाउनलोड कार्ड से आप सीधे PDF प्राप्त कर सकते हैं:`;
+                }
+            } else if (createdTicket) {
                 if (userLang === 'en') {
                     replyText = `Hello ${visitorTitle}! Your Priority Callback Ticket **${createdTicket.ticketId}** has been successfully scheduled. Our Senior Academic Counselor will call you at **${createdTicket.phone}** within **15 to 30 minutes**.`;
                 } else if (userLang === 'bho') {
@@ -2660,15 +2845,15 @@ STRICT PERSONA RULES:
                 } else {
                     replyText = `नमस्ते ${visitorTitle}! आपका **सपोर्ट कॉलबैक टिकट ${createdTicket.ticketId}** सफलतापूर्वक दर्ज कर लिया गया है। हमारे वरिष्ठ काउंसलिंग अधिकारी अगले **15 से 30 मिनट** के अंदर आपके मोबाइल नंबर (**${createdTicket.phone}**) पर संपर्क करेंगे।`;
                 }
-            } else if (isEscalationRequested && !extractedPhone) {
+            } else if (isExplicitEscalation && !extractedPhone) {
                 if (userLang === 'en') {
-                    replyText = `Hello ${visitorTitle}! To schedule a direct callback from our Center Director or Senior Counselor, please share your **10-digit mobile number**. I will immediately create a Priority Ticket for you.`;
+                    replyText = `Hello ${visitorTitle}! To schedule a direct callback from our Senior Counseling Desk, please share your **10-digit mobile number**. I will immediately create a Priority Ticket for you.`;
                 } else if (userLang === 'bho') {
-                    replyText = `प्रणाम ${visitorTitle}! डायरेक्टर सर से बात करे खातिर कृपा करके आपन **10 अंक के मोबाइल नंबर** लिखीं। हम तुरंत राउर कॉलबैक टिकट बना देब।`;
+                    replyText = `प्रणाम ${visitorTitle}! कॉलबैक खातिर कृपा करके आपन **10 अंक के मोबाइल नंबर** लिखीं। हम तुरंत राउर टिकट दर्ज क देब।`;
                 } else if (userLang === 'hinglish') {
-                    replyText = `Namaste ${visitorTitle}! Director sir se baat karne ke liye kripya apna **10-digit mobile number** enter kijiye. Main turant aapka Priority Callback Ticket generate kar dungi.`;
+                    replyText = `Namaste ${visitorTitle}! Callback schedule karne ke liye kripya apna **10-digit mobile number** enter kijiye. Main turant aapka Priority Ticket generate kar dungi.`;
                 } else {
-                    replyText = `नमस्ते ${visitorTitle}! डायरेक्टर सर या वरिष्ठ सलाहकार से सीधे फोन पर बात करने के लिए कृपया अपना **10 अंकों का मोबाइल नंबर** दर्ज करें। मैं तुरंत आपका कॉलबैक टिकट जनरेट कर दूँगी।`;
+                    replyText = `नमस्ते ${visitorTitle}! सीधे फोन पर बात करने के लिए कृपया अपना **10 अंकों का मोबाइल नंबर** दर्ज करें। मैं तुरंत आपका कॉलबैक टिकट जनरेट कर दूँगी।`;
                 }
             } else if (q.includes('syllabus') || q.includes('class') || q.includes('subject') || q.includes('10th') || q.includes('12th')) {
                 if (userLang === 'en') {
@@ -2712,18 +2897,18 @@ STRICT PERSONA RULES:
                 }
             } else {
                 if (userLang === 'en') {
-                    replyText = `Hello ${visitorTitle}! I am **Bharti**, Chief Academic Counselor at BBCC SKILL HUB. I can help you with course admissions, syllabus notes, coaching center guidance, and exam preparation. How may I assist you today?`;
+                    replyText = `Hello ${visitorTitle}! I am **Bharti**, Chief Academic Counselor at BBCC SKILL HUB. I can help you with course admissions, syllabus notes, coaching center guidance, exam preparation, ticket status tracking, and payment tracking. How may I assist you today?`;
                 } else if (userLang === 'bho') {
-                    replyText = `प्रणाम ${visitorTitle}! हम **भारती** हईं, BBCC SKILL HUB के Chief Academic Counselor। कोर्स, फीस, सिलेबस, किताब चाहे एडमिशन से जुड़ल कवनो भी सवाल होखे, खुल के पूछीं!`;
+                    replyText = `प्रणाम ${visitorTitle}! हम **भारती** हईं, BBCC SKILL HUB के Chief Academic Counselor। कोर्स, फीस, सिलेबस, किताब, टिकट स्टेटस चाहे पेमेंट ट्रैकिंग — जे भी सवाल होखे, खुल के पूछीं!`;
                 } else if (userLang === 'hinglish') {
-                    replyText = `Namaste ${visitorTitle}! Main **Bharti** hoon, BBCC SKILL HUB ki Chief Academic Counselor. Course, fees, syllabus, books ya coaching admission se juda koi bhi sawal ho, aap bina jhijhak poochhiye!`;
+                    replyText = `Namaste ${visitorTitle}! Main **Bharti** hoon, BBCC SKILL HUB ki Chief Academic Counselor. Course, fees, syllabus, books, ticket tracking ya payment status — aap bina kisi jhijhak ke poochhiye!`;
                 } else {
-                    replyText = `नमस्ते ${visitorTitle}! मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। कोर्स, फीस, सिलेबस, ई-लाइब्रेरी बुक्स या कोचिंग एडमिशन से जुड़ा आपका कोई भी सवाल हो, कृपया पूछें। मैं आपकी पूरी सहायता करूँगी।`;
+                    replyText = `नमस्ते ${visitorTitle}! मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। कोर्स, फीस, सिलेबस, ई-लाइब्रेरी बुक्स, एडमिशन, टिकट ट्रैकिंग या पेमेंट वेरिफिकेशन — आपका जो भी प्रश्न हो, कृपया पूछें। मैं आपकी पूरी सहायता करूँगी।`;
                 }
             }
         }
 
-        // Clean out any accidental "beta" from AI model outputs to strictly honor user request
+        // Clean out any accidental "beta" or "beti" from AI model outputs to strictly honor user request
         replyText = replyText.replace(/\bbeta\b/gi, visitorTitle || 'Aap')
                              .replace(/\bbeti\b/gi, visitorTitle || 'Aap')
                              .replace(/बेटा/g, visitorTitle ? `${visitorTitle}` : 'आप')
@@ -2732,12 +2917,7 @@ STRICT PERSONA RULES:
         res.json({
             success: true,
             reply: replyText,
-            showDirectContactCard: needsContactCard,
-            centerName: needsContactCard ? (targetCenter ? targetCenter.centerName : 'BBCC Central Directorate') : '',
-            directorName: needsContactCard ? (targetCenter ? targetCenter.directorName : 'Director General') : '',
-            encryptedCallLink: needsContactCard ? encCall : '',
-            directorPhone: needsContactCard ? dirPhone : '',
-            whatsappLink: needsContactCard ? dirWa : '',
+            showDirectContactCard: false, // Protected: individual director phone numbers strictly withheld
             ticket: createdTicket ? {
                 ticketId: createdTicket.ticketId,
                 status: createdTicket.status,
@@ -2745,7 +2925,29 @@ STRICT PERSONA RULES:
                 scheduledCallback: createdTicket.scheduledCallback,
                 assignedOfficer: createdTicket.assignedOfficer,
                 centerName: createdTicket.centerName
-            } : null
+            } : null,
+            ticketStatusCard: trackedTicket ? {
+                ticketId: trackedTicket.ticketId,
+                status: trackedTicket.status,
+                phone: trackedTicket.phone,
+                studentName: trackedTicket.studentName,
+                assignedOfficer: trackedTicket.assignedOfficer || 'Senior Academic Counselor',
+                scheduledCallback: trackedTicket.scheduledCallback || 'Within 15-30 Minutes',
+                resolutionNotes: trackedTicket.resolutionNotes || 'In Progress',
+                centerName: trackedTicket.centerName || 'BBCC Central Directorate',
+                createdAt: trackedTicket.createdAt
+            } : null,
+            paymentCard: trackedPayment ? {
+                orderId: trackedPayment.orderId,
+                paymentId: trackedPayment.paymentId || 'N/A',
+                amount: trackedPayment.amount,
+                status: trackedPayment.status,
+                docTitle: trackedPayment.docTitle || trackedPayment.purpose,
+                payerName: trackedPayment.payerName,
+                paidAt: trackedPayment.paidAt || trackedPayment.createdAt,
+                createdAt: trackedPayment.createdAt
+            } : null,
+            downloadCards: downloadCards.length > 0 ? downloadCards : null
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2822,6 +3024,16 @@ app.put('/api/admin/tickets/:id', verifySuperAdmin, async (req, res) => {
 
         await ticket.save();
         res.json({ success: true, message: 'Ticket updated successfully', data: ticket });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/admin/tickets/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const ticket = await SupportTicket.findByIdAndDelete(req.params.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Support ticket not found' });
+        res.json({ success: true, message: 'Support ticket deleted successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
