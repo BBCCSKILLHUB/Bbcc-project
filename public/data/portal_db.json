@@ -103,7 +103,7 @@
           "class": "Class 10th - 12th BSEB/CBSE",
           "qualification": "M.Sc. Mathematics (Gold Medalist)",
           "experience": "12+ Years Teaching",
-          "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+          "photo": "/data/branding/logo.png",
           "phone": "9876500001"
         }
       ],
@@ -125,7 +125,7 @@
           "_id": "pban_001",
           "title": "Chhath Puja Mahaparv Special High Scoring Batch 2026",
           "subtitle": "100% Syllabus Coverage & Mock Test Series | Admissions Open",
-          "image": "https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop",
+          "image": "/data/photos/bbcc_campus.png",
           "active": true,
           "expiresAt": "2026-11-10T20:17:57.765Z"
         }
@@ -165,7 +165,7 @@
           "class": "Vocational IT Diploma",
           "qualification": "B.Tech IT, Certified Tally Professional",
           "experience": "9+ Years Industry Experience",
-          "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+          "photo": "/data/branding/logo.png",
           "phone": "9876500002"
         }
       ],
@@ -218,7 +218,7 @@
           "class": "CTET Paper 1 & 2 / BPSC TRE",
           "qualification": "Ph.D. Education, UGC-NET Qualified",
           "experience": "14+ Years Teacher Prep",
-          "photo": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+          "photo": "/data/branding/logo.png",
           "phone": "9876500003"
         }
       ],

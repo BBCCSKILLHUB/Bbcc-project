@@ -192,24 +192,14 @@
 <body>
 
     <div class="auth-card-panel">
-        <div class="auth-emblem">
-            <i class="fas fa-shield-halved"></i>
+        <div class="auth-emblem" style="background:transparent; box-shadow:none; width:75px; height:75px; margin:0 auto 14px;">
+            <img src="/data/branding/logo.png" alt="BBCC Logo" style="width:100%; height:100%; object-fit:contain; border-radius:16px; box-shadow:0 0 25px rgba(251, 191, 36, 0.4);" onerror="this.onerror=null; this.src='/favicon.ico';">
         </div>
         <h2 class="auth-title">BBCC SKILL HUB</h2>
-        <p style="font-size:12.5px; color:#cbd5e1;">Director & Admin Management Portal</p>
-
-        <!-- Role Switcher -->
-        <div class="role-switch-dock">
-            <button type="button" class="role-switch-btn active" id="btnRoleDirector" onclick="selectRole('director')">
-                <i class="fas fa-school"></i> Center Director
-            </button>
-            <button type="button" class="role-switch-btn" id="btnRoleAdmin" onclick="selectRole('superadmin')">
-                <i class="fas fa-crown"></i> Super Admin
-            </button>
-        </div>
+        <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:22px;">Centralized Access Desk — Super Admin & Coaching Director</p>
 
         <form onsubmit="handlePortalLogin(event)">
-            <input type="text" id="loginUsername" required placeholder="Coaching Center Username" class="auth-input-field">
+            <input type="text" id="loginUsername" required placeholder="User ID / Username / Email / Mobile" class="auth-input-field">
             <input type="password" id="loginPassword" required placeholder="Security Password" class="auth-input-field">
 
             <label class="remember-checkbox-row">
@@ -235,34 +225,17 @@
     </div>
 
     <script>
-        let selectedRole = 'director';
-
         window.addEventListener('DOMContentLoaded', () => {
             const isRemembered = localStorage.getItem('bbcc_remember_creds') === 'true';
             if (isRemembered) {
-                const savedRole = localStorage.getItem('bbcc_saved_role') || 'director';
                 const savedUser = localStorage.getItem('bbcc_saved_username') || '';
                 const savedPass = localStorage.getItem('bbcc_saved_password') || '';
 
-                selectRole(savedRole);
                 document.getElementById('loginUsername').value = savedUser;
                 document.getElementById('loginPassword').value = savedPass;
                 document.getElementById('rememberCreds').checked = true;
             }
         });
-
-        function selectRole(role) {
-            selectedRole = role;
-            document.getElementById('btnRoleDirector').classList.toggle('active', role === 'director');
-            document.getElementById('btnRoleAdmin').classList.toggle('active', role === 'superadmin');
-
-            const uField = document.getElementById('loginUsername');
-            if (role === 'superadmin') {
-                uField.placeholder = 'Super Admin ID (e.g. admin)';
-            } else {
-                uField.placeholder = 'Coaching Center Username';
-            }
-        }
 
         async function handlePortalLogin(e) {
             e.preventDefault();
@@ -281,7 +254,7 @@
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, role: selectedRole })
+                    body: JSON.stringify({ username, password })
                 });
 
                 const data = await res.json();
@@ -294,12 +267,10 @@
 
                     if (rememberMe) {
                         localStorage.setItem('bbcc_remember_creds', 'true');
-                        localStorage.setItem('bbcc_saved_role', selectedRole);
                         localStorage.setItem('bbcc_saved_username', username);
                         localStorage.setItem('bbcc_saved_password', password);
                     } else {
                         localStorage.removeItem('bbcc_remember_creds');
-                        localStorage.removeItem('bbcc_saved_role');
                         localStorage.removeItem('bbcc_saved_username');
                         localStorage.removeItem('bbcc_saved_password');
                     }

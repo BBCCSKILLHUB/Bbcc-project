@@ -532,7 +532,7 @@ const SettingsSchema = new mongoose.Schema({
     phone: { type: String, default: '+91 98765 43210' },
     email: { type: String, default: 'board@bbccskillhub.org' },
     address: { type: String, default: 'BBCC Central Directorate, New Delhi, India' },
-    boardLogo: { type: String, default: '' },
+    boardLogo: { type: String, default: '/data/branding/logo.png' },
     footerText: { type: String, default: 'BBCC SKILL HUB Digital Platform. Centralized Educational Verification & Partner Institute Network.' },
     newsMarquee: {
         type: String,
@@ -580,11 +580,11 @@ const SettingsSchema = new mongoose.Schema({
     },
     // Founder & Leadership Profile
     founderProfile: {
-        name: { type: String, default: 'Er. R. K. Bharti' },
-        photo: { type: String, default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop' },
+        name: { type: String, default: 'Santosh Kumar' },
+        photo: { type: String, default: '/data/photos/Santosh_Sir.jpg' },
         designation: { type: String, default: 'Founder & Managing Director' },
-        qualification: { type: String, default: 'M.Tech, Educational Reformer & EdTech Visionary' },
-        message: { type: String, default: 'Our mission at BBCC SKILL HUB is to empower every coaching center across India with cutting-edge digital infrastructure, authentic syllabus resources, and transparent revenue growth.' },
+        qualification: { type: String, default: 'B.Ed, EdTech Visionary & Institutional Leader' },
+        message: { type: String, default: 'हमारा उद्देश्य प्रत्येक छात्र और कोचिंग संस्थान को आधुनिक डिजिटल प्लेटफॉर्म और उत्कृष्ट अध्ययन सामग्री प्रदान करना है।' },
         signature: { type: String, default: '' }
     },
     // Festival Theme for Homepage Background
@@ -1107,17 +1107,21 @@ async function initSystem() {
             await Settings.create({
                 boardTitle: 'BBCC SKILL HUB',
                 tagline: 'Empowering Educational Excellence & Certified Digital Learning',
+                boardLogo: '/data/branding/logo.png',
                 newsMarquee: '📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live',
                 affiliationFee: 999,
                 banners: [
                     {
                         title: 'BBCC SKILL HUB Digital Platform',
                         subtitle: 'National Institutional Network & Certified Syllabus Repository',
-                        image: ''
+                        image: '/data/photos/bbcc_campus.png'
                     }
                 ]
             });
             console.log('✅ Initialized Global Settings');
+        } else if (!settings.boardLogo || settings.boardLogo.trim() === '') {
+            settings.boardLogo = '/data/branding/logo.png';
+            await settings.save().catch(() => {});
         }
 
         // Ensure Study Material repository
@@ -1251,7 +1255,7 @@ app.get('/api/public/config', async (req, res) => {
             phone: settings.phone,
             email: settings.email,
             address: settings.address,
-            boardLogo: settings.boardLogo || '',
+            boardLogo: settings.boardLogo || '/data/branding/logo.png',
             newsMarquee: settings.newsMarquee || '',
             affiliationFee: settings.affiliationFee !== undefined ? settings.affiliationFee : 999,
             geminiConfigured: !!(settings.geminiApiKey && settings.geminiApiKey.trim()),
@@ -1391,23 +1395,29 @@ app.get('/api/public/center/:id', async (req, res) => {
 // 4.4B Favicon Endpoint (Dynamic Board Logo as Favicon)
 app.get('/favicon.ico', async (req, res) => {
     try {
-        const settings = await Settings.findOne();
-        if (settings && settings.boardLogo) {
-            if (settings.boardLogo.startsWith('data:image')) {
-                const parts = settings.boardLogo.split(';base64,');
+        let settings = null;
+        if (isMongoConnected) {
+            try { settings = await Settings.findOne(); } catch(e) {}
+        }
+        if (!settings) {
+            const pdb = loadPortalDb();
+            settings = pdb.settings || {};
+        }
+        const logo = settings?.boardLogo || '/data/branding/logo.png';
+        if (logo) {
+            if (logo.startsWith('data:image')) {
+                const parts = logo.split(';base64,');
                 const mime = parts[0].replace('data:', '');
                 const imgBuf = Buffer.from(parts[1], 'base64');
                 res.setHeader('Content-Type', mime);
                 return res.send(imgBuf);
             }
-            if (settings.boardLogo.startsWith('http') || settings.boardLogo.startsWith('/')) {
-                return res.redirect(settings.boardLogo);
+            if (logo.startsWith('http') || logo.startsWith('/')) {
+                return res.redirect(logo);
             }
         }
     } catch(e) {}
-    const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#030712" stroke="#fbbf24" stroke-width="6"/><path d="M50 20 L76 34 L76 66 L50 80 L24 66 L24 34 Z" fill="none" stroke="#fbbf24" stroke-width="4"/><text x="50" y="58" font-family="sans-serif" font-size="24" font-weight="900" fill="#fbbf24" text-anchor="middle">B</text></svg>`;
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.send(defaultSvg);
+    return res.redirect('/data/branding/logo.png');
 });
 
 // 4.4C In-Built Indian Festivals & Special Days Promotional Banners Catalog
@@ -1482,7 +1492,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Happy Deepawali 2026 Batch Offer',
             subtitle: 'Flat 25% Off on All New Batch Admissions | Special Festive Gift',
             defaultSubtitle: 'Flat 25% Off on All New Batch Admissions | Special Festive Gift',
-            image: 'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Shubh Deepawali'
         },
         {
@@ -1494,7 +1504,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Chhath Puja Mahaparv Special Batch',
             subtitle: 'Sacred Surya Arghya Blessings | High Scoring Batches Open',
             defaultSubtitle: 'Sacred Surya Arghya Blessings | High Scoring Batches Open',
-            image: 'https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Surya Dev Blessings'
         },
         {
@@ -1506,7 +1516,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Holi Celebration Career Batch 2026',
             subtitle: 'Fill Your Future With Success Colors | Free Study Material Pack',
             defaultSubtitle: 'Fill Your Future With Success Colors | Free Study Material Pack',
-            image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Rango Ka Utsav'
         },
         {
@@ -1518,7 +1528,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Eid Mubarak Educational Scholarship Batch',
             subtitle: 'Special Enrolment Concession for Meritorious Students',
             defaultSubtitle: 'Special Enrolment Concession for Meritorious Students',
-            image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Eid Mubarak'
         },
         {
@@ -1530,7 +1540,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Azadi Ka Amrit Mahotsav — Desh Ka Bhavishya',
             subtitle: 'Join India\'s Top Certified Faculty | Admissions Open',
             defaultSubtitle: 'Join India\'s Top Certified Faculty | Admissions Open',
-            image: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: '15 August Jai Hind'
         },
         {
@@ -1542,7 +1552,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Gantantra Diwas Academic Excellence Scheme',
             subtitle: 'Empowering Youth With Modern Skill Education',
             defaultSubtitle: 'Empowering Youth With Modern Skill Education',
-            image: 'https://images.unsplash.com/photo-1596405344246-8a615d1390ae?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: '26 January Gantantra'
         },
         {
@@ -1554,7 +1564,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Teachers\' Day Mentorship Batch 2026',
             subtitle: 'Guided by Master Educators & Certified Subject Experts',
             defaultSubtitle: 'Guided by Master Educators & Certified Subject Experts',
-            image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Guru Shishya Parampara'
         },
         {
@@ -1566,7 +1576,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Bal Diwas Foundation Batch (Class 6th-10th)',
             subtitle: 'Special Focus on Board Exam Basics & Conceptual Clarity',
             defaultSubtitle: 'Special Focus on Board Exam Basics & Conceptual Clarity',
-            image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Happy Children\'s Day'
         },
         {
@@ -1578,7 +1588,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'New Year 2027 Fresh Batch Starts Today',
             subtitle: 'Crash Courses, Test Series & Mock Exams at Special Fee',
             defaultSubtitle: 'Crash Courses, Test Series & Mock Exams at Special Fee',
-            image: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Happy New Year'
         },
         {
@@ -1590,7 +1600,7 @@ app.get('/api/public/banner-templates', (req, res) => {
             defaultTitle: 'Raksha Bandhan Beti Shiksha Protsahan',
             subtitle: 'Special 40% Fee Concession for Female Students',
             defaultSubtitle: 'Special 40% Fee Concession for Female Students',
-            image: 'https://images.unsplash.com/photo-1629853380482-faee17c66cb1?w=1200&auto=format&fit=crop',
+            image: '/data/branding/logo.png',
             tag: 'Raksha Bandhan Special'
         }
     ];
@@ -1828,13 +1838,14 @@ app.get('/api/public/founder', async (req, res) => {
             const pdb = loadPortalDb();
             settings = pdb.settings || {};
         }
-        const profile = (settings && settings.founderProfile) ? settings.founderProfile : {
-            name: 'Er. R. K. Bharti',
-            photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop',
-            designation: 'Founder & Managing Director',
-            qualification: 'M.Tech, Educational Reformer & EdTech Visionary',
-            message: 'Our mission at BBCC SKILL HUB is to empower every coaching center across India with cutting-edge digital infrastructure, authentic syllabus resources, and transparent revenue growth.',
-            signature: ''
+        const fp = (settings && settings.founderProfile) ? settings.founderProfile : {};
+        const profile = {
+            name: fp.name && fp.name !== 'Er. R. K. Bharti' ? fp.name : 'Santosh Kumar',
+            photo: (fp.photo && !fp.photo.includes('unsplash')) ? fp.photo : '/data/photos/Santosh_Sir.jpg',
+            designation: fp.designation || 'Founder & Managing Director',
+            qualification: fp.qualification || 'B.Ed, EdTech Visionary & Institutional Leader',
+            message: fp.message || 'हमारा उद्देश्य प्रत्येक छात्र और कोचिंग संस्थान को आधुनिक डिजिटल प्लेटफॉर्म और उत्कृष्ट अध्ययन सामग्री प्रदान करना है।',
+            signature: fp.signature || ''
         };
         res.json({ success: true, data: profile });
     } catch(err) {
@@ -4227,79 +4238,120 @@ app.post('/api/pay/verify-coaching-unblock', verifyDirector, async (req, res) =>
 // 6. AUTHENTICATION & LOGIN APIS
 // ============================================================
 
-// 6.1 Multi-Role Login (Super Admin or Coaching Director)
+// 6.1 Single Unified Multi-Role Login (Auto-detects Super Admin vs Coaching Director)
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { username, password, role } = req.body;
         if (!username || !password) {
-            return res.status(400).json({ success: false, message: 'Username and password required' });
+            return res.status(400).json({ success: false, message: 'User ID and password required' });
         }
 
         const cleanUsername = username.trim().toLowerCase();
+        const pdb = loadPortalDb();
 
-        // 1. Super Admin Authentication
-        if (role === 'superadmin' || cleanUsername === 'admin') {
-            let admin = null;
+        let adminFound = null;
+        let centerFound = null;
+
+        // 1. Check for Super Admin
+        if (role === 'superadmin' || !role || cleanUsername === 'admin') {
             if (isMongoConnected) {
-                try { admin = await Admin.findOne({ adminId: cleanUsername }); } catch(e) {}
+                try {
+                    adminFound = await Admin.findOne({
+                        $or: [
+                            { adminId: { $regex: new RegExp(`^${cleanUsername}$`, 'i') } },
+                            { email: cleanUsername }
+                        ]
+                    });
+                } catch(e) {}
             }
-            if (!admin) {
-                const pdb = loadPortalDb();
-                admin = (pdb.admins || []).find(a => a.adminId === cleanUsername);
+            if (!adminFound) {
+                adminFound = (pdb.admins || []).find(a =>
+                    (a.adminId && a.adminId.toLowerCase() === cleanUsername) ||
+                    (a.email && a.email.toLowerCase() === cleanUsername)
+                );
             }
-            if (!admin) {
-                return res.status(401).json({ success: false, message: 'Invalid Admin credentials' });
-            }
-            const match = await bcrypt.compare(password, admin.password);
-            if (!match && password !== 'admin123') {
+        }
+
+        // If matched as Super Admin, verify password
+        if (adminFound) {
+            const adminMatch = await bcrypt.compare(password, adminFound.password);
+            if (adminMatch || password === 'admin123') {
+                if (isMongoConnected && adminFound.save) {
+                    adminFound.lastLogin = new Date();
+                    await adminFound.save().catch(() => {});
+                }
+
+                const token = jwt.sign(
+                    { id: adminFound._id || 'admin_super_id', adminId: adminFound.adminId, role: 'superadmin' },
+                    JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
+                return res.json({
+                    success: true,
+                    role: 'superadmin',
+                    token: token,
+                    redirect: '/admin-console.html',
+                    user: { name: adminFound.name || 'BBCC Central Directorate', id: adminFound.adminId }
+                });
+            } else if (role === 'superadmin') {
                 return res.status(401).json({ success: false, message: 'Invalid Admin password' });
             }
-            if (isMongoConnected && admin.save) {
-                admin.lastLogin = new Date();
-                await admin.save().catch(() => {});
+        }
+
+        // 2. Check for Coaching Center Director
+        if (role === 'director' || !role || !adminFound) {
+            if (isMongoConnected) {
+                try {
+                    centerFound = await TuitionCenter.findOne({
+                        $or: [
+                            { username: { $regex: new RegExp(`^${cleanUsername}$`, 'i') } },
+                            { email: cleanUsername },
+                            { contactNumber: cleanUsername }
+                        ]
+                    });
+                } catch(e) {}
             }
-
-            const token = jwt.sign({ id: admin._id || 'admin_super_id', adminId: admin.adminId, role: 'superadmin' }, JWT_SECRET, { expiresIn: '7d' });
-            return res.json({
-                success: true,
-                role: 'superadmin',
-                token: token,
-                redirect: '/admin-console.html',
-                user: { name: admin.name || 'BBCC Central Directorate', id: admin.adminId }
-            });
-        }
-
-        // 2. Coaching Center Director Authentication
-        let center = null;
-        if (isMongoConnected) {
-            try { center = await TuitionCenter.findOne({ username: cleanUsername }); } catch(e) {}
-        }
-        if (!center) {
-            const pdb = loadPortalDb();
-            center = (pdb.centers || []).find(c => c.username && c.username.toLowerCase() === cleanUsername);
-        }
-        if (!center) {
-            return res.status(401).json({ success: false, message: 'No registered coaching center with this username' });
-        }
-
-        const match = await bcrypt.compare(password, center.password);
-        if (!match && password !== 'director123') {
-            return res.status(401).json({ success: false, message: 'Invalid Director password' });
-        }
-
-        const token = jwt.sign({ centerId: center._id.toString(), username: center.username, role: 'director' }, JWT_SECRET, { expiresIn: '7d' });
-        return res.json({
-            success: true,
-            role: 'director',
-            token: token,
-            redirect: '/director-portal.html',
-            user: {
-                id: center._id,
-                name: center.directorName,
-                centerName: center.centerName,
-                isBlocked: center.isBlocked
+            if (!centerFound) {
+                centerFound = (pdb.centers || []).find(c =>
+                    (c.username && c.username.toLowerCase() === cleanUsername) ||
+                    (c.email && c.email.toLowerCase() === cleanUsername) ||
+                    (c.contactNumber && c.contactNumber === cleanUsername)
+                );
             }
-        });
+        }
+
+        // If matched as Center Director, verify password
+        if (centerFound) {
+            const dirMatch = await bcrypt.compare(password, centerFound.password);
+            if (dirMatch || password === 'director123') {
+                const token = jwt.sign(
+                    { centerId: centerFound._id.toString(), username: centerFound.username, role: 'director' },
+                    JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
+                return res.json({
+                    success: true,
+                    role: 'director',
+                    token: token,
+                    redirect: '/director-portal.html',
+                    user: {
+                        id: centerFound._id,
+                        name: centerFound.directorName,
+                        centerName: centerFound.centerName,
+                        isBlocked: centerFound.isBlocked
+                    }
+                });
+            } else {
+                return res.status(401).json({ success: false, message: 'Invalid Director password' });
+            }
+        }
+
+        // If an admin match was found earlier but password didn't match:
+        if (adminFound) {
+            return res.status(401).json({ success: false, message: 'Invalid Admin password' });
+        }
+
+        return res.status(401).json({ success: false, message: 'User ID not registered on BBCC portal' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
