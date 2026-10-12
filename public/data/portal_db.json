@@ -161,28 +161,8 @@
       },
       "centerId": "all",
       "subscribedAt": "2026-10-12T16:21:38.126Z",
-      "lastActive": "2026-10-12T16:25:28.332Z",
+      "lastActive": "2026-10-12T16:27:10.381Z",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-    },
-    {
-      "deviceId": "dev_494d8160",
-      "deviceName": "Student Device (Android 10 (Chrome))",
-      "deviceInfo": {
-        "os": "Android 10",
-        "browser": "Chrome",
-        "modelHint": "",
-        "label": "Android 10 (Chrome)"
-      },
-      "endpoint": "https://fcm.googleapis.com/fcm/send/f-ntefQ5h3w:APA91bEjunU282RTy-K-ml-VG9olvT5qyDnxWsF-PmEdGLWB0OW1IMAQhVH2NZ4SpGJfmwEY4XwwzQyT-X-9lV2xmXHnGWO_WMYtfHUSgQAiFo9XEyOUCwIS7aF2DA8Z0buwL7Xbw8Z8",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BPKOFlzwUUQ4BQBSjCaMrwsWSJvBog4AroMh7uPWQCSXgdpNdTMv1FvRs_VyY0khoiv56ItqLoU_Ic-Y4wBe5Ig",
-        "auth": "oaW_bboDl_Zr0lFIgtMYzg"
-      },
-      "centerId": "all",
-      "subscribedAt": "2026-10-12T16:26:34.063Z",
-      "lastActive": "2026-10-12T16:26:34.063Z",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36"
     }
   ],
   "push_history": [],
