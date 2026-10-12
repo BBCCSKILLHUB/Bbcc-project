@@ -143,60 +143,7 @@
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [],
-  "push_subscriptions": [
-    {
-      "endpoint": "https://fcm.googleapis.com/fcm/send/c7z_byV_Tlg:APA91bFq1TOVa7FtpvOq70wWZVp9wf4IFL8K09kw0MwoKwJBl2ZVBVl7HY46ij-6b8O94cK7u69J3uYEKPLPzheT5oIa0l8DhUZvJow3lEZVBa-_D2O8NbteqET3GEzHKsRYbbeMxAMF",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BK6eDAmgBcxQe3aBo6gno7-hWil0ChugQTtKz6NgsnW2qd73MuxzRs4qhrgs5G9OUkY9ryhMYcdtQawqdKSVfD0",
-        "auth": "2T5CGTvPjyFiSU-rM7jkrw"
-      },
-      "centerId": "all",
-      "lastActive": "2026-10-12T15:41:39.418Z",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-    }
-  ],
-  "push_history": [
-    {
-      "id": "push_1791820111506",
-      "title": "heloo",
-      "body": "asdfghjkjhgfdf",
-      "url": "/",
-      "targetCenterId": "all",
-      "sentCount": 1,
-      "failedCount": 1,
-      "timestamp": "2026-10-12T15:48:31.506Z",
-      "sender": "BBCC Central Directorate"
-    },
-    {
-      "id": "push_1791819829225",
-      "title": "heloo",
-      "body": "aaaaaa",
-      "url": "/",
-      "targetCenterId": "all",
-      "sentCount": 1,
-      "failedCount": 0,
-      "timestamp": "2026-10-12T15:43:49.225Z",
-      "sender": "BBCC Central Directorate"
-    },
-    {
-      "id": "push_1791819784890",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙",
-      "url": "/",
-      "targetCenterId": "all",
-      "sentCount": 1,
-      "failedCount": 0,
-      "timestamp": "2026-10-12T15:43:04.890Z",
-      "sender": "भारती AI ऑटोमैटिक असिस्टेंट"
-    }
-  ],
-  "bharti_auto_push_log": {
-    "2026-10-12_evening": {
-      "dispatchedAt": "2026-10-12T15:47:31.836Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "भारती AI नाइट स्टडी मंत्र: सोने से पहले आज पढ़े गए विषयों का 15 मिनट का त्वरित रिविजन करें। कल के लिए ऑल द बेस्ट! 📖"
-    }
-  }
+  "push_subscriptions": [],
+  "push_history": [],
+  "bharti_auto_push_log": {}
 }

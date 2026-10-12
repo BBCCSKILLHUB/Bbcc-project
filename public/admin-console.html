@@ -1123,10 +1123,49 @@
                         </form>
                     </div>
 
+                    <!-- Connected Devices & Live Call Directory -->
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(251,191,36,0.25); border-radius:16px; padding:20px; margin-bottom:24px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                            <div>
+                                <h4 style="font-family:'Cinzel',serif; font-size:16px; color:var(--admin-gold); margin:0;">
+                                    <i class="fas fa-mobile-screen"></i> Registered Devices & Direct Calling Desk
+                                </h4>
+                                <p style="font-size:12px; color:#cbd5e1; margin-top:3px;">
+                                    View student mobile devices, rename them with custom aliases, and initiate live Audio or Video calls without external apps.
+                                </p>
+                            </div>
+                            <button onclick="loadDevicesDirectory()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--admin-gold); padding:5px 12px; font-size:12px;">
+                                <i class="fas fa-rotate"></i> Refresh Devices
+                            </button>
+                        </div>
+
+                        <div style="overflow-x:auto;">
+                            <table class="console-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device Name / Alias</th>
+                                        <th>Hardware & OS</th>
+                                        <th>Center / Scope</th>
+                                        <th>Last Active</th>
+                                        <th style="text-align:right;">Actions & Direct Call</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devicesDirectoryTbody">
+                                    <tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">Loading connected devices...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- Push History Log -->
-                    <h4 style="font-family:'Cinzel',serif; font-size:15px; color:#ffffff; margin:0 0 12px 0;">
-                        <i class="fas fa-clock-rotate-left"></i> Recent Broadcast History
-                    </h4>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                        <h4 style="font-family:'Cinzel',serif; font-size:15px; color:#ffffff; margin:0;">
+                            <i class="fas fa-clock-rotate-left"></i> Recent Broadcast History
+                        </h4>
+                        <button onclick="clearBroadcastHistoryLogs()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; font-size:11.5px; padding:5px 14px;">
+                            <i class="fas fa-trash-can"></i> Clear History Logs
+                        </button>
+                    </div>
                     <div style="overflow-x:auto;">
                         <table class="console-table">
                             <thead>
@@ -1476,6 +1515,9 @@
                 const counterEl = document.getElementById('statPushSubscribers');
                 if (counterEl) counterEl.textContent = data.totalSubscribers || 0;
 
+                // Load devices directory
+                loadDevicesDirectory();
+
                 // Populate target centers if not already populated
                 const targetSelect = document.getElementById('pushTargetSelect');
                 if (targetSelect && targetSelect.options.length <= 1 && globalCenters && globalCenters.length > 0) {
@@ -1516,6 +1558,174 @@
                 }
             } catch(e) {
                 console.warn('loadPushNotificationStatus notice:', e);
+            }
+        }
+
+        async function loadDevicesDirectory() {
+            try {
+                const tbody = document.getElementById('devicesDirectoryTbody');
+                if (!tbody) return;
+
+                const res = await fetch('/api/push/devices', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) return;
+
+                if (!data.devices || data.devices.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#94a3b8;">No app devices registered yet. Users will appear here when they install the app or enable notifications.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.devices.map((d, idx) => {
+                    const info = d.deviceInfo || {};
+                    const safeName = (d.deviceName || `Device #${idx + 1}`).replace(/'/g, "\\'");
+                    return `
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <div style="width:32px; height:32px; border-radius:8px; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); display:flex; align-items:center; justify-content:center; color:var(--admin-gold); font-size:14px;">
+                                        <i class="fas ${info.os && info.os.includes('Android') ? 'fa-mobile-screen' : info.os && info.os.includes('iOS') ? 'fa-mobile-button' : 'fa-laptop'}"></i>
+                                    </div>
+                                    <div>
+                                        <strong style="color:#ffffff; font-size:13.5px; display:block;">${d.deviceName}</strong>
+                                        <span style="font-size:10.5px; color:#94a3b8; font-family:monospace;">ID: ${d.deviceId}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size:12.5px; color:#cbd5e1; display:block;">${info.label || info.os || 'Unknown Device'}</span>
+                                <span style="font-size:11px; color:#64748b;">${info.browser || ''}</span>
+                            </td>
+                            <td>
+                                <span style="background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:8px; font-size:11.5px; color:#e2e8f0;">
+                                    ${d.centerId === 'all' ? 'Universal (All)' : d.centerId}
+                                </span>
+                            </td>
+                            <td style="font-size:12px; color:#94a3b8;">
+                                ${new Date(d.lastActive).toLocaleString('en-IN')}
+                            </td>
+                            <td style="text-align:right;">
+                                <div style="display:inline-flex; align-items:center; gap:6px;">
+                                    <button onclick="callDevice('${d.deviceId}', 'audio', '${safeName}')" class="btn-aurora" style="padding:6px 10px; font-size:11.5px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399;" title="Direct Voice Call">
+                                        <i class="fas fa-phone"></i> Voice
+                                    </button>
+                                    <button onclick="callDevice('${d.deviceId}', 'video', '${safeName}')" class="btn-aurora" style="padding:6px 10px; font-size:11.5px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#7dd3fc;" title="Direct Video Call">
+                                        <i class="fas fa-video"></i> Video
+                                    </button>
+                                    <button onclick="renameDevicePrompt('${d.deviceId}', '${safeName}')" class="btn-aurora" style="padding:6px 10px; font-size:11.5px; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--admin-gold);" title="Rename Device">
+                                        <i class="fas fa-pen"></i> Rename
+                                    </button>
+                                    <button onclick="deleteDevicePrompt('${d.deviceId}', '${safeName}')" style="background:none; border:none; color:#ef4444; font-size:14px; cursor:pointer; padding:6px 8px;" title="Remove Device">
+                                        <i class="fas fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch(e) {
+                console.warn('loadDevicesDirectory notice:', e);
+            }
+        }
+
+        async function renameDevicePrompt(deviceId, currentName) {
+            const newName = prompt('Enter custom name / student alias for this device:', currentName);
+            if (!newName || !newName.trim() || newName.trim() === currentName) return;
+
+            try {
+                const res = await fetch('/api/push/device/rename', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ deviceId, customName: newName.trim() })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✨ डिवाइस का नाम सफलतापूर्वक अपडेट कर दिया गया: ' + data.deviceName);
+                    loadDevicesDirectory();
+                } else {
+                    alert('नाम बदलने में त्रुटि: ' + (data.message || 'Error'));
+                }
+            } catch(e) {
+                alert('नेटवर्क त्रुटि: ' + e.message);
+            }
+        }
+
+        async function deleteDevicePrompt(deviceId, deviceName) {
+            if (!confirm(`क्या आप वाकई इस डिवाइस (${deviceName}) को हटाना चाहते हैं?`)) return;
+
+            try {
+                const res = await fetch(`/api/push/device/${deviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('डिवाइस हटा दिया गया।');
+                    loadPushNotificationStatus();
+                } else {
+                    alert('त्रुटि: ' + data.message);
+                }
+            } catch(e) {
+                alert('त्रुटि: ' + e.message);
+            }
+        }
+
+        async function callDevice(deviceId, callMode, deviceName) {
+            const modeHindi = callMode === 'video' ? 'वीडियो कॉल' : 'ऑडियो कॉल';
+            if (!confirm(`क्या आप ${deviceName} को सीधे ${modeHindi} करना चाहते हैं?\n(डिवाइस पर तुरंत पुश नोटिफिकेशन जाएगा और लाइव कॉल रूम खुल जाएगा)`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/call/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        deviceId,
+                        mode: callMode,
+                        callerName: 'BBCC Central Directorate / Admin'
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success && data.callUrl) {
+                    // Open call room in popup window or new tab
+                    const callWin = window.open(data.callUrl, 'BBCC_Live_Call', 'width=1000,height=750,menubar=no,toolbar=no,location=no');
+                    if (!callWin) {
+                        window.location.href = data.callUrl;
+                    }
+                } else {
+                    alert('कॉल शुरू करने में समस्या: ' + (data.message || 'Device might be offline'));
+                }
+            } catch(e) {
+                alert('नेटवर्क त्रुटि: ' + e.message);
+            }
+        }
+
+        async function clearBroadcastHistoryLogs() {
+            if (!confirm('क्या आप वाकई सभी पुश ब्रॉडकास्ट हिस्ट्री लॉग क्लियर करना चाहते हैं?')) return;
+
+            try {
+                const res = await fetch('/api/push/clear-history', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('ब्रॉडकास्ट हिस्ट्री लॉग साफ़ कर दिए गए हैं।');
+                    loadPushNotificationStatus();
+                } else {
+                    alert('त्रुटि: ' + data.message);
+                }
+            } catch(e) {
+                alert('त्रुटि: ' + e.message);
             }
         }
 
@@ -1573,10 +1783,6 @@
         }
 
         async function triggerBhartiManualPush() {
-            if (!confirm('क्या आप भारती AI का आज का दैनिक अध्ययन टिप तुरंत सभी सब्सक्राइबर्स को टेस्ट नोटिफिकेशन के रूप में भेजना चाहते हैं?')) {
-                return;
-            }
-
             try {
                 const res = await fetch('/api/push/trigger-bharti-auto', {
                     method: 'POST',

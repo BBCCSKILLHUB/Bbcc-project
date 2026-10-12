@@ -1281,8 +1281,40 @@ app.get('/api/public/ping', (req, res) => {
 });
 
 // ============================================================
-// WEB PUSH NOTIFICATION API ENDPOINTS
+// WEB PUSH NOTIFICATION & REAL-TIME WEBRTC CALLING ENGINE
 // ============================================================
+const activeCallRooms = new Map(); // roomId -> { roomId, deviceId, callerName, mode, status, signals: { admin: [], student: [] }, createdAt }
+
+function parseDeviceDetails(ua) {
+    if (!ua) return { os: 'Unknown OS', browser: 'Browser', label: 'Device' };
+    let os = 'Unknown OS';
+    if (/android/i.test(ua)) {
+        const m = ua.match(/Android\s*([0-9\.]+)?/i);
+        os = m ? ('Android ' + (m[1] || '')).trim() : 'Android';
+    } else if (/iphone|ipad|ipod/i.test(ua)) {
+        os = 'iOS (iPhone/iPad)';
+    } else if (/windows/i.test(ua)) {
+        os = 'Windows PC';
+    } else if (/macintosh|mac os x/i.test(ua)) {
+        os = 'macOS';
+    } else if (/linux/i.test(ua)) {
+        os = 'Linux';
+    }
+
+    let browser = 'Browser';
+    if (/chrome|crios/i.test(ua) && !/edg/i.test(ua)) browser = 'Chrome';
+    else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Safari';
+    else if (/edg/i.test(ua)) browser = 'Edge';
+    else if (/firefox|fxios/i.test(ua)) browser = 'Firefox';
+
+    let modelHint = '';
+    const mm = ua.match(/;\s*([^;]+?)\s*Build\//i);
+    if (mm && mm[1]) modelHint = mm[1].trim();
+
+    const label = modelHint ? `${modelHint} (${os})` : `${os} (${browser})`;
+    return { os, browser, modelHint, label };
+}
+
 // 1. Get VAPID Public Key for client subscription
 app.get('/api/push/vapid-public-key', (req, res) => {
     res.json({ success: true, publicKey: VAPID_PUBLIC_KEY });
@@ -1298,14 +1330,24 @@ app.post('/api/push/subscribe', async (req, res) => {
         const db = loadPortalDb();
         if (!db.push_subscriptions) db.push_subscriptions = [];
 
+        const deviceId = 'dev_' + crypto.createHash('md5').update(subscription.endpoint).digest('hex').slice(0, 8);
+        const userAgent = req.headers['user-agent'] || '';
+        const deviceInfo = parseDeviceDetails(userAgent);
+
         const existingIndex = db.push_subscriptions.findIndex(s => s.endpoint === subscription.endpoint);
+        const existingRecord = existingIndex >= 0 ? db.push_subscriptions[existingIndex] : null;
+
         const subRecord = {
+            deviceId: (existingRecord && existingRecord.deviceId) ? existingRecord.deviceId : deviceId,
+            deviceName: (existingRecord && existingRecord.deviceName) ? existingRecord.deviceName : `Student Device (${deviceInfo.label})`,
+            deviceInfo: deviceInfo,
             endpoint: subscription.endpoint,
             expirationTime: subscription.expirationTime || null,
             keys: subscription.keys || {},
-            centerId: centerId || 'all',
+            centerId: centerId || (existingRecord && existingRecord.centerId ? existingRecord.centerId : 'all'),
+            subscribedAt: (existingRecord && existingRecord.subscribedAt) ? existingRecord.subscribedAt : new Date().toISOString(),
             lastActive: new Date().toISOString(),
-            userAgent: req.headers['user-agent'] || ''
+            userAgent: userAgent
         };
 
         if (existingIndex >= 0) {
@@ -1328,7 +1370,7 @@ app.post('/api/push/subscribe', async (req, res) => {
             console.warn('Welcome push dispatch notice:', pushErr.message);
         }
 
-        res.json({ success: true, message: 'Device registered for push notifications successfully' });
+        res.json({ success: true, deviceId: subRecord.deviceId, deviceName: subRecord.deviceName, message: 'Device registered successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -1350,7 +1392,87 @@ app.post('/api/push/unsubscribe', async (req, res) => {
     }
 });
 
-// 4. Broadcast Notification (Admin or Coaching Center Director)
+// 4. Get list of all installed devices with custom names and hardware specs
+app.get('/api/push/devices', (req, res) => {
+    try {
+        const db = loadPortalDb();
+        const devices = (db.push_subscriptions || []).map((sub, idx) => {
+            const did = sub.deviceId || ('dev_' + crypto.createHash('md5').update(sub.endpoint).digest('hex').slice(0, 8));
+            const dinfo = sub.deviceInfo || parseDeviceDetails(sub.userAgent);
+            return {
+                deviceId: did,
+                deviceName: sub.deviceName || `Device #${idx + 1} (${dinfo.label})`,
+                deviceInfo: dinfo,
+                centerId: sub.centerId || 'all',
+                subscribedAt: sub.subscribedAt || sub.lastActive || new Date().toISOString(),
+                lastActive: sub.lastActive || new Date().toISOString()
+            };
+        });
+        res.json({ success: true, devices });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. Rename a device manually by Admin
+app.post('/api/push/device/rename', async (req, res) => {
+    try {
+        const { deviceId, customName } = req.body;
+        if (!deviceId || !customName || !customName.trim()) {
+            return res.status(400).json({ success: false, message: 'Device ID and custom name are required' });
+        }
+        const db = loadPortalDb();
+        if (!db.push_subscriptions) db.push_subscriptions = [];
+
+        const target = db.push_subscriptions.find(s => {
+            const did = s.deviceId || ('dev_' + crypto.createHash('md5').update(s.endpoint).digest('hex').slice(0, 8));
+            return did === deviceId;
+        });
+
+        if (!target) {
+            return res.status(404).json({ success: false, message: 'Device not found' });
+        }
+
+        target.deviceId = deviceId;
+        target.deviceName = customName.trim();
+        await savePortalDb(db);
+        res.json({ success: true, deviceName: target.deviceName, message: 'Device renamed successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6. Delete a device from push subscriptions list
+app.delete('/api/push/device/:deviceId', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        const db = loadPortalDb();
+        if (db.push_subscriptions) {
+            db.push_subscriptions = db.push_subscriptions.filter(s => {
+                const did = s.deviceId || ('dev_' + crypto.createHash('md5').update(s.endpoint).digest('hex').slice(0, 8));
+                return did !== deviceId;
+            });
+            await savePortalDb(db);
+        }
+        res.json({ success: true, message: 'Device deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 7. Clear Broadcast History Logs
+app.post('/api/push/clear-history', async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        db.push_history = [];
+        await savePortalDb(db);
+        res.json({ success: true, message: 'Push notification history logs cleared successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8. Broadcast Notification (Admin or Coaching Center Director)
 app.post('/api/push/broadcast', async (req, res) => {
     try {
         const { title, body, icon, url, targetCenterId, sender } = req.body;
@@ -1374,7 +1496,7 @@ app.post('/api/push/broadcast', async (req, res) => {
     }
 });
 
-// 5. Get push notification status and history
+// 9. Get push notification status and history
 app.get('/api/push/status', (req, res) => {
     try {
         const db = loadPortalDb();
@@ -1382,7 +1504,7 @@ app.get('/api/push/status', (req, res) => {
         res.json({
             success: true,
             totalSubscribers: subs.length,
-            history: (db.push_history || []).slice(0, 30),
+            history: (db.push_history || []).slice(0, 50),
             bhartiScheduler: {
                 active: true,
                 slotsPerDay: 3,
@@ -1395,7 +1517,7 @@ app.get('/api/push/status', (req, res) => {
     }
 });
 
-// 6. Test Trigger Bharti AI Immediate Push Notification
+// 10. Test Trigger Bharti AI Immediate Push Notification
 app.post('/api/push/trigger-bharti-auto', async (req, res) => {
     try {
         const result = await triggerBhartiAutoPush(true);
@@ -1403,6 +1525,107 @@ app.post('/api/push/trigger-bharti-auto', async (req, res) => {
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
+});
+
+// ============================================================
+// REAL-TIME WEBRTC AUDIO & VIDEO CALLING ENGINE
+// ============================================================
+// 11. Initiate live call to a specific device via high-priority push notification
+app.post('/api/call/initiate', async (req, res) => {
+    try {
+        const { deviceId, mode = 'video', callerName = 'BBCC Central Directorate' } = req.body;
+        const db = loadPortalDb();
+        const target = (db.push_subscriptions || []).find(s => {
+            const did = s.deviceId || ('dev_' + crypto.createHash('md5').update(s.endpoint).digest('hex').slice(0, 8));
+            return did === deviceId;
+        });
+
+        if (!target) {
+            return res.status(404).json({ success: false, message: 'Target device not found or unregistered' });
+        }
+
+        const roomId = 'call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+        activeCallRooms.set(roomId, {
+            roomId,
+            deviceId,
+            mode,
+            callerName,
+            status: 'ringing',
+            signals: { admin: [], student: [] },
+            createdAt: Date.now()
+        });
+
+        // Dispatch high-priority incoming call push notification with repeating vibration
+        try {
+            await webpush.sendNotification(target, JSON.stringify({
+                title: `📞 INCOMING ${mode === 'video' ? 'VIDEO' : 'VOICE'} CALL — BBCC Central`,
+                body: `${callerName} आपसे सीधे बात करना चाहते हैं। कॉल उठाने के लिए टैप करें!`,
+                icon: '/data/branding/logo.png',
+                badge: '/data/branding/logo.png',
+                url: `/call.html?room=${roomId}&role=student&mode=${mode}`,
+                vibrate: [500, 250, 500, 250, 500, 250, 500]
+            }), { TTL: 120, urgency: 'high' });
+            console.log(`📞 Incoming call notification dispatched to device ${deviceId} (Room: ${roomId})`);
+        } catch(pushErr) {
+            console.warn('Call push notification dispatch notice:', pushErr.message);
+        }
+
+        res.json({
+            success: true,
+            roomId,
+            mode,
+            callUrl: `/call.html?room=${roomId}&role=admin&mode=${mode}`
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 12. Exchange WebRTC signals (offer, answer, ice-candidate)
+app.post('/api/call/signal', (req, res) => {
+    const { roomId, sender, data } = req.body;
+    if (!roomId || !sender || !data) {
+        return res.status(400).json({ error: 'Missing roomId, sender, or data' });
+    }
+    const room = activeCallRooms.get(roomId);
+    if (!room) {
+        return res.status(404).json({ error: 'Call room not found or expired' });
+    }
+
+    const recipient = (sender === 'admin') ? 'student' : 'admin';
+    if (!room.signals[recipient]) room.signals[recipient] = [];
+    room.signals[recipient].push(data);
+    res.json({ success: true });
+});
+
+// 13. Poll pending WebRTC signals
+app.get('/api/call/signal/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const role = req.query.role || 'student';
+    const room = activeCallRooms.get(roomId);
+    if (!room) {
+        return res.status(404).json({ error: 'Call room not found or expired' });
+    }
+
+    const pending = room.signals[role] || [];
+    room.signals[role] = []; // Drain queue
+    res.json({ success: true, signals: pending, status: room.status, mode: room.mode });
+});
+
+// 14. End live call
+app.post('/api/call/end', (req, res) => {
+    const { roomId } = req.body;
+    if (roomId && activeCallRooms.has(roomId)) {
+        const room = activeCallRooms.get(roomId);
+        room.status = 'ended';
+        setTimeout(() => activeCallRooms.delete(roomId), 45000);
+    }
+    res.json({ success: true, message: 'Call ended' });
+});
+
+// 15. Clean route for /call
+app.get('/call', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'call.html'));
 });
 
 // 4.2 Aggregated Dual Promotional Banners (Auto-Expires in 30 Days)
