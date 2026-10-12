@@ -1351,10 +1351,306 @@
         }
 
         /* ============================================================
-           MOBILE NATIVE APP DOCK & INSTALL BANNER (App Experience)
+           APP OPENING SPLASH SCREEN & LETTER-BY-LETTER TYPING
+           ============================================================ */
+        .app-splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0a1124 0%, #030712 100%);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            user-select: none;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s ease;
+        }
+
+        .app-splash-screen.splash-hidden {
+            opacity: 0 !important;
+            transform: scale(1.04) !important;
+            pointer-events: none !important;
+        }
+
+        .splash-content-dock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 24px;
+            max-width: 90vw;
+        }
+
+        .splash-logo-halo {
+            width: 96px;
+            height: 96px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(251, 191, 36, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.45), 0 0 20px rgba(56, 189, 248, 0.35);
+            margin-bottom: 20px;
+            animation: splashLogoPulse 1.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes splashLogoPulse {
+            0% { transform: scale(0.96); box-shadow: 0 0 30px rgba(251, 191, 36, 0.35); }
+            100% { transform: scale(1.05); box-shadow: 0 0 60px rgba(251, 191, 36, 0.65), 0 0 30px rgba(56, 189, 248, 0.5); }
+        }
+
+        .splash-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+
+        .splash-title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            margin-bottom: 8px;
+        }
+
+        .splash-typing-title {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 30%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin: 0;
+            display: inline-block;
+        }
+
+        @media (min-width: 600px) {
+            .splash-typing-title { font-size: 36px; letter-spacing: 3px; }
+            .splash-logo-halo { width: 120px; height: 120px; }
+        }
+
+        .splash-cursor {
+            color: var(--aurora-gold);
+            font-size: 28px;
+            font-weight: 300;
+            margin-left: 4px;
+            animation: splashBlink 0.7s infinite;
+        }
+
+        @keyframes splashBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .splash-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            margin: 0 0 24px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-loader-bar {
+            width: 180px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .splash-loader-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #fbbf24);
+            border-radius: 6px;
+            animation: splashProgress 1.6s ease-out forwards;
+        }
+
+        @keyframes splashProgress {
+            0% { width: 0%; }
+            50% { width: 60%; }
+            100% { width: 100%; }
+        }
+
+        .splash-skip-hint {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 18px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           MOBILE NATIVE APP DOCK, DRAWER & HEADER STYLES
            ============================================================ */
         .mobile-app-dock {
             display: none;
+        }
+
+        .mobile-nav-actions {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-hamburger-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            color: var(--aurora-gold);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-hamburger-btn:active {
+            transform: scale(0.92);
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .mobile-quick-admission {
+            padding: 8px 12px !important;
+            font-size: 11.5px !important;
+            border-radius: 10px !important;
+            display: inline-flex !important;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Mobile Drawer Overlay & Panel */
+        .mobile-drawer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-drawer-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-drawer-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            max-width: 86vw;
+            height: 100vh;
+            background: #070d1d;
+            border-left: 1px solid rgba(251, 191, 36, 0.3);
+            z-index: 10002;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.85);
+        }
+
+        .mobile-drawer-panel.active {
+            transform: translateX(0);
+        }
+
+        .mobile-drawer-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(3, 7, 18, 0.95);
+        }
+
+        .mobile-drawer-close {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-drawer-body {
+            padding: 14px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .drawer-section-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--aurora-gold);
+            letter-spacing: 0.8px;
+            margin: 14px 4px 6px;
+        }
+
+        .drawer-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s;
+        }
+
+        .drawer-nav-link:active {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: var(--aurora-gold);
+            color: #ffffff;
+        }
+
+        .drawer-nav-link.highlight-cyan {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: rgba(6, 182, 212, 0.3);
+            color: #38bdf8;
+        }
+
+        .drawer-nav-link.highlight-gold {
+            background: rgba(251, 191, 36, 0.12);
+            border-color: rgba(251, 191, 36, 0.35);
+            color: var(--aurora-gold);
+        }
+
+        .drawer-nav-link.highlight-emerald {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: #34d399;
         }
 
         .pwa-install-banner {
@@ -1381,11 +1677,60 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* Master Responsive Mobile Overrides */
         @media (max-width: 819px) {
             body {
                 padding-bottom: 74px; /* Space for Mobile App Dock */
             }
 
+            /* 1. HIDE the tall desktop secondary topbar on mobile */
+            .aurora-topbar {
+                display: none !important;
+            }
+
+            /* 2. Sleek compact sticky mobile app header */
+            .aurora-navbar {
+                padding: 8px 14px !important;
+                height: 58px !important;
+                top: 0 !important;
+                position: sticky !important;
+                background: rgba(3, 7, 18, 0.96) !important;
+                border-bottom: 1px solid rgba(251, 191, 36, 0.25) !important;
+                z-index: 1000 !important;
+            }
+
+            .brand-emblem-box {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 10px !important;
+            }
+
+            .brand-title-dock h1 {
+                font-size: 15px !important;
+                margin: 0 !important;
+                line-height: 1.1 !important;
+            }
+
+            .brand-title-dock p {
+                font-size: 9.5px !important;
+                margin: 0 !important;
+                max-width: 150px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 3. HIDE the 8 stacked buttons so they NEVER cover half the screen! */
+            .nav-actions-dock {
+                display: none !important;
+            }
+
+            /* 4. Show the compact Admission button and Hamburger */
+            .mobile-nav-actions {
+                display: flex !important;
+            }
+
+            /* 5. Mobile App Dock */
             .mobile-app-dock {
                 display: flex !important;
                 position: fixed;
@@ -1437,36 +1782,91 @@
 
             .bharti-bubble-launcher {
                 bottom: 76px !important;
-                right: 16px !important;
-                padding: 10px 16px !important;
-                font-size: 12.5px !important;
+                right: 14px !important;
+                padding: 10px 14px !important;
+                font-size: 12px !important;
             }
 
             .bharti-chat-panel {
                 bottom: 76px !important;
-                right: 10px !important;
-                left: 10px !important;
+                right: 8px !important;
+                left: 8px !important;
                 width: auto !important;
                 max-width: 100% !important;
                 height: calc(100vh - 90px) !important;
             }
 
+            /* 6. HIDE the floating festive pill on mobile so it doesn't block screen */
             .festive-switcher-pill {
-                bottom: 76px !important;
-                left: 14px !important;
-                padding: 6px 12px !important;
+                display: none !important;
+            }
+
+            .marquee-container {
+                padding: 4px 8px !important;
                 font-size: 11px !important;
+            }
+
+            .marquee-label {
+                padding: 3px 8px !important;
+                font-size: 10px !important;
             }
         }
 
         @media print {
-            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container, #festivalBgCanvas, .festive-switcher-pill, .mobile-app-dock, .pwa-install-banner {
+            .no-print, .aurora-topbar, .aurora-navbar, .hero-universe, .bharti-bubble-launcher, .bharti-chat-panel, .marquee-container, #festivalBgCanvas, .festive-switcher-pill, .mobile-app-dock, .pwa-install-banner, .app-splash-screen, .mobile-drawer-overlay, .mobile-drawer-panel {
                 display: none !important;
             }
         }
     </style>
 </head>
 <body>
+
+    <!-- App Opening Splash Screen (Mobile Native App Experience) -->
+    <div id="appSplashScreen" class="app-splash-screen" onclick="dismissSplashScreen()" title="टैप करके आगे बढ़ें">
+        <div class="splash-content-dock">
+            <div class="splash-logo-halo">
+                <img src="/data/branding/logo.png" alt="BBCC Logo" class="splash-logo-img" onerror="this.onerror=null; this.src='/favicon.ico';">
+            </div>
+            <div class="splash-title-wrapper">
+                <h1 class="splash-typing-title" id="splashTypingTitle"></h1>
+                <span class="splash-cursor">|</span>
+            </div>
+            <p class="splash-subtitle" id="splashSubtitle">Digital Skill & Coaching Institute Platform</p>
+            <div class="splash-loader-bar">
+                <div class="splash-loader-progress"></div>
+            </div>
+            <div class="splash-skip-hint">टैप करके आगे बढ़ें <i class="fas fa-chevron-right" style="font-size:9px;"></i></div>
+        </div>
+    </div>
+    <script>
+        (function() {
+            try {
+                var el = document.getElementById('splashTypingTitle');
+                if (el && !el.getAttribute('data-typing-started')) {
+                    el.setAttribute('data-typing-started', 'true');
+                    var text = "BBCC SKILL HUB";
+                    var idx = 0;
+                    var timer = setInterval(function() {
+                        if (window.splashDismissed) { clearInterval(timer); return; }
+                        if (idx < text.length) {
+                            el.textContent += text.charAt(idx++);
+                        } else {
+                            clearInterval(timer);
+                            var sub = document.getElementById('splashSubtitle');
+                            if (sub) sub.style.opacity = '1';
+                            setTimeout(function() {
+                                if (typeof dismissSplashScreen === 'function') dismissSplashScreen();
+                                else {
+                                    var s = document.getElementById('appSplashScreen');
+                                    if (s) { s.classList.add('splash-hidden'); setTimeout(function(){ s.style.display='none'; }, 500); }
+                                }
+                            }, 650);
+                        }
+                    }, 55);
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- Canvas Festival Animated Background Engine -->
     <canvas id="festivalBgCanvas"></canvas>
@@ -1552,7 +1952,76 @@
                 <i class="fas fa-desktop"></i> Classroom Portal
             </a>
         </div>
+
+        <!-- Mobile Header Actions (Visible only on mobile <= 819px) -->
+        <div class="mobile-nav-actions">
+            <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold mobile-quick-admission">
+                <i class="fas fa-user-plus"></i> प्रवेश
+            </button>
+            <button class="mobile-hamburger-btn" onclick="toggleMobileDrawer()" aria-label="Open Navigation Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </nav>
+
+    <!-- Mobile App Drawer Overlay -->
+    <div id="mobileAppDrawerOverlay" class="mobile-drawer-overlay" onclick="toggleMobileDrawer(false)"></div>
+
+    <!-- Mobile App Drawer Panel -->
+    <aside id="mobileAppDrawer" class="mobile-drawer-panel" aria-label="Mobile Navigation Drawer">
+        <div class="mobile-drawer-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="/data/branding/logo.png" alt="BBCC Logo" style="width:34px; height:34px; object-fit:contain; border-radius:8px;" onerror="this.onerror=null; this.src='/favicon.ico';">
+                <div>
+                    <strong style="color:#ffffff; font-size:14px; display:block; font-family:'Cinzel', serif;">BBCC SKILL HUB</strong>
+                    <span style="color:var(--aurora-gold); font-size:10.5px;">Navigation Menu</span>
+                </div>
+            </div>
+            <button class="mobile-drawer-close" onclick="toggleMobileDrawer(false)" aria-label="Close Menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-drawer-body">
+            <div class="drawer-section-label">प्रवेश एवं कक्षाएं</div>
+            <a href="javascript:void(0)" onclick="toggleMobileDrawer(false); openDirectAdmissionModal();" class="drawer-nav-link highlight-gold">
+                <i class="fas fa-user-plus" style="color:var(--aurora-gold);"></i> Direct Student Admission
+            </a>
+            <a href="/classroom" class="drawer-nav-link highlight-cyan">
+                <i class="fas fa-desktop" style="color:var(--aurora-cyan);"></i> Student Classroom Portal
+            </a>
+            <a href="javascript:void(0)" onclick="toggleMobileDrawer(false); openSelfRegistrationModal();" class="drawer-nav-link highlight-emerald">
+                <i class="fas fa-school" style="color:#34d399;"></i> Register Coaching Center
+            </a>
+
+            <div class="drawer-section-label">मुख्य पृष्ठ नेविगेशन</div>
+            <a href="#courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            </a>
+            <a href="#vault" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-book-bookmark"></i> Digital E-Library
+            </a>
+            <a href="#institutes" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-building-columns"></i> Partner Institutes
+            </a>
+            <a href="#founder" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-user-tie"></i> Founder & Vision
+            </a>
+            <a href="#faculty-showcase" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-chalkboard-teacher"></i> Expert Faculty Showcase
+            </a>
+            <a href="/about" class="drawer-nav-link">
+                <i class="fas fa-circle-info"></i> About BBCC Platform
+            </a>
+
+            <div class="drawer-section-label">प्रबंधन एवं सहायता</div>
+            <a href="/login" class="drawer-nav-link">
+                <i class="fas fa-user-shield"></i> Director / Admin Login
+            </a>
+            <a href="javascript:void(0)" onclick="toggleMobileDrawer(false); toggleBhartiChat();" class="drawer-nav-link">
+                <i class="fas fa-robot" style="color:var(--aurora-gold);"></i> 24/7 BHARTI AI Assistant
+            </a>
+        </div>
+    </aside>
 
     <!-- 4. Hero Section -->
     <section class="hero-universe">
@@ -4928,12 +5397,86 @@
             sessionStorage.setItem('bbcc_pwa_dismissed', 'true');
         }
 
+        /* ============================================================
+           MOBILE APP SPLASH SCREEN & SIDE DRAWER CONTROLLERS
+           ============================================================ */
+        let splashDismissed = false;
+
+        function initSplashScreenAnimation() {
+            const splash = document.getElementById('appSplashScreen');
+            const typingEl = document.getElementById('splashTypingTitle');
+            const subtitleEl = document.getElementById('splashSubtitle');
+            if (!splash || !typingEl) return;
+            if (typingEl.getAttribute('data-typing-started')) return;
+            typingEl.setAttribute('data-typing-started', 'true');
+
+            const fullText = "BBCC SKILL HUB";
+            let charIdx = 0;
+            typingEl.textContent = "";
+
+            const typeInterval = setInterval(() => {
+                if (splashDismissed) {
+                    clearInterval(typeInterval);
+                    return;
+                }
+                if (charIdx < fullText.length) {
+                    typingEl.textContent += fullText.charAt(charIdx);
+                    charIdx++;
+                } else {
+                    clearInterval(typeInterval);
+                    if (subtitleEl) subtitleEl.style.opacity = '1';
+                    setTimeout(() => {
+                        dismissSplashScreen();
+                    }, 650);
+                }
+            }, 60);
+
+            // Safety failsafe: dismiss after max 2.6s
+            setTimeout(() => {
+                dismissSplashScreen();
+            }, 2600);
+        }
+
+        function dismissSplashScreen() {
+            if (splashDismissed) return;
+            splashDismissed = true;
+            const splash = document.getElementById('appSplashScreen');
+            if (splash) {
+                splash.classList.add('splash-hidden');
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        function toggleMobileDrawer(forceState) {
+            const drawer = document.getElementById('mobileAppDrawer');
+            const overlay = document.getElementById('mobileAppDrawerOverlay');
+            if (!drawer || !overlay) return;
+
+            const isOpen = drawer.classList.contains('active');
+            const targetState = (forceState !== undefined) ? forceState : !isOpen;
+
+            if (targetState) {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
         function activateDockItem(el) {
             document.querySelectorAll('.app-dock-item').forEach(item => item.classList.remove('active'));
             if (el) el.classList.add('active');
         }
 
-        document.addEventListener('DOMContentLoaded', initPortal);
+        document.addEventListener('DOMContentLoaded', () => {
+            initSplashScreenAnimation();
+            initPortal();
+        });
     </script>
 
     <!-- ============================================================
