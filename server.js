@@ -1581,15 +1581,24 @@ app.post('/api/call/initiate', async (req, res) => {
     }
 });
 
-// 12. Exchange WebRTC signals (offer, answer, ice-candidate)
+// 12. Exchange WebRTC signals (offer, answer, ice-candidate, ready, ping)
 app.post('/api/call/signal', (req, res) => {
     const { roomId, sender, data } = req.body;
     if (!roomId || !sender || !data) {
         return res.status(400).json({ error: 'Missing roomId, sender, or data' });
     }
-    const room = activeCallRooms.get(roomId);
+    let room = activeCallRooms.get(roomId);
     if (!room) {
-        return res.status(404).json({ error: 'Call room not found or expired' });
+        room = {
+            roomId,
+            deviceId: 'unknown',
+            mode: 'video',
+            callerName: 'BBCC Central Directorate',
+            status: 'active',
+            signals: { admin: [], student: [] },
+            createdAt: Date.now()
+        };
+        activeCallRooms.set(roomId, room);
     }
 
     const recipient = (sender === 'admin') ? 'student' : 'admin';
@@ -1602,9 +1611,18 @@ app.post('/api/call/signal', (req, res) => {
 app.get('/api/call/signal/:roomId', (req, res) => {
     const { roomId } = req.params;
     const role = req.query.role || 'student';
-    const room = activeCallRooms.get(roomId);
+    let room = activeCallRooms.get(roomId);
     if (!room) {
-        return res.status(404).json({ error: 'Call room not found or expired' });
+        room = {
+            roomId,
+            deviceId: 'unknown',
+            mode: req.query.mode || 'video',
+            callerName: 'BBCC Central Directorate',
+            status: 'active',
+            signals: { admin: [], student: [] },
+            createdAt: Date.now()
+        };
+        activeCallRooms.set(roomId, room);
     }
 
     const pending = room.signals[role] || [];

@@ -14,8 +14,10 @@
         :root {
             --aurora-gold: #fbbf24;
             --aurora-cyan: #38bdf8;
+            --aurora-green: #10b981;
+            --aurora-red: #ef4444;
             --bg-dark: #030712;
-            --card-glass: rgba(15, 23, 42, 0.85);
+            --card-glass: rgba(15, 23, 42, 0.88);
             --border-glow: rgba(251, 191, 36, 0.35);
         }
 
@@ -74,6 +76,7 @@
             font-size: 14px;
             color: #ffffff;
             margin: 0;
+            letter-spacing: 0.5px;
         }
 
         .call-brand-text p {
@@ -86,14 +89,15 @@
         .call-status-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             padding: 6px 14px;
             border-radius: 20px;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border-glow);
             font-size: 12px;
             font-weight: 700;
             color: #cbd5e1;
+            backdrop-filter: blur(8px);
         }
 
         .status-dot {
@@ -101,19 +105,20 @@
             height: 8px;
             border-radius: 50%;
             background: #eab308;
-            animation: pulseDot 1.5s infinite;
+            animation: pulseDot 1.4s infinite;
         }
 
         .status-dot.connected {
             background: #10b981;
+            box-shadow: 0 0 10px #10b981;
         }
 
         @keyframes pulseDot {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 0.35; transform: scale(0.8); }
         }
 
-        /* Main Video Stage */
+        /* Main Call Stage */
         .call-stage {
             position: relative;
             width: 100%;
@@ -173,14 +178,39 @@
             50% { transform: scale(1.08); box-shadow: 0 0 60px rgba(56, 189, 248, 0.6); }
         }
 
+        /* Waveform Animation for Voice Call */
+        .soundwave-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 14px;
+        }
+
+        .soundwave-bar {
+            width: 4px;
+            height: 18px;
+            background: var(--aurora-gold);
+            border-radius: 4px;
+            animation: waveBounce 1.2s infinite ease-in-out;
+        }
+        .soundwave-bar:nth-child(2) { animation-delay: 0.15s; height: 28px; }
+        .soundwave-bar:nth-child(3) { animation-delay: 0.3s; height: 38px; }
+        .soundwave-bar:nth-child(4) { animation-delay: 0.45s; height: 24px; }
+        .soundwave-bar:nth-child(5) { animation-delay: 0.6s; height: 16px; }
+
+        @keyframes waveBounce {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50% { transform: scaleY(1.2); opacity: 1; }
+        }
+
         .remote-name-tag {
             position: absolute;
             bottom: 96px;
             left: 18px;
-            background: rgba(3, 7, 18, 0.75);
-            backdrop-filter: blur(8px);
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
+            padding: 7px 15px;
             border-radius: 12px;
             font-size: 13px;
             font-weight: 700;
@@ -189,6 +219,7 @@
             align-items: center;
             gap: 8px;
             z-index: 30;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
         }
 
         /* Local Self Video View (Picture-in-Picture) */
@@ -264,12 +295,34 @@
             box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
         }
 
+        /* Floating Unmute Button (When Mobile Browser Blocks Autoplay Voice) */
+        .unmute-toast {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 1px solid #34d399;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            z-index: 90;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+            animation: acceptGlow 1.4s infinite alternate;
+        }
+
         /* Incoming Answer Overlay (For Student) */
         .incoming-prompt-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(3, 7, 18, 0.95);
-            backdrop-filter: blur(16px);
+            background: rgba(3, 7, 18, 0.96);
+            backdrop-filter: blur(20px);
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -287,36 +340,50 @@
         }
 
         .caller-avatar {
-            width: 100px;
-            height: 100px;
+            width: 104px;
+            height: 104px;
             border-radius: 50%;
             background: rgba(251, 191, 36, 0.15);
             border: 3px solid var(--aurora-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 42px;
+            font-size: 44px;
             color: var(--aurora-gold);
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             animation: ringPulse 1.6s infinite ease-in-out;
+        }
+
+        .sound-unlock-pill {
+            margin-top: 14px;
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px dashed var(--aurora-gold);
+            color: var(--aurora-gold);
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
         }
 
         .answer-actions-dock {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 36px;
+            gap: 40px;
             margin-top: 36px;
         }
 
         .btn-answer-circle {
-            width: 72px;
-            height: 72px;
+            width: 74px;
+            height: 74px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             color: #ffffff;
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
@@ -343,6 +410,9 @@
 </head>
 <body>
 
+    <!-- Dedicated Audio element for remote voice output -->
+    <audio id="remoteAudio" autoplay playsinline></audio>
+
     <!-- Call Header -->
     <header class="call-header">
         <div class="call-brand">
@@ -360,6 +430,11 @@
         </div>
     </header>
 
+    <!-- Floating Unmute Audio Toast (If Autoplay is blocked by mobile browser) -->
+    <div id="unmuteToast" class="unmute-toast" onclick="unmuteRemoteMedia()">
+        <i class="fas fa-volume-high"></i> आवाज़ चालू करने के लिए टैप करें (Tap for Voice)
+    </div>
+
     <!-- Main Call Stage -->
     <main class="call-stage">
         <!-- Remote Video -->
@@ -369,10 +444,17 @@
             <!-- Audio-Only Visualizer Avatar -->
             <div id="audioVisualizerDock" class="audio-avatar-dock">
                 <div class="avatar-glow-ring">
-                    <i class="fas fa-user-graduate" id="visualizerIcon"></i>
+                    <i class="fas fa-headset" id="visualizerIcon"></i>
                 </div>
                 <h3 id="audioParticipantName" style="font-size:22px; color:#ffffff; margin-bottom:6px;">BBCC Central Directorate</h3>
                 <p style="font-size:13px; color:var(--aurora-gold);">Voice Call Active</p>
+                <div class="soundwave-box">
+                    <div class="soundwave-bar"></div>
+                    <div class="soundwave-bar"></div>
+                    <div class="soundwave-bar"></div>
+                    <div class="soundwave-bar"></div>
+                    <div class="soundwave-bar"></div>
+                </div>
             </div>
 
             <!-- Remote Participant Name Pill -->
@@ -412,25 +494,29 @@
     </footer>
 
     <!-- Incoming Call Overlay (For Student) -->
-    <div id="incomingCallOverlay" class="incoming-prompt-overlay">
+    <div id="incomingCallOverlay" class="incoming-prompt-overlay" onclick="tryResumeAudioContext()">
         <div class="incoming-caller-card">
             <div class="caller-avatar">
                 <i class="fas fa-headset"></i>
             </div>
             <h2 style="font-family:'Cinzel',serif; font-size:24px; color:#ffffff; margin-bottom:8px;">INCOMING CALL</h2>
-            <strong style="font-size:16px; color:var(--aurora-gold); margin-bottom:6px;" id="incomingCallerName">BBCC Central Directorate</strong>
-            <p style="font-size:13px; color:#cbd5e1;">Director Santosh Sir / Admin आपसे लाइव बात करना चाहते हैं।</p>
+            <strong style="font-size:17px; color:var(--aurora-gold); margin-bottom:6px;" id="incomingCallerName">BBCC Central Directorate</strong>
+            <p style="font-size:13.5px; color:#cbd5e1; line-height:1.5;">Director Santosh Sir / Admin आपसे लाइव बात करना चाहते हैं।</p>
+
+            <div class="sound-unlock-pill" id="soundUnlockPill" onclick="tryResumeAudioContext(event)">
+                <i class="fas fa-bell"></i> रिंग बज रही है • आवाज़ के लिए स्क्रीन छुएं
+            </div>
 
             <div class="answer-actions-dock">
                 <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
-                    <button class="btn-answer-circle btn-answer-decline" onclick="declineCall()">
+                    <button class="btn-answer-circle btn-answer-decline" onclick="declineCall(event)">
                         <i class="fas fa-phone-slash"></i>
                     </button>
                     <span style="font-size:12px; color:#f87171; font-weight:700;">Decline</span>
                 </div>
 
                 <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
-                    <button class="btn-answer-circle btn-answer-accept" onclick="acceptCall()">
+                    <button class="btn-answer-circle btn-answer-accept" onclick="acceptCall(event)">
                         <i class="fas fa-phone"></i>
                     </button>
                     <span style="font-size:12px; color:#34d399; font-weight:700;">Answer</span>
@@ -448,6 +534,7 @@
         const mode = urlParams.get('mode') || 'video'; // 'video' or 'audio'
 
         let localStream = null;
+        let remoteStream = null;
         let peerConnection = null;
         let signalPollInterval = null;
         let callTimerInterval = null;
@@ -455,10 +542,20 @@
         let isAudioMuted = false;
         let isVideoOff = (mode === 'audio');
         let currentFacingMode = 'user'; // 'user' (front) or 'environment' (back)
-        let callAudioCtx = null;
-        let ringOscillator = null;
+        let isCallConnected = false;
+        let isOfferCreated = false;
+
+        // Candidate buffer to eliminate race conditions
+        let pendingIceCandidates = [];
+
+        // Audio & Vibration Engine
+        let audioCtx = null;
+        let ringInterval = null;
+        let ringbackInterval = null;
+        let vibrateInterval = null;
 
         const remoteVideo = document.getElementById('remoteVideo');
+        const remoteAudio = document.getElementById('remoteAudio');
         const localVideo = document.getElementById('localVideo');
         const statusText = document.getElementById('callStatusText');
         const statusDot = document.getElementById('statusDot');
@@ -466,20 +563,149 @@
         const remoteNameEl = document.getElementById('remoteNameDisplay');
         const audioVisualizer = document.getElementById('audioVisualizerDock');
         const localPip = document.getElementById('localPipBox');
+        const unmuteToast = document.getElementById('unmuteToast');
 
-        // STUN Servers (Public & Free from Google)
+        // Multi-Provider STUN Server Configuration for Indian ISPs & Mobile NAT
         const rtcConfig = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
-            ]
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' },
+                { urls: 'stun:stun.cloudflare.com:3478' },
+                { urls: 'stun:stun.services.mozilla.com' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ],
+            iceCandidatePoolSize: 10
         };
 
-        // Initialize Call Page
+        // ============================================================
+        // 1. AUDIO & RINGTONE SYNTHESIZER ENGINE
+        // ============================================================
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+        }
+
+        // Global gesture listener to unlock AudioContext immediately on touch/click
+        function tryResumeAudioContext(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const ctx = getAudioContext();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume().catch(() => {});
+            }
+        }
+        ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(evt => {
+            window.addEventListener(evt, () => tryResumeAudioContext(), { passive: true });
+        });
+
+        // Play pleasant harmonic chime tone note
+        function playChimeNote(freq, startTime, duration = 0.25) {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx || ctx.state === 'suspended') return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, startTime);
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.18, startTime + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            } catch(e) {}
+        }
+
+        // Student Incoming Call: Melodious electronic chime sequence
+        function startStudentRingtone() {
+            function playMelodyLoop() {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+                // Notes: E5 (659Hz), G5 (784Hz), A5 (880Hz), B5 (988Hz)
+                playChimeNote(659.25, now, 0.22);
+                playChimeNote(783.99, now + 0.18, 0.22);
+                playChimeNote(880.00, now + 0.36, 0.22);
+                playChimeNote(987.77, now + 0.54, 0.35);
+            }
+
+            playMelodyLoop();
+            ringInterval = setInterval(playMelodyLoop, 2200);
+
+            // Trigger physical phone vibration pattern
+            if ('vibrate' in navigator) {
+                try {
+                    navigator.vibrate([500, 250, 500, 250, 500, 1000]);
+                    vibrateInterval = setInterval(() => {
+                        try { navigator.vibrate([500, 250, 500, 250, 500, 1000]); } catch(e) {}
+                    }, 2500);
+                } catch(e) {}
+            }
+        }
+
+        // Admin Outgoing Call: Realistic telephone ringback tone (400Hz + 450Hz beep)
+        function startAdminRingback() {
+            function playRingbackBeep() {
+                try {
+                    const ctx = getAudioContext();
+                    if (!ctx || ctx.state === 'suspended') return;
+                    const now = ctx.currentTime;
+                    const osc1 = ctx.createOscillator();
+                    const osc2 = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(400, now);
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(450, now);
+
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+                    gain.gain.setValueAtTime(0.08, now + 1.2);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.25);
+
+                    osc1.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + 1.25);
+                    osc2.stop(now + 1.25);
+                } catch(e) {}
+            }
+
+            playRingbackBeep();
+            ringbackInterval = setInterval(playRingbackBeep, 3500);
+        }
+
+        // Stop all ringtones and vibrations
+        function stopAllRingtones() {
+            if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+            if (ringbackInterval) { clearInterval(ringbackInterval); ringbackInterval = null; }
+            if (vibrateInterval) { clearInterval(vibrateInterval); vibrateInterval = null; }
+            if ('vibrate' in navigator) {
+                try { navigator.vibrate(0); } catch(e) {}
+            }
+        }
+
+        // ============================================================
+        // 2. INITIALIZATION
+        // ============================================================
         window.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('callModeLabel').textContent = mode === 'audio' ? 'Direct Audio Voice Call' : 'Direct Live Video Call';
-            remoteNameEl.textContent = role === 'admin' ? 'Student Device' : 'BBCC Central Directorate';
+            document.getElementById('callModeLabel').textContent = (mode === 'audio') ? 'Direct Voice Call' : 'Direct Live Video Call';
+            remoteNameEl.textContent = (role === 'admin') ? 'Student Device' : 'BBCC Central Directorate';
 
             if (mode === 'audio') {
                 audioVisualizer.style.display = 'flex';
@@ -491,125 +717,173 @@
             if (role === 'student') {
                 // Show Answer / Decline Prompt for student
                 document.getElementById('incomingCallOverlay').style.display = 'flex';
-                playRingtoneSynth();
+                statusText.textContent = 'Incoming Call...';
+                startStudentRingtone();
+                // Start polling signals so if Admin cancels or hangs up, student exits
+                startSignalPolling();
             } else {
-                // Admin initiates immediately
-                statusText.textContent = 'Calling student...';
-                startLocalMediaAndConnect();
+                // Admin initiates: get local media and wait for student
+                statusText.textContent = 'विद्यार्थी के फोन पर घंटी बज रही है...';
+                startAdminRingback();
+                await initLocalMedia();
+                createPeerConnection();
+                startSignalPolling();
+                // Send ready ping to student
+                sendSignal({ type: 'admin_online' });
             }
         });
 
-        // Simple Synthetic Ringtone
-        function playRingtoneSynth() {
-            try {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-                callAudioCtx = new AudioCtx();
-                const osc = callAudioCtx.createOscillator();
-                const gain = callAudioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(440, callAudioCtx.currentTime);
-                gain.gain.setValueAtTime(0.15, callAudioCtx.currentTime);
-                osc.connect(gain);
-                gain.connect(callAudioCtx.destination);
-                osc.start();
-                ringOscillator = osc;
-            } catch(e) {}
-        }
-
-        function stopRingtoneSynth() {
-            try {
-                if (ringOscillator) {
-                    ringOscillator.stop();
-                    ringOscillator.disconnect();
-                    ringOscillator = null;
-                }
-                if (callAudioCtx) {
-                    callAudioCtx.close();
-                    callAudioCtx = null;
-                }
-            } catch(e) {}
-        }
-
-        async function acceptCall() {
-            stopRingtoneSynth();
+        // ============================================================
+        // 3. STUDENT ACTIONS
+        // ============================================================
+        async function acceptCall(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            stopAllRingtones();
             document.getElementById('incomingCallOverlay').style.display = 'none';
-            statusText.textContent = 'Connecting media...';
-            await startLocalMediaAndConnect();
+            statusText.textContent = 'कैमरा/माइक कनेक्ट हो रहा है...';
+
+            await initLocalMedia();
+            createPeerConnection();
+
+            // Tell Admin we have answered and media is ready!
+            statusText.textContent = 'कनेक्ट हो रहा है...';
+            await sendSignal({ type: 'student_ready' });
         }
 
-        function declineCall() {
-            stopRingtoneSynth();
+        function declineCall(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            stopAllRingtones();
             hangupCall();
         }
 
-        async function startLocalMediaAndConnect() {
+        // ============================================================
+        // 4. LOCAL MEDIA CAPTURE
+        // ============================================================
+        async function initLocalMedia() {
             try {
                 const constraints = {
-                    audio: true,
-                    video: mode === 'video' ? { facingMode: currentFacingMode } : false
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: (mode === 'video') ? { facingMode: currentFacingMode } : false
                 };
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 localVideo.srcObject = localStream;
-
-                createPeerConnection();
-
-                // Admin creates initial WebRTC offer
-                if (role === 'admin') {
-                    const offer = await peerConnection.createOffer();
-                    await peerConnection.setLocalDescription(offer);
-                    await sendSignal({ type: 'offer', sdp: offer });
-                }
-
-                startSignalPolling();
             } catch (err) {
                 console.error('Media permission error:', err);
-                alert('माइक्रोफ़ोन या कैमरा एक्सेस करने में समस्या: ' + err.message);
                 statusText.textContent = 'Permission Denied';
+                alert('माइक्रोफ़ोन या कैमरा एक्सेस करने की अनुमति नहीं मिली: ' + err.message + '\nकृपया ब्राउज़र में कैमरा/माइक की अनुमति दें।');
             }
         }
 
+        // ============================================================
+        // 5. WEBRTC PEER CONNECTION CREATION
+        // ============================================================
         function createPeerConnection() {
+            if (peerConnection) return;
             peerConnection = new RTCPeerConnection(rtcConfig);
 
-            // Add local tracks to peer connection
+            // Attach local media tracks
             if (localStream) {
                 localStream.getTracks().forEach(track => {
                     peerConnection.addTrack(track, localStream);
                 });
             }
 
-            // Receive remote stream
+            // Handle incoming remote media tracks
             peerConnection.ontrack = (event) => {
-                if (remoteVideo.srcObject !== event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    statusText.textContent = 'Connected';
-                    statusDot.classList.add('connected');
-                    startCallTimer();
-                    if (mode === 'audio') {
-                        audioVisualizer.style.display = 'flex';
-                    }
+                console.log('Received remote track kind:', event.track.kind);
+                if (!remoteStream) {
+                    remoteStream = new MediaStream();
                 }
+
+                if (event.streams && event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                    if (remoteAudio) remoteAudio.srcObject = event.streams[0];
+                } else {
+                    remoteStream.addTrack(event.track);
+                    remoteVideo.srcObject = remoteStream;
+                    if (remoteAudio) remoteAudio.srcObject = remoteStream;
+                }
+
+                // Attempt to play remote media
+                const playPromise = remoteVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        onCallConnected();
+                    }).catch(err => {
+                        console.warn('remoteVideo autoplay policy notice:', err);
+                        // Show unmute prompt for mobile browsers
+                        if (unmuteToast) unmuteToast.style.display = 'flex';
+                    });
+                }
+                if (remoteAudio) {
+                    remoteAudio.play().catch(() => {});
+                }
+
+                onCallConnected();
             };
 
-            // ICE Candidate handling
+            // ICE Candidate Generation
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     sendSignal({ type: 'candidate', candidate: event.candidate });
                 }
             };
 
+            // Peer Connection State Monitoring
             peerConnection.onconnectionstatechange = () => {
+                console.log('WebRTC connection state:', peerConnection.connectionState);
                 if (peerConnection.connectionState === 'connected') {
-                    statusText.textContent = 'Connected';
-                    statusDot.classList.add('connected');
+                    onCallConnected();
                 } else if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
                     statusText.textContent = 'Disconnected';
                     statusDot.classList.remove('connected');
                 }
             };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log('ICE connection state:', peerConnection.iceConnectionState);
+                if (peerConnection.iceConnectionState === 'connected' || peerConnection.iceConnectionState === 'completed') {
+                    onCallConnected();
+                }
+            };
         }
 
+        // Call Connected Handler
+        function onCallConnected() {
+            if (isCallConnected) return;
+            isCallConnected = true;
+            stopAllRingtones();
+            statusText.textContent = 'Connected';
+            statusDot.classList.add('connected');
+            if (unmuteToast) unmuteToast.style.display = 'none';
+            if (mode === 'audio') {
+                audioVisualizer.style.display = 'flex';
+            }
+            startCallTimer();
+        }
+
+        // Explicit user unmute button handler for mobile browsers
+        function unmuteRemoteMedia() {
+            try {
+                if (remoteVideo) {
+                    remoteVideo.muted = false;
+                    remoteVideo.play().catch(() => {});
+                }
+                if (remoteAudio) {
+                    remoteAudio.muted = false;
+                    remoteAudio.play().catch(() => {});
+                }
+                if (unmuteToast) unmuteToast.style.display = 'none';
+            } catch(e) {}
+        }
+
+        // ============================================================
+        // 6. SIGNALING & HANDSHAKE ENGINE
+        // ============================================================
         async function sendSignal(data) {
             try {
                 await fetch('/api/call/signal', {
@@ -618,11 +892,13 @@
                     body: JSON.stringify({ roomId, sender: role, data })
                 });
             } catch(e) {
-                console.warn('sendSignal notice:', e);
+                console.warn('sendSignal error:', e);
             }
         }
 
         function startSignalPolling() {
+            if (signalPollInterval) return;
+            // 350ms during negotiation for fast sub-second setup
             signalPollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`/api/call/signal/${roomId}?role=${role}`);
@@ -635,31 +911,100 @@
                         return;
                     }
 
+                    // Process signals sequentially
                     for (const sig of (json.signals || [])) {
-                        handleIncomingSignal(sig);
+                        await handleIncomingSignal(sig);
                     }
                 } catch(e) {}
-            }, 1000);
+            }, 350);
         }
 
         async function handleIncomingSignal(sig) {
-            if (!peerConnection) return;
+            if (!sig || !sig.type) return;
+            console.log(`Received signal [${sig.type}] as ${role}`);
+
             try {
-                if (sig.type === 'offer' && role === 'student') {
+                // Admin handles student_ready -> creates Offer
+                if (sig.type === 'student_ready' && role === 'admin') {
+                    stopAllRingtones();
+                    statusText.textContent = 'ऑडियो-वीडियो जुड़ रहा है...';
+                    if (!isOfferCreated) {
+                        isOfferCreated = true;
+                        createPeerConnection();
+                        const offer = await peerConnection.createOffer({
+                            offerToReceiveAudio: true,
+                            offerToReceiveVideo: (mode === 'video')
+                        });
+                        await peerConnection.setLocalDescription(offer);
+                        await sendSignal({ type: 'offer', sdp: offer });
+                    }
+                }
+
+                // Student handles offer from Admin -> creates Answer
+                else if (sig.type === 'offer' && role === 'student') {
+                    stopAllRingtones();
+                    statusText.textContent = 'ऑडियो-वीडियो जुड़ रहा है...';
+                    createPeerConnection();
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+
+                    // Flush buffered ICE candidates
+                    await flushQueuedCandidates();
+
                     const answer = await peerConnection.createAnswer();
                     await peerConnection.setLocalDescription(answer);
                     await sendSignal({ type: 'answer', sdp: answer });
-                } else if (sig.type === 'answer' && role === 'admin') {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.sdp));
-                } else if (sig.type === 'candidate' && sig.candidate) {
-                    await peerConnection.addIceCandidate(new RTCIceCandidate(sig.candidate));
+                }
+
+                // Admin handles answer from Student
+                else if (sig.type === 'answer' && role === 'admin') {
+                    stopAllRingtones();
+                    if (peerConnection) {
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+                        // Flush buffered ICE candidates
+                        await flushQueuedCandidates();
+                    }
+                }
+
+                // ICE Candidate Handling with Buffer Queue
+                else if (sig.type === 'candidate' && sig.candidate) {
+                    if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(sig.candidate));
+                        } catch(err) {
+                            console.warn('addIceCandidate error:', err);
+                        }
+                    } else {
+                        // Buffer candidate until remote description is set
+                        pendingIceCandidates.push(sig.candidate);
+                    }
+                }
+
+                // Admin Online Ping
+                else if (sig.type === 'admin_online' && role === 'student') {
+                    // Admin is waiting in the room
+                    console.log('Admin is online in call room.');
                 }
             } catch (err) {
-                console.warn('Signal handling notice:', err);
+                console.error('Signal handling error:', err);
             }
         }
 
+        // Flush any buffered candidates once remote description is set
+        async function flushQueuedCandidates() {
+            if (!peerConnection) return;
+            while (pendingIceCandidates.length > 0) {
+                const cand = pendingIceCandidates.shift();
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(cand));
+                } catch(e) {
+                    console.warn('Buffered ICE candidate error:', e);
+                }
+            }
+        }
+
+        // ============================================================
+        // 7. CALL CONTROLS & TIMERS
+        // ============================================================
         function startCallTimer() {
             if (callTimerInterval) return;
             timerEl.style.display = 'inline-block';
@@ -702,12 +1047,19 @@
             try {
                 localStream.getVideoTracks().forEach(t => t.stop());
                 const newStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
                     video: { facingMode: currentFacingMode }
                 });
                 const newVideoTrack = newStream.getVideoTracks()[0];
-                const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
-                if (sender) sender.replaceTrack(newVideoTrack);
-                localVideo.srcObject = newStream;
+
+                if (peerConnection) {
+                    const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) {
+                        sender.replaceTrack(newVideoTrack);
+                    }
+                }
+
+                localVideo.srcObject = new MediaStream([newVideoTrack]);
                 localStream.removeTrack(localStream.getVideoTracks()[0]);
                 localStream.addTrack(newVideoTrack);
             } catch(e) {
@@ -716,7 +1068,7 @@
         }
 
         function hangupCall(notifyServer = true) {
-            stopRingtoneSynth();
+            stopAllRingtones();
             if (signalPollInterval) clearInterval(signalPollInterval);
             if (callTimerInterval) clearInterval(callTimerInterval);
 
@@ -725,6 +1077,7 @@
             }
             if (peerConnection) {
                 peerConnection.close();
+                peerConnection = null;
             }
 
             if (notifyServer) {
@@ -742,7 +1095,7 @@
                 } else {
                     window.location.replace('/');
                 }
-            }, 800);
+            }, 600);
         }
     </script>
 </body>

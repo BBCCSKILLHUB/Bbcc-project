@@ -65,15 +65,23 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  const isCall = (data.url && (data.url.includes('/call') || data.url.includes('call.html')));
+
   const options = {
     body: data.body,
     icon: data.icon || '/data/branding/logo.png',
     badge: data.badge || '/data/branding/logo.png',
-    vibrate: [200, 100, 200],
+    vibrate: data.vibrate || (isCall ? [500, 250, 500, 250, 500, 250, 500] : [200, 100, 200]),
+    tag: isCall ? 'bbcc-live-call' : 'bbcc-notification',
+    renotify: true,
+    requireInteraction: isCall ? true : false,
     data: {
       url: data.url || '/'
     },
-    actions: [
+    actions: isCall ? [
+      { action: 'open', title: 'कॉल उठाएं 📞' },
+      { action: 'close', title: 'काटें ✕' }
+    ] : [
       { action: 'open', title: 'देखें 📖' },
       { action: 'close', title: 'बंद करें ✕' }
     ]
