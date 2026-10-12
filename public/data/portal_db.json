@@ -183,18 +183,38 @@
       "subscribedAt": "2026-10-12T16:27:18.615Z",
       "lastActive": "2026-10-12T16:30:35.642Z",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36"
+    },
+    {
+      "deviceId": "dev_52542f3e",
+      "deviceName": "Student Device (Windows PC (Chrome))",
+      "deviceInfo": {
+        "os": "Windows PC",
+        "browser": "Chrome",
+        "modelHint": "",
+        "label": "Windows PC (Chrome)"
+      },
+      "endpoint": "https://fcm.googleapis.com/fcm/send/cXcDPhC9T30:APA91bFKEYU3A6M_0TsOklurwOySFRBuqC1bkIp6Mx3Gj3OrkUA2DoM_zl29C5vlQdOCso2N1cHZS7Hks33IRo44FbQxxVnKemTpoWgyb6HnUUcSPu-PPJYVHAddABed2iiHzMS5g5wH",
+      "expirationTime": null,
+      "keys": {
+        "p256dh": "BDQrHuGgbjzRTQoVc9XZCMvUu6k8Nz11cyRHbv6Hh2DrSnp6COFrwD0uQUKxJGeqGakxamz-KgHSlRoCqm5D7ys",
+        "auth": "VwCmhaOs8gydSRAr47RJYQ"
+      },
+      "centerId": "all",
+      "subscribedAt": "2026-10-12T16:34:07.990Z",
+      "lastActive": "2026-10-12T16:34:07.990Z",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
     }
   ],
   "push_history": [
     {
-      "id": "push_1791822802423",
-      "title": "heloo",
-      "body": "zsdfgbnm",
+      "id": "push_1791822758244",
+      "title": "hello dear",
+      "body": "abajdja knknakdjka kjd;ajdl",
       "url": "/",
       "targetCenterId": "all",
       "sentCount": 2,
       "failedCount": 0,
-      "timestamp": "2026-10-12T16:33:22.423Z",
+      "timestamp": "2026-10-12T16:32:38.244Z",
       "sender": "BBCC Central Directorate"
     }
   ],
