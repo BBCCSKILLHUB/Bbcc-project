@@ -152,17 +152,29 @@
         "auth": "2T5CGTvPjyFiSU-rM7jkrw"
       },
       "centerId": "all",
-      "lastActive": "2026-10-12T15:41:39.740Z",
+      "lastActive": "2026-10-12T15:41:39.418Z",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
     }
   ],
-  "push_history": [],
+  "push_history": [
+    {
+      "id": "push_1791819784890",
+      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
+      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙",
+      "url": "/",
+      "targetCenterId": "all",
+      "sentCount": 1,
+      "failedCount": 0,
+      "timestamp": "2026-10-12T15:43:04.890Z",
+      "sender": "भारती AI ऑटोमैटिक असिस्टेंट"
+    }
+  ],
   "bharti_auto_push_log": {
     "2026-10-12_evening": {
-      "dispatchedAt": "2026-10-12T15:41:51.386Z",
+      "dispatchedAt": "2026-10-12T15:43:04.704Z",
       "slot": "evening",
       "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "शुभ रात्रि एवं अध्ययन टिप: निरंतरता ही सफलता की चाबी है। कल सुबह एक नए लक्ष्य के साथ उठें! ✨"
+      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙"
     }
   }
 }
