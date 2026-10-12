@@ -848,7 +848,84 @@ async function callGoogleGemini({ apiKey, prompt, systemInstruction = '', maxTok
     throw new Error(`Gemini API Error: ${errMsg}. Please verify that the Generative Language API is enabled for your Google Cloud Project at https://aistudio.google.com/app/apikey`);
 }
 
-// Free Groq Cloud AI Engine (llama-3.3-70b-versatile & llama-3.1-8b-instant via groq.com)
+// Dynamic Groq Model Discovery & Execution
+let groqModelsCache = { models: [], timestamp: 0 };
+
+async function getAvailableGroqModels(apiKey) {
+    const now = Date.now();
+    if (groqModelsCache.models.length > 0 && (now - groqModelsCache.timestamp < 15 * 60 * 1000)) {
+        return groqModelsCache.models;
+    }
+
+    try {
+        const res = await fetch('https://api.groq.com/openai/v1/models', {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (res.ok) {
+            const json = await res.json();
+            if (json && Array.isArray(json.data)) {
+                // Filter out audio, whisper, embed, guard, and decommissioned models
+                const chatModels = json.data
+                    .map(m => m.id)
+                    .filter(id => {
+                        if (!id) return false;
+                        const lower = id.toLowerCase();
+                        if (lower.includes('whisper') || lower.includes('audio') || lower.includes('embed') || lower.includes('guard') || lower.includes('moderation') || lower.includes('safetensors')) {
+                            return false;
+                        }
+                        if (lower.includes('decommissioned') || lower.includes('deprecated') || lower.includes('gemma2') || lower.includes('mixtral')) {
+                            return false;
+                        }
+                        return true;
+                    });
+                if (chatModels.length > 0) {
+                    // Prioritize fast, high-quality models
+                    chatModels.sort((a, b) => {
+                        const getScore = (id) => {
+                            const l = id.toLowerCase();
+                            if (l.includes('llama-3.3-70b')) return 100;
+                            if (l.includes('llama-3.1-8b')) return 95;
+                            if (l.includes('deepseek-r1')) return 90;
+                            if (l.includes('gpt-oss-120b')) return 88;
+                            if (l.includes('qwen')) return 85;
+                            if (l.includes('llama-3.2-11b')) return 80;
+                            if (l.includes('llama-3.2-3b')) return 75;
+                            if (l.includes('llama-3.2-1b')) return 70;
+                            if (l.includes('llama3-70b')) return 65;
+                            if (l.includes('llama3-8b')) return 60;
+                            return 10;
+                        };
+                        return getScore(b) - getScore(a);
+                    });
+                    groqModelsCache = { models: chatModels, timestamp: now };
+                    return chatModels;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('Groq models dynamic query notice:', e.message);
+    }
+
+    // Modern fallback list completely free of decommissioned gemma2-9b-it / mixtral
+    return [
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant',
+        'deepseek-r1-distill-llama-70b',
+        'llama-3.2-11b-vision-preview',
+        'llama-3.2-3b-preview',
+        'llama-3.2-1b-preview',
+        'openai/gpt-oss-120b',
+        'openai/gpt-oss-20b',
+        'qwen/qwen3.6-27b',
+        'llama3-70b-8192',
+        'llama3-8b-8192'
+    ];
+}
+
+// Free Groq Cloud AI Engine with Dynamic Model Fallback
 async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens = 800, temperature = 0.6 }) {
     const cleanKey = (apiKey || process.env.GROQ_API_KEY || '').trim();
     if (!cleanKey) {
@@ -861,14 +938,11 @@ async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens 
     }
     messages.push({ role: 'user', content: prompt });
 
-    const modelsToTry = [
-        'llama-3.3-70b-versatile',
-        'llama-3.1-8b-instant',
-        'mixtral-8x7b-32768',
-        'gemma2-9b-it'
-    ];
+    const modelsToTry = await getAvailableGroqModels(cleanKey);
 
     let lastError = null;
+    let nonDecommissionedError = null;
+
     for (const model of modelsToTry) {
         try {
             const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -895,14 +969,25 @@ async function callGroqChat({ apiKey, prompt, systemInstruction = '', maxTokens 
             }
 
             if (data && data.error) {
-                lastError = new Error(data.error.message || `Groq error on ${model}`);
+                const errMsg = data.error.message || `Groq error on ${model}`;
+                const isDecommissioned = errMsg.toLowerCase().includes('decommissioned') ||
+                                         errMsg.toLowerCase().includes('deprecated') ||
+                                         errMsg.toLowerCase().includes('not found') ||
+                                         errMsg.toLowerCase().includes('does not exist');
+                if (isDecommissioned) {
+                    // Skip decommissioned model error without masking real models
+                    continue;
+                }
+                nonDecommissionedError = new Error(errMsg);
+                lastError = nonDecommissionedError;
             }
         } catch (err) {
             lastError = err;
         }
     }
 
-    throw lastError || new Error('All Groq models failed');
+    if (nonDecommissionedError) throw nonDecommissionedError;
+    throw lastError || new Error('No active Groq chat model responded. Please verify your Groq API Key and model quotas at https://console.groq.com/keys');
 }
 
 // Super Admin Authentication Middleware
