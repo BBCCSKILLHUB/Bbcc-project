@@ -152,10 +152,17 @@
         "auth": "2T5CGTvPjyFiSU-rM7jkrw"
       },
       "centerId": "all",
-      "lastActive": "2026-10-12T15:41:39.418Z",
+      "lastActive": "2026-10-12T15:41:39.740Z",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
     }
   ],
   "push_history": [],
-  "bharti_auto_push_log": {}
+  "bharti_auto_push_log": {
+    "2026-10-12_evening": {
+      "dispatchedAt": "2026-10-12T15:41:51.386Z",
+      "slot": "evening",
+      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
+      "body": "शुभ रात्रि एवं अध्ययन टिप: निरंतरता ही सफलता की चाबी है। कल सुबह एक नए लक्ष्य के साथ उठें! ✨"
+    }
+  }
 }
