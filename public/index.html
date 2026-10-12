@@ -1677,6 +1677,56 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        .push-prompt-banner {
+            display: none;
+            position: fixed;
+            bottom: 74px;
+            left: 14px;
+            right: 14px;
+            z-index: 9999;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(6, 10, 25, 0.98));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.25);
+            backdrop-filter: blur(16px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: slideUpBanner 0.4s ease-out;
+        }
+
+        @media (min-width: 820px) {
+            .push-prompt-banner {
+                bottom: 24px;
+                right: 24px;
+                left: auto;
+                max-width: 440px;
+            }
+        }
+
+        .push-bell-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 16px;
+            flex-shrink: 0;
+            animation: bellRingPulse 2.5s infinite;
+        }
+
+        @keyframes bellRingPulse {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(14deg); }
+            20%, 40% { transform: rotate(-14deg); }
+            50% { transform: rotate(0deg); }
+        }
+
         /* Master Responsive Mobile Overrides */
         @media (max-width: 819px) {
             body {
@@ -5473,8 +5523,127 @@
             if (el) el.classList.add('active');
         }
 
+        // ============================================================
+        // WEB PUSH NOTIFICATION SUBSCRIBER CONTROLLER
+        // ============================================================
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        function showAuroraToast(msg) {
+            let toast = document.getElementById('auroraToastAlert');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'auroraToastAlert';
+                toast.style.cssText = 'position:fixed; top:20px; right:20px; z-index:99999; background:linear-gradient(135deg, #0f172a, #030712); color:#fbbf24; border:1px solid #fbbf24; border-radius:12px; padding:12px 18px; font-size:13px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,0.8); transition:all 0.3s;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => { toast.style.display = 'none'; }, 300);
+            }, 4000);
+        }
+
+        async function initPushNotificationPrompt() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+                return;
+            }
+
+            if (sessionStorage.getItem('bbcc_push_prompt_dismissed')) return;
+
+            if (Notification.permission === 'granted') {
+                syncPushSubscriptionSilently();
+            } else if (Notification.permission === 'default') {
+                setTimeout(() => {
+                    const banner = document.getElementById('pushPromptBanner');
+                    if (banner && !sessionStorage.getItem('bbcc_push_prompt_dismissed')) {
+                        banner.style.display = 'flex';
+                    }
+                }, 3500);
+            }
+        }
+
+        function dismissPushPrompt() {
+            const banner = document.getElementById('pushPromptBanner');
+            if (banner) banner.style.display = 'none';
+            sessionStorage.setItem('bbcc_push_prompt_dismissed', 'true');
+        }
+
+        async function subscribeUserToPush() {
+            try {
+                if (!('Notification' in window)) {
+                    alert('आपके ब्राउज़र में नोटिफिकेशन सपोर्ट उपलब्ध नहीं है।');
+                    return;
+                }
+
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    alert('नोटिफिकेशन अनुमति अस्वीकार कर दी गई। आप ब्राउज़र सेटिंग्स से इसे चालू कर सकते हैं।');
+                    dismissPushPrompt();
+                    return;
+                }
+
+                const reg = await navigator.serviceWorker.ready;
+                const keyRes = await fetch('/api/push/vapid-public-key');
+                const keyData = await keyRes.json();
+                if (!keyData.success || !keyData.publicKey) {
+                    throw new Error('Failed to obtain push public key');
+                }
+
+                const convertedVapidKey = urlB64ToUint8Array(keyData.publicKey);
+                let subscription = await reg.pushManager.getSubscription();
+
+                if (!subscription) {
+                    subscription = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: convertedVapidKey
+                    });
+                }
+
+                await fetch('/api/push/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscription: subscription,
+                        centerId: 'all'
+                    })
+                });
+
+                dismissPushPrompt();
+                showAuroraToast('✨ BBCC एवं भारती AI के नोटिफिकेशन सक्रिय हो गए हैं!');
+            } catch (err) {
+                console.warn('Push subscription notice:', err);
+                alert('नोटिफिकेशन चालू करने में समस्या आई: ' + err.message);
+            }
+        }
+
+        async function syncPushSubscriptionSilently() {
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                const subscription = await reg.pushManager.getSubscription();
+                if (subscription) {
+                    await fetch('/api/push/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subscription, centerId: 'all' })
+                    });
+                }
+            } catch(e) {}
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             initSplashScreenAnimation();
+            initPushNotificationPrompt();
             initPortal();
         });
     </script>
@@ -5521,6 +5690,29 @@
                 <i class="fas fa-download"></i> इंस्टॉल
             </button>
             <button onclick="dismissPwaBanner()" style="background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer; padding:4px 8px;" title="Dismiss">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PUSH NOTIFICATION ENROLMENT BANNER
+         ============================================================ -->
+    <div id="pushPromptBanner" class="push-prompt-banner">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="push-bell-badge">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div>
+                <strong style="font-size:13px; color:#ffffff; display:block;">BBCC एवं कोचिंग सूचना अलर्ट</strong>
+                <span style="font-size:11px; color:#cbd5e1;">नए बैच, परीक्षा नोटिस व भारती AI के अध्ययन अपडेट तुरंत पाएं</span>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button onclick="subscribeUserToPush()" class="btn-aurora btn-aurora-gold" style="padding:7px 14px; font-size:12px; font-weight:800;">
+                <i class="fas fa-bell"></i> चालू करें
+            </button>
+            <button onclick="dismissPushPrompt()" style="background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer; padding:4px 8px;" title="Dismiss">
                 <i class="fas fa-times"></i>
             </button>
         </div>

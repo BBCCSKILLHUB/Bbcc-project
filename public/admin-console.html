@@ -242,6 +242,9 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('tickets')">
                 <i class="fas fa-headset"></i> Support & Callbacks Desk
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('notifications')">
+                <i class="fas fa-bell"></i> Push Broadcast & BHARTI
+            </button>
         </aside>
 
         <main class="admin-content">
@@ -1042,6 +1045,107 @@
                 </div>
             </div>
 
+            <!-- TAB 11: PUSH NOTIFICATIONS & BHARTI AI AUTOMATION DESK -->
+            <div class="admin-tab" id="tab-notifications">
+                <div class="card-console" style="margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-bell" style="color:var(--admin-gold);"></i> Web Push Broadcast & BHARTI AI Automation
+                            </h3>
+                            <p style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">
+                                Send instant real-time push alerts to all app-installed devices & manage 3-times daily automated BHARTI AI study notifications.
+                            </p>
+                        </div>
+                        <button onclick="loadPushNotificationStatus()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh Status
+                        </button>
+                    </div>
+
+                    <!-- Push Analytics Cards -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.3); border-radius:14px; padding:16px;">
+                            <span style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Total App Subscribers</span>
+                            <h2 style="font-size:28px; color:var(--admin-gold); margin:8px 0 0 0;" id="statPushSubscribers">0</h2>
+                            <p style="font-size:11px; color:#64748b; margin:4px 0 0 0;">Active mobile & desktop devices</p>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(56,189,248,0.3); border-radius:14px; padding:16px;">
+                            <span style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">BHARTI AI Scheduler</span>
+                            <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                                <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:11.5px; font-weight:800; padding:3px 10px; border-radius:12px;">
+                                    ● 3x Daily Active
+                                </span>
+                            </div>
+                            <p style="font-size:11px; color:#cbd5e1; margin:6px 0 0 0;">Morning 8:30 AM | Afternoon 2:30 PM | Evening 7:30 PM</p>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(168,85,247,0.3); border-radius:14px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <span style="font-size:11.5px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Instant Bharti AI Test</span>
+                                <p style="font-size:11.5px; color:#cbd5e1; margin:4px 0 10px 0;">Send Bharti AI daily study tip alert immediately to all subscribers.</p>
+                            </div>
+                            <button onclick="triggerBhartiManualPush()" class="btn-aurora" style="background:rgba(168,85,247,0.2); border:1px solid #c084fc; color:#e9d5ff; font-size:12px; padding:7px 14px; justify-content:center;">
+                                <i class="fas fa-bolt"></i> Send Bharti AI Alert Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manual Broadcast Form -->
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:20px; margin-bottom:24px;">
+                        <h4 style="font-family:'Cinzel',serif; font-size:15px; color:var(--admin-gold); margin:0 0 14px 0;">
+                            <i class="fas fa-paper-plane"></i> Broadcast Instant Push Notification to App Users
+                        </h4>
+                        <form onsubmit="broadcastAdminPush(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                            <div style="grid-column:1 / -1;">
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Notification Title *</label>
+                                <input type="text" id="pushTitleInput" required placeholder="e.g. 📢 BBCC Central Update: 10th Board Exam Dates Released" class="console-input">
+                            </div>
+                            <div style="grid-column:1 / -1;">
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Notification Message / Body *</label>
+                                <textarea id="pushBodyInput" required rows="2" placeholder="e.g. Check official timetable and download updated syllabus notes from e-library." class="console-input" style="resize:vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Target Audience</label>
+                                <select id="pushTargetSelect" class="console-input">
+                                    <option value="all">🌐 All App Users & Subscribers (Universal)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Target Link / Action URL</label>
+                                <input type="text" id="pushUrlInput" value="/" placeholder="/" class="console-input">
+                            </div>
+                            <div style="grid-column:1 / -1; display:flex; justify-content:flex-end; margin-top:8px;">
+                                <button type="submit" id="btnSendPushBroadcast" class="btn-aurora btn-gold" style="padding:10px 24px; font-size:13px; font-weight:800;">
+                                    <i class="fas fa-bullhorn"></i> Send Push Notification to All Devices
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Push History Log -->
+                    <h4 style="font-family:'Cinzel',serif; font-size:15px; color:#ffffff; margin:0 0 12px 0;">
+                        <i class="fas fa-clock-rotate-left"></i> Recent Broadcast History
+                    </h4>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Title & Message</th>
+                                    <th>Target</th>
+                                    <th>Sent</th>
+                                    <th>Sender</th>
+                                    <th>Dispatched At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pushHistoryTbody">
+                                <tr><td colspan="5" style="text-align:center; padding:18px; color:#94a3b8;">No broadcasts logged yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1355,6 +1459,139 @@
             if (tId === 'transactions') loadTransactions();
             if (tId === 'payouts') loadAdminPayouts();
             if (tId === 'tickets') loadAdminTickets();
+            if (tId === 'notifications') loadPushNotificationStatus();
+        }
+
+        // ============================================
+        // PUSH NOTIFICATIONS & BHARTI AI AUTOMATION
+        // ============================================
+        async function loadPushNotificationStatus() {
+            try {
+                const res = await fetch('/api/push/status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) return;
+
+                const counterEl = document.getElementById('statPushSubscribers');
+                if (counterEl) counterEl.textContent = data.totalSubscribers || 0;
+
+                // Populate target centers if not already populated
+                const targetSelect = document.getElementById('pushTargetSelect');
+                if (targetSelect && targetSelect.options.length <= 1 && globalCenters && globalCenters.length > 0) {
+                    globalCenters.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.centerId || c.slug;
+                        opt.textContent = `🏫 ${c.name} (${c.centerId || c.slug})`;
+                        targetSelect.appendChild(opt);
+                    });
+                }
+
+                // Render history table
+                const tbody = document.getElementById('pushHistoryTbody');
+                if (tbody) {
+                    if (!data.history || data.history.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:18px; color:#94a3b8;">No broadcasts logged yet.</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.history.map(item => `
+                            <tr>
+                                <td>
+                                    <strong style="color:#ffffff; display:block; font-size:13px;">${item.title}</strong>
+                                    <span style="color:#94a3b8; font-size:11.5px;">${item.body}</span>
+                                </td>
+                                <td>
+                                    <span style="background:rgba(251,191,36,0.15); color:var(--admin-gold); padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">
+                                        ${item.targetCenterId === 'all' ? 'Universal' : item.targetCenterId}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color:#34d399; font-weight:700;">${item.sentCount || 0}</span>
+                                    ${item.failedCount ? `<span style="color:#f87171; font-size:10.5px;"> (${item.failedCount} err)</span>` : ''}
+                                </td>
+                                <td style="font-size:12px; color:#cbd5e1;">${item.sender || 'Admin'}</td>
+                                <td style="font-size:11.5px; color:#94a3b8;">${new Date(item.timestamp).toLocaleString('en-IN')}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch(e) {
+                console.warn('loadPushNotificationStatus notice:', e);
+            }
+        }
+
+        async function broadcastAdminPush(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSendPushBroadcast');
+            const title = document.getElementById('pushTitleInput').value.trim();
+            const body = document.getElementById('pushBodyInput').value.trim();
+            const targetCenterId = document.getElementById('pushTargetSelect').value;
+            const url = document.getElementById('pushUrlInput').value.trim() || '/';
+
+            if (!title || !body) {
+                alert('कृपया नोटिफिकेशन का शीर्षक और संदेश दर्ज करें।');
+                return;
+            }
+
+            if (!confirm(`क्या आप वाकई यह पुश नोटिफिकेशन ${targetCenterId === 'all' ? 'सभी ऐप यूज़र्स' : targetCenterId} को भेजना चाहते हैं?`)) {
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ब्रॉडकास्ट भेजा जा रहा है...';
+
+                const res = await fetch('/api/push/broadcast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        body,
+                        url,
+                        targetCenterId,
+                        sender: 'BBCC Central Directorate'
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert(`🎉 पुश नोटिफिकेशन सफलतापूर्वक भेज दिया गया!\nसफल डिलीवरी: ${data.sentCount || 0} डिवाइस\nकुल लक्ष्य: ${data.total || 0}`);
+                    document.getElementById('pushTitleInput').value = '';
+                    document.getElementById('pushBodyInput').value = '';
+                    loadPushNotificationStatus();
+                } else {
+                    alert('पुश भेजने में त्रुटि: ' + (data.message || 'Unknown error'));
+                }
+            } catch(err) {
+                alert('नेटवर्क त्रुटि: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bullhorn"></i> Send Push Notification to All Devices';
+            }
+        }
+
+        async function triggerBhartiManualPush() {
+            if (!confirm('क्या आप भारती AI का आज का दैनिक अध्ययन टिप तुरंत सभी सब्सक्राइबर्स को टेस्ट नोटिफिकेशन के रूप में भेजना चाहते हैं?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/push/trigger-bharti-auto', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`🤖 भारती AI पुश नोटिफिकेशन सफलतापूर्वक भेजा गया!\nसफल डिलीवरी: ${data.sentCount || 0} डिवाइस`);
+                    loadPushNotificationStatus();
+                } else {
+                    alert('भारती AI अलर्ट भेजने में सूचना: ' + (data.message || 'Done'));
+                }
+            } catch(e) {
+                alert('त्रुटि: ' + e.message);
+            }
         }
 
         // ============================================

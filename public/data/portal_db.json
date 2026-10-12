@@ -142,5 +142,8 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": []
+  "paymentTransactions": [],
+  "push_subscriptions": [],
+  "push_history": [],
+  "bharti_auto_push_log": {}
 }

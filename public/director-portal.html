@@ -302,6 +302,9 @@
             <button class="studio-nav-btn" onclick="switchTab('profile')">
                 <i class="fas fa-gear"></i> Center Branding & Contacts
             </button>
+            <button class="studio-nav-btn" onclick="switchTab('notifications')">
+                <i class="fas fa-bullhorn"></i> Student Push Broadcast
+            </button>
         </aside>
 
         <!-- Main Studio Content Viewport -->
@@ -997,6 +1000,44 @@
                 </div>
             </div>
 
+            <!-- TAB: STUDENT PUSH NOTIFICATION BROADCAST -->
+            <div class="studio-tab-view" id="tab-notifications">
+                <div class="studio-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-bullhorn" style="color:var(--aurora-gold);"></i> Student Push Notification Broadcast
+                            </h3>
+                            <p style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">
+                                Send instant mobile push alerts directly to your coaching center's enrolled students and app users.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(251,191,36,0.25); border-radius:16px; padding:20px;">
+                        <form onsubmit="broadcastDirectorPush(event)" style="display:grid; grid-template-columns:1fr; gap:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Notice / Announcement Title *</label>
+                                <input type="text" id="dirPushTitle" required placeholder="e.g. 📢 Important: Monday Class Timing Updated & Test Series Schedule" class="studio-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Message Content *</label>
+                                <textarea id="dirPushBody" required rows="3" placeholder="e.g. All students are requested to report at 9:00 AM with their revision notebooks." class="studio-input" style="resize:vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Action Link / URL</label>
+                                <input type="text" id="dirPushUrl" value="/" class="studio-input" placeholder="/">
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                                <button type="submit" id="btnDirSendPush" class="btn-aurora btn-gold" style="padding:10px 24px; font-size:13px; font-weight:800;">
+                                    <i class="fas fa-paper-plane"></i> Send Push Notification to Enrolled Students
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1457,6 +1498,60 @@
             }
             if (tabId === 'tickets') {
                 loadDirectorTickets();
+            }
+        }
+
+        async function broadcastDirectorPush(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnDirSendPush');
+            const title = document.getElementById('dirPushTitle').value.trim();
+            const body = document.getElementById('dirPushBody').value.trim();
+            const url = document.getElementById('dirPushUrl').value.trim() || '/';
+
+            if (!title || !body) {
+                alert('कृपया शीर्षक और संदेश दर्ज करें।');
+                return;
+            }
+
+            const centerName = (centerProfile && (centerProfile.centerName || centerProfile.name)) ? (centerProfile.centerName || centerProfile.name) : 'Coaching Institute';
+            const centerSlug = (centerProfile && (centerProfile.slug || centerProfile.centerId)) ? (centerProfile.slug || centerProfile.centerId) : 'all';
+
+            if (!confirm(`क्या आप यह पुश नोटिफिकेशन अपने कोचिंग सेंटर (${centerName}) के छात्रों को भेजना चाहते हैं?`)) {
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भेजा जा रहा है...';
+
+                const res = await fetch('/api/push/broadcast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: `🔔 [${centerName}] ${title}`,
+                        body,
+                        url: url || `/center/${centerSlug}`,
+                        targetCenterId: centerSlug,
+                        sender: centerName
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert(`🎉 नोटिफिकेशन सफलतापूर्वक भेज दिया गया!\nडिलीवरी: ${data.sentCount || 0} डिवाइस\nकुल लक्ष्य: ${data.total || 0}`);
+                    document.getElementById('dirPushTitle').value = '';
+                    document.getElementById('dirPushBody').value = '';
+                } else {
+                    alert('भेजने में त्रुटि: ' + (data.message || 'Unknown error'));
+                }
+            } catch(err) {
+                alert('नेटवर्क त्रुटि: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Push Notification to Enrolled Students';
             }
         }
 

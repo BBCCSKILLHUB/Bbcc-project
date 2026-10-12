@@ -17,6 +17,19 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
+const webpush = require('web-push');
+
+// Web Push Notification VAPID Protocol Configuration
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BPJoqu1-L_MFxP-HZKm9JzuV432dTE3gl8h55GkcKx0m1xpIGsQfAuug-NzXZx-prkcDVg16E89LrVw-fVUVx8I';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'XtLilGC2iFWXpx8p3EbwQ1MzaVXO8WyoOmRg8VQiDS4';
+const VAPID_SUBJECT = 'mailto:admin@bbccskillhub.org';
+
+try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+    console.log('🔔 Web Push Notifications VAPID configured successfully');
+} catch (e) {
+    console.warn('VAPID setup notice:', e.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -1265,6 +1278,131 @@ app.get('/api/public/ping', (req, res) => {
         timestamp: new Date().toISOString(),
         service: 'BBCC SKILL HUB Digital Platform'
     });
+});
+
+// ============================================================
+// WEB PUSH NOTIFICATION API ENDPOINTS
+// ============================================================
+// 1. Get VAPID Public Key for client subscription
+app.get('/api/push/vapid-public-key', (req, res) => {
+    res.json({ success: true, publicKey: VAPID_PUBLIC_KEY });
+});
+
+// 2. Subscribe device to Web Push
+app.post('/api/push/subscribe', async (req, res) => {
+    try {
+        const { subscription, centerId } = req.body;
+        if (!subscription || !subscription.endpoint) {
+            return res.status(400).json({ success: false, message: 'Invalid subscription object' });
+        }
+        const db = loadPortalDb();
+        if (!db.push_subscriptions) db.push_subscriptions = [];
+
+        const existingIndex = db.push_subscriptions.findIndex(s => s.endpoint === subscription.endpoint);
+        const subRecord = {
+            endpoint: subscription.endpoint,
+            expirationTime: subscription.expirationTime || null,
+            keys: subscription.keys || {},
+            centerId: centerId || 'all',
+            lastActive: new Date().toISOString(),
+            userAgent: req.headers['user-agent'] || ''
+        };
+
+        if (existingIndex >= 0) {
+            db.push_subscriptions[existingIndex] = subRecord;
+        } else {
+            db.push_subscriptions.push(subRecord);
+        }
+        await savePortalDb(db);
+
+        // Send an immediate welcome confirmation push notification
+        try {
+            await webpush.sendNotification(subscription, JSON.stringify({
+                title: '🔔 BBCC SKILL HUB — स्वागत है!',
+                body: 'पुश नोटिफिकेशन सफलतापूर्वक सक्रिय हो गए हैं। आपको नए नोटिस व अध्ययन अपडेट मिलते रहेंगे।',
+                icon: '/data/branding/logo.png',
+                badge: '/data/branding/logo.png',
+                url: '/'
+            }));
+        } catch (pushErr) {
+            console.warn('Welcome push dispatch notice:', pushErr.message);
+        }
+
+        res.json({ success: true, message: 'Device registered for push notifications successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Unsubscribe device
+app.post('/api/push/unsubscribe', async (req, res) => {
+    try {
+        const { endpoint } = req.body;
+        if (!endpoint) return res.status(400).json({ success: false, message: 'Endpoint is required' });
+        const db = loadPortalDb();
+        if (db.push_subscriptions) {
+            db.push_subscriptions = db.push_subscriptions.filter(s => s.endpoint !== endpoint);
+            await savePortalDb(db);
+        }
+        res.json({ success: true, message: 'Device unsubscribed' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. Broadcast Notification (Admin or Coaching Center Director)
+app.post('/api/push/broadcast', async (req, res) => {
+    try {
+        const { title, body, icon, url, targetCenterId, sender } = req.body;
+        if (!title || !body) {
+            return res.status(400).json({ success: false, message: 'Title and body are required' });
+        }
+
+        const payload = {
+            title: title.trim(),
+            body: body.trim(),
+            icon: icon || '/data/branding/logo.png',
+            badge: '/data/branding/logo.png',
+            url: url || '/',
+            sender: sender || 'BBCC Central Directorate'
+        };
+
+        const result = await sendPushNotificationToSubscribers(payload, targetCenterId || 'all');
+        res.json({ success: true, ...result });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. Get push notification status and history
+app.get('/api/push/status', (req, res) => {
+    try {
+        const db = loadPortalDb();
+        const subs = db.push_subscriptions || [];
+        res.json({
+            success: true,
+            totalSubscribers: subs.length,
+            history: (db.push_history || []).slice(0, 30),
+            bhartiScheduler: {
+                active: true,
+                slotsPerDay: 3,
+                slots: ['Morning 8:30 AM', 'Afternoon 2:30 PM', 'Evening 7:30 PM'],
+                recentDispatches: db.bharti_auto_push_log || {}
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6. Test Trigger Bharti AI Immediate Push Notification
+app.post('/api/push/trigger-bharti-auto', async (req, res) => {
+    try {
+        const result = await triggerBhartiAutoPush(true);
+        res.json({ success: true, ...result });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // 4.2 Aggregated Dual Promotional Banners (Auto-Expires in 30 Days)
@@ -5916,6 +6054,7 @@ async function startServer() {
         console.log(`🔗 Portal URL: http://localhost:${PORT}`);
         console.log(`🌐 Data Engine: ${isMongoConnected ? 'MongoDB Active' : 'GitHub / Local Persistent Engine Active'}`);
         initRenderKeepAlive();
+        initBhartiDailyPushScheduler();
     });
 }
 
@@ -5950,6 +6089,168 @@ function initRenderKeepAlive() {
             console.warn(`💓 Render self-ping notice:`, err.message);
         }
     }, 12 * 60 * 1000);
+}
+
+// ============================================================
+// WEB PUSH BROADCASTER & BHARTI AI AUTOMATED DAILY SCHEDULER
+// ============================================================
+const BHARTI_MORNING_MESSAGES = [
+    "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅",
+    "BBCC दैनिक अध्ययन लक्ष्य: 10वीं व 12वीं बोर्ड परीक्षाओं के स्पेशल नोट्स और मॉडल पेपर्स ई-लाइब्रेरी में उपलब्ध हैं। 📖",
+    "भारती AI प्रेरणा: 'एकाग्रता और अनुशासन ही सामान्य छात्र को टॉपर बनाते हैं।' आज का अध्ययन सत्र अभी शुरू करें! 🎯",
+    "आज का सुविचार: अपनी कमियों को पहचानें और उन पर काम करें। कोई भी कठिन सवाल हो तो सीधे मुझसे पूछें! 💡"
+];
+
+const BHARTI_AFTERNOON_MESSAGES = [
+    "दोपहर का रिविजन: क्या आपने आज का रिविजन पूरा किया? क्लास 9वीं, 10वीं व 12वीं के फॉर्मूला शीट्स ई-लाइब्रेरी से पढ़ें। 📚",
+    "भारती AI स्किल टिप: कंप्यूटर व डिजिटल स्किल (DCA/ADCA/Tally Prime) में महारत हासिल करें। प्रैक्टिकल गाइड मुफ़्त पढ़ें। 💻",
+    "दैनिक सामान्य ज्ञान: 'शिक्षा वह सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।' 🧠",
+    "कैरियर अलर्ट: CTET, STET, BPSC TRE एवं बोर्ड परीक्षाओं की तैयारी के लिए टेस्ट सीरीज और नोट्स डाउनलोड करें! ⚡"
+];
+
+const BHARTI_EVENING_MESSAGES = [
+    "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙",
+    "भारती AI नाइट स्टडी मंत्र: सोने से पहले आज पढ़े गए विषयों का 15 मिनट का त्वरित रिविजन करें। कल के लिए ऑल द बेस्ट! 📖",
+    "BBCC चेक-इन: अपनी कमजोरियों को मजबूत बनाने के लिए ई-लाइब्रेरी से चैप्टर नोट्स का दोबारा अध्ययन करें। 🎯",
+    "शुभ रात्रि एवं अध्ययन टिप: निरंतरता ही सफलता की चाबी है। कल सुबह एक नए लक्ष्य के साथ उठें! ✨"
+];
+
+// Helper to broadcast push notifications to subscribers
+async function sendPushNotificationToSubscribers(payload, targetCenterId = 'all') {
+    const db = loadPortalDb();
+    if (!db.push_subscriptions || !Array.isArray(db.push_subscriptions) || db.push_subscriptions.length === 0) {
+        console.log('🔔 No push notification subscribers registered yet');
+        return { sentCount: 0, failedCount: 0, total: 0 };
+    }
+
+    const payloadString = JSON.stringify(payload);
+    let sentCount = 0;
+    let failedCount = 0;
+    const expiredEndpoints = new Set();
+
+    const eligibleSubscribers = db.push_subscriptions.filter(sub => {
+        if (!sub || !sub.endpoint) return false;
+        if (!targetCenterId || targetCenterId === 'all') return true;
+        return sub.centerId === targetCenterId || sub.centerId === 'all' || !sub.centerId;
+    });
+
+    console.log(`🔔 Dispatching push notification to ${eligibleSubscribers.length} devices (Target: ${targetCenterId})`);
+
+    const sendPromises = eligibleSubscribers.map(async (sub) => {
+        try {
+            await webpush.sendNotification(sub, payloadString, { TTL: 86400 });
+            sentCount++;
+        } catch (err) {
+            failedCount++;
+            if (err.statusCode === 404 || err.statusCode === 410) {
+                expiredEndpoints.add(sub.endpoint);
+            }
+        }
+    });
+
+    await Promise.allSettled(sendPromises);
+
+    if (expiredEndpoints.size > 0) {
+        db.push_subscriptions = db.push_subscriptions.filter(s => !expiredEndpoints.has(s.endpoint));
+        await savePortalDb(db);
+        console.log(`🔔 Cleaned up ${expiredEndpoints.size} expired push subscriptions`);
+    }
+
+    if (!db.push_history) db.push_history = [];
+    db.push_history.unshift({
+        id: 'push_' + Date.now(),
+        title: payload.title,
+        body: payload.body,
+        url: payload.url || '/',
+        targetCenterId,
+        sentCount,
+        failedCount,
+        timestamp: new Date().toISOString(),
+        sender: payload.sender || 'Admin'
+    });
+    if (db.push_history.length > 50) db.push_history = db.push_history.slice(0, 50);
+    await savePortalDb(db);
+
+    return { sentCount, failedCount, total: eligibleSubscribers.length };
+}
+
+async function triggerBhartiAutoPush(isForce = false) {
+    const now = new Date();
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(now.getTime() + istOffsetMs);
+    const istHour = istDate.getUTCHours();
+    const dateStr = istDate.toISOString().slice(0, 10);
+
+    const db = loadPortalDb();
+    if (!db.bharti_auto_push_log) db.bharti_auto_push_log = {};
+
+    let targetSlot = null;
+    let messageList = [];
+
+    if (isForce) {
+        if (istHour >= 6 && istHour < 12) {
+            targetSlot = 'morning';
+            messageList = BHARTI_MORNING_MESSAGES;
+        } else if (istHour >= 12 && istHour < 17) {
+            targetSlot = 'afternoon';
+            messageList = BHARTI_AFTERNOON_MESSAGES;
+        } else {
+            targetSlot = 'evening';
+            messageList = BHARTI_EVENING_MESSAGES;
+        }
+    } else {
+        if (istHour >= 8 && istHour < 11) {
+            targetSlot = 'morning';
+            messageList = BHARTI_MORNING_MESSAGES;
+        } else if (istHour >= 14 && istHour < 17) {
+            targetSlot = 'afternoon';
+            messageList = BHARTI_AFTERNOON_MESSAGES;
+        } else if (istHour >= 19 && istHour < 22) {
+            targetSlot = 'evening';
+            messageList = BHARTI_EVENING_MESSAGES;
+        }
+    }
+
+    if (!targetSlot) return { message: 'Not in active push slot window' };
+
+    const logKey = `${dateStr}_${targetSlot}`;
+    if (!isForce && db.bharti_auto_push_log[logKey]) {
+        return { message: `Already dispatched today for slot: ${targetSlot}` };
+    }
+
+    const randomMsg = messageList[Math.floor(Math.random() * messageList.length)];
+    const payload = {
+        title: '🤖 भारती AI — ' + (targetSlot === 'morning' ? 'प्रभात संदेश 🌅' : targetSlot === 'afternoon' ? 'दैनिक अध्ययन टिप 📚' : 'शाम का चेक-इन 🌙'),
+        body: randomMsg,
+        icon: '/data/branding/logo.png',
+        badge: '/data/branding/logo.png',
+        url: '/',
+        sender: 'भारती AI ऑटोमैटिक असिस्टेंट'
+    };
+
+    console.log(`🤖 Dispatching Bharti AI ${targetSlot} auto push: "${payload.title}"`);
+    db.bharti_auto_push_log[logKey] = {
+        dispatchedAt: new Date().toISOString(),
+        slot: targetSlot,
+        title: payload.title,
+        body: payload.body
+    };
+    await savePortalDb(db);
+
+    return await sendPushNotificationToSubscribers(payload, 'all');
+}
+
+function initBhartiDailyPushScheduler() {
+    console.log('🤖 Bharti AI 2-3 Times Daily Push Notification Scheduler initialized');
+    // First check after 45 seconds of startup
+    setTimeout(() => {
+        triggerBhartiAutoPush(false).catch(() => {});
+    }, 45000);
+
+    // Run check every 15 minutes (900,000 ms)
+    setInterval(() => {
+        triggerBhartiAutoPush(false).catch(() => {});
+    }, 15 * 60 * 1000);
 }
 
 startServer();
