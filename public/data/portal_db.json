@@ -145,12 +145,5 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {
-    "2026-10-13_evening": {
-      "dispatchedAt": "2026-10-13T13:30:54.153Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "भारती AI नाइट स्टडी मंत्र: सोने से पहले आज पढ़े गए विषयों का 15 मिनट का त्वरित रिविजन करें। कल के लिए ऑल द बेस्ट! 📖"
-    }
-  }
+  "bharti_auto_push_log": {}
 }

@@ -290,6 +290,9 @@
             <button class="studio-nav-btn" onclick="switchTab('materials')">
                 <i class="fas fa-book"></i> Study Notes & MRP
             </button>
+            <button class="studio-nav-btn" onclick="switchTab('book-orders')">
+                <i class="fas fa-boxes-packing"></i> Hard Copy Orders
+            </button>
             <button class="studio-nav-btn" onclick="switchTab('earnings')">
                 <i class="fas fa-wallet"></i> Earnings & Bank (80/20)
             </button>
@@ -664,16 +667,47 @@
                     </div>
 
                     <form onsubmit="uploadCenterMaterial(event)">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; color:#cbd5e1;">Book / Study Material Title *</label>
+                            <input type="text" id="matTitle" required placeholder="e.g. Chapter 4 Motion Formula Sheet & Question Bank" class="studio-input">
+                        </div>
+
+                        <!-- Dual Pricing: E-PDF vs Hard Copy -->
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:10px;">
                             <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Note Title *</label>
-                                <input type="text" id="matTitle" required placeholder="e.g. Chapter 4 Motion Formula Sheet" class="studio-input">
+                                <label style="font-size:12px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-pdf"></i> E-PDF Sale Price ₹ (0 = Free) *</label>
+                                <input type="number" id="matPrice" min="0" value="0" placeholder="e.g. 49" class="studio-input">
+                                <span style="font-size:10.5px; color:#94a3b8;">80% goes to your center wallet</span>
                             </div>
                             <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Selling Price / MRP in ₹ (0 = Free) *</label>
-                                <input type="number" id="matPrice" min="0" value="0" placeholder="e.g. 49 (80% goes to your wallet)" class="studio-input">
+                                <label style="font-size:12px; color:#94a3b8;"><i class="fas fa-tag"></i> E-PDF MRP (Original) ₹</label>
+                                <input type="number" id="matPdfMrp" min="0" value="99" placeholder="e.g. 99 (Strike MRP)" class="studio-input">
+                                <span style="font-size:10.5px; color:#94a3b8;">कटौती (Discount %) दिखेगी</span>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#f59e0b; font-weight:700;"><i class="fas fa-book-open"></i> Hard Copy Sale Price ₹ *</label>
+                                <input type="number" id="matPhysicalPrice" min="0" value="149" placeholder="e.g. 149" class="studio-input">
+                                <span style="font-size:10.5px; color:#94a3b8;">मुद्रित हार्ड कॉपी सेल मूल्य</span>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#94a3b8;"><i class="fas fa-tag"></i> Hard Copy MRP (Original) ₹</label>
+                                <input type="number" id="matPhysicalMrp" min="0" value="250" placeholder="e.g. 250 (Strike MRP)" class="studio-input">
+                                <span style="font-size:10.5px; color:#94a3b8;">प्रिंटेड बुक असली MRP</span>
                             </div>
                         </div>
+
+                        <!-- Hard Copy Pickup Details -->
+                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; color:#10b981; font-weight:700;"><i class="fas fa-location-dot"></i> Hard Copy Pickup Address (छात्र केंद्र पर आकर लेंगे) *</label>
+                                <input type="text" id="matPickupAddress" placeholder="e.g. Center Reception, Near Main Road (Auto-prefilled from center profile)" class="studio-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-phone"></i> Contact / WhatsApp Phone</label>
+                                <input type="text" id="matDirectorContact" placeholder="e.g. 9876543210" class="studio-input">
+                            </div>
+                        </div>
+
                         <div style="margin-bottom:14px;">
                             <label style="font-size:12px; color:#cbd5e1;">Description / Chapter Details</label>
                             <input type="text" id="matDesc" placeholder="e.g. High-yield formulas, short tricks, solved examples" class="studio-input">
@@ -731,6 +765,48 @@
                     </div>
                     <div id="rawMaterialsDock">
                         <div style="color:#94a3b8; font-size:13px; text-align:center; padding:20px;">Loading central board syllabus files...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PHYSICAL BOOK ORDERS & FULFILLMENT DESK -->
+            <div class="studio-tab-view" id="tab-book-orders">
+                <div class="studio-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                        <div>
+                            <h2 style="font-family:'Cinzel',serif; font-size:20px; color:var(--aurora-gold); margin:0;">
+                                <i class="fas fa-boxes-packing"></i> Physical Book Orders Desk (हार्ड कॉपी डिलीवरी डेस्क)
+                            </h2>
+                            <p style="color:#94a3b8; font-size:12.5px; margin-top:4px;">
+                                जिन छात्रों ने हार्ड कॉपी (Printed Book) का ऑनलाइन भुगतान किया है, उनकी सूची यहाँ देखें। स्टेटस अपडेट करें और छात्र को 1-क्लिक WhatsApp से पिकअप सूचना भेजें।
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadDirectorBookOrders()" class="btn-aurora btn-gold" style="padding:7px 16px; font-size:12.5px;">
+                            <i class="fas fa-rotate"></i> Refresh Orders
+                        </button>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; font-size:12.5px; text-align:left;">
+                            <thead>
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:#94a3b8; text-transform:uppercase; font-size:11px;">
+                                    <th style="padding:10px 8px;">Order ID / Date</th>
+                                    <th style="padding:10px 8px;">Student Info</th>
+                                    <th style="padding:10px 8px;">Book Title</th>
+                                    <th style="padding:10px 8px;">Paid Amount</th>
+                                    <th style="padding:10px 8px;">Pickup Address</th>
+                                    <th style="padding:10px 8px;">Status</th>
+                                    <th style="padding:10px 8px; text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="directorBookOrdersTbody">
+                                <tr>
+                                    <td colspan="7" style="padding:24px; text-align:center; color:#94a3b8;">
+                                        Loading hard copy book orders...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1118,10 +1194,38 @@
                     <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Document / Chapter Title *</label>
                     <input type="text" id="editMatTitle" required class="studio-input" style="width:100%;">
                 </div>
-                <div style="margin-bottom:14px;">
-                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">MRP Price in ₹ (0 = Free for All, >0 = Enrolled Free / Others Paid) *</label>
-                    <input type="number" id="editMatPrice" min="0" required class="studio-input" style="width:100%;">
+                <!-- Dual Pricing Grid -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <label style="font-size:12px; color:#38bdf8; display:block; margin-bottom:5px; font-weight:700;"><i class="fas fa-file-pdf"></i> E-PDF Sale Price ₹ *</label>
+                        <input type="number" id="editMatPrice" min="0" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#94a3b8; display:block; margin-bottom:5px;"><i class="fas fa-tag"></i> E-PDF MRP (Original) ₹</label>
+                        <input type="number" id="editMatPdfMrp" min="0" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#f59e0b; display:block; margin-bottom:5px; font-weight:700;"><i class="fas fa-book-open"></i> Hard Copy Sale Price ₹ *</label>
+                        <input type="number" id="editMatPhysicalPrice" min="0" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#94a3b8; display:block; margin-bottom:5px;"><i class="fas fa-tag"></i> Hard Copy MRP (Original) ₹</label>
+                        <input type="number" id="editMatPhysicalMrp" min="0" class="studio-input" style="width:100%;">
+                    </div>
                 </div>
+
+                <!-- Pickup Address & Contact -->
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px; font-weight:700;"><i class="fas fa-location-dot"></i> Hard Copy Pickup Address *</label>
+                        <input type="text" id="editMatPickupAddress" class="studio-input" style="width:100%;" placeholder="e.g. Center Reception, Near Main Road">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;"><i class="fas fa-phone"></i> Contact Phone</label>
+                        <input type="text" id="editMatDirectorContact" class="studio-input" style="width:100%;">
+                    </div>
+                </div>
+
                 <div style="margin-bottom:14px;">
                     <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Description / Highlights</label>
                     <input type="text" id="editMatDesc" class="studio-input" style="width:100%;">
@@ -1478,6 +1582,14 @@
             if (document.getElementById('cpAdmissionFee')) document.getElementById('cpAdmissionFee').value = c.admissionFee !== undefined ? c.admissionFee : 200;
             if (document.getElementById('cpThemeColor')) document.getElementById('cpThemeColor').value = c.themeColor || 'gold';
 
+            // Auto-prefill Hard Copy Pickup details if available
+            if (document.getElementById('matPickupAddress') && !document.getElementById('matPickupAddress').value) {
+                document.getElementById('matPickupAddress').value = c.address || `${c.centerName || 'Center'}, Campus Office`;
+            }
+            if (document.getElementById('matDirectorContact') && !document.getElementById('matDirectorContact').value) {
+                document.getElementById('matDirectorContact').value = c.contactNumber || c.whatsappNumber || '';
+            }
+
             renderFacultyList(c.teachers || []);
             renderMaterialsList(c.materials || []);
         }
@@ -1498,6 +1610,9 @@
             }
             if (tabId === 'tickets') {
                 loadDirectorTickets();
+            }
+            if (tabId === 'book-orders') {
+                loadDirectorBookOrders();
             }
         }
 
@@ -2023,17 +2138,21 @@
                         <div>
                             <strong style="color:#ffffff; font-size:14.5px;">${m.title}</strong>
                             <div style="font-size:12px; color:#94a3b8; margin:4px 0;">${m.description || 'Verified study note'}</div>
-                            <div style="display:flex; gap:10px; align-items:center; margin-top:4px;">
-                                <span style="font-size:11.5px; padding:2px 8px; border-radius:4px; background:rgba(217,119,6,0.15); color:var(--aurora-gold); font-weight:700;">
-                                    ${m.price > 0 ? `₹${m.price} MRP (Enrolled Free)` : '100% FREE'}
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px;">
+                                <span style="font-size:11.5px; padding:2px 8px; border-radius:4px; background:rgba(56,189,248,0.12); color:#38bdf8; font-weight:700;">
+                                    <i class="fas fa-file-pdf"></i> E-PDF: ${m.price > 0 ? `₹${m.price}` : 'FREE'} ${m.pdfMrp ? `<span style="text-decoration:line-through; color:#64748b; font-size:10px;">₹${m.pdfMrp}</span>` : ''}
                                 </span>
-                                ${(m.pdf || m.file) ? `<a href="${m.pdf || m.file}" target="_blank" style="font-size:11.5px; color:#38bdf8; text-decoration:none;"><i class="fas fa-eye"></i> View Document</a>` : ''}
+                                <span style="font-size:11.5px; padding:2px 8px; border-radius:4px; background:rgba(245,158,11,0.12); color:#f59e0b; font-weight:700;">
+                                    <i class="fas fa-book-open"></i> Hard Copy: ₹${m.physicalPrice || 149} ${m.physicalMrp ? `<span style="text-decoration:line-through; color:#64748b; font-size:10px;">₹${m.physicalMrp}</span>` : ''}
+                                </span>
+                                ${m.pickupAddress ? `<span style="font-size:11px; color:#94a3b8;"><i class="fas fa-location-dot" style="color:#ef4444;"></i> ${m.pickupAddress}</span>` : ''}
+                                ${(m.pdf || m.file) ? `<a href="${m.pdf || m.file}" target="_blank" style="font-size:11.5px; color:#38bdf8; text-decoration:none;"><i class="fas fa-eye"></i> View PDF</a>` : ''}
                             </div>
                         </div>
                     </div>
                     <div style="display:flex; gap:8px;">
                         <button onclick="openEditMaterialModal('${m._id}')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px; border-radius:6px;">
-                            <i class="fas fa-edit"></i> Edit & Thumbnail
+                            <i class="fas fa-edit"></i> Edit & Prices
                         </button>
                         <button onclick="deleteMaterial('${m._id}')" style="background:#ef4444; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">
                             <i class="fas fa-trash"></i> Delete
@@ -2049,6 +2168,11 @@
             document.getElementById('editMatId').value = mat._id;
             document.getElementById('editMatTitle').value = mat.title || '';
             document.getElementById('editMatPrice').value = mat.price !== undefined ? mat.price : 0;
+            document.getElementById('editMatPdfMrp').value = mat.pdfMrp !== undefined ? mat.pdfMrp : 99;
+            document.getElementById('editMatPhysicalPrice').value = mat.physicalPrice !== undefined ? mat.physicalPrice : 149;
+            document.getElementById('editMatPhysicalMrp').value = mat.physicalMrp !== undefined ? mat.physicalMrp : 250;
+            document.getElementById('editMatPickupAddress').value = mat.pickupAddress || (centerProfile ? (centerProfile.address || '') : '');
+            document.getElementById('editMatDirectorContact').value = mat.directorContact || (centerProfile ? (centerProfile.contactNumber || centerProfile.whatsappNumber || '') : '');
             document.getElementById('editMatDesc').value = mat.description || '';
             document.getElementById('editMatFileInput').value = '';
 
@@ -2075,6 +2199,11 @@
             const mid = document.getElementById('editMatId').value;
             const title = document.getElementById('editMatTitle').value.trim();
             const price = Number(document.getElementById('editMatPrice').value) || 0;
+            const pdfMrp = Number(document.getElementById('editMatPdfMrp').value) || 0;
+            const physicalPrice = Number(document.getElementById('editMatPhysicalPrice').value) || 0;
+            const physicalMrp = Number(document.getElementById('editMatPhysicalMrp').value) || 0;
+            const pickupAddress = document.getElementById('editMatPickupAddress').value.trim();
+            const directorContact = document.getElementById('editMatDirectorContact').value.trim();
             const desc = document.getElementById('editMatDesc').value.trim();
             const fileInput = document.getElementById('editMatFileInput');
 
@@ -2089,6 +2218,11 @@
             const payload = {
                 title: title,
                 price: price,
+                pdfMrp: pdfMrp,
+                physicalPrice: physicalPrice,
+                physicalMrp: physicalMrp,
+                pickupAddress: pickupAddress,
+                directorContact: directorContact,
                 description: desc
             };
             if (base64) {
@@ -2116,7 +2250,7 @@
 
             const data = await res.json();
             if (data.success) {
-                alert('Study material updated successfully!');
+                alert('Study material and prices updated successfully!');
                 closeEditMaterialModal();
                 initDirectorStudio();
             } else {
@@ -2144,6 +2278,11 @@
             const title = document.getElementById('matTitle').value.trim();
             const desc = document.getElementById('matDesc').value.trim();
             const price = Number(document.getElementById('matPrice') ? document.getElementById('matPrice').value : 0) || 0;
+            const pdfMrp = Number(document.getElementById('matPdfMrp') ? document.getElementById('matPdfMrp').value : 0) || 0;
+            const physicalPrice = Number(document.getElementById('matPhysicalPrice') ? document.getElementById('matPhysicalPrice').value : 0) || 0;
+            const physicalMrp = Number(document.getElementById('matPhysicalMrp') ? document.getElementById('matPhysicalMrp').value : 0) || 0;
+            const pickupAddress = document.getElementById('matPickupAddress') ? document.getElementById('matPickupAddress').value.trim() : '';
+            const directorContact = document.getElementById('matDirectorContact') ? document.getElementById('matDirectorContact').value.trim() : '';
             const fileInput = document.getElementById('matFileInput');
 
             let base64 = '';
@@ -2172,15 +2311,134 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ title, description: desc, price: price, pdf: base64, storageMode, thumbnail: thumbBase64 })
+                body: JSON.stringify({ 
+                    title, 
+                    description: desc, 
+                    price, 
+                    pdfMrp,
+                    physicalPrice,
+                    physicalMrp,
+                    pickupAddress,
+                    directorContact,
+                    pdf: base64, 
+                    storageMode, 
+                    thumbnail: thumbBase64 
+                })
             });
             const data = await res.json();
             if (data.success) {
                 alert('Study note published to Marketplace! 80% will be credited to your wallet per student purchase.');
                 e.target.reset();
+                if (centerProfile) {
+                    if (document.getElementById('matPickupAddress')) {
+                        document.getElementById('matPickupAddress').value = centerProfile.address || '';
+                    }
+                    if (document.getElementById('matDirectorContact')) {
+                        document.getElementById('matDirectorContact').value = centerProfile.contactNumber || centerProfile.whatsappNumber || '';
+                    }
+                }
                 initDirectorStudio();
             } else {
                 alert(data.message || 'Error uploading material');
+            }
+        }
+
+        // ==========================================
+        // PHYSICAL HARD COPY BOOK ORDERS & FULFILLMENT
+        // ==========================================
+        async function loadDirectorBookOrders() {
+            const tbody = document.getElementById('directorBookOrdersTbody');
+            if (!tbody) return;
+            try {
+                tbody.innerHTML = `<tr><td colspan="7" style="padding:24px; text-align:center; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Loading hard copy orders...</td></tr>`;
+                const res = await fetch('/api/director/book-orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                if (!result.success || !result.data || result.data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="padding:24px; text-align:center; color:#94a3b8;"><i class="fas fa-box-open" style="font-size:24px; margin-bottom:8px; display:block;"></i>No hard copy book orders received yet.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = result.data.map(ord => {
+                    const statusColor = ord.fulfillmentStatus === 'delivered' ? '#10b981' : (ord.fulfillmentStatus === 'ready' ? '#38bdf8' : '#f59e0b');
+                    const dateStr = new Date(ord.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+                    const pickupAddr = ord.pickupAddress || (centerProfile ? centerProfile.address : 'Center Campus');
+                    const cName = centerProfile ? (centerProfile.centerName || 'BBCC Center') : 'BBCC Center';
+                    const waText = encodeURIComponent(`नमस्ते ${ord.studentName || 'Student'} जी,\n\nआपकी पुस्तक "${ord.documentTitle}" (Order ID: ${ord.orderId}) तैयार है।\n\nकृपया हमारे संस्थान पर आकर हार्ड कॉपी प्राप्त करें:\n📍 पता: ${pickupAddr}\n\nधन्यवाद,\n${cName}`);
+                    const cleanPhone = (ord.studentPhone || '').replace(/\D/g, '').slice(-10);
+                    const waLink = cleanPhone ? `https://wa.me/91${cleanPhone}?text=${waText}` : null;
+
+                    return `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding:12px 8px;">
+                                <strong style="color:var(--aurora-gold); font-family:monospace; font-size:12px;">${ord.orderId || ord._id.slice(-6)}</strong>
+                                <div style="font-size:11px; color:#94a3b8;">${dateStr}</div>
+                            </td>
+                            <td style="padding:12px 8px;">
+                                <div style="font-weight:700; color:#ffffff;">${ord.studentName || 'Student'}</div>
+                                <div style="font-size:11px; color:#94a3b8;">📱 ${ord.studentPhone || 'N/A'}</div>
+                                ${ord.studentEmail ? `<div style="font-size:10.5px; color:#64748b;">${ord.studentEmail}</div>` : ''}
+                            </td>
+                            <td style="padding:12px 8px;">
+                                <div style="font-weight:600; color:#e2e8f0; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    <i class="fas fa-book" style="color:#f59e0b; margin-right:5px;"></i>${ord.documentTitle}
+                                </div>
+                                <span style="font-size:10px; background:rgba(245,158,11,0.15); color:#f59e0b; padding:1px 6px; border-radius:3px; font-weight:700;">HARD COPY PICKUP</span>
+                            </td>
+                            <td style="padding:12px 8px;">
+                                <strong style="color:#10b981; font-size:13px;">₹${ord.amount || 0}</strong>
+                                <div style="font-size:10px; color:#64748b;">Paid Online (80% Center)</div>
+                            </td>
+                            <td style="padding:12px 8px; font-size:11.5px; color:#cbd5e1; max-width:220px;">
+                                <i class="fas fa-location-dot" style="color:#ef4444; margin-right:4px;"></i>${pickupAddr}
+                            </td>
+                            <td style="padding:12px 8px;">
+                                <select onchange="updateDirectorBookOrderStatus('${ord.orderId || ord._id}', this.value)" style="background:#0f172a; color:${statusColor}; border:1px solid ${statusColor}; border-radius:6px; padding:4px 8px; font-size:11.5px; font-weight:700; cursor:pointer;">
+                                    <option value="pending" ${ord.fulfillmentStatus === 'pending' ? 'selected' : ''} style="color:#f59e0b; background:#0f172a;">⏳ Pending</option>
+                                    <option value="ready" ${ord.fulfillmentStatus === 'ready' ? 'selected' : ''} style="color:#38bdf8; background:#0f172a;">📦 Ready for Pickup</option>
+                                    <option value="delivered" ${ord.fulfillmentStatus === 'delivered' ? 'selected' : ''} style="color:#10b981; background:#0f172a;">✅ Delivered</option>
+                                </select>
+                            </td>
+                            <td style="padding:12px 8px; text-align:right;">
+                                ${waLink ? `
+                                    <a href="${waLink}" target="_blank" class="btn-aurora" style="background:#25D366; color:#0f172a; font-weight:800; padding:5px 12px; font-size:11.5px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; border-radius:6px;" title="Send WhatsApp Pickup Alert">
+                                        <i class="fab fa-whatsapp" style="font-size:13px;"></i> WhatsApp
+                                    </a>
+                                ` : `
+                                    <span style="font-size:11px; color:#64748b;">No Phone</span>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error loading director book orders:', err);
+                tbody.innerHTML = `<tr><td colspan="7" style="padding:24px; text-align:center; color:#ef4444;">Failed to load orders. Please try again.</td></tr>`;
+            }
+        }
+
+        async function updateDirectorBookOrderStatus(orderId, status) {
+            try {
+                const res = await fetch(`/api/director/book-orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert(`Order status updated to "${status}" successfully!`);
+                    loadDirectorBookOrders();
+                } else {
+                    alert(result.message || 'Failed to update order status');
+                }
+            } catch (err) {
+                console.error('Error updating order status:', err);
+                alert('Network error while updating status');
             }
         }
 

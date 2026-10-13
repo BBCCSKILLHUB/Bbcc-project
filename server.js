@@ -407,7 +407,11 @@ const CenterSchema = new mongoose.Schema({
     materials: [{
         title: { type: String, required: true },
         description: { type: String, default: '' },
-        price: { type: Number, default: 0 }, // MRP in INR (20% platform cut, 80% center wallet)
+        price: { type: Number, default: 0 }, // E-PDF Selling Price (20% platform cut, 80% center wallet)
+        pdfMrp: { type: Number, default: 0 }, // E-PDF MRP (अधिकतम खुदरा मूल्य)
+        physicalPrice: { type: Number, default: 0 }, // Printed Hard Copy Selling Price
+        physicalMrp: { type: Number, default: 0 }, // Hard Copy MRP
+        pickupAddress: { type: String, default: '' }, // Custom or Center campus pickup address
         fileType: { type: String, default: 'pdf' },
         thumbnail: { type: String, default: '' },
         pdf: { type: String, default: '' },
@@ -436,7 +440,12 @@ const StudyMaterialSchema = new mongoose.Schema({
         pdf: { type: String, default: '' },
         file: { type: String, default: '' },
         fileName: { type: String, default: 'study_document.pdf' },
-        price: { type: Number, default: 0 }, // 0 = Free, > 0 = Paid with Razorpay
+        price: { type: Number, default: 0 }, // E-PDF Selling Price (0 = Free, > 0 = Paid with Razorpay)
+        pdfMrp: { type: Number, default: 0 }, // E-PDF MRP
+        physicalPrice: { type: Number, default: 0 }, // Printed Hard Copy Selling Price
+        physicalMrp: { type: Number, default: 0 }, // Hard Copy MRP
+        pickupAddress: { type: String, default: '' }, // Hard Copy Campus Pickup Address
+        directorContact: { type: String, default: '' }, // Pickup contact person & phone
         targetCenterId: { type: String, default: 'all' }, // 'all' or specific TuitionCenter ID
         targetCenterName: { type: String, default: 'All Centers (Universal)' },
         isRawData: { type: Boolean, default: false }, // Educational raw curriculum/data
@@ -532,6 +541,9 @@ const PaymentTransactionSchema = new mongoose.Schema({
     centerName: { type: String, default: '' },
     centerShare: { type: Number, default: 0 }, // 80% for coaching center
     platformCut: { type: Number, default: 0 }, // 20% for BBCC platform
+    orderType: { type: String, default: 'pdf' }, // 'pdf' | 'physical'
+    pickupAddress: { type: String, default: '' },
+    fulfillmentStatus: { type: String, default: 'pending' }, // 'pending', 'ready', 'delivered'
     regData: { type: Object, default: null }, // Stored for affiliation registration verification
     paidAt: { type: Date }
 }, { timestamps: true });
@@ -2278,9 +2290,13 @@ app.get('/api/public/books', async (req, res) => {
             const physicalPrice = Number(n.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
             const physicalMrp = Number(n.physicalMrp) || Math.round(physicalPrice * 2.2 + 50);
 
-            const pickupAddress = cInfo ? (cInfo.address || defaultAddress) : defaultAddress;
+            const pickupAddress = (n.pickupAddress && n.pickupAddress.trim())
+                ? n.pickupAddress.trim()
+                : (cInfo ? (cInfo.address || defaultAddress) : defaultAddress);
             const pickupPhone = cInfo ? (cInfo.whatsappNumber || cInfo.contactNumber || defaultPhone) : defaultPhone;
-            const pickupDirector = cInfo ? (cInfo.directorName || defaultDirector) : defaultDirector;
+            const pickupDirector = (n.directorContact && n.directorContact.trim())
+                ? n.directorContact.trim()
+                : (cInfo ? (cInfo.directorName || defaultDirector) : defaultDirector);
             const centerTitle = cInfo ? cInfo.centerName : (n.targetCenterName || 'All Centers (Universal)');
 
             return {
@@ -2333,6 +2349,10 @@ app.get('/api/public/books', async (req, res) => {
                             thumbnail: m.thumbnail || '',
                             price: m.price || 0,
                             originalPrice: m.price || 0,
+                            pdfMrp: m.pdfMrp || 0,
+                            physicalPrice: m.physicalPrice || 0,
+                            physicalMrp: m.physicalMrp || 0,
+                            pickupAddress: m.pickupAddress || '',
                             targetCenterId: c._id.toString(),
                             targetCenterName: c.centerName,
                             isRawData: m.isRawData || false,
@@ -5202,6 +5222,41 @@ app.get('/api/director/earnings', verifyDirector, async (req, res) => {
     }
 });
 
+// 7.4C Physical Printed Book Orders for Coaching Center Director
+app.get('/api/director/book-orders', verifyDirector, async (req, res) => {
+    try {
+        const center = await TuitionCenter.findById(req.center.centerId);
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const orders = await PaymentTransaction.find({
+            $or: [
+                { centerId: center._id.toString() },
+                { centerName: center.centerName }
+            ],
+            purpose: 'physical_book_order',
+            status: 'paid'
+        }).sort({ createdAt: -1 });
+
+        res.json({ success: true, data: orders });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Update Hard Copy Order Fulfillment Status by Director ('ready', 'delivered')
+app.put('/api/director/book-orders/:orderId/status', verifyDirector, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const tx = await PaymentTransaction.findOne({ orderId: req.params.orderId });
+        if (!tx) return res.status(404).json({ success: false, message: 'Order not found' });
+        tx.fulfillmentStatus = status || 'delivered';
+        await tx.save();
+        res.json({ success: true, message: `Order status updated to ${tx.fulfillmentStatus}`, data: tx });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // 7.4D AI & Festive Promotional Banner Copy Generator
 app.post('/api/director/ai-banner-generator', verifyDirector, async (req, res) => {
     try {
@@ -5347,10 +5402,15 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
 app.post('/api/director/materials', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
-        const { title, description, price, fileType, pdf, file, link, isRawData, storageMode, thumbnail } = req.body;
+        const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, fileType, pdf, file, link, isRawData, storageMode, thumbnail } = req.body;
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
 
         const itemPrice = Math.max(0, Number(price) || 0);
+        const pMrp = Number(pdfMrp) || (itemPrice > 0 ? Math.round(itemPrice * 2.5 + 49) : 199);
+        const physPrice = Number(physicalPrice) || (itemPrice > 0 ? Math.max(99, Math.round(itemPrice * 1.8 + 50)) : 149);
+        const physMrp = Number(physicalMrp) || Math.round(physPrice * 2.2 + 50);
+        const effectivePickupAddress = (pickupAddress && pickupAddress.trim()) ? pickupAddress.trim() : (center.address || '');
+
         const mode = storageMode === 'important' ? 'important' : 'normal';
         const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, title.trim());
         const thumbAsset = thumbnail ? saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', title.trim()) : null;
@@ -5359,6 +5419,10 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
             title: title.trim(),
             description: description || '',
             price: itemPrice,
+            pdfMrp: pMrp,
+            physicalPrice: physPrice,
+            physicalMrp: physMrp,
+            pickupAddress: effectivePickupAddress,
             fileType: fileType || 'pdf',
             thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
             pdf: fileAsset.fileUrl,
@@ -5384,6 +5448,11 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 pdf: fileAsset.fileUrl,
                 file: fileAsset.fileUrl,
                 price: itemPrice,
+                pdfMrp: pMrp,
+                physicalPrice: physPrice,
+                physicalMrp: physMrp,
+                pickupAddress: effectivePickupAddress,
+                directorContact: `${center.directorName || 'Director'} (${center.whatsappNumber || center.contactNumber || ''})`,
                 targetCenterId: center._id.toString(),
                 targetCenterName: center.centerName,
                 isRawData: Boolean(fileAsset.isRawData || isRawData),
@@ -5421,10 +5490,14 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
         if (!mat) return res.status(404).json({ success: false, message: 'Material not found' });
 
         const oldTitle = mat.title;
-        const { title, description, price, pdf, file, fileType, storageMode, thumbnail } = req.body;
+        const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, pdf, file, fileType, storageMode, thumbnail } = req.body;
         if (title) mat.title = title.trim();
         if (description !== undefined) mat.description = description.trim();
         if (price !== undefined) mat.price = Math.max(0, Number(price) || 0);
+        if (pdfMrp !== undefined) mat.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
+        if (physicalPrice !== undefined) mat.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
+        if (physicalMrp !== undefined) mat.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
+        if (pickupAddress !== undefined) mat.pickupAddress = pickupAddress.trim();
 
         if (thumbnail !== undefined && thumbnail !== '') {
             const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || oldTitle).trim());
@@ -5444,23 +5517,21 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
 
         await center.save();
 
-        // Also sync update in Central Study Material repository
+        // Also update in StudyMaterial if present
         try {
             const sm = await StudyMaterial.findOne();
             if (sm && sm.notes) {
-                const note = sm.notes.find(n => 
-                    n.targetCenterId && n.targetCenterId.toString() === req.center.centerId.toString() &&
-                    (n._id.toString() === req.params.mid || n.title === oldTitle)
-                );
-                if (note) {
-                    if (title) note.title = title.trim();
-                    if (description !== undefined) note.description = description.trim();
-                    if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
-                    if (mat.thumbnail) note.thumbnail = mat.thumbnail;
-                    if (mat.pdf) {
-                        note.pdf = mat.pdf;
-                        note.file = mat.file;
-                    }
+                const sn = sm.notes.find(n => n._id.toString() === req.params.mid || (oldTitle && n.title === oldTitle));
+                if (sn) {
+                    if (title) sn.title = title.trim();
+                    if (description !== undefined) sn.description = description.trim();
+                    if (price !== undefined) sn.price = mat.price;
+                    if (pdfMrp !== undefined) sn.pdfMrp = mat.pdfMrp;
+                    if (physicalPrice !== undefined) sn.physicalPrice = mat.physicalPrice;
+                    if (physicalMrp !== undefined) sn.physicalMrp = mat.physicalMrp;
+                    if (pickupAddress !== undefined) sn.pickupAddress = mat.pickupAddress;
+                    if (mat.thumbnail) sn.thumbnail = mat.thumbnail;
+                    if (mat.pdf) sn.pdf = mat.pdf;
                     await sm.save();
                 }
             }
@@ -5732,6 +5803,11 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             file,
             fileName,
             price,
+            pdfMrp,
+            physicalPrice,
+            physicalMrp,
+            pickupAddress,
+            directorContact,
             targetCenterId,
             targetCenterName,
             isRawData,
@@ -5748,6 +5824,11 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, title.trim());
         const thumbAsset = thumbnail ? saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', title.trim()) : null;
 
+        const pPrice = Math.max(0, Number(price) || 0);
+        const pMrp = Number(pdfMrp) || (pPrice > 0 ? Math.round(pPrice * 2.5 + 49) : 199);
+        const physPrice = Number(physicalPrice) || (pPrice > 0 ? Math.max(99, Math.round(pPrice * 1.8 + 50)) : 149);
+        const physMrp = Number(physicalMrp) || Math.round(physPrice * 2.2 + 50);
+
         sm.notes.push({
             title: title.trim(),
             subject: subject || 'General',
@@ -5758,7 +5839,12 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             file: fileAsset.fileUrl || file || '',
             pdf: fileAsset.fileUrl || file || '',
             fileName: fileName || `${title.replace(/[^a-zA-Z0-9]/g, '_')}.${safeExt}`,
-            price: Math.max(0, Number(price) || 0),
+            price: pPrice,
+            pdfMrp: pMrp,
+            physicalPrice: physPrice,
+            physicalMrp: physMrp,
+            pickupAddress: (pickupAddress || '').trim(),
+            directorContact: (directorContact || '').trim(),
             targetCenterId: targetCenterId || 'all',
             targetCenterName: targetCenterName || 'All Centers (Universal)',
             isRawData: Boolean(fileAsset.isRawData || isRawData),
@@ -5800,6 +5886,11 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
             file,
             fileName,
             price,
+            pdfMrp,
+            physicalPrice,
+            physicalMrp,
+            pickupAddress,
+            directorContact,
             targetCenterId,
             targetCenterName,
             isRawData,
@@ -5826,6 +5917,11 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         }
         if (fileName !== undefined) note.fileName = fileName;
         if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
+        if (pdfMrp !== undefined) note.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
+        if (physicalPrice !== undefined) note.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
+        if (physicalMrp !== undefined) note.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
+        if (pickupAddress !== undefined) note.pickupAddress = pickupAddress.trim();
+        if (directorContact !== undefined) note.directorContact = directorContact.trim();
         if (targetCenterId !== undefined) note.targetCenterId = targetCenterId;
         if (targetCenterName !== undefined) note.targetCenterName = targetCenterName;
         if (isRawData !== undefined) note.isRawData = Boolean(isRawData);
@@ -6153,6 +6249,37 @@ app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
     try {
         const txns = await PaymentTransaction.find().sort({ createdAt: -1 });
         res.json({ success: true, data: txns });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.12B Physical Book Orders Ledger for Super Admin
+app.get('/api/admin/book-orders', verifySuperAdmin, async (req, res) => {
+    try {
+        const orders = await PaymentTransaction.find({
+            $or: [
+                { purpose: 'physical_book_order' },
+                { orderType: 'physical' }
+            ],
+            status: 'paid'
+        }).sort({ createdAt: -1 });
+
+        res.json({ success: true, data: orders });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Update Fulfillment Status by Super Admin ('ready', 'delivered')
+app.put('/api/admin/book-orders/:orderId/status', verifySuperAdmin, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const tx = await PaymentTransaction.findOne({ orderId: req.params.orderId });
+        if (!tx) return res.status(404).json({ success: false, message: 'Order not found' });
+        tx.fulfillmentStatus = status || 'delivered';
+        await tx.save();
+        res.json({ success: true, message: `Order status updated to ${tx.fulfillmentStatus}`, data: tx });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

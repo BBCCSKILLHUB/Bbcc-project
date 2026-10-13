@@ -218,6 +218,9 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('vault')">
                 <i class="fas fa-book-bookmark"></i> E-Library & Raw Data
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('book-orders')">
+                <i class="fas fa-boxes-packing"></i> Physical Book Orders
+            </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('banners')">
                 <i class="fas fa-images"></i> Promotional Banners Network
             </button>
@@ -322,14 +325,10 @@
                             </div>
                         </div>
 
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                             <div>
                                 <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
-                                <input type="text" id="vbClass" placeholder="e.g. Class 12th" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Price in ₹ (0 = Free Download) *</label>
-                                <input type="number" id="vbPrice" required min="0" value="0" class="console-input">
+                                <input type="text" id="vbClass" placeholder="e.g. Class 12th / All Classes" class="console-input">
                             </div>
                             <div>
                                 <label style="font-size:12px; color:#cbd5e1;">File Format</label>
@@ -337,6 +336,53 @@
                                     <option value="pdf">PDF Document (.pdf)</option>
                                     <option value="docx">Word Document (.docx / .doc)</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Dual Pricing System (E-PDF vs Printed Hard Copy) -->
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:14px; margin-bottom:14px;">
+                            <div style="font-size:13px; font-weight:800; color:var(--admin-gold); margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-tags"></i> डुअल प्राइसिंग एवं डिस्काउंट सेटिंग (E-PDF & Printed Hard Copy MRP System)
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:10px;">
+                                <div>
+                                    <label style="font-size:12px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-pdf"></i> E-PDF Sale Price ₹ (0 = Free) *</label>
+                                    <input type="number" id="vbPrice" required min="0" value="0" placeholder="e.g. 49" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-file-pdf"></i> E-PDF MRP ₹ (अधिकतम खुदरा मूल्य)</label>
+                                    <input type="number" id="vbPdfMrp" min="0" value="199" placeholder="e.g. 199 (छूट दिखेगी)" class="console-input">
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                                <div>
+                                    <label style="font-size:12px; color:#fbbf24; font-weight:700;"><i class="fas fa-box-open"></i> हार्ड कॉपी सेल मूल्य ₹ (Printed Copy Sale Price) *</label>
+                                    <input type="number" id="vbPhysicalPrice" min="0" value="149" placeholder="e.g. 149" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-box-open"></i> हार्ड कॉपी MRP ₹ (Printed Copy MRP)</label>
+                                    <input type="number" id="vbPhysicalMrp" min="0" value="299" placeholder="e.g. 299" class="console-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campus Pickup Details for Physical Orders -->
+                        <div style="background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:14px; margin-bottom:14px;">
+                            <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-location-dot"></i> हार्ड कॉपी पिकअप विवरण (Campus Pickup Details)
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px;">
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">पिकअप केंद्र का पता (Campus Address)</label>
+                                    <input type="text" id="vbPickupAddress" placeholder="e.g. BBCC Central Directorate, Patna, Bihar - 800001" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">निदेशक / पिकअप संपर्क (Director Name & Phone)</label>
+                                    <input type="text" id="vbDirectorContact" placeholder="e.g. Santosh Kumar (+91 98765 43210)" class="console-input">
+                                </div>
+                            </div>
+                            <div style="font-size:11px; color:#94a3b8;">
+                                <i class="fas fa-circle-info"></i> खाली छोड़ने पर डिफ़ॉल्ट कोचिंग केंद्र या BBCC का आधिकारिक पता अपने-आप दिखेगा।
                             </div>
                         </div>
 
@@ -395,16 +441,56 @@
                             <thead>
                                 <tr>
                                     <th>Title</th>
-                                    <th>Subject</th>
-                                    <th>Class</th>
-                                    <th>Scope / Target Center</th>
-                                    <th>Price</th>
+                                    <th>Subject / Class</th>
+                                    <th>Scope / Center</th>
+                                    <th>E-PDF (Sale / MRP)</th>
+                                    <th>हार्ड कॉपी (Sale / MRP)</th>
+                                    <th>Pickup Campus</th>
                                     <th>Downloads</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="booksTbody">
-                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                                <tr><td colspan="8" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PHYSICAL PRINTED BOOK ORDERS DESK -->
+            <div class="admin-tab" id="tab-book-orders">
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
+                                <i class="fas fa-boxes-packing"></i> Physical Printed Book Orders Ledger (हार्ड कॉपी पुस्तक ऑर्डर्स)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">
+                                Track student physical hard copy purchases, campus pickup status, and 1-click WhatsApp order dispatch.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadAdminBookOrders()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-rotate"></i> Refresh Orders
+                        </button>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Student / Contact</th>
+                                    <th>Book Title</th>
+                                    <th>Center / Campus Pickup</th>
+                                    <th>Amount Paid (100% Online)</th>
+                                    <th>Status</th>
+                                    <th>Order Date</th>
+                                    <th>Actions / WhatsApp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminBookOrdersTbody">
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Loading physical orders...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1317,14 +1403,10 @@
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                     <div>
                         <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
                         <input type="text" id="edBookClass" class="console-input">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; color:#cbd5e1;">Price (₹)</label>
-                        <input type="number" id="edBookPrice" min="0" class="console-input">
                     </div>
                     <div>
                         <label style="font-size:12px; color:#cbd5e1;">File Format</label>
@@ -1332,6 +1414,50 @@
                             <option value="pdf">PDF</option>
                             <option value="docx">Word</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Dual Pricing System in Editor -->
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:10px; padding:12px; margin-bottom:12px;">
+                    <div style="font-size:12px; font-weight:800; color:var(--admin-gold); margin-bottom:8px;">
+                        <i class="fas fa-tags"></i> Pricing & MRP
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label style="font-size:11.5px; color:#38bdf8;">E-PDF Sale Price (₹)</label>
+                            <input type="number" id="edBookPrice" min="0" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:11.5px; color:#cbd5e1;">E-PDF MRP (₹)</label>
+                            <input type="number" id="edBookPdfMrp" min="0" class="console-input">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:11.5px; color:#fbbf24;">हार्ड कॉपी Sale Price (₹)</label>
+                            <input type="number" id="edBookPhysicalPrice" min="0" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:11.5px; color:#cbd5e1;">हार्ड कॉपी MRP (₹)</label>
+                            <input type="number" id="edBookPhysicalMrp" min="0" class="console-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pickup Address & Contact in Editor -->
+                <div style="background:rgba(251,191,36,0.04); border:1px solid rgba(251,191,36,0.2); border-radius:10px; padding:12px; margin-bottom:12px;">
+                    <div style="font-size:12px; font-weight:800; color:#fbbf24; margin-bottom:8px;">
+                        <i class="fas fa-location-dot"></i> Campus Pickup Address & Contact
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:11.5px; color:#cbd5e1;">पिकअप केंद्र पता (Campus Address)</label>
+                            <input type="text" id="edBookPickupAddress" placeholder="Center Campus Address" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:11.5px; color:#cbd5e1;">निदेशक / संपर्क (Director Name & Phone)</label>
+                            <input type="text" id="edBookDirectorContact" placeholder="Director Name & Phone" class="console-input">
+                        </div>
                     </div>
                 </div>
 
@@ -1490,6 +1616,7 @@
             if (event && event.currentTarget) event.currentTarget.classList.add('active');
             if (tId === 'centers') loadCentersList();
             if (tId === 'vault') loadVaultBooks();
+            if (tId === 'book-orders') loadAdminBookOrders();
             if (tId === 'banners') loadAllBanners();
             if (tId === 'gallery') loadAdminGallery();
             if (tId === 'students') loadStudents();
@@ -3070,7 +3197,8 @@
         }
 
         // ============================================
-        // E-LIBRARY VAULT & DOCUMENT EDITOR
+        // ============================================
+        // E-LIBRARY VAULT & DUAL-PRICING DOCUMENT EDITOR
         // ============================================
         async function loadVaultBooks() {
             try {
@@ -3081,18 +3209,36 @@
                 const tbody = document.getElementById('booksTbody');
                 if (data.success && data.data) {
                     globalBooks = data.data;
-                    tbody.innerHTML = globalBooks.map(b => `
+                    tbody.innerHTML = globalBooks.map(b => {
+                        const pdfPrice = Number(b.price) || 0;
+                        const pdfMrp = Number(b.pdfMrp) || (pdfPrice > 0 ? Math.round(pdfPrice * 2.5 + 49) : 199);
+                        const physPrice = Number(b.physicalPrice) || (pdfPrice > 0 ? Math.max(99, Math.round(pdfPrice * 1.8 + 50)) : 149);
+                        const physMrp = Number(b.physicalMrp) || Math.round(physPrice * 2.2 + 50);
+
+                        return `
                         <tr>
                             <td><strong>${b.title}</strong></td>
-                            <td>${b.subject || '-'}</td>
-                            <td>${b.classLevel || '-'}</td>
+                            <td>${b.subject || '-'} <br><small style="color:#94a3b8;">${b.classLevel || 'All'}</small></td>
                             <td>
                                 <span style="color:${b.targetCenterId === 'all' ? '#38bdf8' : '#fbbf24'}; font-weight:700;">
                                     ${b.targetCenterName || (b.targetCenterId === 'all' ? 'Universal' : 'Specific Center')}
                                 </span>
                                 ${b.isRawData ? '<span style="background:rgba(251,191,36,0.2); color:#fbbf24; font-size:10px; padding:2px 6px; border-radius:8px; margin-left:4px;">RAW</span>' : ''}
                             </td>
-                            <td>${b.price > 0 ? `₹${b.price}` : '<span style="color:#10b981;">FREE</span>'}</td>
+                            <td>
+                                <span style="text-decoration:line-through; font-size:11px; color:#64748b; margin-right:4px;">₹${pdfMrp}</span>
+                                <strong style="color:#38bdf8;">${pdfPrice > 0 ? `₹${pdfPrice}` : '<span style="color:#10b981;">FREE</span>'}</strong>
+                            </td>
+                            <td>
+                                <span style="text-decoration:line-through; font-size:11px; color:#64748b; margin-right:4px;">₹${physMrp}</span>
+                                <strong style="color:#fbbf24;">₹${physPrice}</strong>
+                            </td>
+                            <td>
+                                <div style="font-size:11.5px; max-width:200px; line-height:1.3;">
+                                    <div><b>📍</b> ${b.pickupAddress || (b.targetCenterName !== 'Universal' ? b.targetCenterName : 'BBCC Central Directorate, Patna')}</div>
+                                    ${b.directorContact ? `<div style="color:#94a3b8; font-size:11px;">👤 ${b.directorContact}</div>` : ''}
+                                </div>
+                            </td>
                             <td>${b.downloadCount || 0}</td>
                             <td>
                                 <button onclick="openBookEditor('${b._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px;">
@@ -3103,7 +3249,7 @@
                                 </button>
                             </td>
                         </tr>
-                    `).join('');
+                    `;}).join('');
                 }
             } catch(e) {}
         }
@@ -3118,6 +3264,11 @@
             const subject = document.getElementById('vbSubject').value.trim();
             const classLevel = document.getElementById('vbClass').value.trim();
             const price = Number(document.getElementById('vbPrice').value) || 0;
+            const pdfMrp = Number(document.getElementById('vbPdfMrp').value) || 0;
+            const physicalPrice = Number(document.getElementById('vbPhysicalPrice').value) || 0;
+            const physicalMrp = Number(document.getElementById('vbPhysicalMrp').value) || 0;
+            const pickupAddress = document.getElementById('vbPickupAddress').value.trim();
+            const directorContact = document.getElementById('vbDirectorContact').value.trim();
             const fileType = document.getElementById('vbType').value;
             const targetCenterId = document.getElementById('vbTargetCenter').value;
             const targetCenterName = document.getElementById('vbTargetCenter').options[document.getElementById('vbTargetCenter').selectedIndex].text;
@@ -3152,7 +3303,8 @@
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title, subject, classLevel, price, fileType,
+                    title, subject, classLevel, price, pdfMrp, physicalPrice, physicalMrp,
+                    pickupAddress, directorContact, fileType,
                     file: fileBase64,
                     thumbnail: thumbBase64,
                     fileName: fileInput.files[0] ? fileInput.files[0].name : `${title}.pdf`,
@@ -3168,7 +3320,7 @@
             btn.innerHTML = '<i class="fas fa-upload"></i> Publish to E-Library Vault';
 
             if (data.success) {
-                alert('Document published to E-Library Vault successfully!');
+                alert('Document published to E-Library Vault with MRP & Pickup Address successfully!');
                 e.target.reset();
                 loadVaultBooks();
             } else {
@@ -3185,6 +3337,11 @@
             document.getElementById('edBookSubject').value = b.subject || '';
             document.getElementById('edBookClass').value = b.classLevel || '';
             document.getElementById('edBookPrice').value = b.price || 0;
+            document.getElementById('edBookPdfMrp').value = b.pdfMrp || 0;
+            document.getElementById('edBookPhysicalPrice').value = b.physicalPrice || 0;
+            document.getElementById('edBookPhysicalMrp').value = b.physicalMrp || 0;
+            document.getElementById('edBookPickupAddress').value = b.pickupAddress || '';
+            document.getElementById('edBookDirectorContact').value = b.directorContact || '';
             document.getElementById('edBookType').value = b.fileType || 'pdf';
             document.getElementById('edBookTargetCenter').value = b.targetCenterId || 'all';
             document.getElementById('edBookIsRaw').checked = Boolean(b.isRawData);
@@ -3218,6 +3375,11 @@
                 subject: document.getElementById('edBookSubject').value.trim(),
                 classLevel: document.getElementById('edBookClass').value.trim(),
                 price: Number(document.getElementById('edBookPrice').value) || 0,
+                pdfMrp: Number(document.getElementById('edBookPdfMrp').value) || 0,
+                physicalPrice: Number(document.getElementById('edBookPhysicalPrice').value) || 0,
+                physicalMrp: Number(document.getElementById('edBookPhysicalMrp').value) || 0,
+                pickupAddress: document.getElementById('edBookPickupAddress').value.trim(),
+                directorContact: document.getElementById('edBookDirectorContact').value.trim(),
                 fileType: document.getElementById('edBookType').value,
                 targetCenterId: targetSelect.value,
                 targetCenterName: targetSelect.options[targetSelect.selectedIndex].text,
@@ -3254,11 +3416,104 @@
 
             const data = await res.json();
             if (data.success) {
-                alert('Document updated successfully!');
+                alert('Document & Pricing updated successfully!');
                 closeBookEditor();
                 loadVaultBooks();
             } else {
                 alert(data.message || 'Error updating document');
+            }
+        }
+
+        // ============================================
+        // SUPER ADMIN: PHYSICAL PRINTED BOOK ORDERS DESK
+        // ============================================
+        async function loadAdminBookOrders() {
+            const tbody = document.getElementById('adminBookOrdersTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#38bdf8;"><i class="fas fa-spinner fa-spin"></i> Fetching orders...</td></tr>';
+
+            try {
+                const res = await fetch('/api/admin/book-orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(o => {
+                        const cleanPhone = (o.payerPhone || '').replace(/[^0-9]/g, '');
+                        const waPhone = cleanPhone.length === 10 ? ('91' + cleanPhone) : cleanPhone;
+                        const status = o.fulfillmentStatus || 'pending';
+                        const statusColor = status === 'delivered' ? '#10b981' : (status === 'ready' ? '#38bdf8' : '#fbbf24');
+                        const statusLabel = status === 'delivered' ? 'हार्ड कॉपी प्राप्त (Delivered)' : (status === 'ready' ? 'पिकअप हेतु तैयार (Ready)' : 'ऑर्डर दर्ज (Pending)');
+
+                        const waMsg = `नमस्ते ${o.payerName || 'Student'} जी,\nBBCC SKILL HUB से आपकी पुस्तक *${o.docTitle || 'Study Book'}* (Order ID: ${o.orderId}) का हार्ड कॉपी ऑर्डर हमें प्राप्त हुआ है।\n\n📍 पिकअप केंद्र: ${o.centerName || 'BBCC Central'}\nपता: ${o.pickupAddress || 'Center Address'}\n\nकृपया केंद्र पर आकर अपनी प्रिंटेड हार्ड कॉपी प्राप्त करें। धन्यवाद!`;
+                        const waLink = `https://api.whatsapp.com/send?phone=${waPhone}&text=${encodeURIComponent(waMsg)}`;
+
+                        return `
+                            <tr>
+                                <td><code style="color:var(--admin-gold); font-size:12px;">${o.orderId}</code><br><small style="color:#64748b;">${o.paymentId || '-'}</small></td>
+                                <td>
+                                    <strong>${o.payerName || 'Student'}</strong><br>
+                                    <span style="color:#94a3b8; font-size:11.5px;"><i class="fas fa-phone"></i> ${o.payerPhone || '-'}</span>
+                                </td>
+                                <td><strong>${o.docTitle || 'Study Book'}</strong></td>
+                                <td>
+                                    <span style="color:#38bdf8; font-weight:700;">${o.centerName || 'BBCC Central'}</span><br>
+                                    <small style="color:#cbd5e1; font-size:11px;">${o.pickupAddress || 'Patna, Bihar'}</small>
+                                </td>
+                                <td>
+                                    <b style="color:#34d399; font-size:14px;">₹${o.amount}</b><br>
+                                    <small style="color:#94a3b8; font-size:10.5px;">Center: ₹${o.centerShare || Math.round(o.amount*0.8)} | BBCC: ₹${o.platformCut || Math.round(o.amount*0.2)}</small>
+                                </td>
+                                <td>
+                                    <span style="display:inline-block; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:800; background:rgba(255,255,255,0.05); color:${statusColor}; border:1px solid ${statusColor};">
+                                        ${statusLabel}
+                                    </span>
+                                </td>
+                                <td style="font-size:11.5px; color:#cbd5e1;">${new Date(o.paidAt || o.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
+                                <td>
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                        ${cleanPhone ? `
+                                            <a href="${waLink}" target="_blank" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:#25D366; color:#fff; text-decoration:none;" title="WhatsApp Student">
+                                                <i class="fa-brands fa-whatsapp"></i> Chat
+                                            </a>
+                                        ` : ''}
+                                        ${status !== 'delivered' ? `
+                                            <button onclick="updateAdminBookOrderStatus('${o.orderId}', '${status === 'ready' ? 'delivered' : 'ready'}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:11px;">
+                                                ${status === 'ready' ? 'Mark Delivered' : 'Mark Ready'}
+                                            </button>
+                                        ` : '<span style="color:#10b981; font-size:11px;"><i class="fas fa-check"></i> Completed</span>'}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94a3b8;">No physical hard copy orders received yet.</td></tr>';
+                }
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#fca5a5;">Error loading orders: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function updateAdminBookOrderStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/book-orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`Order status updated to "${newStatus}"!`);
+                    loadAdminBookOrders();
+                } else {
+                    alert(data.message || 'Error updating order');
+                }
+            } catch(e) {
+                alert('Connection error: ' + e.message);
             }
         }
 
