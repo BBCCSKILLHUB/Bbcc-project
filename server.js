@@ -1357,19 +1357,6 @@ app.post('/api/push/subscribe', async (req, res) => {
         }
         await savePortalDb(db);
 
-        // Send an immediate welcome confirmation push notification
-        try {
-            await webpush.sendNotification(subscription, JSON.stringify({
-                title: '🔔 BBCC SKILL HUB — स्वागत है!',
-                body: 'पुश नोटिफिकेशन सफलतापूर्वक सक्रिय हो गए हैं। आपको नए नोटिस व अध्ययन अपडेट मिलते रहेंगे।',
-                icon: '/data/branding/logo.png',
-                badge: '/data/branding/logo.png',
-                url: '/'
-            }));
-        } catch (pushErr) {
-            console.warn('Welcome push dispatch notice:', pushErr.message);
-        }
-
         res.json({ success: true, deviceId: subRecord.deviceId, deviceName: subRecord.deviceName, message: 'Device registered successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

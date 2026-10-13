@@ -1860,6 +1860,284 @@
                 padding: 3px 8px !important;
                 font-size: 10px !important;
             }
+
+            /* 7. COMPACT MULTI-COLUMN CARDS LIKE DESKTOP (E-LIBRARY, TEACHERS, COURSES, CENTERS) */
+            /* E-Library Vault Grid: 2 columns on mobile */
+            .vault-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            .vault-book-card {
+                border-radius: 14px !important;
+                background: var(--cosmic-card) !important;
+                border: 1px solid var(--border-subtle) !important;
+            }
+
+            .vault-book-card .book-stage {
+                height: 140px !important;
+                border-radius: 14px 14px 0 0 !important;
+            }
+
+            .vault-book-card .book-stage-custom-img {
+                height: 100% !important;
+                object-fit: cover !important;
+            }
+
+            .vault-book-card .book-spine-3d {
+                width: 90px !important;
+                height: 122px !important;
+                padding: 8px 6px !important;
+                border-radius: 4px 10px 10px 4px !important;
+                box-shadow: -4px 4px 12px rgba(0,0,0,0.7) !important;
+            }
+
+            .vault-book-card .embossed-gold-seal {
+                width: 24px !important;
+                height: 24px !important;
+                font-size: 11px !important;
+                margin: 0 auto 4px !important;
+            }
+
+            .vault-book-card .book-title-embossed {
+                font-size: 10.5px !important;
+                line-height: 1.2 !important;
+                margin: 2px 0 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+
+            .vault-book-card .spine-ribbon {
+                width: 3px !important;
+            }
+
+            .vault-book-card .bookmark-tag {
+                width: 10px !important;
+                height: 16px !important;
+                right: 8px !important;
+            }
+
+            .vault-book-card .price-badge-pill {
+                top: 6px !important;
+                right: 6px !important;
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                border-radius: 8px !important;
+                gap: 3px !important;
+            }
+
+            .vault-book-card .book-body {
+                padding: 8px 8px 4px 8px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .vault-book-card .book-meta-title {
+                font-size: 12px !important;
+                line-height: 1.25 !important;
+                height: 30px !important;
+                margin-bottom: 2px !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+                color: #ffffff !important;
+            }
+
+            .vault-book-card .book-meta-desc {
+                display: none !important;
+            }
+
+            .vault-book-card .book-meta-specs {
+                font-size: 9.5px !important;
+                margin-bottom: 4px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+
+            .vault-book-card .book-action-dock {
+                padding: 0 8px 8px 8px !important;
+            }
+
+            .vault-book-card .book-action-dock button {
+                padding: 6px 4px !important;
+                font-size: 10px !important;
+                font-weight: 700 !important;
+                border-radius: 8px !important;
+                width: 100% !important;
+                justify-content: center !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            /* Expert Teachers Network Grid: 2 columns on mobile */
+            #expertTeachersGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            .teacher-card-elite {
+                padding: 10px 8px !important;
+                border-radius: 14px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .teacher-card-elite .teacher-header-dock {
+                gap: 8px !important;
+                margin-bottom: 8px !important;
+            }
+
+            .teacher-card-elite .teacher-avatar {
+                width: 46px !important;
+                height: 46px !important;
+            }
+
+            .teacher-card-elite .teacher-name {
+                font-size: 12.5px !important;
+                margin: 0 0 2px !important;
+            }
+
+            .teacher-card-elite .teacher-badge {
+                font-size: 9.5px !important;
+                padding: 1px 6px !important;
+            }
+
+            .teacher-card-elite .teacher-subject {
+                font-size: 11px !important;
+                margin-bottom: 3px !important;
+            }
+
+            .teacher-card-elite .teacher-specs {
+                font-size: 9.5px !important;
+                margin-bottom: 6px !important;
+            }
+
+            .teacher-card-elite .teacher-center-pill {
+                font-size: 9.5px !important;
+                margin-bottom: 8px !important;
+                padding-top: 6px !important;
+            }
+
+            .teacher-card-elite button {
+                padding: 5px 6px !important;
+                font-size: 10px !important;
+                font-weight: 700 !important;
+                border-radius: 8px !important;
+            }
+
+            /* Partner Institutes Grid: 2 columns on mobile */
+            #institutesGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            #institutesGrid .institute-card-elite {
+                padding: 10px 8px !important;
+                border-radius: 14px !important;
+            }
+
+            #institutesGrid .inst-header-dock {
+                gap: 8px !important;
+                margin-bottom: 8px !important;
+            }
+
+            #institutesGrid .inst-logo-box {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 10px !important;
+            }
+
+            #institutesGrid .inst-info-dock h4 {
+                font-size: 12px !important;
+                margin: 0 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 95px !important;
+            }
+
+            #institutesGrid .inst-info-dock span {
+                font-size: 9.5px !important;
+            }
+
+            #institutesGrid .inst-director-dock {
+                margin-bottom: 6px !important;
+                gap: 6px !important;
+            }
+
+            #institutesGrid .director-avatar-box {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            #institutesGrid .director-avatar-box img {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            #institutesGrid p {
+                font-size: 10px !important;
+                margin-bottom: 8px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            #institutesGrid .btn-aurora {
+                padding: 5px 6px !important;
+                font-size: 10.5px !important;
+            }
+
+            /* Courses Grid: 2 columns on mobile */
+            .courses-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            .course-card-elite {
+                padding: 10px 8px !important;
+                border-radius: 14px !important;
+            }
+
+            .course-card-elite h3 {
+                font-size: 12.5px !important;
+                margin-top: 4px !important;
+                margin-bottom: 4px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .course-card-elite p {
+                display: none !important;
+            }
+
+            .fee-compare-box {
+                padding: 4px !important;
+                margin: 6px 0 !important;
+                gap: 4px !important;
+            }
+
+            .fee-item-title {
+                font-size: 8.5px !important;
+            }
+
+            .fee-item-val {
+                font-size: 12px !important;
+            }
+
+            .course-card-elite button {
+                padding: 5px 6px !important;
+                font-size: 10px !important;
+                border-radius: 8px !important;
+            }
         }
 
         @media print {
@@ -2335,7 +2613,7 @@
             <p>Renowned educators teaching across affiliated coaching centers. Specialized mentorship for Board exams, Teacher recruitment (CTET/STET/TRE), and Computer Technology.</p>
         </div>
 
-        <div class="institutes-grid" id="expertTeachersGrid" style="grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+        <div class="institutes-grid expert-teachers-grid" id="expertTeachersGrid">
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
                 <i class="fas fa-spinner fa-spin fa-2x"></i>
                 <p style="margin-top:12px;">Loading verified expert faculty network...</p>
@@ -3588,27 +3866,27 @@
                 }
 
                 grid.innerHTML = teachers.map(t => `
-                    <div class="institute-card-elite" style="padding:22px; position:relative; overflow:hidden;">
-                        <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-                            <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" onerror="this.onerror=null; this.src='/data/branding/logo.png';" style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-cyan); box-shadow:0 4px 14px rgba(56,189,248,0.25);">
-                            <div>
-                                <h4 style="font-family:'Cinzel',serif; font-size:16px; color:#ffffff; margin:0 0 4px;">${t.name}</h4>
-                                <span style="font-size:11.5px; font-weight:700; color:var(--aurora-cyan); background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:2px 8px; display:inline-block;">
+                    <div class="institute-card-elite teacher-card-elite" style="position:relative; overflow:hidden;">
+                        <div class="teacher-header-dock" style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                            <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" class="teacher-avatar" onerror="this.onerror=null; this.src='/data/branding/logo.png';" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-cyan); box-shadow:0 4px 14px rgba(56,189,248,0.25);">
+                            <div style="flex:1; min-width:0;">
+                                <h4 class="teacher-name" style="font-family:'Cinzel',serif; font-size:15px; color:#ffffff; margin:0 0 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.name}</h4>
+                                <span class="teacher-badge" style="font-size:11px; font-weight:700; color:var(--aurora-cyan); background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:2px 8px; display:inline-block; white-space:nowrap;">
                                     <i class="fas fa-check-circle"></i> ${t.qualification || 'Verified Faculty'}
                                 </span>
                             </div>
                         </div>
-                        <div style="font-size:13.5px; font-weight:700; color:var(--aurora-gold); margin-bottom:6px;">
-                            <i class="fas fa-book-open" style="margin-right:6px;"></i> ${t.subject}
+                        <div class="teacher-subject" style="font-size:13px; font-weight:700; color:var(--aurora-gold); margin-bottom:5px;">
+                            <i class="fas fa-book-open" style="margin-right:5px;"></i> ${t.subject}
                         </div>
-                        <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
-                            <i class="fas fa-layer-group" style="margin-right:6px; color:var(--aurora-emerald);"></i> ${t.class || 'All Classes'} &bull; <i class="fas fa-award" style="color:var(--aurora-gold); margin:0 4px 0 6px;"></i> ${t.experience || '3+ Yrs Exp'}
+                        <div class="teacher-specs" style="font-size:11.5px; color:var(--text-dim); margin-bottom:10px;">
+                            <i class="fas fa-layer-group" style="margin-right:5px; color:var(--aurora-emerald);"></i> ${t.class || 'All Classes'} &bull; <i class="fas fa-award" style="color:var(--aurora-gold); margin:0 3px 0 5px;"></i> ${t.experience || '3+ Yrs Exp'}
                         </div>
-                        <div style="font-size:12px; color:var(--text-slate); margin-bottom:16px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px;">
+                        <div class="teacher-center-pill" style="font-size:11.5px; color:var(--text-slate); margin-bottom:14px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px;">
                             <i class="fas fa-school" style="color:var(--aurora-cyan);"></i>
                             <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.centerName || 'BBCC Certified Center'}</span>
                         </div>
-                        <button onclick="openDirectAdmissionModal('${t.centerId || ''}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center; font-size:12.5px; padding:9px 14px;">
+                        <button onclick="openDirectAdmissionModal('${t.centerId || ''}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center; font-size:12px; padding:8px 10px;">
                             <i class="fas fa-user-plus"></i> Join Faculty Batch
                         </button>
                     </div>
@@ -5629,14 +5907,19 @@
 
         async function syncPushSubscriptionSilently() {
             try {
+                const lastSync = localStorage.getItem('bbcc_push_last_synced');
+                if (lastSync && (Date.now() - Number(lastSync)) < 24 * 60 * 60 * 1000) {
+                    return; // Already synced within 24 hours
+                }
                 const reg = await navigator.serviceWorker.ready;
                 const subscription = await reg.pushManager.getSubscription();
                 if (subscription) {
                     await fetch('/api/push/subscribe', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ subscription, centerId: 'all' })
+                        body: JSON.stringify({ subscription, centerId: 'all', isSilentSync: true })
                     });
+                    localStorage.setItem('bbcc_push_last_synced', Date.now().toString());
                 }
             } catch(e) {}
         }
