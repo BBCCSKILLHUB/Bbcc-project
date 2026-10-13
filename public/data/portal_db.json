@@ -145,7 +145,14 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {},
+  "bharti_auto_push_log": {
+    "2026-10-13_evening": {
+      "dispatchedAt": "2026-10-13T15:27:22.628Z",
+      "slot": "evening",
+      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
+      "body": "BBCC चेक-इन: अपनी कमजोरियों को मजबूत बनाने के लिए ई-लाइब्रेरी से चैप्टर नोट्स का दोबारा अध्ययन करें। 🎯"
+    }
+  },
   "teachers": [],
   "liveSessions": []
 }
