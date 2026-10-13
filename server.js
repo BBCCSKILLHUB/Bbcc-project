@@ -496,6 +496,7 @@ const StudentSchema = new mongoose.Schema({
     courseName: { type: String, default: '' },
     mode: { type: String, default: 'physical' }, // 'online' or 'physical'
     feePaid: { type: Number, default: 0 },
+    feeAmount: { type: Number, default: 0 },
     classLevel: { type: String, default: 'Class 10th' },
     marksGrade: { type: String, default: 'A+' },
     certificateId: { type: String, default: '' },
@@ -1784,6 +1785,37 @@ app.get('/api/public/promotional-banners', async (req, res) => {
             });
         });
 
+        // Also include Central BBCC SKILL HUB Promotional Banners
+        try {
+            let settings = null;
+            if (isMongoConnected) {
+                settings = await Settings.findOne().lean();
+            }
+            if (!settings) {
+                const pdb = loadPortalDb();
+                settings = pdb.settings || {};
+            }
+            if (settings && settings.banners && settings.banners.length > 0) {
+                settings.banners.forEach((b, idx) => {
+                    if (b.image) {
+                        activeBanners.unshift({
+                            _id: b._id ? b._id.toString() : ('central_b_' + idx),
+                            centerId: 'bbcc_central',
+                            centerName: 'BBCC SKILL HUB Central Directorate',
+                            username: 'bbcc',
+                            clogo: '/data/branding/logo.png',
+                            title: b.title || 'BBCC SKILL HUB Official Announcement',
+                            subtitle: b.subtitle || 'Platform-Wide Special Program',
+                            image: b.image,
+                            link: b.link || '/',
+                            isCentralAdmin: true,
+                            daysLeft: 30
+                        });
+                    }
+                });
+            }
+        } catch(bErr) {}
+
         setCache('public_banners', activeBanners, 30000);
         res.json({ success: true, data: activeBanners });
     } catch (err) {
@@ -2998,6 +3030,78 @@ app.get('/api/student/classroom', verifyStudent, async (req, res) => {
                 materials: notes
             }
         });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Student Profile Photo Self-Upload (Classroom Portal)
+app.post('/api/student/photo', verifyStudent, async (req, res) => {
+    try {
+        const { photo } = req.body;
+        if (!photo) return res.status(400).json({ success: false, message: 'Photo data required' });
+
+        const student = await Student.findById(req.student.id);
+        if (!student) return res.status(404).json({ success: false, message: 'Student record not found' });
+
+        let savedUrl = photo;
+        if (photo.startsWith('data:image')) {
+            try {
+                const asset = saveAssetFile(photo, 'branding', 'png', 'normal', 'student_' + (student.rollNo || student.studentId));
+                if (asset && asset.fileUrl) savedUrl = asset.fileUrl;
+            } catch (pErr) {
+                console.warn('Student photo save warning:', pErr.message);
+            }
+        }
+
+        student.photo = savedUrl;
+        await student.save();
+
+        // Also sync to portal_db.json
+        try {
+            const db = loadPortalDb();
+            if (db.students) {
+                const idx = db.students.findIndex(s => (s._id && s._id.toString() === student._id.toString()) || s.rollNo === student.rollNo || s.studentId === student.studentId);
+                if (idx !== -1) {
+                    db.students[idx].photo = savedUrl;
+                    await savePortalDb(db);
+                }
+            }
+        } catch (dbErr) {}
+
+        clearCache();
+        res.json({ success: true, message: 'Profile photo updated successfully!', photoUrl: savedUrl });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Public Fallback Student Photo Upload (With Roll/ID and Token or KYC verification)
+app.post('/api/public/student-photo', async (req, res) => {
+    try {
+        const { rollNo, studentId, photo } = req.body;
+        if (!photo || (!rollNo && !studentId)) {
+            return res.status(400).json({ success: false, message: 'Identifier and photo required' });
+        }
+        const student = await Student.findOne({
+            $or: [
+                ...(rollNo ? [{ rollNo: rollNo.trim() }] : []),
+                ...(studentId ? [{ studentId: studentId.trim() }] : [])
+            ]
+        });
+        if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
+
+        let savedUrl = photo;
+        if (photo.startsWith('data:image')) {
+            try {
+                const asset = saveAssetFile(photo, 'branding', 'png', 'normal', 'student_' + (student.rollNo || student.studentId));
+                if (asset && asset.fileUrl) savedUrl = asset.fileUrl;
+            } catch (pErr) {}
+        }
+        student.photo = savedUrl;
+        await student.save();
+        clearCache();
+        res.json({ success: true, message: 'Profile photo updated successfully!', photoUrl: savedUrl });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -5194,7 +5298,14 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
         if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
-        const teacher = center.teachers.id(req.params.tid) || center.teachers.find(t => t._id.toString() === req.params.tid);
+        const tid = req.params.tid;
+        let teacher = null;
+        if (mongoose.Types.ObjectId.isValid(tid)) {
+            try { teacher = center.teachers.id(tid); } catch(e) {}
+        }
+        if (!teacher) {
+            teacher = center.teachers.find(t => (t._id && t._id.toString() === tid) || t.teacherId === tid || t.phone === tid);
+        }
         if (!teacher) return res.status(404).json({ success: false, message: 'Faculty member not found' });
 
         const { name, subject, qualification, photo, phone, experience, class: cls, teacherId, password, bio, isActive } = req.body;
@@ -5288,6 +5399,34 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
             console.warn('TeacherAccount sync error on edit:', accErr.message);
         }
 
+        // Sync to portal_db.json
+        try {
+            const db = loadPortalDb();
+            if (db.centers) {
+                const cIdx = db.centers.findIndex(c => (c._id && c._id.toString() === center._id.toString()) || c.username === center.username);
+                if (cIdx !== -1 && db.centers[cIdx].teachers) {
+                    const tIdx = db.centers[cIdx].teachers.findIndex(t => (t._id && t._id.toString() === tid) || t.teacherId === tid || t.phone === oldPhone);
+                    if (tIdx !== -1) {
+                        db.centers[cIdx].teachers[tIdx] = {
+                            ...db.centers[cIdx].teachers[tIdx],
+                            teacherId: teacher.teacherId,
+                            password: teacher.password,
+                            name: teacher.name,
+                            phone: teacher.phone,
+                            subject: teacher.subject,
+                            qualification: teacher.qualification,
+                            experience: teacher.experience,
+                            class: teacher.class,
+                            photo: teacher.photo,
+                            bio: teacher.bio,
+                            isActive: teacher.isActive
+                        };
+                        await savePortalDb(db);
+                    }
+                }
+            }
+        } catch (dbErr) {}
+
         clearCache();
         res.json({
             success: true,
@@ -5304,8 +5443,14 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
 app.put('/api/admin/teachers/:centerId/:tid', verifySuperAdmin, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.params.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
-        const teacher = center.teachers.id(req.params.tid) || center.teachers.find(t => t._id.toString() === req.params.tid);
+        const tid = req.params.tid;
+        let teacher = null;
+        if (mongoose.Types.ObjectId.isValid(tid)) {
+            try { teacher = center.teachers.id(tid); } catch(e) {}
+        }
+        if (!teacher) {
+            teacher = center.teachers.find(t => (t._id && t._id.toString() === tid) || t.teacherId === tid || t.phone === tid);
+        }
         if (!teacher) return res.status(404).json({ success: false, message: 'Teacher not found' });
 
         const { name, subject, qualification, photo, phone, experience, class: cls, teacherId, password, bio, isActive } = req.body;
@@ -5670,10 +5815,12 @@ Output STRICTLY valid JSON with keys "title", "subtitle", "suggestedTheme" (one 
 app.post('/api/director/students', verifyDirector, async (req, res) => {
     try {
         const center = await TuitionCenter.findById(req.center.centerId);
-        const { name, rollNo, fatherName, course, classLevel, marksGrade, phone, email, dob } = req.body;
-        if (!name) return res.status(400).json({ success: false, message: 'Student Name is required' });
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
 
-        const cleanRoll = (rollNo && rollNo.trim()) ? rollNo.trim() : ('BBCC-' + Date.now().toString().slice(-6));
+        const { name, rollNo, fatherName, course, classLevel, marksGrade, phone, mobile, email, dob, feeAmount, feePaid, aadharNumber, photo, parentMobile, address, mode } = req.body;
+        if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Student Name is required' });
+
+        const cleanRoll = (rollNo && rollNo.trim()) ? rollNo.trim().toUpperCase() : ('BBCC-' + Date.now().toString().slice(-6));
         const studentId = 'STU-' + Date.now().toString().slice(-6);
 
         const existing = await Student.findOne({ rollNo: cleanRoll });
@@ -5681,24 +5828,74 @@ app.post('/api/director/students', verifyDirector, async (req, res) => {
             return res.status(400).json({ success: false, message: `Roll Number "${cleanRoll}" is already registered!` });
         }
 
+        let savedPhoto = photo || '';
+        if (savedPhoto && savedPhoto.startsWith('data:image')) {
+            try {
+                const photoAsset = saveAssetFile(savedPhoto, 'branding', 'png', 'normal', 'student_' + cleanRoll);
+                if (photoAsset && photoAsset.fileUrl) savedPhoto = photoAsset.fileUrl;
+            } catch (pErr) {
+                console.warn('Student photo save notice:', pErr.message);
+            }
+        }
+
+        const finalFees = Number(feeAmount !== undefined ? feeAmount : (feePaid !== undefined ? feePaid : 0));
+        const cleanPhone = (phone || mobile || '').trim();
+
         const student = await Student.create({
             studentId: studentId,
             rollNo: cleanRoll,
             name: name.trim(),
             fatherName: (fatherName || '').trim(),
+            parentName: (fatherName || '').trim(),
             dob: (dob || '').trim(),
-            phone: (phone || '').trim(),
+            phone: cleanPhone,
+            mobile: cleanPhone,
+            parentMobile: (parentMobile || '').trim(),
+            address: (address || '').trim(),
+            mode: mode || 'physical',
             email: (email || '').trim(),
             course: course || 'Standard Curriculum',
+            courseName: course || 'Standard Curriculum',
             classLevel: classLevel || 'Class 10th',
             marksGrade: marksGrade || 'A+',
+            aadharNumber: (aadharNumber || '').trim(),
+            photo: savedPhoto,
+            feeAmount: finalFees,
+            feePaid: finalFees,
+            totalPaid: finalFees,
             certificateId: cleanRoll,
             centerId: center._id,
             centerName: center.centerName,
             status: 'Certified & Verified'
         });
 
-        res.json({ success: true, message: 'Student successfully registered with verified Roll Number!', data: student });
+        // Sync to portal_db.json
+        try {
+            const db = loadPortalDb();
+            if (!db.students) db.students = [];
+            db.students.push({
+                _id: student._id.toString(),
+                studentId: student.studentId,
+                rollNo: student.rollNo,
+                name: student.name,
+                fatherName: student.fatherName,
+                course: student.course,
+                classLevel: student.classLevel,
+                marksGrade: student.marksGrade,
+                phone: student.phone,
+                feeAmount: finalFees,
+                feePaid: finalFees,
+                photo: savedPhoto,
+                aadharNumber: student.aadharNumber,
+                centerId: center._id.toString(),
+                centerName: center.centerName,
+                status: student.status
+            });
+            await savePortalDb(db);
+        } catch(dbErr) {}
+
+        clearCache();
+        res.json({ success: true, message: 'Student successfully enrolled with custom admission fee & Roll Number!', data: student });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -5715,7 +5912,23 @@ app.get('/api/director/students', verifyDirector, async (req, res) => {
 
 app.delete('/api/director/students/:sid', verifyDirector, async (req, res) => {
     try {
-        await Student.findOneAndDelete({ _id: req.params.sid, centerId: req.center.centerId });
+        const sid = req.params.sid;
+        let query = { centerId: req.center.centerId };
+        if (mongoose.Types.ObjectId.isValid(sid)) {
+            query._id = sid;
+        } else {
+            query.$or = [{ rollNo: sid }, { studentId: sid }];
+        }
+        await Student.findOneAndDelete(query);
+
+        try {
+            const db = loadPortalDb();
+            if (db.students) {
+                db.students = db.students.filter(s => s._id !== sid && s.rollNo !== sid && s.studentId !== sid);
+                await savePortalDb(db);
+            }
+        } catch(e) {}
+
         clearCache();
         res.json({ success: true, message: 'Student record removed' });
     } catch (err) {
@@ -5723,15 +5936,38 @@ app.delete('/api/director/students/:sid', verifyDirector, async (req, res) => {
     }
 });
 
-// Update Enrolled Student Details
+// Update Enrolled Student Details (Director Portal)
 app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
     try {
-        const student = await Student.findOne({ _id: req.params.sid, centerId: req.center.centerId });
+        const sid = req.params.sid;
+        let student = null;
+        if (mongoose.Types.ObjectId.isValid(sid)) {
+            try { student = await Student.findOne({ _id: sid, centerId: req.center.centerId }); } catch(e) {}
+        }
+        if (!student) {
+            student = await Student.findOne({
+                $or: [{ rollNo: sid }, { studentId: sid }],
+                centerId: req.center.centerId
+            });
+        }
         if (!student) return res.status(404).json({ success: false, message: 'Student record not found' });
 
-        const { name, fatherName, parentName, course, classLevel, marksGrade, mobile, phone, parentMobile, address, mode, dob, email, status } = req.body;
-        if (name) student.name = name.trim();
-        if (fatherName !== undefined) student.fatherName = fatherName.trim();
+        const { name, rollNo, fatherName, parentName, course, classLevel, marksGrade, mobile, phone, parentMobile, address, mode, dob, email, status, feeAmount, feePaid, aadharNumber, photo } = req.body;
+
+        if (name && name.trim()) student.name = name.trim();
+        if (rollNo && rollNo.trim()) {
+            const cleanRoll = rollNo.trim().toUpperCase();
+            if (cleanRoll !== student.rollNo) {
+                const dup = await Student.findOne({ rollNo: cleanRoll, _id: { $ne: student._id } });
+                if (dup) return res.status(400).json({ success: false, message: `Roll Number "${cleanRoll}" is already assigned to another student!` });
+                student.rollNo = cleanRoll;
+                student.certificateId = cleanRoll;
+            }
+        }
+        if (fatherName !== undefined) {
+            student.fatherName = fatherName.trim();
+            student.parentName = fatherName.trim();
+        }
         if (parentName !== undefined) student.parentName = parentName.trim();
         if (course !== undefined) {
             student.course = course.trim();
@@ -5740,17 +5976,69 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
         if (classLevel !== undefined) student.classLevel = classLevel.trim();
         if (marksGrade !== undefined) student.marksGrade = marksGrade.trim();
         if (mobile !== undefined) student.mobile = mobile.trim();
-        if (phone !== undefined) student.phone = phone.trim();
+        if (phone !== undefined) {
+            student.phone = phone.trim();
+            if (!student.mobile) student.mobile = phone.trim();
+        }
         if (parentMobile !== undefined) student.parentMobile = parentMobile.trim();
         if (address !== undefined) student.address = address.trim();
         if (mode !== undefined) student.mode = mode.trim();
         if (dob !== undefined) student.dob = dob.trim();
         if (email !== undefined) student.email = email.trim();
         if (status !== undefined) student.status = status.trim();
+        if (aadharNumber !== undefined) student.aadharNumber = aadharNumber.trim();
+
+        if (feeAmount !== undefined || feePaid !== undefined) {
+            const newFees = Number(feeAmount !== undefined ? feeAmount : feePaid);
+            student.feeAmount = newFees;
+            student.feePaid = newFees;
+            student.totalPaid = newFees;
+        }
+
+        if (photo && photo.startsWith('data:image')) {
+            try {
+                const photoAsset = saveAssetFile(photo, 'branding', 'png', 'normal', 'student_' + (student.rollNo || student.studentId));
+                if (photoAsset && photoAsset.fileUrl) {
+                    student.photo = photoAsset.fileUrl;
+                }
+            } catch(pErr) {
+                console.warn('Student photo update notice:', pErr.message);
+            }
+        } else if (photo !== undefined) {
+            student.photo = photo;
+        }
 
         await student.save();
+
+        // Sync to portal_db.json
+        try {
+            const db = loadPortalDb();
+            if (db.students) {
+                const idx = db.students.findIndex(s => (s._id && s._id.toString() === student._id.toString()) || s.rollNo === student.rollNo || s.studentId === student.studentId);
+                if (idx !== -1) {
+                    db.students[idx] = {
+                        ...db.students[idx],
+                        name: student.name,
+                        rollNo: student.rollNo,
+                        fatherName: student.fatherName,
+                        course: student.course,
+                        classLevel: student.classLevel,
+                        marksGrade: student.marksGrade,
+                        phone: student.phone || student.mobile,
+                        feeAmount: student.feeAmount,
+                        feePaid: student.feePaid,
+                        photo: student.photo,
+                        aadharNumber: student.aadharNumber,
+                        mode: student.mode,
+                        status: student.status
+                    };
+                    await savePortalDb(db);
+                }
+            }
+        } catch(dbErr) {}
+
         clearCache();
-        res.json({ success: true, message: 'Student details updated successfully', data: student });
+        res.json({ success: true, message: 'Student details & fee record updated successfully!', data: student });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6239,24 +6527,34 @@ app.put('/api/teacher/profile', verifyTeacher, async (req, res) => {
     }
 });
 
-// Teacher Centers & Courses List for Live Class Selection
+// Teacher Centers & Courses List for Live Class Selection (Locked to assigned center & active courses)
 app.get('/api/teacher/centers-courses', verifyTeacher, async (req, res) => {
     try {
         let center = null;
-        if (req.teacher.centerId) {
+        if (req.teacher.centerId && mongoose.Types.ObjectId.isValid(req.teacher.centerId)) {
             center = await TuitionCenter.findById(req.teacher.centerId, { password: 0 }).lean();
         }
-        if (!center) {
-            const allCenters = await TuitionCenter.find({ isBlocked: false }, { centerName: 1, courses: 1, address: 1 }).lean();
-            return res.json({ success: true, centers: allCenters });
+        if (!center && req.teacher.centerName) {
+            center = await TuitionCenter.findOne({ centerName: req.teacher.centerName }, { password: 0 }).lean();
         }
+        if (!center) {
+            center = await TuitionCenter.findOne({
+                'teachers.teacherId': req.teacher.teacherId || req.teacher.id
+            }, { password: 0 }).lean();
+        }
+        if (!center) {
+            return res.json({ success: true, centers: [] });
+        }
+
+        // Strictly filter to active courses only
+        const activeCourses = (center.courses || []).filter(c => c.active !== false && c.status !== 'inactive');
         res.json({
             success: true,
             centers: [{
                 _id: center._id,
                 centerName: center.centerName,
                 address: center.address,
-                courses: center.courses || []
+                courses: activeCourses
             }]
         });
     } catch (err) {
@@ -6436,7 +6734,13 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
 
         if (room) {
             room.status = 'ended';
-            setTimeout(() => activeLiveRooms.delete(classId), 60000);
+            room.endedAt = Date.now();
+            if (room.studentQueues) {
+                for (const [sId, queue] of room.studentQueues.entries()) {
+                    queue.push({ type: 'class_ended', status: 'ended', time: Date.now() });
+                }
+            }
+            activeLiveRooms.delete(classId);
         }
 
         clearCache();
@@ -6449,7 +6753,7 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
 // END Live Class Session & Archive to YouTube / Vault
 app.post('/api/live/end', verifyTeacher, async (req, res) => {
     try {
-        const { classId, recordedVideoUrl, youtubeVideoId } = req.body;
+        const { classId, recordedVideoUrl, youtubeVideoId, youtubeLiveUrl } = req.body;
         if (!classId) return res.status(400).json({ success: false, message: 'Class ID required' });
 
         const session = await LiveClassSession.findOne({ sessionId: classId });
@@ -6459,15 +6763,26 @@ app.post('/api/live/end', verifyTeacher, async (req, res) => {
         let finalYoutubeId = youtubeVideoId || '';
         let isArchivedToYoutube = false;
 
-        // Fetch YouTube Global Config
-        const settings = await Settings.findOne();
-        if (settings && (settings.youtubeApiKey || settings.youtubeChannelId)) {
+        // If teacher passed a real YouTube Live URL / video link
+        const candidateYt = (youtubeLiveUrl || finalVideoUrl || '').trim();
+        const ytMatch = candidateYt.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
+        if (ytMatch) {
+            finalYoutubeId = ytMatch[1];
+            finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
             isArchivedToYoutube = true;
-            if (!finalYoutubeId) {
-                finalYoutubeId = 'yt_bbcc_' + classId.toLowerCase().slice(-8);
-            }
-            if (!finalVideoUrl) {
-                finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
+        }
+
+        // Fetch YouTube Global Config
+        if (!isArchivedToYoutube) {
+            const settings = await Settings.findOne();
+            if (settings && (settings.youtubeApiKey || settings.youtubeChannelId)) {
+                isArchivedToYoutube = true;
+                if (!finalYoutubeId) {
+                    finalYoutubeId = 'yt_bbcc_' + classId.toLowerCase().slice(-8);
+                }
+                if (!finalVideoUrl) {
+                    finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
+                }
             }
         }
 
@@ -6511,7 +6826,12 @@ app.post('/api/live/end', verifyTeacher, async (req, res) => {
         if (room) {
             room.status = 'ended';
             room.endedAt = Date.now();
-            setTimeout(() => activeLiveRooms.delete(classId), 60000);
+            if (room.studentQueues) {
+                for (const [sId, queue] of room.studentQueues.entries()) {
+                    queue.push({ type: 'class_ended', status: 'ended', time: Date.now() });
+                }
+            }
+            activeLiveRooms.delete(classId);
         }
 
         clearCache();
@@ -6689,7 +7009,7 @@ app.get('/api/live/signals/:classId', async (req, res) => {
         const role = req.query.role || 'student';
         const studentId = req.query.studentId || '';
         const room = activeLiveRooms.get(classId);
-        if (!room) return res.status(404).json({ success: false, message: 'Class session not active' });
+        if (!room || room.status === 'ended') return res.status(200).json({ success: false, status: 'ended', message: 'Class session has ended' });
 
         let pendingSignals = [];
         if (role === 'teacher' || role === 'admin') {
@@ -6789,6 +7109,177 @@ app.get('/api/live/chat/:classId', async (req, res) => {
         }
         const session = await LiveClassSession.findOne({ sessionId: classId });
         res.json({ success: true, chat: session ? (session.messages || []) : [] });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Real Live Class Video Recording Upload & Storage
+app.post('/api/live/upload-recording', async (req, res) => {
+    try {
+        const { classId, videoBlobBase64, title, teacherName, centerId, courseId } = req.body;
+        if (!classId || !videoBlobBase64) {
+            return res.status(400).json({ success: false, message: 'Class ID and video data required' });
+        }
+        const recDir = path.join(__dirname, 'public', 'data', 'recordings');
+        if (!fs.existsSync(recDir)) fs.mkdirSync(recDir, { recursive: true });
+
+        const matches = videoBlobBase64.match(/^data:video\/([a-zA-Z0-9]+);base64,(.+)$/);
+        const ext = matches ? (matches[1] === 'webm' ? 'webm' : 'mp4') : 'webm';
+        const rawBase64 = matches ? matches[2] : videoBlobBase64;
+        const fileName = `${classId}.${ext}`;
+        const filePath = path.join(recDir, fileName);
+
+        fs.writeFileSync(filePath, Buffer.from(rawBase64, 'base64'));
+        const fileUrl = `/data/recordings/${fileName}`;
+
+        // Update LiveClassSession
+        await LiveClassSession.findOneAndUpdate(
+            { sessionId: classId },
+            { recordingUrl: fileUrl, youtubeWatchUrl: fileUrl, status: 'ended', endedAt: new Date() }
+        );
+
+        res.json({ success: true, message: 'Lecture video uploaded and archived successfully!', videoUrl: fileUrl });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Super Admin Live Stream Monitoring Deck (All Centers Active Live Streams)
+app.get('/api/admin/live-monitor', verifySuperAdmin, async (req, res) => {
+    try {
+        const activeList = [];
+        for (const [id, r] of activeLiveRooms.entries()) {
+            if (r.status === 'live') {
+                activeList.push({
+                    classId: r.classId,
+                    title: r.title,
+                    teacherName: r.teacherName,
+                    centerId: r.centerId,
+                    centerName: r.centerName,
+                    courseId: r.courseId,
+                    courseName: r.courseName,
+                    subject: r.subject,
+                    isCentralAdmin: Boolean(r.isCentralAdmin),
+                    youtubeLiveUrl: r.youtubeLiveUrl || '',
+                    hasFrame: Boolean(r.latestFrame),
+                    latestFrame: r.latestFrame || null,
+                    startedAt: r.startedAt,
+                    activeStudentsCount: r.students ? r.students.size : 0
+                });
+            }
+        }
+        res.json({ success: true, count: activeList.length, activeClasses: activeList });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Super Admin All Centers Uploaded Lectures & Recorded Vault
+app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
+    try {
+        const liveSessions = await LiveClassSession.find({ status: { $in: ['ended', 'archived'] } }).sort({ endedAt: -1, createdAt: -1 }).limit(100).lean();
+
+        let centerRecordings = [];
+        try {
+            const centers = await TuitionCenter.find({}, { centerName: 1, courses: 1 }).lean();
+            centers.forEach(c => {
+                (c.courses || []).forEach(crs => {
+                    (crs.recordedLectures || []).forEach(rl => {
+                        centerRecordings.push({
+                            _id: rl._id,
+                            sessionId: 'REC_' + (rl._id ? rl._id.toString() : Date.now()),
+                            title: rl.title,
+                            teacherName: rl.teacherName || 'Faculty',
+                            centerName: c.centerName,
+                            courseName: crs.courseName,
+                            videoUrl: rl.videoUrl,
+                            youtubeVideoId: rl.youtubeVideoId,
+                            youtubeWatchUrl: rl.videoUrl,
+                            recordedAt: rl.recordedAt || rl.createdAt
+                        });
+                    });
+                });
+            });
+        } catch (e) {}
+
+        const all = [...liveSessions, ...centerRecordings];
+        const seen = new Set();
+        const unique = all.filter(r => {
+            const key = (r.title || '') + '_' + (r.centerName || '') + '_' + (r.sessionId || '');
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+
+        res.json({ success: true, count: unique.length, recordings: unique });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Super Admin Upload BBCC SKILL HUB Central Promotional Banner
+app.post('/api/admin/banners/central', verifySuperAdmin, async (req, res) => {
+    try {
+        const { title, subtitle, image, link } = req.body;
+        if (!image) return res.status(400).json({ success: false, message: 'Banner image is required' });
+
+        let savedImage = image;
+        if (savedImage.startsWith('data:image')) {
+            try {
+                const asset = saveAssetFile(savedImage, 'branding', 'png', 'normal', 'central_banner_' + Date.now().toString().slice(-4));
+                if (asset && asset.fileUrl) savedImage = asset.fileUrl;
+            } catch (e) {}
+        }
+
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        if (!settings.banners) settings.banners = [];
+        settings.banners.push({
+            title: (title || 'BBCC SKILL HUB Announcement').trim(),
+            subtitle: (subtitle || 'Official Educational Platform').trim(),
+            image: savedImage,
+            link: (link || '/').trim()
+        });
+
+        await settings.save();
+
+        // Also sync to portal_db.json
+        try {
+            const db = loadPortalDb();
+            if (!db.settings) db.settings = {};
+            db.settings.banners = settings.banners;
+            await savePortalDb(db);
+        } catch(e) {}
+
+        clearCache();
+        res.json({ success: true, message: 'BBCC SKILL HUB Central Promotional Banner published successfully!', banners: settings.banners });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Super Admin Delete Central Promotional Banner
+app.delete('/api/admin/banners/central/:bid', verifySuperAdmin, async (req, res) => {
+    try {
+        const bid = req.params.bid;
+        const settings = await Settings.findOne();
+        if (!settings) return res.status(404).json({ success: false, message: 'Settings not found' });
+
+        settings.banners = (settings.banners || []).filter(b => b._id.toString() !== bid && ('central_b_' + bid) !== bid);
+        await settings.save();
+
+        try {
+            const db = loadPortalDb();
+            if (db.settings) {
+                db.settings.banners = settings.banners;
+                await savePortalDb(db);
+            }
+        } catch(e) {}
+
+        clearCache();
+        res.json({ success: true, message: 'Central banner removed successfully', banners: settings.banners });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -7591,6 +8082,29 @@ app.get('/api/admin/banners', verifySuperAdmin, async (req, res) => {
                 });
             });
         });
+
+        // Also include BBCC SKILL HUB Central Promotional Banners
+        try {
+            const settings = await Settings.findOne().lean();
+            if (settings && settings.banners) {
+                settings.banners.forEach((b, idx) => {
+                    list.unshift({
+                        _id: b._id ? b._id.toString() : ('central_b_' + idx),
+                        centerId: 'bbcc_central',
+                        centerName: 'BBCC SKILL HUB Central Directorate',
+                        username: 'bbcc',
+                        title: b.title || 'BBCC Official Announcement',
+                        subtitle: b.subtitle || 'Platform Announcement',
+                        image: b.image,
+                        link: b.link,
+                        active: true,
+                        isCentral: true,
+                        uploadedAt: b.uploadedAt || new Date()
+                    });
+                });
+            }
+        } catch(e) {}
+
         res.json({ success: true, data: list });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

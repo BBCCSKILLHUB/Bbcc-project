@@ -789,9 +789,17 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">Today's Live Class Topic / Title *</label>
-                        <input type="text" id="liveClassTitleInput" placeholder="e.g. Chapter 4: Electric Current & Ohm's Law (Board Special)" class="input-control" style="padding-left:14px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">Today's Live Class Topic / Title *</label>
+                            <input type="text" id="liveClassTitleInput" placeholder="e.g. Chapter 4: Electric Current & Ohm's Law (Board Special)" class="input-control" style="padding-left:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">
+                                <i class="fab fa-youtube" style="color:#ef4444;"></i> Optional: YouTube Live Broadcast Link
+                            </label>
+                            <input type="text" id="liveYoutubeUrlInput" placeholder="https://youtube.com/live/... (or leave empty for browser studio)" class="input-control" style="padding-left:14px; font-family:monospace;">
+                        </div>
                     </div>
                 </div>
 
@@ -1202,6 +1210,9 @@
             ]
         };
 
+        let teacherMediaRecorder = null;
+        let teacherRecordedChunks = [];
+
         // START LIVE CLASS BROADCAST
         async function startLiveClass() {
             const titleInput = document.getElementById('liveClassTitleInput');
@@ -1215,6 +1226,8 @@
             const centerId = document.getElementById('selectCoachingCenter').value;
             const courseId = document.getElementById('selectCourseBatch').value;
             const subject = currentTeacher ? currentTeacher.subject : '';
+            const ytInput = document.getElementById('liveYoutubeUrlInput');
+            const youtubeLiveUrl = ytInput ? ytInput.value.trim() : '';
 
             try {
                 const res = await fetch('/api/live/start', {
@@ -1223,7 +1236,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${teacherToken}`
                     },
-                    body: JSON.stringify({ title, centerId, courseId, subject })
+                    body: JSON.stringify({ title, centerId, courseId, subject, youtubeLiveUrl })
                 });
                 const data = await res.json();
                 if (data.success && data.classId) {
@@ -1231,6 +1244,23 @@
                     isLiveBroadcasting = true;
                     activeBroadcastStream = localStream;
                     studentPeerConnections.clear();
+
+                    // Start local lecture recording
+                    teacherRecordedChunks = [];
+                    if (window.MediaRecorder && activeBroadcastStream) {
+                        try {
+                            let mime = 'video/webm;codecs=vp9,opus';
+                            if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8,opus';
+                            if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+                            teacherMediaRecorder = new MediaRecorder(activeBroadcastStream, { mimeType: mime });
+                            teacherMediaRecorder.ondataavailable = (e) => {
+                                if (e.data && e.data.size > 0) teacherRecordedChunks.push(e.data);
+                            };
+                            teacherMediaRecorder.start(2000);
+                        } catch(recErr) {
+                            console.warn('Teacher MediaRecorder notice:', recErr);
+                        }
+                    }
 
                     // UI Updates
                     document.getElementById('videoStageBox').classList.add('broadcasting');
@@ -1439,7 +1469,7 @@
             }
         }
 
-        // END LIVE CLASS & ARCHIVE TO YOUTUBE
+        // END LIVE CLASS & ARCHIVE TO YOUTUBE & REVISION VAULT
         async function endLiveClass() {
             if (!confirm('Are you sure you want to end this live class? It will automatically archive to YouTube & the Student Revision Vault.')) {
                 return;
@@ -1450,11 +1480,48 @@
             const statusText = document.getElementById('endProgressStatusText');
 
             modal.style.display = 'flex';
-            pBar.style.width = '35%';
-            statusText.textContent = 'Saving lecture details and compiling recording...';
+            pBar.style.width = '25%';
+            statusText.textContent = 'Stopping live stream and compiling lecture video...';
 
             try {
-                setTimeout(() => { pBar.style.width = '75%'; statusText.textContent = 'Archiving to Official Platform YouTube Channel & Vault...'; }, 1000);
+                // Stop local MediaRecorder if active
+                if (teacherMediaRecorder && teacherMediaRecorder.state !== 'inactive') {
+                    teacherMediaRecorder.stop();
+                }
+
+                // If recorded chunks exist, upload actual video blob to server vault!
+                let recordedVideoUrl = '';
+                if (teacherRecordedChunks.length > 0) {
+                    pBar.style.width = '55%';
+                    statusText.textContent = 'Uploading high-definition recorded lecture to server vault...';
+                    try {
+                        const blob = new Blob(teacherRecordedChunks, { type: 'video/webm' });
+                        const formData = new FormData();
+                        formData.append('video', blob, `${currentClassId}.webm`);
+                        formData.append('classId', currentClassId);
+                        formData.append('title', document.getElementById('liveClassTitleInput').value.trim() || 'Recorded Lecture');
+                        formData.append('courseId', document.getElementById('selectCourseBatch').value || '');
+                        formData.append('subject', currentTeacher ? currentTeacher.subject : '');
+
+                        const upRes = await fetch('/api/live/upload-recording', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${teacherToken}` },
+                            body: formData
+                        });
+                        const upData = await upRes.json();
+                        if (upData.success && upData.videoUrl) {
+                            recordedVideoUrl = upData.videoUrl;
+                        }
+                    } catch(upErr) {
+                        console.warn('Video upload notice:', upErr);
+                    }
+                }
+
+                pBar.style.width = '80%';
+                statusText.textContent = 'Archiving lecture metadata & broadcasting closure...';
+
+                const ytInput = document.getElementById('liveYoutubeUrlInput');
+                const youtubeWatchUrl = ytInput ? ytInput.value.trim() : '';
 
                 const res = await fetch('/api/live/end', {
                     method: 'POST',
@@ -1464,8 +1531,8 @@
                     },
                     body: JSON.stringify({
                         classId: currentClassId,
-                        recordedVideoUrl: `/data/recordings/${currentClassId}.mp4`,
-                        youtubeVideoId: 'bbcc_rec_' + currentClassId.slice(-8)
+                        recordedVideoUrl: recordedVideoUrl || (youtubeWatchUrl ? '' : `/data/recordings/${currentClassId}.webm`),
+                        youtubeWatchUrl: youtubeWatchUrl || undefined
                     })
                 });
                 const data = await res.json();
@@ -1480,6 +1547,8 @@
                     for (const pc of studentPeerConnections.values()) pc.close();
                     studentPeerConnections.clear();
                     currentClassId = '';
+                    teacherRecordedChunks = [];
+                    teacherMediaRecorder = null;
                     if (chatPollTimer) clearInterval(chatPollTimer);
                     if (broadcastSignalInterval) clearInterval(broadcastSignalInterval);
                     if (frameRelayInterval) clearInterval(frameRelayInterval);
@@ -1491,10 +1560,11 @@
                     document.getElementById('btnStartBroadcast').style.display = 'inline-flex';
                     document.getElementById('btnEndBroadcast').style.display = 'none';
                     document.getElementById('liveClassTitleInput').value = '';
+                    if (ytInput) ytInput.value = '';
 
                     showToast('Lecture safely archived to Revision Vault & YouTube!', 'check-double', '#10b981');
                     loadPreviousLectures();
-                }, 1600);
+                }, 1500);
 
             } catch (err) {
                 modal.style.display = 'none';

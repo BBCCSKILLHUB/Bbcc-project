@@ -483,7 +483,19 @@
                         </div>
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Roll Number (Leave blank to auto-generate)</label>
-                            <input type="text" id="stRoll" placeholder="e.g. BBCC-2026-01" class="studio-input" style="font-family:monospace;">
+                            <input type="text" id="stRoll" placeholder="e.g. BBCC-2026-01" class="studio-input" style="font-family:monospace; text-transform:uppercase;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Admission Fee to Collect (₹) *</label>
+                            <input type="number" id="stFees" required placeholder="e.g. 500" value="500" min="0" class="studio-input" style="color:var(--aurora-gold); font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Student Mobile / WhatsApp *</label>
+                            <input type="tel" id="stPhone" required placeholder="e.g. 9876543210" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Aadhar Number (Optional)</label>
+                            <input type="text" id="stAadhar" placeholder="12-digit Aadhar" maxlength="12" class="studio-input">
                         </div>
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Course / Stream</label>
@@ -497,8 +509,17 @@
                             <label style="font-size:12px; color:#cbd5e1;">Grade / Marks Status</label>
                             <input type="text" id="stGrade" placeholder="e.g. A+ Distinction" value="A+" class="studio-input">
                         </div>
-                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-user-plus"></i> Enroll Student</button>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Student Photo (Optional)</label>
+                            <input type="file" id="stPhotoFile" accept="image/*" class="studio-input" onchange="handleEnrollPhotoSelect(this)">
+                            <input type="hidden" id="stPhotoBase64">
+                        </div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div id="stPhotoPreviewBox" style="display:none; align-items:center; gap:10px;">
+                                <img id="stPhotoThumb" src="" alt="Student Preview" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold);">
+                                <span style="font-size:12px; color:#34d399;">Photo attached</span>
+                            </div>
+                            <button type="submit" class="btn-aurora btn-gold" style="margin-left:auto;"><i class="fas fa-user-plus"></i> Enroll Student with Fees</button>
                         </div>
                     </form>
                 </div>
@@ -513,13 +534,14 @@
                                     <th>Student Name</th>
                                     <th>Course</th>
                                     <th>Class</th>
+                                    <th>Admission Fee</th>
                                     <th>Grade</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="studentsTbody">
-                                <tr><td colspan="7" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>
+                                <tr><td colspan="8" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1339,10 +1361,33 @@
             </div>
             <form onsubmit="saveEditStudent(event)">
                 <input type="hidden" id="editStuId">
+                <input type="hidden" id="editStuPhotoBase64">
+
+                <!-- Student Photo Preview & Upload -->
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
+                    <img id="editStuPhotoPreview" src="/data/branding/logo.png" alt="Student Photo" style="width:58px; height:58px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">Change Student Photo</label>
+                        <input type="file" id="editStuPhotoFile" accept="image/*" class="studio-input" style="padding:5px; font-size:12px; width:100%;" onchange="handleEditStuPhotoUpload(this)">
+                    </div>
+                </div>
+
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                     <div>
                         <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Student Full Name *</label>
                         <input type="text" id="editStuName" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Roll Number *</label>
+                        <input type="text" id="editStuRoll" required class="studio-input" style="width:100%; font-family:monospace; text-transform:uppercase;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Admission Fee Amount (₹) *</label>
+                        <input type="number" id="editStuFees" required min="0" class="studio-input" style="width:100%; color:var(--aurora-gold); font-weight:700;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Aadhar Number</label>
+                        <input type="text" id="editStuAadhar" maxlength="12" class="studio-input" style="width:100%;">
                     </div>
                     <div>
                         <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Father / Guardian Name</label>
@@ -1979,8 +2024,31 @@
             if (data.success) initDirectorStudio();
         }
 
-        // Students Enrolment
+        // Students Enrolment & Roster
         let currentStudentsList = [];
+
+        function handleEnrollPhotoSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('stPhotoBase64').value = e.target.result;
+                document.getElementById('stPhotoThumb').src = e.target.result;
+                document.getElementById('stPhotoPreviewBox').style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleEditStuPhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editStuPhotoBase64').value = e.target.result;
+                document.getElementById('editStuPhotoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
 
         async function loadStudents() {
             try {
@@ -1993,21 +2061,30 @@
                     document.getElementById('statStudentsCount').textContent = data.data.length;
                     const tbody = document.getElementById('studentsTbody');
                     if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>';
                         return;
                     }
                     tbody.innerHTML = data.data.map(s => {
+                        const stuKey = s._id ? (s._id.toString ? s._id.toString() : s._id) : (s.rollNo || s.studentId);
                         const studentPhone = (s.mobile || s.phone || '').replace(/[^0-9]/g, '').slice(-10);
                         const cName = centerProfile ? centerProfile.centerName : 'BBCC Affiliated Center';
-                        const waText = encodeURIComponent(`🎓 *Official Student Admission & Enrollment Receipt*\n\nStudent: ${s.name}\nRoll No: ${s.rollNo}\nCourse: ${s.course || s.courseName || 'Academic Course'}\nClass: ${s.classLevel || 'General'}\nInstitute: ${cName}\nStatus: ${s.status || 'Active & Verified'}\nVerify Online: ${window.location.origin}\n\n_BBCC SKILL HUB Central Directorate_`);
+                        const feeAmt = s.feeAmount !== undefined ? s.feeAmount : (s.feePaid !== undefined ? s.feePaid : 0);
+                        const photoUrl = s.photo || '/data/branding/logo.png';
+                        const waText = encodeURIComponent(`🎓 *Official Student Admission & Enrollment Receipt*\n\nStudent: ${s.name}\nRoll No: ${s.rollNo}\nCourse: ${s.course || s.courseName || 'Academic Course'}\nAdmission Fee Paid: ₹${feeAmt}\nClass: ${s.classLevel || 'General'}\nInstitute: ${cName}\nStatus: ${s.status || 'Active & Verified'}\nVerify Online: ${window.location.origin}\n\n_BBCC SKILL HUB Central Directorate_`);
                         const waHref = studentPhone ? `https://wa.me/91${studentPhone}?text=${waText}` : `https://wa.me/?text=${waText}`;
 
                         return `
                         <tr>
                             <td><strong style="color:var(--aurora-gold); font-family:monospace;">${s.rollNo}</strong></td>
-                            <td>${s.name}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <img src="${photoUrl}" alt="${s.name}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--aurora-gold);" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
+                                    <span>${s.name}</span>
+                                </div>
+                            </td>
                             <td>${s.course || s.courseName || '-'}</td>
                             <td>${s.classLevel || '-'}</td>
+                            <td><strong style="color:var(--aurora-gold);">₹${feeAmt}</strong></td>
                             <td><span style="color:#10b981; font-weight:700;">${s.marksGrade || 'A+'}</span></td>
                             <td><span style="color:#10b981;">${s.status || 'Active'}</span></td>
                             <td>
@@ -2015,10 +2092,10 @@
                                     <a href="${waHref}" target="_blank" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; text-decoration:none;" title="Send WhatsApp Receipt">
                                         <i class="fab fa-whatsapp"></i> Receipt
                                     </a>
-                                    <button onclick="openEditStudentModal('${s._id}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px; border-radius:6px;" title="Edit Student">
+                                    <button onclick="openEditStudentModal('${stuKey}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:12px; border-radius:6px;" title="Edit Student">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="removeStudent('${s._id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;" title="Delete Student">
+                                    <button onclick="removeStudent('${stuKey}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;" title="Delete Student">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -2030,10 +2107,13 @@
         }
 
         function openEditStudentModal(sid) {
-            const stu = currentStudentsList.find(s => s._id === sid);
+            const stu = currentStudentsList.find(s => (s._id && String(s._id) === String(sid)) || s.rollNo === sid || s.studentId === sid);
             if (!stu) return;
-            document.getElementById('editStuId').value = stu._id;
+            document.getElementById('editStuId').value = stu._id || stu.rollNo;
             document.getElementById('editStuName').value = stu.name || '';
+            document.getElementById('editStuRoll').value = stu.rollNo || '';
+            document.getElementById('editStuFees').value = (stu.feeAmount !== undefined ? stu.feeAmount : (stu.feePaid !== undefined ? stu.feePaid : 500));
+            document.getElementById('editStuAadhar').value = stu.aadharNumber || '';
             document.getElementById('editStuFather').value = stu.fatherName || stu.parentName || '';
             document.getElementById('editStuCourse').value = stu.course || stu.courseName || '';
             document.getElementById('editStuClass').value = stu.classLevel || '';
@@ -2042,6 +2122,8 @@
             document.getElementById('editStuPhone').value = stu.mobile || stu.phone || '';
             document.getElementById('editStuParentPhone').value = stu.parentMobile || '';
             document.getElementById('editStuAddress').value = stu.address || '';
+            document.getElementById('editStuPhotoBase64').value = '';
+            document.getElementById('editStuPhotoPreview').src = stu.photo || '/data/branding/logo.png';
             document.getElementById('editStudentModal').style.display = 'flex';
         }
 
@@ -2054,6 +2136,9 @@
             const sid = document.getElementById('editStuId').value;
             const payload = {
                 name: document.getElementById('editStuName').value.trim(),
+                rollNo: document.getElementById('editStuRoll').value.trim(),
+                feeAmount: Number(document.getElementById('editStuFees').value),
+                aadharNumber: document.getElementById('editStuAadhar').value.trim(),
                 fatherName: document.getElementById('editStuFather').value.trim(),
                 parentName: document.getElementById('editStuFather').value.trim(),
                 course: document.getElementById('editStuCourse').value.trim(),
@@ -2063,7 +2148,8 @@
                 mobile: document.getElementById('editStuPhone').value.trim(),
                 phone: document.getElementById('editStuPhone').value.trim(),
                 parentMobile: document.getElementById('editStuParentPhone').value.trim(),
-                address: document.getElementById('editStuAddress').value.trim()
+                address: document.getElementById('editStuAddress').value.trim(),
+                photo: document.getElementById('editStuPhotoBase64').value || undefined
             };
 
             const res = await fetch(`/api/director/students/${sid}`, {
@@ -2077,7 +2163,7 @@
 
             const data = await res.json();
             if (data.success) {
-                alert('Student details updated successfully!');
+                alert('Student details & fee record updated successfully!');
                 closeEditStudentModal();
                 loadStudents();
             } else {
@@ -2091,9 +2177,13 @@
                 name: document.getElementById('stName').value.trim(),
                 fatherName: document.getElementById('stFather').value.trim(),
                 rollNo: document.getElementById('stRoll').value.trim(),
+                feeAmount: Number(document.getElementById('stFees').value || 500),
+                phone: document.getElementById('stPhone').value.trim(),
+                aadharNumber: document.getElementById('stAadhar').value.trim(),
                 course: document.getElementById('stCourse').value.trim(),
                 classLevel: document.getElementById('stClass').value.trim(),
-                marksGrade: document.getElementById('stGrade').value.trim()
+                marksGrade: document.getElementById('stGrade').value.trim(),
+                photo: document.getElementById('stPhotoBase64').value || undefined
             };
 
             const res = await fetch('/api/director/students', {
@@ -2107,8 +2197,10 @@
 
             const data = await res.json();
             if (data.success) {
-                alert('Student enrolled successfully with verified Roll Number!');
+                alert('Student enrolled successfully with custom admission fee & verified Roll Number!');
                 e.target.reset();
+                document.getElementById('stPhotoBase64').value = '';
+                document.getElementById('stPhotoPreviewBox').style.display = 'none';
                 loadStudents();
             } else {
                 alert(data.message || 'Error enrolling student');
@@ -2151,7 +2243,9 @@
                 dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No faculty members added yet. Add your teachers above with photo!</div>';
                 return;
             }
-            dock.innerHTML = teachers.map(t => `
+            dock.innerHTML = teachers.map(t => {
+                const facKey = t._id ? (t._id.toString ? t._id.toString() : t._id) : (t.teacherId || t.phone);
+                return `
                 <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
@@ -2165,21 +2259,22 @@
                         </div>
                     </div>
                     <div style="display:flex; gap:8px;">
-                        <button onclick="openEditFacultyModal('${t._id}')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                        <button onclick="openEditFacultyModal('${facKey}')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
                             <i class="fas fa-pen-to-square"></i> Edit ID & Details
                         </button>
-                        <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
+                        <button onclick="removeFaculty('${facKey}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
         }
 
         function openEditFacultyModal(tid) {
-            const t = globalDirectorTeachers.find(item => item._id === tid);
+            const t = globalDirectorTeachers.find(item => (item._id && String(item._id) === String(tid)) || item.teacherId === tid || item.phone === tid);
             if (!t) return;
-            document.getElementById('editFacDbId').value = t._id;
+            const key = t._id ? (t._id.toString ? t._id.toString() : t._id) : (t.teacherId || t.phone);
+            document.getElementById('editFacDbId').value = key;
             document.getElementById('editFacId').value = t.teacherId || '';
             document.getElementById('editFacPass').value = t.password || 'teach123';
             document.getElementById('editFacName').value = t.name || '';

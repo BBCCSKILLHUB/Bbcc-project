@@ -798,7 +798,13 @@
 
             <!-- Student Profile Hero Banner -->
             <div class="student-hero">
-                <img id="stuPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%2394a3b8'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='40' r='20'/><circle cx='50' cy='90' r='35'/></svg>" alt="Student Photo" class="student-avatar">
+                <div style="position:relative; display:inline-block; flex-shrink:0;">
+                    <img id="stuPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%2394a3b8'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='40' r='20'/><circle cx='50' cy='90' r='35'/></svg>" alt="Student Photo" class="student-avatar" style="width:84px; height:84px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold);">
+                    <label for="stuPhotoInput" style="position:absolute; bottom:0; right:0; background:linear-gradient(135deg, #fbbf24, #d97706); color:#000; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.6); font-size:12px;" title="Upload / Change Your Photo">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="stuPhotoInput" accept="image/*" style="display:none;" onchange="handleStudentPhotoUpload(this)">
+                </div>
 
                 <div class="student-info">
                     <h2>
@@ -1299,19 +1305,70 @@
             activeLiveCheckTimer = setInterval(checkActiveLiveClass, 8000);
         }
 
+        async function handleStudentPhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const token = localStorage.getItem('bbcc_student_token');
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result;
+                document.getElementById('stuPhoto').src = base64;
+                try {
+                    const res = await fetch('/api/student/photo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({ photo: base64 })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Profile photo updated successfully!');
+                        if (currentStudentData && currentStudentData.student) {
+                            currentStudentData.student.photo = data.photoUrl || base64;
+                        }
+                    } else {
+                        showToast(data.message || 'Failed to update photo');
+                    }
+                } catch(err) {
+                    showToast('Photo upload error: ' + err.message);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function checkActiveLiveClass() {
             try {
                 const res = await fetch('/api/live/active?_t=' + Date.now());
                 const data = await res.json();
                 const alertBox = document.getElementById('activeLiveStreamAlert');
-                if (data.success && data.activeClasses && data.activeClasses.length > 0) {
-                    const live = data.activeClasses[0];
-                    currentActiveLive = live;
-                    document.getElementById('alertTeacherName').textContent = live.teacherName + ' (' + (live.centerName || 'Live Faculty') + ')';
-                    document.getElementById('alertLiveTitle').textContent = live.title;
+                const sessions = data.activeClasses || data.activeSessions || [];
+
+                let matchedLive = null;
+                for (const live of sessions) {
+                    if (checkStudentCourseAccess(live)) {
+                        matchedLive = live;
+                        break;
+                    }
+                }
+
+                // If not matched to course but belongs to student center
+                if (!matchedLive && sessions.length > 0) {
+                    const centerLive = sessions.find(s => currentStudentData?.center && s.centerId === currentStudentData.center._id);
+                    if (centerLive) matchedLive = centerLive;
+                }
+
+                if (matchedLive) {
+                    currentActiveLive = matchedLive;
+                    document.getElementById('alertTeacherName').textContent = matchedLive.teacherName + ' (' + (matchedLive.centerName || 'Live Faculty') + ')';
+                    document.getElementById('alertLiveTitle').textContent = matchedLive.title;
                     alertBox.style.display = 'flex';
                 } else {
                     alertBox.style.display = 'none';
+                    if (currentActiveLive) {
+                        handleLiveClassEndedByTeacher();
+                    }
                     currentActiveLive = null;
                 }
             } catch (e) {}
@@ -1319,15 +1376,30 @@
 
         async function loadRecordedLectures(centerId = '') {
             try {
-                const url = '/api/live/recordings' + (centerId ? ('?centerId=' + centerId + '&_t=' + Date.now()) : ('?_t=' + Date.now()));
+                const stuCourse = currentStudentData?.student ? (currentStudentData.student.course || currentStudentData.student.courseName || '') : '';
+                const stuCenterId = centerId || (currentStudentData?.center ? currentStudentData.center._id : '');
+                const url = '/api/live/recordings' + (stuCenterId ? ('?centerId=' + stuCenterId + '&_t=' + Date.now()) : ('?_t=' + Date.now()));
                 const res = await fetch(url);
                 const data = await res.json();
                 const container = document.getElementById('recordingsList');
                 const badge = document.getElementById('recordingsCountBadge');
 
-                if (data.success && data.recordings && data.recordings.length > 0) {
-                    badge.textContent = data.recordings.length + ' Recorded Lectures';
-                    container.innerHTML = data.recordings.map(r => {
+                let records = (data.success && data.recordings && data.recordings.length > 0) ? data.recordings : [];
+
+                // Strictly filter to student's enrolled course and center
+                if (stuCourse && records.length > 0) {
+                    const cleanStu = stuCourse.toLowerCase().trim();
+                    const matched = records.filter(r => {
+                        const rCourse = (r.courseName || '').toLowerCase().trim();
+                        const rTitle = (r.title || '').toLowerCase().trim();
+                        return rCourse.includes(cleanStu) || cleanStu.includes(rCourse) || rTitle.includes(cleanStu);
+                    });
+                    if (matched.length > 0) records = matched;
+                }
+
+                if (records.length > 0) {
+                    badge.textContent = records.length + ' Recorded Lectures';
+                    container.innerHTML = records.map(r => {
                         const dateStr = r.recordedAt ? new Date(r.recordedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent';
                         const safeTitle = escapeHtml(r.title);
                         const safeTeacher = escapeHtml(r.teacherName || 'Faculty');
@@ -1356,7 +1428,7 @@
                     container.innerHTML = `
                         <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
                             <i class="fab fa-youtube" style="font-size: 32px; color: #475569; margin-bottom: 8px; display: block;"></i>
-                            No recorded revision lectures yet. Lectures will automatically archive here when live classes end.
+                            No recorded revision lectures for your enrolled course yet. Lectures will appear here when class concludes.
                         </div>
                     `;
                 }
@@ -1381,25 +1453,29 @@
             ]
         };
 
-        // Course Access Verification (Central Programs Free, Paid Courses Checked)
+        // Course Access Verification (Strict: Must match Center AND Enrolled Course)
         function checkStudentCourseAccess(live) {
             if (!live) return false;
-            // Central Admin special masterclasses or free orientation sessions
+            // Central Admin special masterclasses or national programs open platform-wide
             if (live.isCentralAdmin) return true;
 
             if (!currentStudentData || !currentStudentData.student) return false;
             const stu = currentStudentData.student;
-            const stuCourse = (stu.course || '').toLowerCase().trim();
-            const liveCourse = (live.courseName || '').toLowerCase().trim();
+            const center = currentStudentData.center;
+
+            // 1. Center Lock Check
+            const centerMatch = (center && live.centerId && String(center._id) === String(live.centerId)) ||
+                                (center && live.centerName && center.centerName.toLowerCase() === live.centerName.toLowerCase());
+            if (!centerMatch) return false;
+
+            // 2. Course Lock Check
+            const stuCourse = ((stu.course || stu.courseName || '')).toLowerCase().trim();
+            const liveCourse = (live.courseName || live.title || '').toLowerCase().trim();
             const liveSubject = (live.subject || '').toLowerCase().trim();
 
-            if (liveCourse && (stuCourse.includes(liveCourse) || liveCourse.includes(stuCourse))) return true;
-            if (liveSubject && (stuCourse.includes(liveSubject) || liveSubject.includes(stuCourse))) return true;
+            if (stuCourse && (liveCourse.includes(stuCourse) || stuCourse.includes(liveCourse))) return true;
+            if (stuCourse && liveSubject && (stuCourse.includes(liveSubject) || liveSubject.includes(stuCourse))) return true;
 
-            // Center enrolled student matching
-            if (currentStudentData.center && live.centerId && currentStudentData.center._id === live.centerId) return true;
-
-            // If not matched, requires purchase / enrollment
             return false;
         }
 
@@ -1544,6 +1620,28 @@
             } catch (e) {}
         }
 
+        function handleLiveClassEndedByTeacher() {
+            if (studentSignalTimer) { clearInterval(studentSignalTimer); studentSignalTimer = null; }
+            if (studentFrameTimer) { clearInterval(studentFrameTimer); studentFrameTimer = null; }
+            if (studentPeerConnection) {
+                try { studentPeerConnection.close(); } catch(e) {}
+                studentPeerConnection = null;
+            }
+            if (studentMicStream) {
+                try { studentMicStream.getTracks().forEach(t => t.stop()); } catch(e) {}
+                studentMicStream = null;
+            }
+            isStudentSpeaking = false;
+            currentActiveLive = null;
+            closeLiveStudentPlayer();
+
+            const alertBox = document.getElementById('activeLiveStreamAlert');
+            if (alertBox) alertBox.style.display = 'none';
+
+            showToast('The teacher has concluded this live lecture. Recording will be available in your Revision Vault.');
+            loadRecordedLectures(currentStudentData?.center?._id || '');
+        }
+
         function startStudentSignalPolling(classId) {
             if (studentSignalTimer) clearInterval(studentSignalTimer);
             studentSignalTimer = setInterval(async () => {
@@ -1551,6 +1649,13 @@
                 try {
                     const res = await fetch(`/api/live/signals/${classId}?role=student&studentId=${encodeURIComponent(myLiveStudentSessionId)}&_t=` + Date.now());
                     const data = await res.json();
+
+                    // If teacher finished class, immediately exit student player!
+                    if (data.status === 'ended' || (!data.success && data.status === 'ended')) {
+                        handleLiveClassEndedByTeacher();
+                        return;
+                    }
+
                     if (!data.success) return;
 
                     if (data.activeStudentsCount !== undefined) {
@@ -1558,7 +1663,10 @@
                     }
 
                     for (const sig of (data.signals || [])) {
-                        if (sig.type === 'offer' && studentPeerConnection) {
+                        if (sig.type === 'class_ended' || sig.status === 'ended') {
+                            handleLiveClassEndedByTeacher();
+                            return;
+                        } else if (sig.type === 'offer' && studentPeerConnection) {
                             console.log('Received Offer from teacher, creating Answer...');
                             await studentPeerConnection.setRemoteDescription(new RTCSessionDescription(sig.sdp));
                             const answer = await studentPeerConnection.createAnswer();
