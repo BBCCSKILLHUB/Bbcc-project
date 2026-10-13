@@ -6141,29 +6141,99 @@ app.get('/api/teacher/profile', verifyTeacher, async (req, res) => {
     }
 });
 
-// Teacher Profile Update
+// Teacher Profile Update (Allows editing Teacher ID, Password, and Profile details)
 app.put('/api/teacher/profile', verifyTeacher, async (req, res) => {
     try {
         const teacher = await TeacherAccount.findById(req.teacher.id);
         if (!teacher) return res.status(404).json({ success: false, message: 'Teacher not found' });
 
-        const { name, subject, qualification, experience, bio, photo, password } = req.body;
-        if (name) teacher.name = name.trim();
-        if (subject) teacher.subject = subject.trim();
-        if (qualification) teacher.qualification = qualification.trim();
-        if (experience) teacher.experience = experience.trim();
+        const oldTeacherId = teacher.teacherId;
+        const { teacherId, name, subject, qualification, experience, bio, photo, password } = req.body;
+
+        // Check if teacher wants to update their Teacher Login ID
+        if (teacherId && teacherId.trim() && teacherId.trim() !== oldTeacherId) {
+            const cleanTid = teacherId.trim();
+            const existingTid = await TeacherAccount.findOne({ teacherId: cleanTid, _id: { $ne: teacher._id } });
+            if (existingTid) {
+                return res.status(400).json({ success: false, message: `Teacher ID "${cleanTid}" is already taken by another instructor. Please choose a different ID.` });
+            }
+            teacher.teacherId = cleanTid;
+        }
+
+        if (name && name.trim()) teacher.name = name.trim();
+        if (subject && subject.trim()) teacher.subject = subject.trim();
+        if (qualification && qualification.trim()) teacher.qualification = qualification.trim();
+        if (experience && experience.trim()) teacher.experience = experience.trim();
         if (bio !== undefined) teacher.bio = bio.trim();
+
         if (photo && photo.startsWith('data:image')) {
             const photoAsset = saveAssetFile(photo, 'branding', 'png', 'normal', (teacher.name || 'teacher').trim());
             if (photoAsset && photoAsset.fileUrl) teacher.photo = photoAsset.fileUrl;
         }
+
+        let newHashedPass = null;
         if (password && password.trim()) {
-            teacher.password = await bcrypt.hash(password.trim(), 10);
+            newHashedPass = await bcrypt.hash(password.trim(), 10);
+            teacher.password = newHashedPass;
+            teacher.rawPassword = password.trim();
         }
 
         await teacher.save();
+
+        // Synchronize changes to TuitionCenter.teachers faculty record
+        if (teacher.centerId && mongoose.Types.ObjectId.isValid(teacher.centerId)) {
+            try {
+                const center = await TuitionCenter.findById(teacher.centerId);
+                if (center && center.teachers) {
+                    const fac = center.teachers.find(t =>
+                        (t.teacherId && (t.teacherId === oldTeacherId || t.teacherId === teacher.teacherId)) ||
+                        t.name === teacher.name ||
+                        (t._id && t._id.toString() === teacher._id.toString())
+                    );
+                    if (fac) {
+                        fac.teacherId = teacher.teacherId;
+                        if (name) fac.name = teacher.name;
+                        if (subject) fac.subject = teacher.subject;
+                        if (qualification) fac.qualification = teacher.qualification;
+                        if (experience) fac.experience = teacher.experience;
+                        if (bio !== undefined) fac.bio = teacher.bio;
+                        if (teacher.photo) fac.photo = teacher.photo;
+                        if (newHashedPass) {
+                            fac.password = newHashedPass;
+                            fac.rawPassword = password.trim();
+                        }
+                        await center.save();
+                    }
+                }
+            } catch (syncErr) {
+                console.warn('Teacher profile center sync notice:', syncErr.message);
+            }
+        }
+
+        // Generate updated JWT token if ID or Name changed
+        const newToken = jwt.sign(
+            { id: teacher._id, teacherId: teacher.teacherId, name: teacher.name, role: 'teacher', centerId: teacher.centerId || '' },
+            JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
         clearCache();
-        res.json({ success: true, message: 'Profile updated successfully!', teacher });
+        res.json({
+            success: true,
+            message: 'Teacher profile & login credentials updated successfully!',
+            teacher: {
+                _id: teacher._id,
+                teacherId: teacher.teacherId,
+                name: teacher.name,
+                subject: teacher.subject,
+                qualification: teacher.qualification,
+                experience: teacher.experience,
+                bio: teacher.bio,
+                photo: teacher.photo,
+                centerId: teacher.centerId
+            },
+            token: newToken
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6245,8 +6315,13 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             subject: subject || req.teacher.subject || 'All Subjects',
             title: title.trim(),
             status: 'live',
+            isCentralAdmin: false,
+            youtubeLiveUrl: (req.body.youtubeLiveUrl || '').trim(),
             teacherSignal: null,
-            studentSignals: new Map(),
+            latestFrame: null,
+            lastFrameTime: 0,
+            teacherQueue: [],
+            studentQueues: new Map(),
             students: new Map(),
             chat: [
                 { sender: 'System Notice', role: 'system', text: `🔴 Live Class "${title.trim()}" started by ${req.teacher.name}. Doubts & live questions welcome!`, time: new Date() }
@@ -6265,6 +6340,107 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             centerName: session.centerName,
             message: 'Classroom broadcast is now LIVE!'
         });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// START Central Admin Live Class / Special Program (Super Admin Console)
+app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
+    try {
+        const { title, subject, hostName, youtubeLiveUrl, description } = req.body;
+        if (!title || !title.trim()) {
+            return res.status(400).json({ success: false, message: 'Program/Lecture title is required' });
+        }
+
+        const classId = 'ADMIN_LIVE_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
+        const finalHost = (hostName && hostName.trim()) ? hostName.trim() : 'BBCC Central Directorate';
+        const finalSubject = (subject && subject.trim()) ? subject.trim() : 'Central Special Program';
+
+        const session = await LiveClassSession.create({
+            sessionId: classId,
+            teacherId: 'ADMIN_DIRECTORATE',
+            teacherName: finalHost,
+            centerId: '',
+            centerName: 'BBCC SKILL HUB Central Directorate',
+            courseId: '',
+            courseName: 'Central Masterclass & Special Program',
+            subject: finalSubject,
+            title: title.trim(),
+            status: 'live',
+            isCentralAdmin: true,
+            youtubeLiveUrl: (youtubeLiveUrl || '').trim(),
+            startedAt: new Date(),
+            activeStudentsCount: 0
+        });
+
+        activeLiveRooms.set(classId, {
+            classId,
+            sessionId: classId,
+            teacherId: 'ADMIN_DIRECTORATE',
+            teacherName: finalHost,
+            centerId: '',
+            centerName: 'BBCC SKILL HUB Central Directorate',
+            courseId: '',
+            courseName: 'Central Masterclass & Special Program',
+            subject: finalSubject,
+            title: title.trim(),
+            status: 'live',
+            isCentralAdmin: true,
+            youtubeLiveUrl: (youtubeLiveUrl || '').trim(),
+            teacherSignal: null,
+            latestFrame: null,
+            lastFrameTime: 0,
+            teacherQueue: [],
+            studentQueues: new Map(),
+            students: new Map(),
+            chat: [
+                { sender: 'BBCC Directorate', role: 'system', text: `🌟 BBCC Central Special Program "${title.trim()}" is now LIVE! Ask questions and interact in real-time.`, time: new Date() }
+            ],
+            startedAt: Date.now()
+        });
+
+        clearCache();
+
+        res.json({
+            success: true,
+            classId,
+            title: session.title,
+            hostName: session.teacherName,
+            message: 'Central Live Program broadcast is now LIVE across the platform!'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// END Central Admin Live Class / Special Program
+app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
+    try {
+        const { classId, recordedVideoUrl, youtubeVideoId } = req.body;
+        if (!classId) return res.status(400).json({ success: false, message: 'Class ID required' });
+
+        const session = await LiveClassSession.findOne({ sessionId: classId });
+        const room = activeLiveRooms.get(classId);
+
+        let finalVideoUrl = recordedVideoUrl || '';
+        let finalYoutubeId = youtubeVideoId || '';
+        if (session) {
+            session.status = 'ended';
+            session.endedAt = new Date();
+            if (finalVideoUrl) session.recordingUrl = finalVideoUrl;
+            if (finalYoutubeId) session.youtubeVideoId = finalYoutubeId;
+            if (room && room.chat) session.messages = room.chat;
+            await session.save();
+        }
+
+        if (room) {
+            room.status = 'ended';
+            setTimeout(() => activeLiveRooms.delete(classId), 60000);
+        }
+
+        clearCache();
+        res.json({ success: true, message: 'Central live program concluded successfully.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6356,7 +6532,7 @@ app.post('/api/live/end', verifyTeacher, async (req, res) => {
     }
 });
 
-// GET Active Live Classes (For Students & Public Classroom)
+// GET Active Live Classes (For Students & Public Classroom & Homepage)
 app.get('/api/live/active', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -6372,35 +6548,49 @@ app.get('/api/live/active', async (req, res) => {
                     courseId: r.courseId,
                     courseName: r.courseName,
                     subject: r.subject,
+                    isCentralAdmin: Boolean(r.isCentralAdmin),
+                    youtubeLiveUrl: r.youtubeLiveUrl || '',
+                    hasFrame: Boolean(r.latestFrame),
                     startedAt: r.startedAt,
                     activeStudentsCount: r.students ? r.students.size : 0
                 });
             }
         }
-        res.json({ success: true, count: activeList.length, activeClasses: activeList });
+        res.json({
+            success: true,
+            count: activeList.length,
+            activeClasses: activeList,
+            activeSessions: activeList // Guaranteed compatibility across all pages!
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// GET Recorded Lectures & Revision Vault (For Students)
+// GET Recorded Lectures & Revision Vault (For Students & Teacher Portal Archive)
 app.get('/api/live/recordings', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        const { centerId, courseId } = req.query;
+        const { centerId, courseId, teacherId } = req.query;
         const query = { status: { $in: ['ended', 'archived'] } };
         if (centerId) query.centerId = centerId;
         if (courseId) query.courseId = courseId;
+        if (teacherId) {
+            query.$or = [{ teacherId: teacherId }, { teacherName: teacherId }];
+        }
 
-        const sessions = await LiveClassSession.find(query).sort({ endedAt: -1, createdAt: -1 }).limit(50).lean();
+        const sessions = await LiveClassSession.find(query).sort({ endedAt: -1, createdAt: -1 }).limit(60).lean();
 
         // Also fetch from TuitionCenter courses.recordedLectures
         let centerRecordings = [];
         try {
-            const centers = await TuitionCenter.find({}, { centerName: 1, courses: 1 }).lean();
+            const centerFilter = centerId ? { _id: centerId } : {};
+            const centers = await TuitionCenter.find(centerFilter, { centerName: 1, courses: 1 }).lean();
             centers.forEach(c => {
                 (c.courses || []).forEach(crs => {
+                    if (courseId && crs._id.toString() !== courseId) return;
                     (crs.recordedLectures || []).forEach(rl => {
+                        if (teacherId && rl.teacherName && !rl.teacherName.toLowerCase().includes(teacherId.toLowerCase())) return;
                         centerRecordings.push({
                             _id: rl._id,
                             sessionId: 'REC_' + (rl._id ? rl._id.toString() : Date.now()),
@@ -6421,7 +6611,7 @@ app.get('/api/live/recordings', async (req, res) => {
         const all = [...sessions, ...centerRecordings];
         const seen = new Set();
         const uniqueRecordings = all.filter(r => {
-            const key = (r.title || '') + '_' + (r.teacherName || '');
+            const key = (r.title || '') + '_' + (r.teacherName || '') + '_' + (r.sessionId || '');
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
@@ -6433,48 +6623,131 @@ app.get('/api/live/recordings', async (req, res) => {
     }
 });
 
-// WebRTC Signaling Exchange for Live Classroom
+// WebRTC Signaling Exchange for Live Classroom (Multi-student with Queues & Student Voice)
 app.post('/api/live/signal', async (req, res) => {
     try {
-        const { classId, type, signal, senderId, senderName, senderRole } = req.body;
+        const { classId, type, signal, senderId, senderName, senderRole, targetId, sdp, candidate, isSpeaking } = req.body;
         if (!classId || !activeLiveRooms.has(classId)) {
             return res.status(404).json({ success: false, message: 'Live class session not active' });
         }
         const room = activeLiveRooms.get(classId);
 
-        if (senderRole === 'teacher') {
-            room.teacherSignal = signal;
+        if (senderRole === 'teacher' || senderRole === 'admin') {
+            room.teacherSignal = signal || { type, sdp, time: Date.now() };
+            // If targeted to a specific student
+            if (targetId) {
+                if (!room.studentQueues.has(targetId)) room.studentQueues.set(targetId, []);
+                room.studentQueues.get(targetId).push({ type, sdp, candidate, signal, time: Date.now() });
+            } else {
+                // Broadcast to all active students
+                for (const [sId, queue] of room.studentQueues.entries()) {
+                    queue.push({ type, sdp, candidate, signal, time: Date.now() });
+                }
+            }
         } else {
+            // Sender is Student
             const sId = senderId || ('stu_' + Date.now());
-            room.students.set(sId, { name: senderName || 'Student', joinedAt: Date.now() });
-            room.studentSignals.set(sId, signal);
+            if (!room.students.has(sId)) {
+                room.students.set(sId, { name: senderName || 'Student', joinedAt: Date.now(), lastSeen: Date.now(), isSpeaking: false });
+            } else {
+                const s = room.students.get(sId);
+                s.lastSeen = Date.now();
+                if (isSpeaking !== undefined) s.isSpeaking = isSpeaking;
+            }
+            if (!room.studentQueues.has(sId)) {
+                room.studentQueues.set(sId, []);
+            }
+            // Deliver signal into teacher queue
+            if (!room.teacherQueue) room.teacherQueue = [];
+            room.teacherQueue.push({
+                senderId: sId,
+                senderName: senderName || 'Student',
+                senderRole: 'student',
+                type,
+                signal,
+                sdp,
+                candidate,
+                isSpeaking,
+                time: Date.now()
+            });
         }
 
         res.json({
             success: true,
             activeCount: room.students.size,
-            teacherSignal: room.teacherSignal
+            status: room.status
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// Get Signals for Room
+// Get Signals for Room (Teacher drains teacherQueue, Student drains their studentQueue)
 app.get('/api/live/signals/:classId', async (req, res) => {
     try {
         const { classId } = req.params;
+        const role = req.query.role || 'student';
+        const studentId = req.query.studentId || '';
         const room = activeLiveRooms.get(classId);
         if (!room) return res.status(404).json({ success: false, message: 'Class session not active' });
 
+        let pendingSignals = [];
+        if (role === 'teacher' || role === 'admin') {
+            pendingSignals = room.teacherQueue ? [...room.teacherQueue] : [];
+            room.teacherQueue = []; // Drain queue
+        } else if (studentId && room.studentQueues.has(studentId)) {
+            pendingSignals = [...room.studentQueues.get(studentId)];
+            room.studentQueues.set(studentId, []); // Drain queue
+        }
+
+        // Detect any active speaking student for audio banner
+        let speakingStudent = null;
+        for (const [sId, s] of room.students.entries()) {
+            if (s.isSpeaking) {
+                speakingStudent = { studentId: sId, name: s.name };
+                break;
+            }
+        }
+
         res.json({
             success: true,
+            signals: pendingSignals,
             teacherSignal: room.teacherSignal,
+            speakingStudent,
             activeStudentsCount: room.students ? room.students.size : 0,
+            hasFrame: Boolean(room.latestFrame),
+            youtubeLiveUrl: room.youtubeLiveUrl || '',
             status: room.status
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Low-bandwidth / Strict NAT Video Frame Relay Fallback
+app.post('/api/live/frame', async (req, res) => {
+    try {
+        const { classId, frameData } = req.body;
+        if (!classId || !activeLiveRooms.has(classId)) return res.status(404).json({ success: false });
+        const room = activeLiveRooms.get(classId);
+        if (frameData && frameData.startsWith('data:image')) {
+            room.latestFrame = frameData;
+            room.lastFrameTime = Date.now();
+        }
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+});
+
+app.get('/api/live/frame/:classId', async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const room = activeLiveRooms.get(classId);
+        if (!room || !room.latestFrame) return res.status(404).json({ success: false });
+        res.json({ success: true, frame: room.latestFrame, time: room.lastFrameTime });
+    } catch (e) {
+        res.status(500).json({ success: false });
     }
 });
 

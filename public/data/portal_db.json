@@ -145,14 +145,7 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {
-    "2026-10-13_evening": {
-      "dispatchedAt": "2026-10-13T16:11:50.237Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "शुभ रात्रि एवं अध्ययन टिप: निरंतरता ही सफलता की चाबी है। कल सुबह एक नए लक्ष्य के साथ उठें! ✨"
-    }
-  },
+  "bharti_auto_push_log": {},
   "teachers": [],
   "liveSessions": []
 }

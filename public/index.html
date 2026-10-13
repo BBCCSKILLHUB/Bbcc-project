@@ -3959,9 +3959,15 @@
                 const alertEl = document.getElementById('indexLiveClassAlert');
                 const msgEl = document.getElementById('indexLiveClassMsg');
                 if (!alertEl || !msgEl) return;
-                if (data.success && data.activeSessions && data.activeSessions.length > 0) {
-                    const active = data.activeSessions[0];
-                    msgEl.innerHTML = `🔴 <strong>LIVE NOW:</strong> <span>${active.teacherName}</span> is streaming <em>${active.courseName || active.subject || 'Live Class'}</em> at ${active.centerName || 'BBCC Network'}!`;
+
+                const sessions = data.activeClasses || data.activeSessions || [];
+                if (data.success && sessions.length > 0) {
+                    const active = sessions[0];
+                    if (active.isCentralAdmin) {
+                        msgEl.innerHTML = `<span style="background:#fbbf24; color:#080c14; padding:2px 8px; border-radius:12px; font-weight:800; font-size:11px; margin-right:6px;">🌟 BBCC CENTRAL LIVE</span> <strong>${active.title}</strong> — Hosted by <span>${active.teacherName}</span>! ${sessions.length > 1 ? `<em>(+${sessions.length - 1} more classes live)</em>` : ''}`;
+                    } else {
+                        msgEl.innerHTML = `<span style="background:#ef4444; color:#fff; padding:2px 8px; border-radius:12px; font-weight:800; font-size:11px; margin-right:6px;">🔴 LIVE CLASS</span> <strong>${active.teacherName}</strong> is teaching <em>${active.subject || active.title}</em> (${active.centerName || 'BBCC Certified Center'})! ${sessions.length > 1 ? `<em>(+${sessions.length - 1} more live)</em>` : ''}`;
+                    }
                     alertEl.style.display = 'flex';
                 } else {
                     alertEl.style.display = 'none';

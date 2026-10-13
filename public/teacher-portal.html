@@ -736,6 +736,12 @@
                             <i class="fas fa-users"></i> <span id="spectatorCountText">0 Active Students</span>
                         </div>
 
+                        <!-- Live Speaking Voice Indicator -->
+                        <div id="liveVoiceSpeakerAlert" style="display:none; position:absolute; bottom:16px; left:16px; background:rgba(16,185,129,0.92); backdrop-filter:blur(6px); color:#ffffff; padding:8px 16px; border-radius:20px; font-size:12.5px; font-weight:700; align-items:center; gap:8px; z-index:30; box-shadow:0 0 15px rgba(16,185,129,0.4); animation:pulse-live 1.2s infinite;">
+                            <i class="fas fa-microphone" style="color:#ffffff;"></i>
+                            <span id="speakerAlertText">Student is speaking live...</span>
+                        </div>
+
                         <div class="stage-placeholder" id="stagePlaceholder">
                             <i class="fas fa-chalkboard-user"></i>
                             <h4 style="font-size:16px; color:#cbd5e1; margin-bottom:4px;">Camera & Mic Ready</h4>
@@ -819,25 +825,55 @@
 
             </div>
 
+            <!-- Previous Live Lectures & Revision Archive Section -->
+            <div class="studio-card" style="margin-top:24px;">
+                <div class="card-header-flex">
+                    <div class="card-title">
+                        <i class="fas fa-film" style="color:var(--gold);"></i> 📚 Previous Live Lectures & Archive Vault
+                    </div>
+                    <button type="button" onclick="loadPreviousLectures()" class="btn-aurora btn-outline" style="font-size:12px; padding:6px 14px;">
+                        <i class="fas fa-sync-alt"></i> Refresh Lectures
+                    </button>
+                </div>
+                <div id="previousLecturesList" style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+                    <div style="text-align:center; padding:24px; color:#94a3b8; font-size:13px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:20px; margin-bottom:8px; display:block;"></i>
+                        Loading your past lectures...
+                    </div>
+                </div>
+            </div>
+
         </section>
 
     </div>
 
-    <!-- Edit Profile Modal -->
+    <!-- Edit Profile & Login ID Modal -->
     <div class="modal-overlay" id="editProfileModal">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h3 style="font-size:18px; color:var(--gold); font-family:var(--font-display);"><i class="fas fa-user-edit"></i> Edit Teacher Profile</h3>
+                <h3 style="font-size:18px; color:var(--gold); font-family:var(--font-display);"><i class="fas fa-user-edit"></i> Edit Teacher ID, Password & Profile</h3>
                 <button onclick="closeEditProfileModal()" style="background:transparent; border:none; color:#cbd5e1; font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="saveTeacherProfile(event)">
                 <div class="form-group">
-                    <label>Teacher Full Name</label>
+                    <label>Teacher Login ID (Username) *</label>
+                    <input type="text" id="editTeacherId" class="input-control" style="padding-left:14px; font-weight:700; color:var(--gold); font-family:monospace;" required>
+                    <small style="font-size:11px; color:#94a3b8; display:block; margin-top:4px;">Unique ID for universal teacher login across all devices.</small>
+                </div>
+                <div class="form-group">
+                    <label>Teacher Full Name *</label>
                     <input type="text" id="editName" class="input-control" style="padding-left:14px;" required>
                 </div>
                 <div class="form-group">
-                    <label>Main Subject</label>
+                    <label>Main Subject *</label>
                     <input type="text" id="editSubject" class="input-control" style="padding-left:14px;" required>
+                </div>
+                <div class="form-group">
+                    <label>Profile Photo</label>
+                    <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+                        <img id="editPhotoPreview" src="/data/branding/logo.png" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--border-gold);" onerror="this.src='/data/branding/logo.png'">
+                        <input type="file" id="editPhotoFile" accept="image/*" onchange="handleTeacherPhotoSelect(event)" style="font-size:12px; color:#94a3b8;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Qualification</label>
@@ -853,7 +889,12 @@
                 </div>
                 <div class="form-group">
                     <label>New Security Password (Leave blank to keep same)</label>
-                    <input type="password" id="editPassword" class="input-control" style="padding-left:14px;" placeholder="Leave blank to retain password">
+                    <div style="position:relative;">
+                        <input type="password" id="editPassword" class="input-control" style="padding-left:14px; padding-right:40px;" placeholder="Enter new password to change">
+                        <button type="button" onclick="togglePasswordVisibility('editPassword', this)" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#94a3b8; cursor:pointer;" title="Show/Hide Password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                     <button type="button" onclick="closeEditProfileModal()" class="btn-aurora btn-outline">Cancel</button>
@@ -985,6 +1026,7 @@
                     showDashboardView();
                     await loadTeacherCentersAndCourses();
                     await initLocalMediaPreview();
+                    loadPreviousLectures();
                 } else {
                     teacherLogout();
                 }
@@ -1126,6 +1168,7 @@
                     isScreenSharing = true;
                     screenBtn.className = 'device-toggle-btn active';
                     screenBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Screen Share';
+                    switchBroadcastTracks(screenStream);
                     showToast('Sharing your screen with students!', 'display', '#38bdf8');
                 } catch (e) {
                     console.warn('Screen share cancelled:', e.message);
@@ -1142,8 +1185,22 @@
             screenBtn.innerHTML = '<i class="fas fa-display"></i> Share Screen';
             if (localStream) {
                 document.getElementById('studioVideoPreview').srcObject = localStream;
+                switchBroadcastTracks(localStream);
             }
         }
+
+        let studentPeerConnections = new Map(); // studentId -> RTCPeerConnection
+        let activeBroadcastStream = null;
+        let frameRelayInterval = null;
+        let selectedTeacherPhotoBase64 = '';
+
+        const rtcConfiguration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
 
         // START LIVE CLASS BROADCAST
         async function startLiveClass() {
@@ -1172,6 +1229,8 @@
                 if (data.success && data.classId) {
                     currentClassId = data.classId;
                     isLiveBroadcasting = true;
+                    activeBroadcastStream = localStream;
+                    studentPeerConnections.clear();
 
                     // UI Updates
                     document.getElementById('videoStageBox').classList.add('broadcasting');
@@ -1180,11 +1239,12 @@
                     document.getElementById('btnStartBroadcast').style.display = 'none';
                     document.getElementById('btnEndBroadcast').style.display = 'inline-flex';
 
-                    showToast('🔴 Class is LIVE! Students can now join and watch.', 'tower-broadcast', '#ef4444');
+                    showToast('🔴 Class is LIVE! Camera & screen broadcasting to students.', 'tower-broadcast', '#ef4444');
 
-                    // Broadcast signaling
-                    sendTeacherSignal();
+                    // Start WebRTC & Frame Relay & Chat
+                    startBroadcastSignaling();
                     startChatPolling();
+                    startFrameRelay();
                 } else {
                     alert(data.message || 'Failed to start live broadcast');
                 }
@@ -1193,21 +1253,190 @@
             }
         }
 
-        async function sendTeacherSignal() {
-            if (!currentClassId) return;
+        // WebRTC Multi-Student Signaling Engine
+        let broadcastSignalInterval = null;
+        function startBroadcastSignaling() {
+            if (broadcastSignalInterval) clearInterval(broadcastSignalInterval);
+            broadcastSignalInterval = setInterval(async () => {
+                if (!currentClassId || !isLiveBroadcasting) return;
+                try {
+                    const res = await fetch(`/api/live/signals/${currentClassId}?role=teacher&_t=` + Date.now());
+                    const data = await res.json();
+                    if (!data.success) return;
+
+                    // Update viewer count
+                    if (data.activeStudentsCount !== undefined) {
+                        activeSpectatorCount = data.activeStudentsCount;
+                        document.getElementById('spectatorCountText').textContent = `${activeSpectatorCount} Active Students`;
+                    }
+
+                    // Update student voice speaking alert
+                    const speakerAlert = document.getElementById('liveVoiceSpeakerAlert');
+                    if (data.speakingStudent) {
+                        speakerAlert.style.display = 'flex';
+                        document.getElementById('speakerAlertText').textContent = `📢 ${data.speakingStudent.name} is asking a question live!`;
+                    } else {
+                        speakerAlert.style.display = 'none';
+                    }
+
+                    // Process pending student signals
+                    for (const sig of (data.signals || [])) {
+                        await handleIncomingStudentSignal(sig);
+                    }
+                } catch(e) {}
+            }, 800);
+        }
+
+        async function handleIncomingStudentSignal(sig) {
+            const studentId = sig.senderId;
+            if (!studentId) return;
+
+            if (sig.type === 'student_join') {
+                console.log(`New student joined classroom: ${sig.senderName} (${studentId})`);
+                await setupPeerForStudent(studentId, sig.senderName);
+            } else if (sig.type === 'answer') {
+                const pc = studentPeerConnections.get(studentId);
+                if (pc && pc.signalingState !== 'stable') {
+                    await pc.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+                }
+            } else if (sig.type === 'candidate') {
+                const pc = studentPeerConnections.get(studentId);
+                if (pc && sig.candidate) {
+                    try { await pc.addIceCandidate(new RTCIceCandidate(sig.candidate)); } catch(e) {}
+                }
+            } else if (sig.type === 'student_speaking') {
+                const speakerAlert = document.getElementById('liveVoiceSpeakerAlert');
+                if (sig.isSpeaking) {
+                    speakerAlert.style.display = 'flex';
+                    document.getElementById('speakerAlertText').textContent = `📢 ${sig.senderName || 'Student'} is speaking live!`;
+                } else {
+                    speakerAlert.style.display = 'none';
+                }
+            }
+        }
+
+        async function setupPeerForStudent(studentId, studentName) {
+            try {
+                if (studentPeerConnections.has(studentId)) {
+                    studentPeerConnections.get(studentId).close();
+                }
+
+                const pc = new RTCPeerConnection(rtcConfiguration);
+                studentPeerConnections.set(studentId, pc);
+
+                // Add active broadcast stream tracks (Camera/Screen + Mic)
+                const streamToShare = activeBroadcastStream || localStream;
+                if (streamToShare) {
+                    streamToShare.getTracks().forEach(track => {
+                        pc.addTrack(track, streamToShare);
+                    });
+                }
+
+                // Handle student audio when student speaks / asks question
+                pc.ontrack = (event) => {
+                    if (event.streams && event.streams[0]) {
+                        playStudentAudio(event.streams[0], studentName);
+                    }
+                };
+
+                // ICE Candidates
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        sendSignalToStudent(studentId, {
+                            type: 'candidate',
+                            candidate: event.candidate
+                        });
+                    }
+                };
+
+                // Create Offer
+                const offer = await pc.createOffer({
+                    offerToReceiveAudio: true,
+                    offerToReceiveVideo: false
+                });
+                await pc.setLocalDescription(offer);
+
+                await sendSignalToStudent(studentId, {
+                    type: 'offer',
+                    sdp: offer
+                });
+            } catch(err) {
+                console.warn(`Error setting up peer for ${studentId}:`, err);
+            }
+        }
+
+        async function sendSignalToStudent(targetId, data) {
             try {
                 await fetch('/api/live/signal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         classId: currentClassId,
-                        type: 'teacher-offer',
-                        signal: { hasVideo: isCameraOn || isScreenSharing, hasAudio: isMicOn, time: Date.now() },
                         senderRole: 'teacher',
-                        senderName: currentTeacher?.name || 'Faculty'
+                        targetId: targetId,
+                        type: data.type,
+                        sdp: data.sdp,
+                        candidate: data.candidate
                     })
                 });
-            } catch (e) {}
+            } catch(e) {}
+        }
+
+        function playStudentAudio(audioStream, studentName) {
+            let audioElem = document.getElementById('studentAudioReceiver');
+            if (!audioElem) {
+                audioElem = document.createElement('audio');
+                audioElem.id = 'studentAudioReceiver';
+                audioElem.autoplay = true;
+                document.body.appendChild(audioElem);
+            }
+            audioElem.srcObject = audioStream;
+            audioElem.play().catch(e => console.warn('Student audio play notice:', e));
+            showToast(`🎙️ ${studentName || 'Student'} is speaking live!`, 'microphone', '#10b981');
+        }
+
+        // Frame Relay Fallback (Takes light canvas snapshot every 1.5s for low-bandwidth/firewalled students)
+        let frameCanvas = null;
+        function startFrameRelay() {
+            if (frameRelayInterval) clearInterval(frameRelayInterval);
+            frameRelayInterval = setInterval(() => {
+                if (!isLiveBroadcasting || !currentClassId) return;
+                try {
+                    const video = document.getElementById('studioVideoPreview');
+                    if (video && video.videoWidth > 0) {
+                        if (!frameCanvas) frameCanvas = document.createElement('canvas');
+                        frameCanvas.width = 480;
+                        frameCanvas.height = 270;
+                        const ctx = frameCanvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, 480, 270);
+                        const frameData = frameCanvas.toDataURL('image/jpeg', 0.55);
+                        fetch('/api/live/frame', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ classId: currentClassId, frameData })
+                        }).catch(() => {});
+                    }
+                } catch(e) {}
+            }, 1500);
+        }
+
+        // Update Screen Share Track on all Student Connections
+        async function switchBroadcastTracks(newStream) {
+            activeBroadcastStream = newStream;
+            const newVideoTrack = newStream ? newStream.getVideoTracks()[0] : null;
+            if (!newVideoTrack) return;
+
+            for (const [studentId, pc] of studentPeerConnections.entries()) {
+                try {
+                    const senders = pc.getSenders();
+                    const videoSender = senders.find(s => s.track && s.track.kind === 'video');
+                    if (videoSender) {
+                        await videoSender.replaceTrack(newVideoTrack);
+                    }
+                } catch(e) {
+                    console.warn(`replaceTrack notice for ${studentId}:`, e);
+                }
+            }
         }
 
         // END LIVE CLASS & ARCHIVE TO YOUTUBE
@@ -1246,19 +1475,25 @@
 
                 setTimeout(() => {
                     modal.style.display = 'none';
-                    // Reset UI
+                    // Reset UI & Connections
                     isLiveBroadcasting = false;
+                    for (const pc of studentPeerConnections.values()) pc.close();
+                    studentPeerConnections.clear();
                     currentClassId = '';
                     if (chatPollTimer) clearInterval(chatPollTimer);
+                    if (broadcastSignalInterval) clearInterval(broadcastSignalInterval);
+                    if (frameRelayInterval) clearInterval(frameRelayInterval);
 
                     document.getElementById('videoStageBox').classList.remove('broadcasting');
                     document.getElementById('liveBadgeOverlay').style.display = 'none';
+                    document.getElementById('liveVoiceSpeakerAlert').style.display = 'none';
                     document.getElementById('stageBroadcastStatus').innerHTML = '<span style="width:10px; height:10px; border-radius:50%; background:#64748b; display:inline-block;"></span> OFFLINE STUDIO';
                     document.getElementById('btnStartBroadcast').style.display = 'inline-flex';
                     document.getElementById('btnEndBroadcast').style.display = 'none';
                     document.getElementById('liveClassTitleInput').value = '';
 
                     showToast('Lecture safely archived to Revision Vault & YouTube!', 'check-double', '#10b981');
+                    loadPreviousLectures();
                 }, 1600);
 
             } catch (err) {
@@ -1273,22 +1508,14 @@
             chatPollTimer = setInterval(async () => {
                 if (!currentClassId) return;
                 try {
-                    // Update Spectator count & Signals
-                    const sigRes = await fetch(`/api/live/signals/${currentClassId}`);
-                    const sigData = await sigRes.json();
-                    if (sigData.success) {
-                        activeSpectatorCount = sigData.activeStudentsCount || 0;
-                        document.getElementById('spectatorCountText').textContent = `${activeSpectatorCount} Active Students`;
-                    }
-
                     // Update Chat Messages
-                    const chatRes = await fetch(`/api/live/chat/${currentClassId}`);
+                    const chatRes = await fetch(`/api/live/chat/${currentClassId}?_t=` + Date.now());
                     const chatData = await chatRes.json();
                     if (chatData.success && chatData.chat) {
                         renderChatMessages(chatData.chat);
                     }
                 } catch (e) {}
-            }, 3500);
+            }, 3000);
         }
 
         function renderChatMessages(messages) {
@@ -1337,15 +1564,59 @@
             } catch (err) {}
         }
 
-        // Profile Edit Modal
+        // Load Previous Live Lectures Archive for Teacher
+        async function loadPreviousLectures() {
+            const container = document.getElementById('previousLecturesList');
+            if (!container) return;
+            try {
+                const tKey = currentTeacher ? (currentTeacher.teacherId || currentTeacher.name) : '';
+                const res = await fetch(`/api/live/recordings?teacherId=${encodeURIComponent(tKey)}&_t=` + Date.now());
+                const data = await res.json();
+                if (data.success && data.recordings && data.recordings.length > 0) {
+                    container.innerHTML = data.recordings.map(r => {
+                        const dateStr = r.recordedAt ? new Date(r.recordedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
+                        const playUrl = r.youtubeWatchUrl || r.videoUrl || '#';
+                        return `
+                            <div style="background:#1e293b; border:1px solid var(--border-subtle); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                                <div>
+                                    <h4 style="font-size:14px; color:#ffffff; margin-bottom:4px; font-weight:700;"><i class="fab fa-youtube" style="color:#ef4444; margin-right:6px;"></i> ${r.title}</h4>
+                                    <div style="font-size:12px; color:#94a3b8;">
+                                        <span>${r.courseName || 'Lecture'}</span> • <span>${r.centerName || 'Coaching Center'}</span> • <span style="color:var(--gold);">${dateStr}</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <a href="${playUrl}" target="_blank" class="btn-aurora btn-outline" style="font-size:12px; padding:6px 14px; text-decoration:none;">
+                                        <i class="fas fa-play"></i> Watch Recording
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:24px; color:#64748b; font-size:13px;">
+                            <i class="fas fa-video-slash" style="font-size:28px; margin-bottom:8px; display:block; color:#475569;"></i>
+                            No past lectures archived yet. When you end a live class, it will automatically appear here!
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                container.innerHTML = `<div style="text-align:center; padding:16px; color:#ef4444; font-size:12px;">Error loading lectures: ${e.message}</div>`;
+            }
+        }
+
+        // Profile Edit Modal with Teacher ID, Password & Photo
         function openEditProfileModal() {
             if (!currentTeacher) return;
+            document.getElementById('editTeacherId').value = currentTeacher.teacherId || '';
             document.getElementById('editName').value = currentTeacher.name || '';
             document.getElementById('editSubject').value = currentTeacher.subject || '';
             document.getElementById('editQual').value = currentTeacher.qualification || '';
             document.getElementById('editExp').value = currentTeacher.experience || '';
             document.getElementById('editBio').value = currentTeacher.bio || '';
             document.getElementById('editPassword').value = '';
+            document.getElementById('editPhotoPreview').src = currentTeacher.photo || '/data/branding/logo.png';
+            selectedTeacherPhotoBase64 = '';
             document.getElementById('editProfileModal').style.display = 'flex';
         }
 
@@ -1353,16 +1624,53 @@
             document.getElementById('editProfileModal').style.display = 'none';
         }
 
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        function handleTeacherPhotoSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                selectedTeacherPhotoBase64 = evt.target.result;
+                document.getElementById('editPhotoPreview').src = selectedTeacherPhotoBase64;
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function saveTeacherProfile(e) {
             e.preventDefault();
+            const teacherId = document.getElementById('editTeacherId').value.trim();
+            const name = document.getElementById('editName').value.trim();
+            const subject = document.getElementById('editSubject').value.trim();
+            const qualification = document.getElementById('editQual').value.trim();
+            const experience = document.getElementById('editExp').value.trim();
+            const bio = document.getElementById('editBio').value.trim();
+            const password = document.getElementById('editPassword').value.trim();
+
+            if (!teacherId || !name || !subject) {
+                alert('Teacher ID, Name, and Subject are required fields.');
+                return;
+            }
+
             const payload = {
-                name: document.getElementById('editName').value.trim(),
-                subject: document.getElementById('editSubject').value.trim(),
-                qualification: document.getElementById('editQual').value.trim(),
-                experience: document.getElementById('editExp').value.trim(),
-                bio: document.getElementById('editBio').value.trim(),
-                password: document.getElementById('editPassword').value.trim() || undefined
+                teacherId,
+                name,
+                subject,
+                qualification,
+                experience,
+                bio
             };
+            if (password) payload.password = password;
+            if (selectedTeacherPhotoBase64) payload.photo = selectedTeacherPhotoBase64;
 
             try {
                 const res = await fetch('/api/teacher/profile', {
@@ -1376,9 +1684,13 @@
                 const data = await res.json();
                 if (data.success && data.teacher) {
                     currentTeacher = data.teacher;
+                    if (data.token) {
+                        teacherToken = data.token;
+                        localStorage.setItem('bbcc_teacher_token', teacherToken);
+                    }
                     renderTeacherProfile(currentTeacher, null);
                     closeEditProfileModal();
-                    showToast('Profile updated successfully!', 'check-circle', '#10b981');
+                    showToast('Teacher ID, Password & Profile updated successfully!', 'check-circle', '#10b981');
                 } else {
                     alert(data.message || 'Failed to update profile');
                 }

@@ -248,6 +248,9 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('notifications')">
                 <i class="fas fa-bell"></i> Push Broadcast & BHARTI
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('central-live')">
+                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Central Live Studio & Programs
+            </button>
         </aside>
 
         <main class="admin-content">
@@ -1381,6 +1384,110 @@
                 </div>
             </div>
 
+            <!-- TAB 13: CENTRAL LIVE STUDIO & PROGRAMS (BBCC DIRECTORATE SPECIAL BROADCASTS) -->
+            <div class="admin-tab" id="tab-central-live">
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border-glow); padding-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
+                                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Central Live Studio & Special Programs
+                            </h3>
+                            <p style="color:#94a3b8; font-size:12.5px; margin-top:4px;">
+                                Broadcast platform-wide live seminars, national orientations, or central masterclasses directly to all connected coaching centers & students.
+                            </p>
+                        </div>
+                        <div id="adminLiveBadge" style="display:none; background:#ef4444; color:#fff; font-size:12px; font-weight:800; padding:6px 16px; border-radius:20px; align-items:center; gap:8px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:pulseDot 1s infinite;"></span> ON AIR BROADCASTING
+                        </div>
+                    </div>
+
+                    <!-- Grid: Left Studio Broadcast Stage, Right Program Form & Live Doubts -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+                        
+                        <!-- Left: Live Broadcast Screen & Hardware Controls -->
+                        <div style="background:#030712; border:1px solid rgba(251,191,36,0.3); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:14px;">
+                            <div style="position:relative; width:100%; min-height:280px; background:#000; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                                <video id="adminStudioVideoPreview" autoplay muted playsinline style="width:100%; height:100%; object-fit:contain;"></video>
+                                <div id="adminStagePlaceholder" style="position:absolute; text-align:center; color:#94a3b8;">
+                                    <i class="fas fa-video" style="font-size:42px; color:var(--admin-gold); margin-bottom:10px;"></i>
+                                    <h4 style="font-size:15px; color:#fff;">Camera & Mic Offline</h4>
+                                    <p style="font-size:11.5px;">Click "Start Hardware Preview" below or begin broadcast.</p>
+                                </div>
+                                <div id="adminSpectatorCountBadge" style="display:none; position:absolute; top:12px; right:12px; background:rgba(15,23,42,0.85); border:1px solid var(--border-glow); padding:4px 12px; border-radius:16px; font-size:11px; font-weight:700; color:#cbd5e1;">
+                                    <i class="fas fa-users" style="color:var(--admin-gold);"></i> <span id="adminLiveSpectatorText">0 Students Watching</span>
+                                </div>
+                            </div>
+
+                            <!-- Hardware Controls -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" id="btnAdminCam" onclick="toggleAdminCamera()" class="btn-aurora" style="font-size:12px; padding:6px 14px; background:rgba(255,255,255,0.08);">
+                                        <i class="fas fa-camera"></i> Camera
+                                    </button>
+                                    <button type="button" id="btnAdminMic" onclick="toggleAdminMic()" class="btn-aurora" style="font-size:12px; padding:6px 14px; background:rgba(255,255,255,0.08);">
+                                        <i class="fas fa-microphone"></i> Mic
+                                    </button>
+                                    <button type="button" id="btnAdminScreen" onclick="toggleAdminScreenShare()" class="btn-aurora" style="font-size:12px; padding:6px 14px; background:rgba(255,255,255,0.08);">
+                                        <i class="fas fa-display"></i> Share Screen
+                                    </button>
+                                </div>
+                                <button type="button" onclick="initAdminMediaHardware()" class="btn-aurora" style="font-size:11.5px; padding:6px 12px; border-color:var(--admin-gold); color:var(--admin-gold);">
+                                    <i class="fas fa-rotate"></i> Test Hardware
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Program Launch Settings & Live Chat Monitor -->
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            <form onsubmit="handleAdminStartLive(event)" id="adminLiveProgramForm" style="display:flex; flex-direction:column; gap:12px; background:rgba(15,23,42,0.6); border:1px solid var(--border-glow); border-radius:14px; padding:18px;">
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:4px;">Program / Lecture Title *</label>
+                                    <input type="text" id="adminLiveTitle" required placeholder="e.g. BBCC National Orientation & Board Special Masterclass" class="console-input">
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">Host / Speaker Name *</label>
+                                        <input type="text" id="adminLiveHost" required value="BBCC Central Directorate" class="console-input">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">Topic / Subject</label>
+                                        <input type="text" id="adminLiveSubject" placeholder="e.g. Career & Skill Guidance" class="console-input">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">Optional: YouTube Live Stream URL / Video ID</label>
+                                    <input type="text" id="adminLiveYtUrl" placeholder="https://youtube.com/live/... or leave empty for in-browser studio" class="console-input" style="font-family:monospace;">
+                                    <small style="font-size:11px; color:#94a3b8;">If provided, students will see this YouTube Live broadcast embedded directly inside their classroom.</small>
+                                </div>
+
+                                <div style="display:flex; gap:12px; margin-top:8px;">
+                                    <button type="submit" id="btnAdminStartBroadcast" class="btn-aurora btn-gold" style="flex:1; padding:11px 20px; font-size:13.5px; font-weight:800;">
+                                        <i class="fas fa-tower-broadcast"></i> GO LIVE ACROSS PLATFORM
+                                    </button>
+                                    <button type="button" id="btnAdminEndBroadcast" onclick="handleAdminEndLive()" class="btn-aurora" style="display:none; flex:1; padding:11px 20px; font-size:13.5px; font-weight:800; background:#ef4444; color:#fff; border-color:#dc2626;">
+                                        <i class="fas fa-stop"></i> END BROADCAST
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Live Doubts & Audience Questions Box -->
+                            <div style="background:#030712; border:1px solid rgba(251,191,36,0.25); border-radius:14px; padding:16px; flex:1; display:flex; flex-direction:column; max-height:280px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <h4 style="font-size:13px; font-weight:700; color:#fff; margin:0;"><i class="fas fa-comments" style="color:var(--cyan);"></i> Audience Doubts Desk</h4>
+                                    <span style="font-size:10.5px; color:var(--admin-gold);"><i class="fas fa-bolt"></i> Live Feed</span>
+                                </div>
+                                <div id="adminLiveChatBox" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; font-size:12px; padding-right:4px;">
+                                    <div style="text-align:center; color:#64748b; padding:20px; font-size:12px;">
+                                        Live questions asked by students during the broadcast will stream here in real-time.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1799,6 +1906,225 @@
             if (tId === 'payouts') loadAdminPayouts();
             if (tId === 'tickets') loadAdminTickets();
             if (tId === 'notifications') loadPushNotificationStatus();
+            if (tId === 'central-live') initAdminCentralLive();
+        }
+
+        // ============================================
+        // CENTRAL LIVE STUDIO & PROGRAMS BROADCAST ENGINE
+        // ============================================
+        let adminLocalStream = null;
+        let adminIsLiveBroadcasting = false;
+        let adminActiveLiveClassId = '';
+        let adminChatPollInterval = null;
+        let adminFrameRelayInterval = null;
+        let adminIsScreenSharing = false;
+
+        async function initAdminCentralLive() {
+            try {
+                const res = await fetch('/api/live/active?_t=' + Date.now());
+                const data = await res.json();
+                const sessions = data.activeClasses || data.activeSessions || [];
+                const centralLive = sessions.find(s => s.isCentralAdmin);
+                if (centralLive) {
+                    adminActiveLiveClassId = centralLive.classId;
+                    adminIsLiveBroadcasting = true;
+                    document.getElementById('adminLiveBadge').style.display = 'flex';
+                    document.getElementById('btnAdminStartBroadcast').style.display = 'none';
+                    document.getElementById('btnAdminEndBroadcast').style.display = 'inline-flex';
+                    document.getElementById('adminSpectatorCountBadge').style.display = 'block';
+                    startAdminLiveChatMonitor();
+                } else {
+                    document.getElementById('adminLiveBadge').style.display = 'none';
+                    document.getElementById('btnAdminStartBroadcast').style.display = 'inline-flex';
+                    document.getElementById('btnAdminEndBroadcast').style.display = 'none';
+                    document.getElementById('adminSpectatorCountBadge').style.display = 'none';
+                }
+            } catch(e) {}
+        }
+
+        async function initAdminMediaHardware() {
+            try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    adminLocalStream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: true
+                    });
+                    const vid = document.getElementById('adminStudioVideoPreview');
+                    vid.srcObject = adminLocalStream;
+                    document.getElementById('adminStagePlaceholder').style.display = 'none';
+                    showToast('Webcam & Microphone connected for Live Broadcast!');
+                }
+            } catch(e) {
+                alert('Could not access Camera/Mic: ' + e.message);
+            }
+        }
+
+        function toggleAdminCamera() {
+            if (!adminLocalStream) { initAdminMediaHardware(); return; }
+            const track = adminLocalStream.getVideoTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('btnAdminCam');
+                btn.style.color = track.enabled ? '#fff' : '#ef4444';
+            }
+        }
+
+        function toggleAdminMic() {
+            if (!adminLocalStream) { initAdminMediaHardware(); return; }
+            const track = adminLocalStream.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('btnAdminMic');
+                btn.style.color = track.enabled ? '#fff' : '#ef4444';
+            }
+        }
+
+        async function toggleAdminScreenShare() {
+            const btn = document.getElementById('btnAdminScreen');
+            if (!adminIsScreenSharing) {
+                try {
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    const vid = document.getElementById('adminStudioVideoPreview');
+                    vid.srcObject = screenStream;
+                    adminIsScreenSharing = true;
+                    btn.style.color = '#38bdf8';
+                    screenStream.getVideoTracks()[0].onended = () => {
+                        stopAdminScreenShare();
+                    };
+                } catch(e) {}
+            } else {
+                stopAdminScreenShare();
+            }
+        }
+
+        function stopAdminScreenShare() {
+            const btn = document.getElementById('btnAdminScreen');
+            adminIsScreenSharing = false;
+            btn.style.color = '#fff';
+            if (adminLocalStream) {
+                document.getElementById('adminStudioVideoPreview').srcObject = adminLocalStream;
+            }
+        }
+
+        async function handleAdminStartLive(e) {
+            e.preventDefault();
+            const title = document.getElementById('adminLiveTitle').value.trim();
+            const hostName = document.getElementById('adminLiveHost').value.trim();
+            const subject = document.getElementById('adminLiveSubject').value.trim();
+            const youtubeLiveUrl = document.getElementById('adminLiveYtUrl').value.trim();
+
+            const btn = document.getElementById('btnAdminStartBroadcast');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Launching Broadcast...';
+
+            try {
+                const res = await fetch('/api/admin/live/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, hostName, subject, youtubeLiveUrl })
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-tower-broadcast"></i> GO LIVE ACROSS PLATFORM';
+
+                if (data.success && data.classId) {
+                    adminActiveLiveClassId = data.classId;
+                    adminIsLiveBroadcasting = true;
+
+                    document.getElementById('adminLiveBadge').style.display = 'flex';
+                    document.getElementById('btnAdminStartBroadcast').style.display = 'none';
+                    document.getElementById('btnAdminEndBroadcast').style.display = 'inline-flex';
+                    document.getElementById('adminSpectatorCountBadge').style.display = 'block';
+
+                    startAdminFrameRelay();
+                    startAdminLiveChatMonitor();
+                    showToast('🌟 Broadcast is LIVE across platform & website homepage!');
+                } else {
+                    alert(data.message || 'Failed to start live broadcast');
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-tower-broadcast"></i> GO LIVE ACROSS PLATFORM';
+                alert('Error starting live program: ' + err.message);
+            }
+        }
+
+        async function handleAdminEndLive() {
+            if (!confirm('Are you sure you want to conclude this Central Live Program?')) return;
+            try {
+                const res = await fetch('/api/admin/live/end', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ classId: adminActiveLiveClassId })
+                });
+                const data = await res.json();
+                adminIsLiveBroadcasting = false;
+                adminActiveLiveClassId = '';
+                if (adminChatPollInterval) clearInterval(adminChatPollInterval);
+                if (adminFrameRelayInterval) clearInterval(adminFrameRelayInterval);
+
+                document.getElementById('adminLiveBadge').style.display = 'none';
+                document.getElementById('btnAdminStartBroadcast').style.display = 'inline-flex';
+                document.getElementById('btnAdminEndBroadcast').style.display = 'none';
+                document.getElementById('adminSpectatorCountBadge').style.display = 'none';
+                showToast('Central broadcast concluded and archived successfully.');
+            } catch(e) {
+                alert('Error ending live: ' + e.message);
+            }
+        }
+
+        function startAdminFrameRelay() {
+            if (adminFrameRelayInterval) clearInterval(adminFrameRelayInterval);
+            let frameCanvas = null;
+            adminFrameRelayInterval = setInterval(() => {
+                if (!adminIsLiveBroadcasting || !adminActiveLiveClassId) return;
+                try {
+                    const video = document.getElementById('adminStudioVideoPreview');
+                    if (video && video.videoWidth > 0) {
+                        if (!frameCanvas) frameCanvas = document.createElement('canvas');
+                        frameCanvas.width = 480;
+                        frameCanvas.height = 270;
+                        const ctx = frameCanvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, 480, 270);
+                        const frameData = frameCanvas.toDataURL('image/jpeg', 0.55);
+                        fetch('/api/live/frame', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ classId: adminActiveLiveClassId, frameData })
+                        }).catch(() => {});
+                    }
+                } catch(e) {}
+            }, 1500);
+        }
+
+        function startAdminLiveChatMonitor() {
+            if (adminChatPollInterval) clearInterval(adminChatPollInterval);
+            adminChatPollInterval = setInterval(async () => {
+                if (!adminActiveLiveClassId) return;
+                try {
+                    const res = await fetch(`/api/live/chat/${adminActiveLiveClassId}?_t=` + Date.now());
+                    const data = await res.json();
+                    if (data.success && data.chat) {
+                        const box = document.getElementById('adminLiveChatBox');
+                        box.innerHTML = data.chat.map(m => `
+                            <div style="background:rgba(255,255,255,0.05); border-left:3px solid #38bdf8; padding:6px 10px; border-radius:6px;">
+                                <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#94a3b8; margin-bottom:2px;">
+                                    <strong style="color:#38bdf8;">${m.sender}</strong>
+                                    <span>${new Date(m.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>
+                                </div>
+                                <div style="color:#ffffff;">${m.text}</div>
+                            </div>
+                        `).join('');
+                        box.scrollTop = box.scrollHeight;
+                    }
+                } catch(e) {}
+            }, 3000);
         }
 
         // ============================================

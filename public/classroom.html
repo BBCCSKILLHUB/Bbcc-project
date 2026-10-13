@@ -983,9 +983,29 @@
 
     <!-- In-App Interactive Live Classroom Player Modal -->
     <div id="liveStudentPlayerModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center; padding:16px;">
-        <div style="background:var(--bg-card); border:1px solid var(--border-gold); border-radius:20px; max-width:1100px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
+        <div style="background:var(--bg-card); border:1px solid var(--border-gold); border-radius:20px; max-width:1150px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7); position:relative;">
+            
+            <!-- Course Purchase Required Locked Overlay -->
+            <div id="studentCourseLockedOverlay" style="display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(3,7,18,0.96); z-index:50; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
+                <div style="width:72px; height:72px; border-radius:50%; background:rgba(245,158,11,0.15); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:32px; color:var(--gold); margin-bottom:16px;">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 style="font-size:20px; color:#ffffff; font-weight:800; margin-bottom:8px;">Premium Course Lecture (Access Locked)</h3>
+                <p id="lockedCourseMsg" style="font-size:13.5px; color:#cbd5e1; max-width:440px; margin-bottom:20px; line-height:1.5;">
+                    This live lecture is exclusively available to enrolled students of this batch. Please complete your enrollment or course purchase to join and watch live.
+                </p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+                    <button id="btnBuyCourseNow" onclick="handleBuyCourseLive()" class="btn-gold" style="padding:11px 24px; font-size:14px;">
+                        <i class="fas fa-credit-card"></i> Enroll / Buy Course Now
+                    </button>
+                    <button onclick="closeLiveStudentPlayer()" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-subtle); color:#cbd5e1; padding:11px 20px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600;">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
             <!-- Player Header -->
-            <div style="padding:16px 24px; background:rgba(11,16,28,0.95); border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="padding:14px 22px; background:rgba(11,16,28,0.95); border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                     <span style="background:#ef4444; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
                         <span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:pulseAnim 1s infinite;"></span> LIVE STREAM
@@ -993,21 +1013,43 @@
                     <h3 id="modalLiveClassTitle" style="font-size:16px; color:#fff; margin:0; font-weight:800;">Class Title</h3>
                     <span id="modalLiveTeacher" style="color:var(--gold); font-size:13px; font-weight:600;">Faculty Name</span>
                 </div>
-                <button onclick="closeLiveStudentPlayer()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <!-- Student Voice Asking Button -->
+                    <button id="btnStudentVoice" onclick="toggleStudentVoice()" style="background:rgba(245,158,11,0.15); border:1px solid var(--gold); color:var(--gold); padding:7px 16px; border-radius:20px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s;" title="Unmute your microphone and ask doubt directly to faculty">
+                        <i class="fas fa-microphone"></i> <span>Ask by Voice (बोल कर पूछें)</span>
+                    </button>
+                    <button onclick="closeLiveStudentPlayer()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <!-- Player Body: Video & Live Chat Grid -->
-            <div style="display:grid; grid-template-columns:2fr 1fr; flex:1; min-height:420px; max-height:calc(92vh - 70px); overflow:hidden;">
+            <div style="display:grid; grid-template-columns:2fr 1fr; flex:1; min-height:440px; max-height:calc(92vh - 70px); overflow:hidden;">
                 <!-- Left: Live Video Display -->
                 <div style="background:#000; position:relative; display:flex; align-items:center; justify-content:center; min-height:380px;">
+                    
+                    <!-- Audio Unmute Prompt -->
+                    <div id="studentUnmutePrompt" onclick="unmuteStudentLiveVideo()" style="display:none; position:absolute; top:16px; left:50%; transform:translateX(-50%); background:rgba(239,68,68,0.92); color:#fff; padding:8px 18px; border-radius:24px; font-size:12.5px; font-weight:700; cursor:pointer; z-index:25; box-shadow:0 4px 20px rgba(0,0,0,0.6); align-items:center; gap:8px;">
+                        <i class="fas fa-volume-high"></i> Click here to Enable Live Sound / Unmute
+                    </div>
+
+                    <!-- Connecting / Offline Placeholder -->
                     <div id="studentLiveVideoPlaceholder" style="text-align:center; color:#94a3b8; padding:30px;">
                         <i class="fas fa-tower-broadcast" style="font-size:56px; color:#ef4444; margin-bottom:12px; animation:pulseAnim 1.4s infinite;"></i>
                         <h4 style="font-size:18px; color:#fff; margin-bottom:6px;">Connecting to Live Broadcast...</h4>
-                        <p style="font-size:13px; max-width:320px; margin:0 auto;">Receiving live teacher stream & audio feed. Active questions welcome.</p>
+                        <p style="font-size:13px; max-width:320px; margin:0 auto;">Receiving live teacher camera & screen feed with low-latency audio.</p>
                     </div>
+
+                    <!-- WebRTC Real-Time Video Player -->
                     <video id="studentLiveVideo" autoplay playsinline controls style="display:none; width:100%; height:100%; object-fit:contain;"></video>
+
+                    <!-- Frame Relay Image Stream Fallback -->
+                    <img id="studentLiveFrameImg" alt="Live Teacher Stream" style="display:none; width:100%; height:100%; object-fit:contain;">
+                    
+                    <!-- YouTube Live Embed Container -->
+                    <div id="studentYoutubeLiveContainer" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%;"></div>
                 </div>
+
                 <!-- Right: Real-time Doubts & Chat Desk -->
                 <div style="background:var(--bg-obsidian); border-left:1px solid var(--border-subtle); display:flex; flex-direction:column; padding:16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -1016,7 +1058,7 @@
                     </div>
                     <div id="studentLiveChatBox" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding-right:4px;">
                         <div style="font-size:12px; color:#64748b; font-style:italic; text-align:center; padding:10px;">
-                            You are connected to the live session. Type your questions or doubts below for the faculty.
+                            You are connected to the live session. Type your questions below or click "Ask by Voice" to speak with the teacher!
                         </div>
                     </div>
                     <form onsubmit="sendStudentLiveDoubt(event)" style="display:flex; gap:8px;">
@@ -1323,42 +1365,333 @@
             }
         }
 
+        let studentPeerConnection = null;
+        let studentSignalTimer = null;
+        let studentFrameTimer = null;
+        let studentMicStream = null;
+        let studentVoiceSender = null;
+        let isStudentSpeaking = false;
+        let myLiveStudentSessionId = '';
+
+        const rtcConfiguration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
+
+        // Course Access Verification (Central Programs Free, Paid Courses Checked)
+        function checkStudentCourseAccess(live) {
+            if (!live) return false;
+            // Central Admin special masterclasses or free orientation sessions
+            if (live.isCentralAdmin) return true;
+
+            if (!currentStudentData || !currentStudentData.student) return false;
+            const stu = currentStudentData.student;
+            const stuCourse = (stu.course || '').toLowerCase().trim();
+            const liveCourse = (live.courseName || '').toLowerCase().trim();
+            const liveSubject = (live.subject || '').toLowerCase().trim();
+
+            if (liveCourse && (stuCourse.includes(liveCourse) || liveCourse.includes(stuCourse))) return true;
+            if (liveSubject && (stuCourse.includes(liveSubject) || liveSubject.includes(stuCourse))) return true;
+
+            // Center enrolled student matching
+            if (currentStudentData.center && live.centerId && currentStudentData.center._id === live.centerId) return true;
+
+            // If not matched, requires purchase / enrollment
+            return false;
+        }
+
+        function handleBuyCourseLive() {
+            if (!currentActiveLive) return;
+            const courseName = currentActiveLive.courseName || currentActiveLive.title || 'Live Premium Course';
+            const centerName = currentActiveLive.centerName || 'BBCC Network';
+            // Redirect to home course checkout or direct whatsapp/admission help
+            const enrollUrl = `/?enrollCourse=${encodeURIComponent(courseName)}&centerId=${encodeURIComponent(currentActiveLive.centerId || '')}`;
+            window.location.href = enrollUrl;
+        }
+
         // Live Student Player Modal Actions
         async function openLiveStudentPlayer() {
             if (!currentActiveLive) return;
             const modal = document.getElementById('liveStudentPlayerModal');
             document.getElementById('modalLiveClassTitle').textContent = currentActiveLive.title;
-            document.getElementById('modalLiveTeacher').textContent = 'Prof. ' + currentActiveLive.teacherName;
+            document.getElementById('modalLiveTeacher').textContent = currentActiveLive.isCentralAdmin ? ('🎙️ ' + currentActiveLive.teacherName) : ('Prof. ' + currentActiveLive.teacherName);
             document.getElementById('modalActiveStudentCount').textContent = (currentActiveLive.activeStudentsCount || 1);
+            
+            // Check Course Enrollment / Purchase Access
+            const hasAccess = checkStudentCourseAccess(currentActiveLive);
+            const lockOverlay = document.getElementById('studentCourseLockedOverlay');
+
+            if (!hasAccess) {
+                document.getElementById('lockedCourseMsg').innerHTML = `
+                    This live lecture for <strong>${escapeHtml(currentActiveLive.courseName || currentActiveLive.title)}</strong> is reserved for enrolled candidates of <strong>${escapeHtml(currentActiveLive.centerName || 'Partner Center')}</strong>. Enroll or purchase this course to unlock live classes and notes.
+                `;
+                lockOverlay.style.display = 'flex';
+                modal.style.display = 'flex';
+                return;
+            } else {
+                lockOverlay.style.display = 'none';
+            }
+
             modal.style.display = 'flex';
 
+            // Reset video and placeholder states
+            const videoElem = document.getElementById('studentLiveVideo');
+            const placeholder = document.getElementById('studentLiveVideoPlaceholder');
+            const frameImg = document.getElementById('studentLiveFrameImg');
+            const ytBox = document.getElementById('studentYoutubeLiveContainer');
+
+            videoElem.srcObject = null;
+            videoElem.style.display = 'none';
+            frameImg.style.display = 'none';
+            placeholder.style.display = 'block';
+            ytBox.style.display = 'none';
+            ytBox.innerHTML = '';
+
+            // Check if YouTube Live URL is active
+            if (currentActiveLive.youtubeLiveUrl) {
+                let ytUrl = currentActiveLive.youtubeLiveUrl;
+                let ytId = '';
+                if (ytUrl.includes('youtube.com/watch?v=')) ytId = ytUrl.split('v=')[1]?.split('&')[0];
+                else if (ytUrl.includes('youtu.be/')) ytId = ytUrl.split('youtu.be/')[1]?.split('?')[0];
+                else if (ytUrl.includes('youtube.com/live/')) ytId = ytUrl.split('live/')[1]?.split('?')[0];
+
+                if (ytId) {
+                    ytBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
+                    ytBox.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+            }
+
+            // Connect WebRTC interactive live stream
+            myLiveStudentSessionId = 'stu_' + (currentStudentData ? (currentStudentData.student.studentId || currentStudentData.student.rollNo) : ('rand_' + Math.floor(Math.random()*10000))) + '_' + Date.now();
+            await initStudentWebRTC(currentActiveLive.classId);
+
+            startStudentChatPolling();
+        }
+
+        async function initStudentWebRTC(classId) {
+            try {
+                if (studentPeerConnection) {
+                    studentPeerConnection.close();
+                }
+
+                studentPeerConnection = new RTCPeerConnection(rtcConfiguration);
+
+                // Receive audio & video tracks from teacher
+                studentPeerConnection.ontrack = (event) => {
+                    console.log('Received track from teacher studio:', event.track.kind);
+                    if (event.streams && event.streams[0]) {
+                        const videoElem = document.getElementById('studentLiveVideo');
+                        videoElem.srcObject = event.streams[0];
+                        videoElem.style.display = 'block';
+                        document.getElementById('studentLiveVideoPlaceholder').style.display = 'none';
+                        document.getElementById('studentLiveFrameImg').style.display = 'none';
+
+                        videoElem.play().catch(e => {
+                            console.warn('Autoplay sound policy restriction:', e.message);
+                            document.getElementById('studentUnmutePrompt').style.display = 'flex';
+                        });
+                    }
+                };
+
+                // ICE candidates to teacher
+                studentPeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        sendStudentLiveSignal({
+                            classId: classId,
+                            type: 'candidate',
+                            candidate: event.candidate
+                        });
+                    }
+                };
+
+                // Announce student join
+                const studentName = currentStudentData ? currentStudentData.student.name : 'Student';
+                await sendStudentLiveSignal({
+                    classId: classId,
+                    type: 'student_join',
+                    senderName: studentName
+                });
+
+                // Start signal polling & Frame fallback
+                startStudentSignalPolling(classId);
+                startStudentFrameFallback(classId);
+
+            } catch (err) {
+                console.warn('WebRTC init notice:', err.message);
+            }
+        }
+
+        async function sendStudentLiveSignal(data) {
             try {
                 await fetch('/api/live/signal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        classId: currentActiveLive.classId,
-                        type: 'student-join',
-                        signal: { joined: true, time: Date.now() },
-                        senderId: currentStudentData ? currentStudentData.student.studentId : ('stu_' + Date.now()),
+                        classId: data.classId || currentActiveLive.classId,
+                        senderRole: 'student',
+                        senderId: myLiveStudentSessionId,
                         senderName: currentStudentData ? currentStudentData.student.name : 'Student',
-                        senderRole: 'student'
+                        type: data.type,
+                        sdp: data.sdp,
+                        candidate: data.candidate,
+                        isSpeaking: isStudentSpeaking
                     })
                 });
             } catch (e) {}
+        }
 
-            startStudentChatPolling();
+        function startStudentSignalPolling(classId) {
+            if (studentSignalTimer) clearInterval(studentSignalTimer);
+            studentSignalTimer = setInterval(async () => {
+                if (!currentActiveLive || currentActiveLive.classId !== classId) return;
+                try {
+                    const res = await fetch(`/api/live/signals/${classId}?role=student&studentId=${encodeURIComponent(myLiveStudentSessionId)}&_t=` + Date.now());
+                    const data = await res.json();
+                    if (!data.success) return;
+
+                    if (data.activeStudentsCount !== undefined) {
+                        document.getElementById('modalActiveStudentCount').textContent = data.activeStudentsCount;
+                    }
+
+                    for (const sig of (data.signals || [])) {
+                        if (sig.type === 'offer' && studentPeerConnection) {
+                            console.log('Received Offer from teacher, creating Answer...');
+                            await studentPeerConnection.setRemoteDescription(new RTCSessionDescription(sig.sdp));
+                            const answer = await studentPeerConnection.createAnswer();
+                            await studentPeerConnection.setLocalDescription(answer);
+                            await sendStudentLiveSignal({
+                                classId: classId,
+                                type: 'answer',
+                                sdp: answer
+                            });
+                        } else if (sig.type === 'candidate' && studentPeerConnection) {
+                            if (sig.candidate) {
+                                try { await studentPeerConnection.addIceCandidate(new RTCIceCandidate(sig.candidate)); } catch(e) {}
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }, 800);
+        }
+
+        // Frame Relay Fallback (Takes over seamlessly if student firewall blocks UDP WebRTC)
+        function startStudentFrameFallback(classId) {
+            if (studentFrameTimer) clearInterval(studentFrameTimer);
+            let frameCheckCount = 0;
+            studentFrameTimer = setInterval(async () => {
+                if (!currentActiveLive || currentActiveLive.classId !== classId) return;
+                frameCheckCount++;
+                const videoElem = document.getElementById('studentLiveVideo');
+                const isPlaying = videoElem.srcObject && !videoElem.paused && videoElem.readyState >= 2;
+
+                // If WebRTC video hasn't rendered after 2.5 seconds, use frame snapshot relay
+                if (!isPlaying && frameCheckCount >= 2) {
+                    try {
+                        const res = await fetch(`/api/live/frame/${classId}?_t=` + Date.now());
+                        const data = await res.json();
+                        if (data.success && data.frame) {
+                            const frameImg = document.getElementById('studentLiveFrameImg');
+                            frameImg.src = data.frame;
+                            frameImg.style.display = 'block';
+                            document.getElementById('studentLiveVideoPlaceholder').style.display = 'none';
+                        }
+                    } catch(e) {}
+                }
+            }, 1500);
+        }
+
+        // Student Ask by Voice (Two-Way Microphone Audio to Teacher)
+        async function toggleStudentVoice() {
+            const btn = document.getElementById('btnStudentVoice');
+            if (!isStudentSpeaking) {
+                try {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting Mic...';
+                    studentMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const audioTrack = studentMicStream.getAudioTracks()[0];
+
+                    if (studentPeerConnection) {
+                        studentVoiceSender = studentPeerConnection.addTrack(audioTrack, studentMicStream);
+                    }
+
+                    isStudentSpeaking = true;
+                    await sendStudentLiveSignal({
+                        classId: currentActiveLive.classId,
+                        type: 'student_speaking',
+                        isSpeaking: true
+                    });
+
+                    btn.innerHTML = '<i class="fas fa-microphone-lines" style="color:#ef4444; animation:pulseAnim 1s infinite;"></i> <span style="color:#fca5a5;">Speaking Live... Tap to Mute</span>';
+                    btn.style.borderColor = '#ef4444';
+                    btn.style.background = 'rgba(239,68,68,0.2)';
+                    showToast('🎙️ Microphone active! Your voice is now live with the teacher.', false);
+                } catch (err) {
+                    btn.innerHTML = '<i class="fas fa-microphone"></i> <span>Ask by Voice (बोल कर पूछें)</span>';
+                    alert('Microphone permission required to ask question by voice: ' + err.message);
+                }
+            } else {
+                // Stop speaking / Mute
+                if (studentMicStream) {
+                    studentMicStream.getTracks().forEach(t => t.stop());
+                    studentMicStream = null;
+                }
+                if (studentVoiceSender && studentPeerConnection) {
+                    try { studentPeerConnection.removeTrack(studentVoiceSender); } catch(e) {}
+                    studentVoiceSender = null;
+                }
+                isStudentSpeaking = false;
+                await sendStudentLiveSignal({
+                    classId: currentActiveLive.classId,
+                    type: 'student_speaking',
+                    isSpeaking: false
+                });
+
+                btn.innerHTML = '<i class="fas fa-microphone"></i> <span>Ask by Voice (बोल कर पूछें)</span>';
+                btn.style.borderColor = 'var(--gold)';
+                btn.style.background = 'rgba(245,158,11,0.15)';
+                showToast('Microphone muted', false);
+            }
+        }
+
+        function unmuteStudentLiveVideo() {
+            const videoElem = document.getElementById('studentLiveVideo');
+            if (videoElem) {
+                videoElem.muted = false;
+                videoElem.play().catch(() => {});
+            }
+            document.getElementById('studentUnmutePrompt').style.display = 'none';
         }
 
         function closeLiveStudentPlayer() {
             document.getElementById('liveStudentPlayerModal').style.display = 'none';
             if (studentChatTimer) clearInterval(studentChatTimer);
+            if (studentSignalTimer) clearInterval(studentSignalTimer);
+            if (studentFrameTimer) clearInterval(studentFrameTimer);
+
+            if (studentMicStream) {
+                studentMicStream.getTracks().forEach(t => t.stop());
+                studentMicStream = null;
+            }
+            if (studentPeerConnection) {
+                studentPeerConnection.close();
+                studentPeerConnection = null;
+            }
+            isStudentSpeaking = false;
+            const btn = document.getElementById('btnStudentVoice');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-microphone"></i> <span>Ask by Voice (बोल कर पूछें)</span>';
+                btn.style.borderColor = 'var(--gold)';
+                btn.style.background = 'rgba(245,158,11,0.15)';
+            }
         }
 
         function startStudentChatPolling() {
             if (studentChatTimer) clearInterval(studentChatTimer);
             loadStudentLiveChat();
-            studentChatTimer = setInterval(loadStudentLiveChat, 3500);
+            studentChatTimer = setInterval(loadStudentLiveChat, 3000);
         }
 
         async function loadStudentLiveChat() {
