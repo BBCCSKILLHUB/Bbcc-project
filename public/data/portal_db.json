@@ -143,7 +143,28 @@
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [],
-  "push_subscriptions": [],
+  "push_subscriptions": [
+    {
+      "deviceId": "dev_52542f3e",
+      "deviceName": "Student Device (Windows PC (Chrome))",
+      "deviceInfo": {
+        "os": "Windows PC",
+        "browser": "Chrome",
+        "modelHint": "",
+        "label": "Windows PC (Chrome)"
+      },
+      "endpoint": "https://fcm.googleapis.com/fcm/send/cXcDPhC9T30:APA91bFKEYU3A6M_0TsOklurwOySFRBuqC1bkIp6Mx3Gj3OrkUA2DoM_zl29C5vlQdOCso2N1cHZS7Hks33IRo44FbQxxVnKemTpoWgyb6HnUUcSPu-PPJYVHAddABed2iiHzMS5g5wH",
+      "expirationTime": null,
+      "keys": {
+        "p256dh": "BMw_d94CRerJjgrCtVZsiHj7M7mRlObDyAFqc7cQacibJpIYtL92Pm57COGeGApgErj9Q5gF6eBxetl_O-K3ePc",
+        "auth": "aA87h9ILOVKSsJvwnY5CQg"
+      },
+      "centerId": "all",
+      "subscribedAt": "2026-10-13T12:06:16.255Z",
+      "lastActive": "2026-10-13T12:06:16.255Z",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
+    }
+  ],
   "push_history": [],
   "bharti_auto_push_log": {}
 }
