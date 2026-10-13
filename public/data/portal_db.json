@@ -143,55 +143,7 @@
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [],
-  "push_subscriptions": [
-    {
-      "deviceId": "dev_52542f3e",
-      "deviceName": "Student Device (Windows PC (Chrome))",
-      "deviceInfo": {
-        "os": "Windows PC",
-        "browser": "Chrome",
-        "modelHint": "",
-        "label": "Windows PC (Chrome)"
-      },
-      "endpoint": "https://fcm.googleapis.com/fcm/send/cXcDPhC9T30:APA91bFKEYU3A6M_0TsOklurwOySFRBuqC1bkIp6Mx3Gj3OrkUA2DoM_zl29C5vlQdOCso2N1cHZS7Hks33IRo44FbQxxVnKemTpoWgyb6HnUUcSPu-PPJYVHAddABed2iiHzMS5g5wH",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BMw_d94CRerJjgrCtVZsiHj7M7mRlObDyAFqc7cQacibJpIYtL92Pm57COGeGApgErj9Q5gF6eBxetl_O-K3ePc",
-        "auth": "aA87h9ILOVKSsJvwnY5CQg"
-      },
-      "centerId": "all",
-      "subscribedAt": "2026-10-13T12:06:16.255Z",
-      "lastActive": "2026-10-13T12:06:16.255Z",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
-    },
-    {
-      "deviceId": "dev_95d36359",
-      "deviceName": "Student Device (Android 10 (Chrome))",
-      "deviceInfo": {
-        "os": "Android 10",
-        "browser": "Chrome",
-        "modelHint": "",
-        "label": "Android 10 (Chrome)"
-      },
-      "endpoint": "https://fcm.googleapis.com/fcm/send/c7z_byV_Tlg:APA91bFq1TOVa7FtpvOq70wWZVp9wf4IFL8K09kw0MwoKwJBl2ZVBVl7HY46ij-6b8O94cK7u69J3uYEKPLPzheT5oIa0l8DhUZvJow3lEZVBa-_D2O8NbteqET3GEzHKsRYbbeMxAMF",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BK6eDAmgBcxQe3aBo6gno7-hWil0ChugQTtKz6NgsnW2qd73MuxzRs4qhrgs5G9OUkY9ryhMYcdtQawqdKSVfD0",
-        "auth": "2T5CGTvPjyFiSU-rM7jkrw"
-      },
-      "centerId": "all",
-      "subscribedAt": "2026-10-13T12:06:27.681Z",
-      "lastActive": "2026-10-13T12:30:11.534Z",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-    }
-  ],
+  "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {
-    "2026-10-13_evening": {
-      "dispatchedAt": "2026-10-13T12:30:49.337Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙"
-    }
-  }
+  "bharti_auto_push_log": {}
 }

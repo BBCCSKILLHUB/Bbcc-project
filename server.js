@@ -2254,36 +2254,67 @@ app.get('/api/public/books', async (req, res) => {
             } catch (e) {}
         }
 
-        // Include ALL notes (Universal + Coaching Center uploaded notes) on BBCC SKILL HUB homepage
-        const existingNoteIds = new Set((sm.notes || []).map(n => n._id.toString()));
-        const existingTitles = new Set((sm.notes || []).map(n => (n.title || '').trim().toLowerCase()));
+        // Pre-fetch centers for physical pickup addresses and director contacts
+        let centersMap = {};
+        try {
+            const allCentersList = await TuitionCenter.find({}, { centerName: 1, address: 1, contactNumber: 1, whatsappNumber: 1, directorName: 1 }).lean();
+            for (const c of allCentersList) {
+                centersMap[c._id.toString()] = c;
+            }
+        } catch(e) {}
+        const defaultAddress = "BBCC Central Directorate, Patna, Bihar - 800001";
+        const defaultPhone = "+91 98765 43210";
+        const defaultDirector = "Santosh Kumar (Founder & MD)";
 
-        const sanitizedNotes = (sm.notes || []).map(n => {
-            const isTargetCenter = n.targetCenterId && n.targetCenterId !== 'all';
-            const isEnrolledFree = enrolledCenterId && isTargetCenter && (enrolledCenterId === n.targetCenterId.toString());
+        const buildBookItem = (n, centerRef = null) => {
+            const cid = (n.targetCenterId || (centerRef ? centerRef._id.toString() : 'all')).toString();
+            const isTargetCenter = cid && cid !== 'all';
+            const isEnrolledFree = enrolledCenterId && isTargetCenter && (enrolledCenterId === cid);
+            const cInfo = (isTargetCenter && centersMap[cid]) ? centersMap[cid] : centerRef;
+
+            const effectivePdfPrice = isEnrolledFree ? 0 : (Number(n.price) || 0);
+            const origPrice = Number(n.originalPrice || n.price) || 0;
+            const pdfMrp = Number(n.pdfMrp || n.mrp) || (origPrice > 0 ? Math.round(origPrice * 2.5 + 49) : 199);
+            const physicalPrice = Number(n.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
+            const physicalMrp = Number(n.physicalMrp) || Math.round(physicalPrice * 2.2 + 50);
+
+            const pickupAddress = cInfo ? (cInfo.address || defaultAddress) : defaultAddress;
+            const pickupPhone = cInfo ? (cInfo.whatsappNumber || cInfo.contactNumber || defaultPhone) : defaultPhone;
+            const pickupDirector = cInfo ? (cInfo.directorName || defaultDirector) : defaultDirector;
+            const centerTitle = cInfo ? cInfo.centerName : (n.targetCenterName || 'All Centers (Universal)');
+
             return {
                 _id: n._id,
                 title: n.title,
-                subject: n.subject,
-                classLevel: n.classLevel,
-                description: n.description,
-                fileType: n.fileType,
-                thumbnail: n.thumbnail,
-                price: isEnrolledFree ? 0 : n.price,
-                originalPrice: n.price,
+                subject: n.subject || 'General',
+                classLevel: n.classLevel || 'All Classes',
+                description: n.description || '',
+                fileType: n.fileType || 'pdf',
+                thumbnail: n.thumbnail || '',
+                price: effectivePdfPrice,
+                originalPrice: origPrice,
+                pdfMrp: pdfMrp,
+                physicalPrice: physicalPrice,
+                physicalMrp: physicalMrp,
+                pickupAddress: pickupAddress,
+                pickupPhone: pickupPhone,
+                pickupWhatsapp: cInfo ? (cInfo.whatsappNumber || pickupPhone) : pickupPhone,
+                directorName: pickupDirector,
                 isEnrolledFree: Boolean(isEnrolledFree),
-                targetCenterId: n.targetCenterId || 'all',
-                targetCenterName: n.targetCenterName || 'All Centers (Universal)',
-                isRawData: n.isRawData || false,
-                hasFile: !!(n.pdf || n.file),
+                targetCenterId: cid,
+                targetCenterName: centerTitle,
+                isRawData: Boolean(n.isRawData),
+                hasFile: !!(n.pdf || n.file || n.link),
                 downloadCount: n.downloadCount || 0,
-                createdAt: n.createdAt
+                createdAt: n.createdAt || new Date()
             };
-        });
+        };
+
+        const sanitizedNotes = (sm.notes || []).map(n => buildBookItem(n));
 
         // Also merge materials uploaded directly to TuitionCenter repositories
         try {
-            const centersWithMaterials = await TuitionCenter.find({ 'materials.0': { $exists: true } }, { centerName: 1, materials: 1 }).lean();
+            const centersWithMaterials = await TuitionCenter.find({ 'materials.0': { $exists: true } }, { centerName: 1, address: 1, contactNumber: 1, whatsappNumber: 1, directorName: 1, materials: 1 }).lean();
             for (const c of centersWithMaterials) {
                 if (!c.materials) continue;
                 for (const m of c.materials) {
@@ -2292,25 +2323,24 @@ app.get('/api/public/books', async (req, res) => {
                     if (midStr && !existingNoteIds.has(midStr) && !existingTitles.has(mTitleLower)) {
                         existingNoteIds.add(midStr);
                         existingTitles.add(mTitleLower);
-                        const isEnrolledFree = enrolledCenterId && (enrolledCenterId === c._id.toString());
-                        sanitizedNotes.push({
+                        sanitizedNotes.push(buildBookItem({
                             _id: m._id,
                             title: m.title,
                             subject: c.centerName,
                             classLevel: 'All Classes',
                             description: m.description || '',
                             fileType: m.fileType || 'pdf',
-                            thumbnail: '',
-                            price: isEnrolledFree ? 0 : (m.price || 0),
+                            thumbnail: m.thumbnail || '',
+                            price: m.price || 0,
                             originalPrice: m.price || 0,
-                            isEnrolledFree: Boolean(isEnrolledFree),
                             targetCenterId: c._id.toString(),
                             targetCenterName: c.centerName,
                             isRawData: m.isRawData || false,
-                            hasFile: !!(m.pdf || m.file),
+                            pdf: m.pdf || m.file || m.link,
+                            file: m.file || m.pdf || m.link,
                             downloadCount: m.downloadCount || 0,
                             createdAt: m.createdAt || new Date()
-                        });
+                        }, c));
                     }
                 }
             }
@@ -2320,24 +2350,7 @@ app.get('/api/public/books', async (req, res) => {
             const pdb = loadPortalDb();
             if (pdb.studyMaterials && pdb.studyMaterials.notes) {
                 pdb.studyMaterials.notes.forEach(pn => {
-                    sanitizedNotes.push({
-                        _id: pn._id,
-                        title: pn.title,
-                        subject: pn.subject,
-                        classLevel: pn.classLevel,
-                        description: pn.description,
-                        fileType: pn.fileType || 'pdf',
-                        thumbnail: pn.thumbnail,
-                        price: pn.price || 0,
-                        originalPrice: pn.originalPrice || pn.price || 0,
-                        isEnrolledFree: Boolean(pn.isEnrolledFree),
-                        targetCenterId: pn.targetCenterId || 'all',
-                        targetCenterName: pn.targetCenterName || 'All Centers (Universal)',
-                        isRawData: false,
-                        hasFile: true,
-                        downloadCount: pn.downloadCount || 0,
-                        createdAt: pn.createdAt || new Date()
-                    });
+                    sanitizedNotes.push(buildBookItem(pn));
                 });
             }
         }
@@ -3450,7 +3463,7 @@ app.put('/api/director/tickets/:id', verifyDirector, async (req, res) => {
 // 5.1 Create Order for E-Library Document (Free Instant Unlock or Paid Razorpay Order)
 app.post('/api/pay/create-document-order', async (req, res) => {
     try {
-        const { docId, payerName, payerPhone, payerEmail, studentQuery, onlyVerify } = req.body;
+        const { docId, payerName, payerPhone, payerEmail, studentQuery, onlyVerify, orderType } = req.body;
         if (!docId) {
             return res.status(400).json({ success: false, message: 'Document ID is required' });
         }
@@ -3474,6 +3487,7 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                         title: mat.title,
                         description: mat.description,
                         price: mat.price || 0,
+                        physicalPrice: mat.physicalPrice,
                         file: mat.file || mat.pdf,
                         pdf: mat.pdf || mat.file,
                         fileType: mat.fileType || 'pdf',
@@ -3490,14 +3504,20 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Document note not found in repository' });
         }
 
-        const price = Math.max(0, Number(note.price) || 0);
+        const isPhysicalOrder = (orderType === 'physical');
+        const origPrice = Math.max(0, Number(note.price) || 0);
+        let price = origPrice;
 
-        // Check if student is enrolled in this coaching center or course for 100% Free Access
+        if (isPhysicalOrder) {
+            price = Number(note.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
+        }
+
+        // Check if student is enrolled in this coaching center or course for 100% Free Access (PDF Only)
         let isEnrolledStudent = false;
         let studentRecord = null;
         const q = (studentQuery || '').trim().replace(/\s+/g, '');
 
-        if (q) {
+        if (!isPhysicalOrder && q) {
             studentRecord = await Student.findOne({
                 $or: [{ aadharNumber: q }, { rollNo: (studentQuery || '').trim() }]
             });
@@ -3514,7 +3534,7 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                     isEnrolledStudent = true;
                 }
             }
-        } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        } else if (!isPhysicalOrder && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
             try {
                 const decoded = jwt.verify(req.headers.authorization.split(' ')[1], JWT_SECRET);
                 if (decoded && decoded.centerId && note.targetCenterId && decoded.centerId.toString() === note.targetCenterId.toString()) {
@@ -3542,8 +3562,25 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             }
         }
 
-        // CASE A: Free Document or Enrolled Student Benefit -> Instant 100% Free Delivery
-        if (price === 0 || isEnrolledStudent) {
+        // Center Pickup Details for Physical Orders
+        let centerPickupAddress = "BBCC Central Directorate, Patna, Bihar - 800001";
+        let centerDirectorPhone = "+91 98765 43210";
+        let centerDirectorName = "Santosh Kumar (Founder & MD)";
+        let centerTitle = note.targetCenterName || "BBCC Central Directorate";
+        if (note.targetCenterId && note.targetCenterId !== 'all') {
+            try {
+                const c = await TuitionCenter.findById(note.targetCenterId).lean();
+                if (c) {
+                    centerPickupAddress = c.address || centerPickupAddress;
+                    centerDirectorPhone = c.whatsappNumber || c.contactNumber || centerDirectorPhone;
+                    centerDirectorName = c.directorName || centerDirectorName;
+                    centerTitle = c.centerName || centerTitle;
+                }
+            } catch(ce) {}
+        }
+
+        // CASE A: Free E-PDF or Enrolled Student Benefit -> Instant 100% Free Delivery (Never for Physical Copy)
+        if (!isPhysicalOrder && (price === 0 || isEnrolledStudent)) {
             if (parentSm && note.downloadCount !== undefined) {
                 note.downloadCount = (note.downloadCount || 0) + 1;
                 await parentSm.save();
@@ -3578,7 +3615,7 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             });
         }
 
-        // CASE B: Paid Document -> Generate Razorpay Order
+        // CASE B: Paid Document (or Physical Book Order) -> Generate Razorpay Order
         const { client, keyId } = await getRazorpayClient();
         if (!client) {
             return res.status(400).json({
@@ -3591,21 +3628,23 @@ app.post('/api/pay/create-document-order', async (req, res) => {
         const order = await client.orders.create({
             amount: amountInPaise,
             currency: 'INR',
-            receipt: 'doc_' + Date.now().toString().slice(-8),
+            receipt: (isPhysicalOrder ? 'phys_' : 'doc_') + Date.now().toString().slice(-8),
             notes: {
                 docId: note._id.toString(),
                 docTitle: note.title.slice(0, 40),
-                payerName: (payerName || '').slice(0, 30)
+                payerName: (payerName || '').slice(0, 30),
+                orderType: isPhysicalOrder ? 'physical' : 'pdf',
+                pickupAddress: centerPickupAddress.slice(0, 100)
             }
         });
 
         await PaymentTransaction.create({
             orderId: order.id,
-            purpose: 'document_purchase',
+            purpose: isPhysicalOrder ? 'physical_book_order' : 'document_purchase',
             amount: price,
             currency: 'INR',
             centerId: (note.targetCenterId && note.targetCenterId !== 'all') ? note.targetCenterId : '',
-            centerName: note.targetCenterName || '',
+            centerName: centerTitle,
             status: 'created',
             payerName: (payerName || '').trim(),
             payerPhone: (payerPhone || '').trim(),
@@ -3621,7 +3660,14 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             amount: price,
             amountInPaise: amountInPaise,
             keyId: keyId,
-            docTitle: note.title
+            docTitle: note.title,
+            isPhysicalOrder: isPhysicalOrder,
+            pickupInfo: isPhysicalOrder ? {
+                centerName: centerTitle,
+                directorName: centerDirectorName,
+                directorPhone: centerDirectorPhone,
+                pickupAddress: centerPickupAddress
+            } : null
         });
     } catch (err) {
         console.error('Document order error:', err);
@@ -3844,12 +3890,74 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
         const resolvedDocId = (note && note._id) ? note._id.toString() : targetDocId;
         const downloadUrl = `/api/pay/download-file?orderId=${encodeURIComponent(razorpay_order_id)}&docId=${encodeURIComponent(resolvedDocId)}`;
 
+        const isPhysicalOrder = (tx && (tx.purpose === 'physical_book_order' || tx.orderType === 'physical')) || (req.body.orderType === 'physical');
+        let pickupInfo = null;
+        let whatsappUrl = '';
+
+        if (isPhysicalOrder) {
+            let pickupAddress = "BBCC Central Directorate, Patna, Bihar - 800001";
+            let directorPhone = "9876543210";
+            let directorName = "Santosh Kumar (Founder & MD)";
+            let centerName = (tx && tx.centerName) || (note ? note.targetCenterName : "BBCC SKILL HUB");
+
+            const targetCenterId = (tx && tx.centerId) || (note ? note.targetCenterId : null);
+            if (targetCenterId && targetCenterId !== 'all') {
+                try {
+                    const c = await TuitionCenter.findById(targetCenterId).lean();
+                    if (c) {
+                        pickupAddress = c.address || pickupAddress;
+                        directorPhone = c.whatsappNumber || c.contactNumber || directorPhone;
+                        directorName = c.directorName || directorName;
+                        centerName = c.centerName || centerName;
+                    }
+                } catch(e) {}
+            }
+
+            pickupInfo = {
+                centerName: centerName,
+                directorName: directorName,
+                directorPhone: directorPhone,
+                pickupAddress: pickupAddress
+            };
+
+            const cleanPhone = (directorPhone || '').replace(/[^0-9]/g, '');
+            const targetWaPhone = cleanPhone.length === 10 ? ('91' + cleanPhone) : cleanPhone;
+            const bookTitle = (tx && tx.docTitle) || (note ? note.title : 'Study Book');
+            const studentName = (tx && tx.payerName) || 'Student';
+            const studentPhone = (tx && tx.payerPhone) || '';
+            const amountPaid = (tx && tx.amount) || 0;
+
+            const waMsg = `*📚 BBCC SKILL HUB — नई हार्ड कॉपी पुस्तक ऑर्डर पुष्टि*\n\n` +
+`नमस्ते ${directorName} सर,\n` +
+`मैंने BBCC पोर्टल से पुस्तक की *हार्ड कॉपी (Physical Printed Copy)* का ऑनलाइन भुगतान (100% Online Paid) कर दिया है।\n\n` +
+`🧾 *ऑर्डर विवरण (Order Details):*\n` +
+`• *Order ID:* ${razorpay_order_id}\n` +
+`• *पुस्तक का नाम:* ${bookTitle}\n` +
+`• *भुगतान राशि:* ₹${amountPaid} (Online Paid)\n` +
+`• *विद्यार्थी का नाम:* ${studentName}\n` +
+`• *मोबाइल नंबर:* ${studentPhone}\n` +
+`• *पिकअप केंद्र:* ${centerName}\n` +
+`• *केंद्र का पता:* ${pickupAddress}\n\n` +
+`कृपया मेरी हार्ड कॉपी तैयार रखें। मैं आपके कोचिंग सेंटर पर आकर इसे प्राप्त करूँगा/करूँगी। धन्यवाद!`;
+
+            whatsappUrl = `https://api.whatsapp.com/send?phone=${targetWaPhone}&text=${encodeURIComponent(waMsg)}`;
+        }
+
         res.json({
             success: true,
-            message: 'Payment verified successfully! Document is downloading.',
+            message: isPhysicalOrder
+                ? 'हार्ड कॉपी ऑर्डर सफलतापूर्वक दर्ज हो गया! कृपया केंद्र के पते पर जाकर पुस्तक प्राप्त करें।'
+                : 'Payment verified successfully! Document is downloading.',
             orderId: razorpay_order_id,
-            downloadUrl: downloadUrl,
-            file: filePayload || downloadUrl,
+            isPhysicalOrder: Boolean(isPhysicalOrder),
+            pickupInfo: pickupInfo,
+            whatsappUrl: whatsappUrl,
+            docTitle: (tx && tx.docTitle) || (note ? note.title : cleanFileName),
+            amount: (tx && tx.amount) || 0,
+            payerName: (tx && tx.payerName) || '',
+            payerPhone: (tx && tx.payerPhone) || '',
+            downloadUrl: isPhysicalOrder ? '' : downloadUrl,
+            file: isPhysicalOrder ? '' : (filePayload || downloadUrl),
             fileName: cleanFileName
         });
     } catch (err) {

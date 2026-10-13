@@ -75,11 +75,18 @@
             --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
-        * {
+        html {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
+        }
+
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            scroll-behavior: smooth;
         }
 
         body {
@@ -87,7 +94,10 @@
             color: var(--text-pure);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
+            width: 100%;
+            max-width: 100%;
             overflow-x: hidden;
+            position: relative;
             line-height: 1.6;
             background-image: 
                 radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
@@ -866,6 +876,238 @@
 
         .book-action-dock {
             padding: 0 20px 18px;
+        }
+
+        /* Academic Book Vault & Dual Price Discount System */
+        .book-discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #ef4444, #f59e0b);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            z-index: 5;
+            letter-spacing: 0.3px;
+        }
+
+        .book-center-tag {
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #38bdf8;
+            font-weight: 700;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-price-table {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+        }
+
+        .price-type {
+            color: #cbd5e1;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .price-mrp {
+            color: #64748b;
+            text-decoration: line-through;
+            font-size: 10.5px;
+            margin-left: auto;
+            margin-right: 6px;
+        }
+
+        .price-sale {
+            font-weight: 800;
+            font-size: 13px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .price-sale-pdf { color: #38bdf8; }
+        .price-sale-phys { color: #fbbf24; }
+
+        .discount-pill {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #34d399;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 6px;
+            margin-left: 6px;
+        }
+
+        .discount-pill.phys-pill {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+
+        .pickup-address-hint {
+            font-size: 10.5px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pickup-address-hint i { color: #f59e0b; }
+
+        .book-action-dock.dual-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 0 16px 16px;
+        }
+
+        .btn-book-action {
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-pdf-action {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }
+
+        .btn-pdf-action:hover {
+            background: rgba(56, 189, 248, 0.25);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-physical-action {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.3));
+            border: 1px solid rgba(251, 191, 36, 0.6);
+            color: #fbbf24;
+        }
+
+        .btn-physical-action:hover {
+            background: var(--gold-gradient);
+            color: #050811;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.35);
+        }
+
+        /* Segmented Checkout Tab Switcher (PDF vs Physical Hard Copy) */
+        .checkout-mode-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+            gap: 6px;
+        }
+
+        .checkout-tab-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .checkout-tab-btn.active {
+            background: var(--cosmic-card-hover);
+            color: #ffffff;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+
+        .checkout-tab-btn.tab-physical.active {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.5);
+            background: rgba(251, 191, 36, 0.15);
+        }
+
+        .checkout-tab-btn.tab-pdf.active {
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.5);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .pickup-campus-card {
+            background: rgba(251, 191, 36, 0.07);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+
+        .physical-order-success-card {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95));
+            border: 1.5px solid rgba(16, 185, 129, 0.5);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .pickup-summary-box {
+            background: rgba(0,0,0,0.35);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.6;
         }
 
         .vault-filter-pill {
@@ -1862,21 +2104,24 @@
             }
 
             /* 7. COMPACT MULTI-COLUMN CARDS LIKE DESKTOP (E-LIBRARY, TEACHERS, COURSES, CENTERS) */
-            /* E-Library Vault Grid: 2 columns on mobile */
+            /* E-Library Vault Grid: 2 sleek columns on mobile */
             .vault-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
-                gap: 10px !important;
+                gap: 8px !important;
             }
 
             .vault-book-card {
-                border-radius: 14px !important;
+                border-radius: 12px !important;
                 background: var(--cosmic-card) !important;
                 border: 1px solid var(--border-subtle) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
 
             .vault-book-card .book-stage {
-                height: 140px !important;
-                border-radius: 14px 14px 0 0 !important;
+                height: 110px !important;
+                border-radius: 12px 12px 0 0 !important;
             }
 
             .vault-book-card .book-stage-custom-img {
@@ -1885,23 +2130,23 @@
             }
 
             .vault-book-card .book-spine-3d {
-                width: 90px !important;
-                height: 122px !important;
-                padding: 8px 6px !important;
-                border-radius: 4px 10px 10px 4px !important;
-                box-shadow: -4px 4px 12px rgba(0,0,0,0.7) !important;
+                width: 78px !important;
+                height: 100px !important;
+                padding: 6px 4px !important;
+                border-radius: 4px 8px 8px 4px !important;
+                box-shadow: -3px 3px 10px rgba(0,0,0,0.7) !important;
             }
 
             .vault-book-card .embossed-gold-seal {
-                width: 24px !important;
-                height: 24px !important;
-                font-size: 11px !important;
-                margin: 0 auto 4px !important;
+                width: 20px !important;
+                height: 20px !important;
+                font-size: 9px !important;
+                margin: 0 auto 3px !important;
             }
 
             .vault-book-card .book-title-embossed {
-                font-size: 10.5px !important;
-                line-height: 1.2 !important;
+                font-size: 9px !important;
+                line-height: 1.15 !important;
                 margin: 2px 0 !important;
                 display: -webkit-box !important;
                 -webkit-line-clamp: 2 !important;
@@ -1909,36 +2154,31 @@
                 overflow: hidden !important;
             }
 
-            .vault-book-card .spine-ribbon {
-                width: 3px !important;
-            }
-
-            .vault-book-card .bookmark-tag {
-                width: 10px !important;
-                height: 16px !important;
-                right: 8px !important;
-            }
-
-            .vault-book-card .price-badge-pill {
-                top: 6px !important;
-                right: 6px !important;
-                font-size: 9px !important;
-                padding: 2px 6px !important;
-                border-radius: 8px !important;
-                gap: 3px !important;
+            .vault-book-card .book-discount-badge {
+                top: 5px !important;
+                left: 5px !important;
+                font-size: 8.5px !important;
+                padding: 2px 5px !important;
+                border-radius: 6px !important;
             }
 
             .vault-book-card .book-body {
-                padding: 8px 8px 4px 8px !important;
+                padding: 6px 6px 3px 6px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
             }
 
+            .vault-book-card .book-center-tag {
+                font-size: 8.5px !important;
+                padding: 1px 4px !important;
+                margin-bottom: 2px !important;
+            }
+
             .vault-book-card .book-meta-title {
-                font-size: 12px !important;
-                line-height: 1.25 !important;
-                height: 30px !important;
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+                height: 26px !important;
                 margin-bottom: 2px !important;
                 display: -webkit-box !important;
                 -webkit-line-clamp: 2 !important;
@@ -1951,28 +2191,52 @@
                 display: none !important;
             }
 
-            .vault-book-card .book-meta-specs {
-                font-size: 9.5px !important;
-                margin-bottom: 4px !important;
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
+            .vault-book-card .book-price-table {
+                padding: 3px 5px !important;
+                margin: 3px 0 !important;
+                gap: 2px !important;
+                border-radius: 6px !important;
             }
 
-            .vault-book-card .book-action-dock {
-                padding: 0 8px 8px 8px !important;
+            .vault-book-card .price-row {
+                font-size: 8.5px !important;
             }
 
-            .vault-book-card .book-action-dock button {
-                padding: 6px 4px !important;
+            .vault-book-card .price-mrp {
+                font-size: 8px !important;
+                margin-right: 3px !important;
+            }
+
+            .vault-book-card .price-sale {
                 font-size: 10px !important;
+            }
+
+            .vault-book-card .discount-pill {
+                font-size: 7.5px !important;
+                padding: 0 2px !important;
+                margin-left: 2px !important;
+            }
+
+            .vault-book-card .pickup-address-hint {
+                font-size: 8px !important;
+                margin-top: 1px !important;
+            }
+
+            .vault-book-card .book-action-dock.dual-actions {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 4px !important;
+                padding: 0 6px 6px 6px !important;
+            }
+
+            .vault-book-card .btn-book-action {
+                padding: 4px 4px !important;
+                font-size: 9px !important;
                 font-weight: 700 !important;
-                border-radius: 8px !important;
+                border-radius: 6px !important;
                 width: 100% !important;
                 justify-content: center !important;
                 white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
             }
 
             /* Expert Teachers Network Grid: 2 columns on mobile */
@@ -2255,20 +2519,23 @@
         </a>
 
         <div class="nav-actions-dock">
-            <a href="#courses" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            <a href="#promotions" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
             <a href="#vault" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-book-bookmark"></i> E-Library
+                <i class="fas fa-book-bookmark"></i> E-Locker (किताबें)
+            </a>
+            <a href="#courses" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-graduation-cap"></i> Courses & Batches
             </a>
             <a href="#institutes" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-school"></i> Partner Institutes
             </a>
-            <a href="#founder" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-user-tie"></i> Founder
-            </a>
             <a href="#faculty-showcase" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-chalkboard-teacher"></i> Expert Faculty
+            </a>
+            <a href="#founder" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-user-tie"></i> Founder
             </a>
             <a href="/about" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-circle-info"></i> About
@@ -2322,20 +2589,23 @@
             </a>
 
             <div class="drawer-section-label">मुख्य पृष्ठ नेविगेशन</div>
-            <a href="#courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            <a href="#promotions" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
             <a href="#vault" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-book-bookmark"></i> Digital E-Library
+                <i class="fas fa-book-bookmark"></i> E-Locker & Hard Copy
+            </a>
+            <a href="#courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-graduation-cap"></i> Courses & Batches
             </a>
             <a href="#institutes" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
                 <i class="fas fa-building-columns"></i> Partner Institutes
             </a>
-            <a href="#founder" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-user-tie"></i> Founder & Vision
-            </a>
             <a href="#faculty-showcase" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
                 <i class="fas fa-chalkboard-teacher"></i> Expert Faculty Showcase
+            </a>
+            <a href="#founder" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-user-tie"></i> Founder & Vision
             </a>
             <a href="/about" class="drawer-nav-link">
                 <i class="fas fa-circle-info"></i> About BBCC Platform
@@ -2404,7 +2674,7 @@
     <!-- ============================================================
          5. AUTO-PLAYING 30-DAY PROMOTIONAL BANNER SLIDER
          ============================================================ -->
-    <section class="universe-section" style="padding-top:10px; padding-bottom:30px;">
+    <section class="universe-section" id="promotions" style="padding-top:10px; padding-bottom:30px;">
         <div class="section-header-elite" style="margin-bottom:20px;">
             <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
                 <i class="fas fa-bullhorn"></i> Featured Institute Highlights
@@ -2445,6 +2715,57 @@
             </div>
 
             <div class="slider-dots-dock" id="promoSliderDots"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         5B. CENTRAL E-LIBRARY & DIGITAL BOOK VAULT (E-LOCKER)
+         ============================================================ -->
+    <section class="universe-section" id="vault">
+        <div class="section-header-elite">
+            <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
+                <i class="fas fa-book-bookmark"></i> E-Locker Book Vault
+            </span>
+            <h2 style="margin-top:10px;">Central E-Library & Study Material Vault</h2>
+            <p>Curated syllabus notes, guides, and model question papers. Download authentic E-PDFs or order printed physical hard copies to pick up from coaching campus.</p>
+        </div>
+
+        <!-- Live Search & Category Filter Bar -->
+        <div style="margin-bottom:32px; display:flex; flex-direction:column; gap:16px; align-items:center;">
+            <div style="position:relative; width:100%; max-width:640px;">
+                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
+                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class..." class="verify-input" style="width:100%; padding-left:48px;">
+            </div>
+
+            <!-- Student Free Notes Unlock Bar -->
+            <div style="background:rgba(56,189,248,0.07); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:10px 18px; max-width:640px; width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#cbd5e1;">
+                    <i class="fas fa-graduation-cap" style="color:#38bdf8; font-size:16px;"></i>
+                    <span>Enrolled in a coaching? Unlock notes for <b style="color:#34d399;">100% FREE</b>:</span>
+                </div>
+                <div style="display:flex; gap:6px; flex:1; max-width:280px;">
+                    <input type="text" id="vaultStudentAadharInput" placeholder="12-digit Aadhar / Roll No" class="verify-input" style="padding:6px 12px; font-size:12px; font-family:monospace; margin:0;" onkeydown="if(event.key==='Enter') unlockStudentNotes()">
+                    <button type="button" onclick="unlockStudentNotes()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; white-space:nowrap;">
+                        <i class="fas fa-unlock"></i> Unlock Free
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('free', this)"><i class="fas fa-gift"></i> Free Notes</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 10', this)">Class 10th</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 12', this)">Class 12th</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('science', this)">Science</button>
+                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('math', this)">Mathematics</button>
+            </div>
+        </div>
+
+        <div class="vault-grid" id="booksGrid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:12px;">Loading E-Library documents...</p>
+            </div>
         </div>
     </section>
 
@@ -2621,53 +2942,7 @@
         </div>
     </section>
 
-    <!-- ============================================================
-         9. ACADEMIC BOOK VAULT (E-LIBRARY): ZERO RAW PDF DISPLAY
-         ============================================================ -->
-    <section class="universe-section" id="vault">
-        <div class="section-header-elite">
-            <h2>Central E-Library Digital Repository</h2>
-            <p>Curated textbook syllabus notes and exam guides. 3D covers only — zero in-browser raw PDF rendering. 80% revenue credited directly to center directors.</p>
-        </div>
 
-        <!-- Live Search & Category Filter Bar -->
-        <div style="margin-bottom:32px; display:flex; flex-direction:column; gap:16px; align-items:center;">
-            <div style="position:relative; width:100%; max-width:640px;">
-                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
-                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class..." class="verify-input" style="width:100%; padding-left:48px;">
-            </div>
-
-            <!-- Student Free Notes Unlock Bar -->
-            <div style="background:rgba(56,189,248,0.07); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:10px 18px; max-width:640px; width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#cbd5e1;">
-                    <i class="fas fa-graduation-cap" style="color:#38bdf8; font-size:16px;"></i>
-                    <span>Enrolled in a coaching? Unlock notes for <b style="color:#34d399;">100% FREE</b>:</span>
-                </div>
-                <div style="display:flex; gap:6px; flex:1; max-width:280px;">
-                    <input type="text" id="vaultStudentAadharInput" placeholder="12-digit Aadhar / Roll No" class="verify-input" style="padding:6px 12px; font-size:12px; font-family:monospace; margin:0;" onkeydown="if(event.key==='Enter') unlockStudentNotes()">
-                    <button type="button" onclick="unlockStudentNotes()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; white-space:nowrap;">
-                        <i class="fas fa-unlock"></i> Unlock Free
-                    </button>
-                </div>
-            </div>
-
-            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('free', this)"><i class="fas fa-gift"></i> Free Notes</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 10', this)">Class 10th</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 12', this)">Class 12th</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('science', this)">Science</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('math', this)">Mathematics</button>
-            </div>
-        </div>
-
-        <div class="vault-grid" id="booksGrid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p style="margin-top:12px;">Loading E-Library documents...</p>
-            </div>
-        </div>
-    </section>
 
     <!-- ============================================================
          10. CAMPUS & FELICITATION PHOTO GALLERY
@@ -3058,38 +3333,68 @@
     </div>
 
     <!-- ============================================================
-         MODAL 5: IN-APP RAZORPAY CHECKOUT DOCK FOR E-LIBRARY
+         MODAL 5: IN-APP RAZORPAY CHECKOUT DOCK FOR E-LIBRARY (PDF & PHYSICAL HARD COPY)
          ============================================================ -->
     <div class="aurora-modal-dock" id="docCheckoutDock">
-        <div class="modal-body-panel">
+        <div class="modal-body-panel" style="max-width:520px;">
             <div class="modal-head-bar">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-lock" style="color:var(--aurora-gold); font-size:20px;"></i>
-                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;">Unlock & Download Document</h3>
+                    <i class="fas fa-book-bookmark" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h3 style="font-family:'Cinzel', serif; font-size:16px; margin:0;" id="dockMainModalTitle">पुस्तक ऑर्डर एवं डाउनलोड</h3>
                 </div>
                 <button type="button" onclick="closeCheckoutDock()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
             </div>
 
-            <div style="padding:22px 24px;">
+            <div style="padding:20px 22px;">
+                <!-- Tab Switcher: E-PDF vs Physical Hard Copy -->
+                <div class="checkout-mode-tabs">
+                    <button type="button" id="tabBtnPdf" class="checkout-tab-btn tab-pdf active" onclick="switchCheckoutOrderType('pdf')">
+                        <i class="fas fa-file-pdf"></i> E-PDF (डिजिटल)
+                    </button>
+                    <button type="button" id="tabBtnPhysical" class="checkout-tab-btn tab-physical" onclick="switchCheckoutOrderType('physical')">
+                        <i class="fas fa-box-open"></i> हार्ड कॉपी (प्रिंटेड)
+                    </button>
+                </div>
+
+                <!-- Book Summary Card -->
                 <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glow); border-radius:14px; padding:14px; margin-bottom:14px;">
-                    <div id="dockDocTitle" style="font-weight:800; font-size:15px; margin-bottom:4px;">Mathematics Standard Guide</div>
+                    <div id="dockDocTitle" style="font-weight:800; font-size:15px; margin-bottom:4px; color:#ffffff;">Mathematics Standard Guide</div>
                     <div id="dockCenterBadge" style="margin-bottom:6px; display:none;"></div>
-                    <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-slate);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--text-slate);">
                         <span id="dockDocSpecs">Subject: Science • Class 10th</span>
-                        <span id="dockDocPrice" style="color:var(--aurora-gold); font-weight:800; font-size:15px;">₹49</span>
+                        <div style="text-align:right;">
+                            <span id="dockDocMrp" style="text-decoration:line-through; font-size:11.5px; color:#64748b; margin-right:6px;">₹199</span>
+                            <span id="dockDocPrice" style="color:var(--aurora-gold); font-weight:800; font-size:16px;">₹49</span>
+                            <span id="dockDiscountBadge" class="discount-pill">75% OFF</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Enrolled Student Instant Free Option -->
+                <!-- Physical Campus Hard Copy Pickup Information Card (Shown when Physical Tab is active) -->
+                <div id="dockPhysicalPickupBox" class="pickup-campus-card" style="display:none;">
+                    <div style="font-weight:800; color:var(--aurora-gold); font-size:12.5px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                        <i class="fas fa-location-dot"></i> हार्ड कॉपी पिकअप विवरण (Campus Pickup):
+                    </div>
+                    <div style="font-size:12px; line-height:1.5; color:#cbd5e1;">
+                        <div><b>केंद्र:</b> <span id="dockPickupCenterName">BBCC Central Directorate</span></div>
+                        <div><b>पता:</b> <span id="dockPickupAddress">Patna, Bihar - 800001</span></div>
+                        <div><b>निदेशक/संपर्क:</b> <span id="dockPickupContact">Santosh Kumar (+91 98765 43210)</span></div>
+                    </div>
+                    <div style="margin-top:8px; font-size:11px; color:#fbbf24; background:rgba(0,0,0,0.3); padding:6px 8px; border-radius:6px; line-height:1.4;">
+                        <i class="fas fa-circle-info"></i> <b>नियम:</b> भुगतान 100% ऑनलाइन होगा (ऑफलाइन COD उपलब्ध नहीं है)। भुगतान के बाद तुरंत रसीद और निदेशक के WhatsApp पर कन्फर्मेशन संदेश भेजा जाएगा, जिससे आप कोचिंग पर जाकर पुस्तक प्राप्त कर सकेंगे।
+                    </div>
+                </div>
+
+                <!-- Enrolled Student Instant Free Option (Shown when PDF Tab is active) -->
                 <div id="dockEnrolledStudentBox" style="background:rgba(56,189,248,0.07); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px; margin-bottom:14px;">
                     <label style="font-size:12px; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px;">
-                        <i class="fas fa-graduation-cap"></i> Enrolled Student of this Coaching?
+                        <i class="fas fa-graduation-cap"></i> इस कोचिंग के नामांकित छात्र हैं?
                     </label>
-                    <p style="font-size:11.5px; color:#cbd5e1; margin:3px 0 8px;">Enrolled students get their coaching notes for <b style="color:#34d399;">100% FREE</b>! Enter your Aadhar / Roll No:</p>
+                    <p style="font-size:11.5px; color:#cbd5e1; margin:3px 0 8px;">कोचिंग के नामांकित छात्रों को E-PDF <b style="color:#34d399;">100% FREE</b> मिलती है! अपना 12-अंक आधार या रोल नंबर दर्ज करें:</p>
                     <div style="display:flex; gap:6px;">
-                        <input type="text" id="dockStudentQuery" placeholder="12-digit Aadhar or Roll No" class="modal-input-field" style="margin:0; font-family:monospace; font-size:12px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyStudentFreeAccess();}">
+                        <input type="text" id="dockStudentQuery" placeholder="12-अंक आधार या रोल नंबर" class="modal-input-field" style="margin:0; font-family:monospace; font-size:12px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyStudentFreeAccess();}">
                         <button type="button" onclick="verifyStudentFreeAccess()" class="btn-aurora" style="white-space:nowrap; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:12px; padding:6px 14px;">
-                            <i class="fas fa-unlock"></i> Free Download
+                            <i class="fas fa-unlock"></i> Free Unlock
                         </button>
                     </div>
                     <div id="dockEnrolledAlert" style="display:none; font-size:11.5px; margin-top:8px;"></div>
@@ -3101,32 +3406,57 @@
                     <input type="hidden" id="dockTargetCenterId" value="">
 
                     <div style="margin-bottom:12px;">
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">Student / Buyer Name *</label>
-                        <input type="text" id="dockPayerName" required placeholder="Enter student full name" class="modal-input-field">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">विद्यार्थी का नाम (Student Full Name) *</label>
+                        <input type="text" id="dockPayerName" required placeholder="अपना पूरा नाम दर्ज करें" class="modal-input-field">
                     </div>
 
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">WhatsApp / Mobile Number *</label>
-                        <input type="tel" id="dockPayerPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" class="modal-input-field">
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-dim);">WhatsApp / मोबाइल नंबर *</label>
+                        <input type="tel" id="dockPayerPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-अंकों का मोबाइल नंबर" class="modal-input-field">
                     </div>
 
                     <div id="dockAlertBox" style="display:none; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:12.5px;"></div>
 
                     <div style="display:flex; gap:10px; justify-content:flex-end;">
-                        <button type="button" onclick="closeCheckoutDock()" class="btn-aurora btn-aurora-outline">Cancel</button>
+                        <button type="button" onclick="closeCheckoutDock()" class="btn-aurora btn-aurora-outline">रद्द करें</button>
                         <button type="submit" id="dockPayBtn" class="btn-aurora btn-aurora-gold" style="flex:1; justify-content:center;">
-                            <i class="fas fa-lock"></i> <span id="dockPayBtnText">Pay & Download Directly</span>
+                            <i class="fas fa-lock"></i> <span id="dockPayBtnText">Pay & Order Now</span>
                         </button>
                     </div>
                 </form>
 
+                <!-- PDF Instant Download Success View -->
                 <div id="dockSuccessView" style="display:none; text-align:center; padding:15px 0;">
                     <i class="fas fa-circle-check" style="color:#10b981; font-size:42px; margin-bottom:10px;"></i>
                     <h4 id="dockSuccessTitle">Payment Verified!</h4>
-                    <p id="dockSuccessDesc" style="font-size:13px; color:var(--text-slate); margin-bottom:15px;">Your document download has started directly to your device.</p>
+                    <p id="dockSuccessDesc" style="font-size:13px; color:var(--text-slate); margin-bottom:15px;">आपकी PDF फाइल सीधे आपके डिवाइस में डाउनलोड हो रही है।</p>
                     <a id="dockManualDownloadLink" href="#" download class="btn-aurora btn-aurora-gold">
-                        <i class="fas fa-download"></i> Click here if download did not start
+                        <i class="fas fa-download"></i> यदि डाउनलोड शुरू नहीं हुआ तो यहाँ क्लिक करें
                     </a>
+                </div>
+
+                <!-- Physical Hard Copy Order Success View with WhatsApp Receipt Dispatch -->
+                <div id="dockPhysicalSuccessView" style="display:none;" class="physical-order-success-card">
+                    <div style="font-size:42px; color:#10b981; margin-bottom:8px;"><i class="fas fa-circle-check"></i></div>
+                    <h4 style="color:#ffffff; font-size:18px; margin-bottom:4px; font-family:'Cinzel', serif;">हार्ड कॉपी ऑर्डर सफलतापूर्वक दर्ज हो गया!</h4>
+                    <p style="color:#cbd5e1; font-size:12.5px; margin-bottom:10px;">Order ID: <b id="sucPhysOrderId" style="color:var(--aurora-gold); font-family:monospace;">#BBCC-BK-XXXXX</b></p>
+                    
+                    <div class="pickup-summary-box">
+                        <div><b>📖 पुस्तक:</b> <span id="sucPhysBookTitle">-</span></div>
+                        <div><b>💰 भुगतान राशि:</b> <span id="sucPhysAmount" style="color:#34d399; font-weight:800;">₹149</span> (100% Online Paid)</div>
+                        <div><b>👤 विद्यार्थी का नाम:</b> <span id="sucPhysStudentName">-</span></div>
+                        <div><b>📱 मोबाइल:</b> <span id="sucPhysStudentPhone">-</span></div>
+                        <div style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:6px;">
+                            <b>📍 पिकअप केंद्र:</b> <span id="sucPhysCenterName">-</span><br>
+                            <b>पिकअप पता:</b> <span id="sucPhysCenterAddress">-</span><br>
+                            <b>निदेशक/संपर्क:</b> <span id="sucPhysDirectorInfo">-</span>
+                        </div>
+                    </div>
+
+                    <a id="sucPhysWhatsappBtn" href="#" target="_blank" class="btn-whatsapp-send" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:13px 18px; background:#25D366; color:#ffffff; font-weight:800; font-size:14px; border-radius:12px; text-decoration:none; box-shadow:0 6px 20px rgba(37,211,102,0.4); margin-top:8px;">
+                        <i class="fa-brands fa-whatsapp" style="font-size:20px;"></i> निदेशक को WhatsApp पर रसीद भेजें
+                    </a>
+                    <p style="font-size:11px; color:#94a3b8; margin-top:8px;">WhatsApp संदेश भेजने के बाद आप सीधे केंद्र पर जाकर अपनी प्रिंटेड हार्ड कॉपी प्राप्त कर सकते हैं।</p>
                 </div>
             </div>
         </div>
@@ -4492,25 +4822,36 @@
             }
         }
 
+        let currentCheckoutBook = null;
+        let currentOrderType = 'pdf'; // 'pdf' | 'physical'
+
         function renderBooks(books) {
             const grid = document.getElementById('booksGrid');
             if (!books || books.length === 0) {
                 grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">No documents available in repository at the moment.</div>';
                 return;
             }
+            allBooks = books;
 
             grid.innerHTML = books.map(b => {
                 const isEnrolledFree = Boolean(b.isEnrolledFree);
-                const price = isEnrolledFree ? 0 : (Number(b.price) || 0);
-                const originalPrice = Number(b.originalPrice || b.price) || 0;
-                const isPaid = price > 0;
+                const pdfPrice = isEnrolledFree ? 0 : (Number(b.price) || 0);
+                const origPrice = Number(b.originalPrice || b.price) || 0;
+                const pdfMrp = Number(b.pdfMrp || b.mrp) || (origPrice > 0 ? Math.round(origPrice * 2.5 + 49) : 199);
+                const pdfDiscount = pdfMrp > pdfPrice && pdfPrice > 0 ? Math.round(((pdfMrp - pdfPrice) / pdfMrp) * 100) : 0;
+
+                const physPrice = Number(b.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
+                const physMrp = Number(b.physicalMrp) || Math.round(physPrice * 2.2 + 50);
+                const physDiscount = physMrp > physPrice ? Math.round(((physMrp - physPrice) / physMrp) * 100) : 0;
+
                 const fileType = (b.fileType || 'pdf').toLowerCase();
                 const safeTitle = (b.title || 'Untitled Document').replace(/'/g, "&#39;");
                 const centerName = (b.targetCenterName && b.targetCenterId !== 'all') ? b.targetCenterName : null;
+                const pickupCenter = centerName || 'BBCC Central Directorate';
 
                 return `
                     <div class="vault-book-card">
-                        <div class="book-stage" onclick="${isPaid ? `openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}', '${encodeURIComponent(centerName || '')}', '${b.targetCenterId || 'all'}')` : `downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')`}">
+                        <div class="book-stage" onclick="openCheckout('${b._id}', 'pdf')">
                             ${b.thumbnail ? `
                                 <img src="${b.thumbnail}" alt="${safeTitle}" class="book-stage-custom-img" onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
                                 <div class="book-spine-3d" style="display:none;">
@@ -4520,8 +4861,8 @@
                                         <i class="fas ${fileType === 'pdf' ? 'fa-book-bookmark' : 'fa-file-lines'}"></i>
                                     </div>
                                     <div class="book-title-embossed">${safeTitle}</div>
-                                    <div style="font-size:10.5px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
-                                        ${b.subject || 'General'} • ${b.classLevel || 'All'}
+                                    <div style="font-size:10px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
+                                        ${b.subject || 'General'}
                                     </div>
                                 </div>
                             ` : `
@@ -4532,102 +4873,195 @@
                                         <i class="fas ${fileType === 'pdf' ? 'fa-book-bookmark' : 'fa-file-lines'}"></i>
                                     </div>
                                     <div class="book-title-embossed">${safeTitle}</div>
-                                    <div style="font-size:10.5px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
-                                        ${b.subject || 'General'} • ${b.classLevel || 'All'}
+                                    <div style="font-size:10px; color:#fbbf24; font-weight:700; text-transform:uppercase;">
+                                        ${b.subject || 'General'}
                                     </div>
                                 </div>
                             `}
-                            <div class="price-badge-pill ${isPaid ? 'paid' : 'free'}">
-                                ${isEnrolledFree 
-                                    ? `<i class="fas fa-check-circle"></i> FREE (Enrolled)` 
-                                    : (isPaid ? `<i class="fas fa-lock"></i> ₹${price}` : `<i class="fas fa-gift"></i> FREE`)}
+                            ${physDiscount > 0 ? `<div class="book-discount-badge"><i class="fas fa-bolt"></i> ${physDiscount}% छूट</div>` : ''}
+                            <div class="price-badge-pill ${isEnrolledFree ? 'free' : (pdfPrice > 0 ? 'paid' : 'free')}">
+                                ${isEnrolledFree ? `<i class="fas fa-check-circle"></i> FREE` : (pdfPrice > 0 ? `₹${pdfPrice}` : `FREE`)}
                             </div>
                         </div>
 
                         <div class="book-body">
                             ${centerName ? `
-                                <div style="margin-bottom:6px;">
-                                    <span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
-                                        <i class="fas fa-school"></i> ${centerName}
-                                    </span>
+                                <div class="book-center-tag" title="${centerName}">
+                                    <i class="fas fa-school"></i> ${centerName}
                                 </div>
                             ` : ''}
                             ${isEnrolledFree ? `
-                                <div style="margin-bottom:6px;">
-                                    <span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
-                                        <i class="fas fa-graduation-cap"></i> Enrolled Free Access
+                                <div style="margin-bottom:4px;">
+                                    <span style="font-size:10.5px; padding:2px 6px; border-radius:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                                        <i class="fas fa-graduation-cap"></i> Enrolled Free
                                     </span>
                                 </div>
                             ` : ''}
                             <h4 class="book-meta-title" title="${safeTitle}">${safeTitle}</h4>
                             <p class="book-meta-desc">${b.description || 'Verified academic syllabus & study material.'}</p>
-                            <div class="book-meta-specs">
-                                <span><i class="fas ${fileType === 'pdf' ? 'fa-file-pdf' : 'fa-file-word'}"></i> ${fileType.toUpperCase()}</span>
-                                <span style="color:#fbbf24; font-weight:700;">${isEnrolledFree ? 'Free for Student' : (isPaid ? 'Direct Unlock' : 'Instant Free')}</span>
+
+                            <!-- Dual Price Table: E-PDF vs Physical Hard Copy -->
+                            <div class="book-price-table">
+                                <div class="price-row">
+                                    <span class="price-type"><i class="fas fa-file-pdf" style="color:#38bdf8;"></i> E-PDF</span>
+                                    <span class="price-mrp">₹${pdfMrp}</span>
+                                    <span class="price-sale price-sale-pdf">${pdfPrice === 0 ? 'FREE' : '₹' + pdfPrice}</span>
+                                    ${pdfDiscount > 0 && pdfPrice > 0 ? `<span class="discount-pill">${pdfDiscount}% OFF</span>` : ''}
+                                </div>
+                                <div class="price-row">
+                                    <span class="price-type"><i class="fas fa-box-open" style="color:#fbbf24;"></i> हार्ड कॉपी</span>
+                                    <span class="price-mrp">₹${physMrp}</span>
+                                    <span class="price-sale price-sale-phys">₹${physPrice}</span>
+                                    ${physDiscount > 0 ? `<span class="discount-pill phys-pill">${physDiscount}% OFF</span>` : ''}
+                                </div>
+                            </div>
+
+                            <div class="pickup-address-hint" title="पिकअप: ${pickupCenter}">
+                                <i class="fas fa-location-dot"></i> पिकअप: ${pickupCenter}
                             </div>
                         </div>
 
-                        <div class="book-action-dock">
-                            ${isPaid ? `
-                                <button type="button" onclick="openCheckout('${b._id}', ${price}, '${encodeURIComponent(b.title)}', '${encodeURIComponent(b.subject)}', '${encodeURIComponent(b.classLevel)}', '${encodeURIComponent(centerName || '')}', '${b.targetCenterId || 'all'}')" class="btn-aurora btn-aurora-gold" style="width:100%; justify-content:center;">
-                                    <i class="fas fa-lock"></i> Pay ₹${price} & Download
+                        <div class="book-action-dock dual-actions">
+                            ${pdfPrice === 0 ? `
+                                <button type="button" onclick="downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')" class="btn-book-action btn-pdf-action">
+                                    <i class="fas fa-download"></i> PDF Free
                                 </button>
                             ` : `
-                                <button type="button" onclick="downloadFreeDirect('${b._id}', '${encodeURIComponent(b.title)}')" class="btn-aurora btn-aurora-outline" style="width:100%; justify-content:center; color:#10b981; border-color:rgba(16,185,129,0.3);">
-                                    <i class="fas fa-download"></i> Free Download
+                                <button type="button" onclick="openCheckout('${b._id}', 'pdf')" class="btn-book-action btn-pdf-action">
+                                    <i class="fas fa-download"></i> PDF ₹${pdfPrice}
                                 </button>
                             `}
+                            <button type="button" onclick="openCheckout('${b._id}', 'physical')" class="btn-book-action btn-physical-action">
+                                <i class="fas fa-box-open"></i> कॉपी ₹${physPrice}
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function openCheckout(docId, price, encTitle, encSubject, encClass, encCenter, targetCenterId) {
-            const title = decodeURIComponent(encTitle || 'Document');
-            const sub = decodeURIComponent(encSubject || 'General');
-            const cls = decodeURIComponent(encClass || 'All');
-            const center = decodeURIComponent(encCenter || '');
+        function openCheckout(docId, orderType) {
+            if (!allBooks || allBooks.length === 0) return;
+            const book = allBooks.find(b => (b._id || '').toString() === (docId || '').toString());
+            if (!book) return;
 
-            document.getElementById('dockDocId').value = docId;
-            document.getElementById('dockDocPriceRaw').value = price;
-            document.getElementById('dockTargetCenterId').value = targetCenterId || 'all';
-            document.getElementById('dockDocTitle').textContent = title;
-            document.getElementById('dockDocSpecs').textContent = `Subject: ${sub} • Class: ${cls}`;
-            document.getElementById('dockDocPrice').textContent = `₹${price}`;
-            document.getElementById('dockPayBtnText').textContent = `Pay ₹${price} via Razorpay`;
+            currentCheckoutBook = book;
+            currentOrderType = (orderType === 'physical') ? 'physical' : 'pdf';
+
+            document.getElementById('dockDocId').value = book._id;
+            document.getElementById('dockTargetCenterId').value = book.targetCenterId || 'all';
+
+            document.getElementById('dockDocTitle').textContent = book.title || 'Study Material';
+            document.getElementById('dockDocSpecs').textContent = `विषय: ${book.subject || 'General'} • कक्षा: ${book.classLevel || 'All'}`;
 
             const centerBadge = document.getElementById('dockCenterBadge');
-            if (center) {
+            if (book.targetCenterName && book.targetCenterId !== 'all') {
                 centerBadge.style.display = 'inline-block';
-                centerBadge.innerHTML = `<span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:700;"><i class="fas fa-school"></i> ${center}</span>`;
+                centerBadge.innerHTML = `<span style="font-size:11px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-weight:700;"><i class="fas fa-school"></i> ${book.targetCenterName}</span>`;
             } else {
                 centerBadge.style.display = 'none';
             }
 
-            // Student enrollment verification box
-            const enrolledBox = document.getElementById('dockEnrolledStudentBox');
-            if (targetCenterId && targetCenterId !== 'all') {
-                enrolledBox.style.display = 'block';
-            } else {
-                enrolledBox.style.display = 'none';
-            }
+            // Campus pickup details for physical copies
+            const pickupCenter = book.targetCenterName || 'BBCC Central Directorate';
+            const pickupAddr = book.pickupAddress || 'Patna, Bihar - 800001';
+            const pickupPhone = book.pickupWhatsapp || book.pickupPhone || '+91 98765 43210';
+            const pickupDirector = book.directorName || 'Santosh Kumar';
 
+            document.getElementById('dockPickupCenterName').textContent = pickupCenter;
+            document.getElementById('dockPickupAddress').textContent = pickupAddr;
+            document.getElementById('dockPickupContact').textContent = `${pickupDirector} (${pickupPhone})`;
+
+            // Pre-fill user data
             const savedAadhar = localStorage.getItem('bbcc_student_aadhar') || '';
-            if (savedAadhar) document.getElementById('dockStudentQuery').value = savedAadhar;
-            const alertBox = document.getElementById('dockEnrolledAlert');
-            if (alertBox) alertBox.style.display = 'none';
-
+            if (savedAadhar && document.getElementById('dockStudentQuery')) {
+                document.getElementById('dockStudentQuery').value = savedAadhar;
+            }
             const savedName = localStorage.getItem('bbcc_student_name') || '';
             const savedPhone = localStorage.getItem('bbcc_student_phone') || '';
             if (savedName) document.getElementById('dockPayerName').value = savedName;
             if (savedPhone) document.getElementById('dockPayerPhone').value = savedPhone;
 
+            // Reset modal states
             document.getElementById('checkoutPurchaseForm').style.display = 'block';
             document.getElementById('dockSuccessView').style.display = 'none';
+            document.getElementById('dockPhysicalSuccessView').style.display = 'none';
             document.getElementById('dockAlertBox').style.display = 'none';
+            const enrolledAlert = document.getElementById('dockEnrolledAlert');
+            if (enrolledAlert) enrolledAlert.style.display = 'none';
+
+            // Apply tab & pricing UI
+            switchCheckoutOrderType(currentOrderType);
 
             document.getElementById('docCheckoutDock').style.display = 'flex';
+        }
+
+        function switchCheckoutOrderType(type) {
+            currentOrderType = (type === 'physical') ? 'physical' : 'pdf';
+            const tabPdf = document.getElementById('tabBtnPdf');
+            const tabPhys = document.getElementById('tabBtnPhysical');
+            const pickupBox = document.getElementById('dockPhysicalPickupBox');
+            const enrolledBox = document.getElementById('dockEnrolledStudentBox');
+            const modalTitle = document.getElementById('dockMainModalTitle');
+
+            if (currentOrderType === 'physical') {
+                if (tabPhys) tabPhys.classList.add('active');
+                if (tabPdf) tabPdf.classList.remove('active');
+                if (pickupBox) pickupBox.style.display = 'block';
+                if (enrolledBox) enrolledBox.style.display = 'none';
+                if (modalTitle) modalTitle.textContent = 'हार्ड कॉपी (प्रिंटेड पुस्तक) ऑर्डर';
+            } else {
+                if (tabPdf) tabPdf.classList.add('active');
+                if (tabPhys) tabPhys.classList.remove('active');
+                if (pickupBox) pickupBox.style.display = 'none';
+                if (enrolledBox) {
+                    enrolledBox.style.display = (currentCheckoutBook && currentCheckoutBook.targetCenterId && currentCheckoutBook.targetCenterId !== 'all') ? 'block' : 'none';
+                }
+                if (modalTitle) modalTitle.textContent = 'E-PDF (डिजिटल) डाउनलोड एवं ऑर्डर';
+            }
+
+            updateCheckoutDockUI();
+        }
+
+        function updateCheckoutDockUI() {
+            if (!currentCheckoutBook) return;
+            const isPhysical = (currentOrderType === 'physical');
+
+            const price = isPhysical 
+                ? (Number(currentCheckoutBook.physicalPrice) || 149)
+                : (currentCheckoutBook.isEnrolledFree ? 0 : (Number(currentCheckoutBook.price) || 0));
+
+            const mrp = isPhysical 
+                ? (Number(currentCheckoutBook.physicalMrp) || Math.round(price * 1.8 + 50))
+                : (Number(currentCheckoutBook.pdfMrp) || Math.round(price * 2.5 + 49));
+
+            const discount = mrp > price && price > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0;
+
+            document.getElementById('dockDocPriceRaw').value = price;
+            document.getElementById('dockDocPrice').textContent = price === 0 ? 'FREE' : `₹${price}`;
+            document.getElementById('dockDocMrp').textContent = `₹${mrp}`;
+            
+            const badge = document.getElementById('dockDiscountBadge');
+            if (badge) {
+                if (discount > 0 && price > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `${discount}% OFF`;
+                    badge.className = isPhysical ? 'discount-pill phys-pill' : 'discount-pill';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            const payBtnText = document.getElementById('dockPayBtnText');
+            if (payBtnText) {
+                if (price === 0) {
+                    payBtnText.textContent = 'Free Download Now';
+                } else if (isPhysical) {
+                    payBtnText.textContent = `Pay ₹${price} & Confirm Hard Copy`;
+                } else {
+                    payBtnText.textContent = `Pay ₹${price} via Razorpay`;
+                }
+            }
         }
 
         async function verifyStudentFreeAccess() {
@@ -4653,7 +5087,8 @@
                         docId: docId,
                         studentQuery: query,
                         payerName: 'Enrolled Student',
-                        payerPhone: ''
+                        payerPhone: '',
+                        orderType: 'pdf'
                     })
                 });
 
@@ -4684,9 +5119,13 @@
             const price = Number(document.getElementById('dockDocPriceRaw').value) || 0;
             const name = document.getElementById('dockPayerName').value.trim();
             const phone = document.getElementById('dockPayerPhone').value.trim();
+            const orderType = currentOrderType || 'pdf';
             const studentQuery = (document.getElementById('dockStudentQuery') ? document.getElementById('dockStudentQuery').value : '').trim();
 
-            if (!name || !phone) return;
+            if (!name || !phone) {
+                alert('कृपया अपना नाम और WhatsApp मोबाइल नंबर दर्ज करें।');
+                return;
+            }
             localStorage.setItem('bbcc_student_name', name);
             localStorage.setItem('bbcc_student_phone', phone);
 
@@ -4699,7 +5138,13 @@
                 const res = await fetch('/api/pay/create-document-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ docId, payerName: name, payerPhone: phone, studentQuery: studentQuery })
+                    body: JSON.stringify({
+                        docId,
+                        payerName: name,
+                        payerPhone: phone,
+                        studentQuery: studentQuery,
+                        orderType: orderType
+                    })
                 });
 
                 const data = await res.json();
@@ -4711,6 +5156,7 @@
                 }
 
                 if (data.free) {
+                    btn.disabled = false;
                     triggerDownload(data.file, data.fileName);
                     showDockSuccess(data.file, data.fileName);
                     return;
@@ -4719,7 +5165,7 @@
                 if (typeof Razorpay === 'undefined') {
                     btn.disabled = false;
                     btnText.textContent = `Pay ₹${price} via Razorpay`;
-                    showDockAlert('Razorpay SDK loading. Please check internet connection.', true);
+                    showDockAlert('Razorpay Gateway load ho raha hai. Kripya thoda ruk kar dubara prayas karein.', true);
                     return;
                 }
 
@@ -4728,10 +5174,12 @@
                     amount: data.amountInPaise,
                     currency: data.currency || 'INR',
                     name: 'BBCC SKILL HUB',
-                    description: `E-Library: ${data.docTitle || 'Study Note'}`,
+                    description: orderType === 'physical'
+                        ? `हार्ड कॉपी पुस्तक: ${data.docTitle || 'Study Book'}`
+                        : `E-Library: ${data.docTitle || 'Study Note'}`,
                     order_id: data.orderId,
                     prefill: { name: name, contact: phone },
-                    theme: { color: '#fbbf24' },
+                    theme: { color: orderType === 'physical' ? '#f59e0b' : '#38bdf8' },
                     handler: async function(resp) {
                         btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Payment...';
                         try {
@@ -4742,28 +5190,34 @@
                                     razorpay_order_id: resp.razorpay_order_id,
                                     razorpay_payment_id: resp.razorpay_payment_id,
                                     razorpay_signature: resp.razorpay_signature,
-                                    docId: docId
+                                    docId: docId,
+                                    orderType: orderType
                                 })
                             });
 
                             const vData = await verifyRes.json();
                             if (vData.success) {
-                                const dlPayload = vData.downloadUrl || vData.file;
-                                triggerDownload(dlPayload, vData.fileName);
-                                showDockSuccess(dlPayload, vData.fileName);
-                                openTaxReceiptModal({
-                                    orderId: resp.razorpay_order_id,
-                                    paymentId: resp.razorpay_payment_id,
-                                    payerName: name,
-                                    payerPhone: phone,
-                                    itemTitle: document.getElementById('dockDocTitle').textContent,
-                                    itemMeta: document.getElementById('dockDocSpecs').textContent,
-                                    totalPrice: price,
-                                    paidDate: new Date(),
-                                    file: dlPayload,
-                                    downloadUrl: dlPayload,
-                                    fileName: vData.fileName
-                                });
+                                btn.disabled = false;
+                                if (vData.isPhysicalOrder) {
+                                    showDockPhysicalSuccess(vData, resp.razorpay_order_id, price, name, phone);
+                                } else {
+                                    const dlPayload = vData.downloadUrl || vData.file;
+                                    triggerDownload(dlPayload, vData.fileName);
+                                    showDockSuccess(dlPayload, vData.fileName);
+                                    openTaxReceiptModal({
+                                        orderId: resp.razorpay_order_id,
+                                        paymentId: resp.razorpay_payment_id,
+                                        payerName: name,
+                                        payerPhone: phone,
+                                        itemTitle: document.getElementById('dockDocTitle').textContent,
+                                        itemMeta: document.getElementById('dockDocSpecs').textContent,
+                                        totalPrice: price,
+                                        paidDate: new Date(),
+                                        file: dlPayload,
+                                        downloadUrl: dlPayload,
+                                        fileName: vData.fileName
+                                    });
+                                }
                             } else {
                                 btn.disabled = false;
                                 btnText.textContent = `Pay ₹${price} via Razorpay`;
@@ -4792,12 +5246,44 @@
             }
         }
 
+        function showDockPhysicalSuccess(vData, orderId, price, name, phone) {
+            document.getElementById('checkoutPurchaseForm').style.display = 'none';
+            document.getElementById('dockSuccessView').style.display = 'none';
+            const alertBox = document.getElementById('dockAlertBox');
+            if (alertBox) alertBox.style.display = 'none';
+
+            document.getElementById('sucPhysOrderId').textContent = orderId || ('#BBCC-BK-' + Date.now().toString().slice(-6));
+            document.getElementById('sucPhysBookTitle').textContent = vData.docTitle || (currentCheckoutBook ? currentCheckoutBook.title : 'Study Book');
+            document.getElementById('sucPhysAmount').textContent = '₹' + price;
+            document.getElementById('sucPhysStudentName').textContent = name;
+            document.getElementById('sucPhysStudentPhone').textContent = phone;
+
+            if (vData.pickupInfo) {
+                document.getElementById('sucPhysCenterName').textContent = vData.pickupInfo.centerName || 'BBCC Central Center';
+                document.getElementById('sucPhysCenterAddress').textContent = vData.pickupInfo.pickupAddress || 'Patna, Bihar';
+                document.getElementById('sucPhysDirectorInfo').textContent = `${vData.pickupInfo.directorName || 'Director'} (${vData.pickupInfo.directorPhone || ''})`;
+            }
+
+            const waBtn = document.getElementById('sucPhysWhatsappBtn');
+            if (waBtn && vData.whatsappUrl) {
+                waBtn.href = vData.whatsappUrl;
+            }
+
+            document.getElementById('dockPhysicalSuccessView').style.display = 'block';
+
+            if (vData.whatsappUrl) {
+                try {
+                    window.open(vData.whatsappUrl, '_blank');
+                } catch(e) {}
+            }
+        }
+
         async function downloadFreeDirect(docId, encTitle) {
             try {
                 const res = await fetch('/api/pay/create-document-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ docId })
+                    body: JSON.stringify({ docId, orderType: 'pdf' })
                 });
                 const data = await res.json();
                 if (data.success && (data.downloadUrl || data.file)) {
@@ -4833,6 +5319,7 @@
 
         function showDockSuccess(payload, fileName) {
             document.getElementById('checkoutPurchaseForm').style.display = 'none';
+            document.getElementById('dockPhysicalSuccessView').style.display = 'none';
             const link = document.getElementById('dockManualDownloadLink');
             if (link && payload) {
                 link.href = payload;
@@ -5939,21 +6426,21 @@
             <i class="fas fa-house"></i>
             <span>होम</span>
         </a>
-        <a href="#courses" class="app-dock-item" onclick="activateDockItem(this)">
-            <i class="fas fa-graduation-cap"></i>
-            <span>कोर्सेज</span>
+        <a href="#promotions" class="app-dock-item" onclick="activateDockItem(this)">
+            <i class="fas fa-bullhorn"></i>
+            <span>ऑफर्स</span>
         </a>
         <a href="#vault" class="app-dock-item" onclick="activateDockItem(this)">
             <i class="fas fa-book-bookmark"></i>
             <span>ई-लाइब्रेरी</span>
         </a>
+        <a href="#courses" class="app-dock-item" onclick="activateDockItem(this)">
+            <i class="fas fa-graduation-cap"></i>
+            <span>कोर्सेज</span>
+        </a>
         <a href="javascript:void(0)" class="app-dock-item" onclick="activateDockItem(this); toggleBhartiChat();">
             <i class="fas fa-robot" style="color:var(--aurora-gold);"></i>
             <span>भारती AI</span>
-        </a>
-        <a href="/login" class="app-dock-item" onclick="activateDockItem(this)">
-            <i class="fas fa-user-shield"></i>
-            <span>पोर्टल</span>
         </a>
     </nav>
 
