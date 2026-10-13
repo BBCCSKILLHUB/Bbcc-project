@@ -532,12 +532,24 @@
                     <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Add Teaching Faculty Member</h3>
                     <form onsubmit="addFacultyMember(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
                         <div>
-                            <label style="font-size:12px; color:#cbd5e1;">Teacher Name *</label>
+                            <label style="font-size:12px; color:#cbd5e1;">Teacher Full Name *</label>
                             <input type="text" id="facName" required placeholder="e.g. Dr. Rajesh Verma" class="studio-input">
                         </div>
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Subject Taught *</label>
                             <input type="text" id="facSubject" required placeholder="e.g. Physics / Mathematics" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Mobile / Phone (Login ID) *</label>
+                            <input type="text" id="facPhone" required placeholder="10-digit mobile number" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Teacher Portal Password *</label>
+                            <input type="text" id="facPass" value="teach123" required placeholder="Password for login" class="studio-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Custom Teacher ID (Optional)</label>
+                            <input type="text" id="facId" placeholder="Auto generated if blank e.g. TCH-101" class="studio-input">
                         </div>
                         <div>
                             <label style="font-size:12px; color:#cbd5e1;">Qualification</label>
@@ -557,7 +569,7 @@
                             </div>
                         </div>
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Add Faculty</button>
+                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Add Faculty & Create Portal Login</button>
                         </div>
                     </form>
                 </div>
@@ -2065,6 +2077,9 @@
                             <strong style="color:#ffffff; font-size:14.5px;">${t.name}</strong>
                             <div style="color:var(--aurora-gold); font-size:12.5px; font-weight:700;">${t.subject}</div>
                             <div style="font-size:11.5px; color:#94a3b8;">${t.qualification || 'Certified Faculty'} • ${t.experience || 'Experienced'}</div>
+                            <div style="font-size:11px; color:#38bdf8; margin-top:3px;">
+                                <i class="fas fa-key"></i> ID: <strong>${t.teacherId || t.phone || 'TCH'}</strong> | Pass: <strong>${t.password || 'teach123'}</strong>
+                            </div>
                         </div>
                     </div>
                     <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
@@ -2076,43 +2091,104 @@
 
         async function addFacultyMember(e) {
             e.preventDefault();
+            const sync = showSyncAnimation('Adding Faculty & Provisioning Teacher Portal Login...');
             const payload = {
                 name: document.getElementById('facName').value.trim(),
                 subject: document.getElementById('facSubject').value.trim(),
+                phone: document.getElementById('facPhone').value.trim(),
+                password: document.getElementById('facPass').value.trim() || 'teach123',
+                teacherId: document.getElementById('facId').value.trim() || undefined,
                 qualification: document.getElementById('facQual').value.trim(),
                 experience: document.getElementById('facExp').value.trim(),
                 photo: document.getElementById('facPhotoBase64').value || ''
             };
 
-            const res = await fetch('/api/director/teachers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Faculty member added successfully with photo!');
-                e.target.reset();
-                document.getElementById('facPhotoBase64').value = '';
-                const prevBox = document.getElementById('facPhotoPreviewBox');
-                if (prevBox) prevBox.style.display = 'none';
-                initDirectorStudio();
-            } else {
-                alert(data.message || 'Failed to add faculty');
+            try {
+                const res = await fetch('/api/director/teachers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sync.finish(`Faculty ${payload.name} added! Teacher ID: ${data.teacherId}`);
+                    e.target.reset();
+                    document.getElementById('facPhotoBase64').value = '';
+                    const prevBox = document.getElementById('facPhotoPreviewBox');
+                    if (prevBox) prevBox.style.display = 'none';
+                    initDirectorStudio();
+                } else {
+                    sync.error(data.message || 'Failed to add faculty');
+                }
+            } catch (err) {
+                sync.error('Error adding faculty: ' + err.message);
             }
         }
 
         async function removeFaculty(tid) {
             if (!confirm('Remove this faculty member?')) return;
-            const res = await fetch(`/api/director/teachers/${tid}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.success) initDirectorStudio();
+            const sync = showSyncAnimation('Removing faculty member...');
+            try {
+                const res = await fetch(`/api/director/teachers/${tid}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sync.finish('Faculty removed successfully');
+                    initDirectorStudio();
+                } else {
+                    sync.error(data.message || 'Delete failed');
+                }
+            } catch (err) {
+                sync.error('Error: ' + err.message);
+            }
+        }
+
+        function showSyncAnimation(text = 'Updating Central Database...') {
+            let overlay = document.getElementById('dbSyncOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'dbSyncOverlay';
+                overlay.style.cssText = 'display:none; position:fixed; bottom:24px; right:24px; background:#0f172a; border:1px solid #f59e0b; border-radius:14px; padding:16px 22px; box-shadow:0 10px 35px rgba(0,0,0,0.6); z-index:9999; align-items:center; gap:12px; color:#fff;';
+                overlay.innerHTML = `
+                    <i id="dbSyncIcon" class="fas fa-circle-notch fa-spin" style="color:#f59e0b; font-size:22px;"></i>
+                    <div>
+                        <div id="dbSyncTitle" style="font-size:13.5px; font-weight:800;">⚡ Updating Central Database...</div>
+                        <div id="dbSyncDesc" style="font-size:11.5px; color:#94a3b8;">Writing to database & clearing instant cache</div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+
+            document.getElementById('dbSyncTitle').textContent = `⚡ ${text}`;
+            document.getElementById('dbSyncDesc').textContent = 'Writing to database & clearing instant cache';
+            document.getElementById('dbSyncIcon').className = 'fas fa-circle-notch fa-spin';
+            document.getElementById('dbSyncIcon').style.color = '#f59e0b';
+            overlay.style.display = 'flex';
+
+            return {
+                finish: (successMsg = 'Database Updated & Synced Instantly!') => {
+                    document.getElementById('dbSyncTitle').textContent = `✅ ${successMsg}`;
+                    document.getElementById('dbSyncDesc').textContent = 'Index page & platform cache updated in 0ms';
+                    document.getElementById('dbSyncIcon').className = 'fas fa-check-circle';
+                    document.getElementById('dbSyncIcon').style.color = '#10b981';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                    }, 1800);
+                },
+                error: (errMsg = 'Database update failed') => {
+                    document.getElementById('dbSyncTitle').textContent = `❌ ${errMsg}`;
+                    document.getElementById('dbSyncIcon').className = 'fas fa-triangle-exclamation';
+                    document.getElementById('dbSyncIcon').style.color = '#ef4444';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                    }, 2500);
+                }
+            };
         }
 
         // Materials

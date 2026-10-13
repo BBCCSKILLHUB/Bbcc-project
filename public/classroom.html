@@ -823,6 +823,25 @@
                 </div>
             </div>
 
+            <!-- DYNAMIC REAL-TIME LIVE STREAM ALERT -->
+            <div id="activeLiveStreamAlert" style="display:none; background:linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(15,23,42,0.98) 100%); border:2px solid #ef4444; border-radius:20px; padding:22px 28px; margin-bottom:24px; box-shadow:0 0 30px rgba(239,68,68,0.3); align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:50px; height:50px; border-radius:14px; background:rgba(239,68,68,0.25); border:1px solid #ef4444; display:flex; align-items:center; justify-content:center; color:#ef4444; font-size:22px;">
+                        <i class="fas fa-tower-broadcast" style="animation:pulseAnim 1.2s infinite;"></i>
+                    </div>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+                            <span style="background:#ef4444; color:#fff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px; text-transform:uppercase;">🔴 LIVE NOW</span>
+                            <span style="color:#cbd5e1; font-size:12.5px;" id="alertTeacherName">Faculty</span>
+                        </div>
+                        <h3 id="alertLiveTitle" style="font-size:18px; font-weight:800; color:#ffffff; margin:0;">Live Class in Progress</h3>
+                    </div>
+                </div>
+                <button onclick="openLiveStudentPlayer()" class="btn-gold" style="background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; box-shadow:0 4px 18px rgba(239,68,68,0.4); padding:12px 24px; font-size:14px; border:none; cursor:pointer;">
+                    <i class="fas fa-play"></i> Watch Live Class Now
+                </button>
+            </div>
+
             <!-- Mode Action Card: Live Class for Online OR Campus Schedule for Physical -->
             <div id="liveClassCard" class="live-class-card">
                 <div class="live-class-content">
@@ -844,7 +863,7 @@
             <!-- 2-Column Details Grid -->
             <div class="dash-grid">
 
-                <!-- Left Column: Study Materials & Syllabus -->
+                <!-- Left Column: Study Materials & Syllabus + Recorded Lectures Vault -->
                 <div>
                     <div class="dash-card">
                         <div class="dash-card-header">
@@ -855,6 +874,23 @@
                             <div style="text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;">
                                 <i class="fas fa-folder-open" style="font-size: 32px; color: #475569; margin-bottom: 10px; display: block;"></i>
                                 No study materials uploaded yet by center faculty.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECORDED LECTURES & REVISION VAULT -->
+                    <div class="dash-card" style="margin-top: 24px;">
+                        <div class="dash-card-header">
+                            <h4><i class="fab fa-youtube" style="color:#ef4444;"></i> Recorded Lectures & Revision Library (पिछली कक्षाएं)</h4>
+                            <span id="recordingsCountBadge" style="font-size: 12px; color: #ef4444; font-weight: 700;">0 Lectures</span>
+                        </div>
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
+                            Missed a live class? Watch recorded revision lectures from the official YouTube Channel & central vault anytime.
+                        </p>
+                        <div id="recordingsList" class="materials-list">
+                            <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
+                                <i class="fab fa-youtube" style="font-size: 32px; color: #475569; margin-bottom: 8px; display: block;"></i>
+                                No recorded revision lectures yet. Past live sessions will automatically appear here.
                             </div>
                         </div>
                     </div>
@@ -941,6 +977,73 @@
             <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; font-size: 11px; color: #64748b;">
                 <div>Aadhar: <span id="printAadhar">XXXX-XXXX-0000</span></div>
                 <div>Authorized Digital Credential</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In-App Interactive Live Classroom Player Modal -->
+    <div id="liveStudentPlayerModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border-gold); border-radius:20px; max-width:1100px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
+            <!-- Player Header -->
+            <div style="padding:16px 24px; background:rgba(11,16,28,0.95); border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <span style="background:#ef4444; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
+                        <span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:pulseAnim 1s infinite;"></span> LIVE STREAM
+                    </span>
+                    <h3 id="modalLiveClassTitle" style="font-size:16px; color:#fff; margin:0; font-weight:800;">Class Title</h3>
+                    <span id="modalLiveTeacher" style="color:var(--gold); font-size:13px; font-weight:600;">Faculty Name</span>
+                </div>
+                <button onclick="closeLiveStudentPlayer()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Player Body: Video & Live Chat Grid -->
+            <div style="display:grid; grid-template-columns:2fr 1fr; flex:1; min-height:420px; max-height:calc(92vh - 70px); overflow:hidden;">
+                <!-- Left: Live Video Display -->
+                <div style="background:#000; position:relative; display:flex; align-items:center; justify-content:center; min-height:380px;">
+                    <div id="studentLiveVideoPlaceholder" style="text-align:center; color:#94a3b8; padding:30px;">
+                        <i class="fas fa-tower-broadcast" style="font-size:56px; color:#ef4444; margin-bottom:12px; animation:pulseAnim 1.4s infinite;"></i>
+                        <h4 style="font-size:18px; color:#fff; margin-bottom:6px;">Connecting to Live Broadcast...</h4>
+                        <p style="font-size:13px; max-width:320px; margin:0 auto;">Receiving live teacher stream & audio feed. Active questions welcome.</p>
+                    </div>
+                    <video id="studentLiveVideo" autoplay playsinline controls style="display:none; width:100%; height:100%; object-fit:contain;"></video>
+                </div>
+                <!-- Right: Real-time Doubts & Chat Desk -->
+                <div style="background:var(--bg-obsidian); border-left:1px solid var(--border-subtle); display:flex; flex-direction:column; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h4 style="font-size:14px; font-weight:800; color:#fff;"><i class="fas fa-comments" style="color:var(--cyan);"></i> Live Doubts Desk</h4>
+                        <span style="font-size:11px; color:#94a3b8;"><i class="fas fa-users"></i> <span id="modalActiveStudentCount">1</span> Watching</span>
+                    </div>
+                    <div id="studentLiveChatBox" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding-right:4px;">
+                        <div style="font-size:12px; color:#64748b; font-style:italic; text-align:center; padding:10px;">
+                            You are connected to the live session. Type your questions or doubts below for the faculty.
+                        </div>
+                    </div>
+                    <form onsubmit="sendStudentLiveDoubt(event)" style="display:flex; gap:8px;">
+                        <input type="text" id="studentLiveDoubtInput" placeholder="Ask a doubt or question..." style="flex:1; padding:10px 14px; background:#1e293b; border:1px solid var(--border-subtle); border-radius:10px; color:#fff; font-size:13px; outline:none;" autocomplete="off">
+                        <button type="submit" class="btn-gold" style="padding:10px 16px; border:none; border-radius:10px; cursor:pointer;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In-App Video & YouTube Lecture Replay Modal -->
+    <div id="videoLecturePlayerModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border-gold); border-radius:20px; max-width:860px; width:100%; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7);">
+            <div style="padding:16px 22px; background:rgba(11,16,28,0.95); border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                    <h3 id="recLectureTitle" style="font-size:16px; color:#fff; margin:0; font-weight:800;">Lecture Title</h3>
+                    <div id="recLectureTeacher" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Teacher & Center</div>
+                </div>
+                <button onclick="closeVideoLectureModal()" style="background:transparent; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="recVideoContainer" style="position:relative; width:100%; min-height:420px; background:#000; display:flex; align-items:center; justify-content:center;">
+                <!-- dynamic player -->
             </div>
         </div>
     </div>
@@ -1138,10 +1241,209 @@
                     </div>
                 `;
             }
+
+            // Real-Time Live Class Alert & Recorded Revision Lectures Loader
+            startActiveLiveCheck();
+            loadRecordedLectures(center ? center._id : '');
+        }
+
+        let activeLiveCheckTimer = null;
+        let currentActiveLive = null;
+        let studentChatTimer = null;
+
+        function startActiveLiveCheck() {
+            if (activeLiveCheckTimer) clearInterval(activeLiveCheckTimer);
+            checkActiveLiveClass();
+            activeLiveCheckTimer = setInterval(checkActiveLiveClass, 8000);
+        }
+
+        async function checkActiveLiveClass() {
+            try {
+                const res = await fetch('/api/live/active?_t=' + Date.now());
+                const data = await res.json();
+                const alertBox = document.getElementById('activeLiveStreamAlert');
+                if (data.success && data.activeClasses && data.activeClasses.length > 0) {
+                    const live = data.activeClasses[0];
+                    currentActiveLive = live;
+                    document.getElementById('alertTeacherName').textContent = live.teacherName + ' (' + (live.centerName || 'Live Faculty') + ')';
+                    document.getElementById('alertLiveTitle').textContent = live.title;
+                    alertBox.style.display = 'flex';
+                } else {
+                    alertBox.style.display = 'none';
+                    currentActiveLive = null;
+                }
+            } catch (e) {}
+        }
+
+        async function loadRecordedLectures(centerId = '') {
+            try {
+                const url = '/api/live/recordings' + (centerId ? ('?centerId=' + centerId + '&_t=' + Date.now()) : ('?_t=' + Date.now()));
+                const res = await fetch(url);
+                const data = await res.json();
+                const container = document.getElementById('recordingsList');
+                const badge = document.getElementById('recordingsCountBadge');
+
+                if (data.success && data.recordings && data.recordings.length > 0) {
+                    badge.textContent = data.recordings.length + ' Recorded Lectures';
+                    container.innerHTML = data.recordings.map(r => {
+                        const dateStr = r.recordedAt ? new Date(r.recordedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent';
+                        const safeTitle = escapeHtml(r.title);
+                        const safeTeacher = escapeHtml(r.teacherName || 'Faculty');
+                        const safeCenter = escapeHtml(r.centerName || '');
+                        const vidUrl = r.youtubeWatchUrl || r.videoUrl || '';
+
+                        return `
+                            <div class="material-item">
+                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    <div class="material-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                                        <i class="fab fa-youtube"></i>
+                                    </div>
+                                    <div class="material-meta">
+                                        <h5>${safeTitle}</h5>
+                                        <p><i class="fas fa-chalkboard-user"></i> ${safeTeacher} ${safeCenter ? (' • ' + safeCenter) : ''} • <span>${dateStr}</span></p>
+                                    </div>
+                                </div>
+                                <button onclick="openVideoLectureModal('${encodeURIComponent(vidUrl)}', '${safeTitle.replace(/'/g, "\\'")}', '${safeTeacher.replace(/'/g, "\\'")}')" class="btn-download-sm" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fca5a5;">
+                                    <i class="fas fa-play"></i> Watch Lecture
+                                </button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    badge.textContent = '0 Lectures';
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
+                            <i class="fab fa-youtube" style="font-size: 32px; color: #475569; margin-bottom: 8px; display: block;"></i>
+                            No recorded revision lectures yet. Lectures will automatically archive here when live classes end.
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.warn('Recordings load notice:', err.message);
+            }
+        }
+
+        // Live Student Player Modal Actions
+        async function openLiveStudentPlayer() {
+            if (!currentActiveLive) return;
+            const modal = document.getElementById('liveStudentPlayerModal');
+            document.getElementById('modalLiveClassTitle').textContent = currentActiveLive.title;
+            document.getElementById('modalLiveTeacher').textContent = 'Prof. ' + currentActiveLive.teacherName;
+            document.getElementById('modalActiveStudentCount').textContent = (currentActiveLive.activeStudentsCount || 1);
+            modal.style.display = 'flex';
+
+            try {
+                await fetch('/api/live/signal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classId: currentActiveLive.classId,
+                        type: 'student-join',
+                        signal: { joined: true, time: Date.now() },
+                        senderId: currentStudentData ? currentStudentData.student.studentId : ('stu_' + Date.now()),
+                        senderName: currentStudentData ? currentStudentData.student.name : 'Student',
+                        senderRole: 'student'
+                    })
+                });
+            } catch (e) {}
+
+            startStudentChatPolling();
+        }
+
+        function closeLiveStudentPlayer() {
+            document.getElementById('liveStudentPlayerModal').style.display = 'none';
+            if (studentChatTimer) clearInterval(studentChatTimer);
+        }
+
+        function startStudentChatPolling() {
+            if (studentChatTimer) clearInterval(studentChatTimer);
+            loadStudentLiveChat();
+            studentChatTimer = setInterval(loadStudentLiveChat, 3500);
+        }
+
+        async function loadStudentLiveChat() {
+            if (!currentActiveLive) return;
+            try {
+                const res = await fetch(`/api/live/chat/${currentActiveLive.classId}?_t=` + Date.now());
+                const data = await res.json();
+                if (data.success && data.chat) {
+                    const box = document.getElementById('studentLiveChatBox');
+                    box.innerHTML = data.chat.map(m => {
+                        const isTeacher = m.role === 'teacher';
+                        const isSys = m.role === 'system';
+                        const col = isSys ? '#f87171' : (isTeacher ? '#fbbf24' : '#38bdf8');
+                        return `
+                            <div style="padding:8px 12px; border-radius:8px; font-size:12px; background:#1e293b; border-left:3px solid ${col};">
+                                <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#94a3b8; margin-bottom:2px;">
+                                    <strong style="color:${col};">${m.sender} ${isTeacher ? '⭐ (Faculty)' : ''}</strong>
+                                    <span>${new Date(m.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>
+                                </div>
+                                <div style="color:#ffffff;">${escapeHtml(m.text)}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    box.scrollTop = box.scrollHeight;
+                }
+            } catch (e) {}
+        }
+
+        async function sendStudentLiveDoubt(e) {
+            e.preventDefault();
+            const input = document.getElementById('studentLiveDoubtInput');
+            const text = input.value.trim();
+            if (!text || !currentActiveLive) return;
+
+            try {
+                await fetch('/api/live/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classId: currentActiveLive.classId,
+                        senderName: currentStudentData ? currentStudentData.student.name : 'Enrolled Student',
+                        role: 'student',
+                        text: text
+                    })
+                });
+                input.value = '';
+                loadStudentLiveChat();
+            } catch (err) {}
+        }
+
+        function openVideoLectureModal(rawUrl, title, teacher) {
+            const url = decodeURIComponent(rawUrl);
+            document.getElementById('recLectureTitle').textContent = title;
+            document.getElementById('recLectureTeacher').textContent = 'Faculty: ' + teacher;
+            const container = document.getElementById('recVideoContainer');
+
+            let ytId = '';
+            if (url.includes('youtube.com/watch?v=')) {
+                ytId = url.split('v=')[1]?.split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                ytId = url.split('youtu.be/')[1]?.split('?')[0];
+            }
+
+            if (ytId) {
+                container.innerHTML = `
+                    <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;"></iframe>
+                `;
+            } else {
+                container.innerHTML = `
+                    <video src="${url}" controls autoplay style="width:100%; height:100%; max-height:480px;"></video>
+                `;
+            }
+
+            document.getElementById('videoLecturePlayerModal').style.display = 'flex';
+        }
+
+        function closeVideoLectureModal() {
+            document.getElementById('videoLecturePlayerModal').style.display = 'none';
+            document.getElementById('recVideoContainer').innerHTML = '';
         }
 
         function handleStudentLogout() {
             localStorage.removeItem('bbcc_student_token');
+            if (activeLiveCheckTimer) clearInterval(activeLiveCheckTimer);
+            if (studentChatTimer) clearInterval(studentChatTimer);
             currentStudentData = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('dashboardSection').style.display = 'none';

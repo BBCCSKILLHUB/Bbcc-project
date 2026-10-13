@@ -2661,6 +2661,17 @@
         </div>
     </div>
 
+    <!-- Live Stream Alert Bar (Visible when any faculty is broadcasting live) -->
+    <div id="indexLiveClassAlert" style="display:none; background:linear-gradient(90deg, #991b1b, #dc2626, #b91c1c); color:#ffffff; padding:10px 24px; font-size:13px; font-weight:700; align-items:center; justify-content:space-between; box-shadow:0 4px 18px rgba(220,38,38,0.5); z-index:1001; position:relative; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="display:inline-block; width:10px; height:10px; background:#ffffff; border-radius:50%; box-shadow:0 0 10px #ffffff; animation:pulse 1.2s infinite;"></span>
+            <span id="indexLiveClassMsg">🔴 LIVE CLASS IN PROGRESS! Join the real-time lecture stream now.</span>
+        </div>
+        <a href="/classroom" style="background:#ffffff; color:#991b1b; padding:5px 16px; border-radius:20px; text-decoration:none; font-weight:800; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+            Join Classroom Live <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
     <!-- 2. Institutional Top Bar -->
     <header class="aurora-topbar">
         <div class="topbar-badge">
@@ -2669,6 +2680,9 @@
         <div class="topbar-actions">
             <a href="/classroom" class="topbar-link" style="color:var(--aurora-cyan); font-weight:700;">
                 <i class="fas fa-desktop"></i> Student Classroom Login
+            </a>
+            <a href="/teacher-portal" class="topbar-link" style="color:var(--aurora-gold); font-weight:700;">
+                <i class="fas fa-chalkboard-user"></i> Teacher Studio
             </a>
             <a href="/about" class="topbar-link">
                 <i class="fas fa-circle-info"></i> About Platform
@@ -2707,6 +2721,9 @@
             </a>
             <a href="#faculty-showcase" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-chalkboard-teacher"></i> Expert Faculty
+            </a>
+            <a href="/teacher-portal" class="btn-aurora btn-aurora-outline" style="border-color:rgba(251, 191, 36, 0.4); color:var(--aurora-gold);">
+                <i class="fas fa-chalkboard-user"></i> Teacher Studio
             </a>
             <a href="#founder" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-user-tie"></i> Founder
@@ -2786,6 +2803,9 @@
             </a>
 
             <div class="drawer-section-label">प्रबंधन एवं सहायता</div>
+            <a href="/teacher-portal" class="drawer-nav-link highlight-gold">
+                <i class="fas fa-chalkboard-user" style="color:var(--aurora-gold);"></i> Teacher Live Studio Login
+            </a>
             <a href="/login" class="drawer-nav-link">
                 <i class="fas fa-user-shield"></i> Director / Admin Login
             </a>
@@ -3928,12 +3948,30 @@
             try { await loadFounderProfile(); } catch(e) { console.warn('Founder notice:', e); }
             try { await loadExpertTeachers(); } catch(e) { console.warn('Faculty notice:', e); }
             try { initBhartiChat(); } catch(e) { console.warn('Bharti init notice:', e); }
+            try { checkIndexLiveClasses(); setInterval(checkIndexLiveClasses, 15000); } catch(e) {}
             try { initScrollAnimations(); } catch(e) {}
+        }
+
+        async function checkIndexLiveClasses() {
+            try {
+                const res = await fetch('/api/live/active?_t=' + Date.now());
+                const data = await res.json();
+                const alertEl = document.getElementById('indexLiveClassAlert');
+                const msgEl = document.getElementById('indexLiveClassMsg');
+                if (!alertEl || !msgEl) return;
+                if (data.success && data.activeSessions && data.activeSessions.length > 0) {
+                    const active = data.activeSessions[0];
+                    msgEl.innerHTML = `🔴 <strong>LIVE NOW:</strong> <span>${active.teacherName}</span> is streaming <em>${active.courseName || active.subject || 'Live Class'}</em> at ${active.centerName || 'BBCC Network'}!`;
+                    alertEl.style.display = 'flex';
+                } else {
+                    alertEl.style.display = 'none';
+                }
+            } catch(e) {}
         }
 
         async function loadConfig() {
             try {
-                const res = await fetch('/api/public/config');
+                const res = await fetch('/api/public/config?_t=' + Date.now());
                 const data = await res.json();
                 if (data.success && data.data) {
                     publicConfig = data.data;
@@ -4001,7 +4039,7 @@
         // ============================================
         async function loadPromotionalBanners() {
             try {
-                const res = await fetch('/api/public/promotional-banners');
+                const res = await fetch('/api/public/promotional-banners?_t=' + Date.now());
                 const data = await res.json();
                 if (data.success && data.data && data.data.length > 0) {
                     promotionalBanners = data.data;
@@ -4118,7 +4156,7 @@
         async function loadCourses() {
             const grid = document.getElementById('coursesGrid');
             try {
-                const res = await fetch('/api/public/courses');
+                const res = await fetch('/api/public/courses?_t=' + Date.now());
                 const data = await res.json();
                 if (data.success && data.data) {
                     allCourses = data.data;
@@ -4252,7 +4290,7 @@
         async function loadCenters() {
             const grid = document.getElementById('institutesGrid');
             try {
-                const res = await fetch('/api/public/centers');
+                const res = await fetch('/api/public/centers?_t=' + Date.now());
                 const data = await res.json();
                 if (data.success && data.data) {
                     allCenters = data.data;
@@ -4320,7 +4358,7 @@
         // ============================================
         async function loadFounderProfile() {
             try {
-                const res = await fetch('/api/public/founder');
+                const res = await fetch('/api/public/founder?_t=' + Date.now());
                 const data = await res.json();
                 if (data.success && data.data) {
                     const f = data.data;
@@ -4352,7 +4390,7 @@
             const grid = document.getElementById('expertTeachersGrid');
             if (!grid) return;
             try {
-                const res = await fetch('/api/public/expert-teachers');
+                const res = await fetch('/api/public/expert-teachers?_t=' + Date.now());
                 const data = await res.json();
                 let teachers = (data.success && data.data && data.data.length > 0) ? data.data : [];
 
@@ -4963,7 +5001,7 @@
             const grid = document.getElementById('booksGrid');
             try {
                 const query = (studentQuery || localStorage.getItem('bbcc_student_aadhar') || '').trim();
-                const url = query ? `/api/public/books?studentQuery=${encodeURIComponent(query)}` : '/api/public/books';
+                const url = query ? `/api/public/books?studentQuery=${encodeURIComponent(query)}&_t=${Date.now()}` : `/api/public/books?_t=${Date.now()}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 if (data.success && data.data && data.data.notes) {

@@ -658,6 +658,66 @@
                     </div>
                 </div>
 
+                <!-- 3B. Central YouTube Channel & Cloud API Studio (Live Class Auto-Archive) -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #ef4444;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
+                                <i class="fab fa-youtube"></i> Official YouTube Channel & Cloud API Studio (केंद्रीय यूट्यूब चैनल व ऑटो-रिकॉर्डिंग आर्काइव)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Central YouTube Channel credentials for automatic video archival. All teacher live classes upon ending will automatically upload or link as unlisted revision videos on this single official platform channel.
+                            </p>
+                        </div>
+                        <span id="youtubeStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                            Checking YouTube...
+                        </span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">YouTube Data API Key (Google Cloud Console)</label>
+                            <input type="password" id="setYoutubeApiKey" placeholder="AIzaSy... (Paste YouTube Data API Key)" class="console-input" style="font-family:monospace; margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Central Channel ID (UC...)</label>
+                            <input type="text" id="setYoutubeChannelId" placeholder="e.g. UCxxxxxxxxxxxxxxxxxxxxxx" class="console-input" style="font-family:monospace; margin-top:6px;">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">OAuth2 Client ID (Optional)</label>
+                            <input type="text" id="setYoutubeClientId" placeholder="xxxx.apps.googleusercontent.com" class="console-input" style="font-family:monospace; margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Privacy Mode for Live Recordings</label>
+                            <select id="setYoutubePrivacy" class="console-input" style="margin-top:6px;">
+                                <option value="unlisted">Unlisted (अनुशंसित - केवल नामांकित छात्रों के लिए)</option>
+                                <option value="public">Public (सार्वजनिक - सभी के लिए खुला)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Automated Archiving</label>
+                            <label style="display:flex; align-items:center; gap:8px; margin-top:14px; cursor:pointer; color:#e2e8f0; font-size:13px; font-weight:600;">
+                                <input type="checkbox" id="setYoutubeAutoUpload" checked style="accent-color:#ef4444; width:18px; height:18px;">
+                                Auto-save recordings to Revision Vault
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="youtubeTestBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="button" onclick="saveYoutubeConfig()" class="btn-aurora btn-gold">
+                            <i class="fab fa-youtube"></i> Save YouTube Channel Config
+                        </button>
+                        <button type="button" onclick="testYoutubeConnection()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171;">
+                            <i class="fas fa-bolt"></i> Test YouTube API Live
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 4. Global Platform CMS & Branding -->
                 <div class="card-console" style="border-left:4px solid #10b981;">
                     <div style="margin-bottom:16px;">
@@ -2255,6 +2315,37 @@
                     if (rzpSecretInput) rzpSecretInput.placeholder = 'Enter Razorpay Secret Key';
                 }
 
+                // YouTube Status & Fields
+                const ytBadge = document.getElementById('youtubeStatusBadge');
+                const ytKeyInput = document.getElementById('setYoutubeApiKey');
+                const ytChInput = document.getElementById('setYoutubeChannelId');
+                const ytCliInput = document.getElementById('setYoutubeClientId');
+                const ytPrivInput = document.getElementById('setYoutubePrivacy');
+                const ytAutoInput = document.getElementById('setYoutubeAutoUpload');
+
+                if (cfg.youtubeConfigured) {
+                    if (ytBadge) {
+                        ytBadge.textContent = '✅ ACTIVE (YOUTUBE READY)';
+                        ytBadge.style.background = 'rgba(16,185,129,0.15)';
+                        ytBadge.style.borderColor = '#10b981';
+                        ytBadge.style.color = '#34d399';
+                    }
+                    if (ytKeyInput) {
+                        ytKeyInput.placeholder = cfg.youtubeApiKeyMasked ? `•••••••• (${cfg.youtubeApiKeyMasked})` : '•••••••• (YouTube Key Configured)';
+                    }
+                } else {
+                    if (ytBadge) {
+                        ytBadge.textContent = '⚙️ NOT CONFIGURED';
+                        ytBadge.style.background = 'rgba(239,68,68,0.15)';
+                        ytBadge.style.borderColor = '#ef4444';
+                        ytBadge.style.color = '#fca5a5';
+                    }
+                }
+                if (ytChInput && cfg.youtubeChannelId) ytChInput.value = cfg.youtubeChannelId;
+                if (ytCliInput && cfg.youtubeClientId) ytCliInput.value = cfg.youtubeClientId;
+                if (ytPrivInput && cfg.youtubePrivacyStatus) ytPrivInput.value = cfg.youtubePrivacyStatus;
+                if (ytAutoInput && cfg.youtubeAutoUpload !== undefined) ytAutoInput.checked = Boolean(cfg.youtubeAutoUpload);
+
                 // Dynamic Favicon
                 if (cfg.boardLogo) {
                     const df = document.getElementById('dynamicFavicon');
@@ -2295,6 +2386,91 @@
                 }
             } catch(e) {
                 console.error('loadSettingsData error:', e);
+            }
+        }
+
+        async function saveYoutubeConfig() {
+            const apiKey = document.getElementById('setYoutubeApiKey').value.trim();
+            const channelId = document.getElementById('setYoutubeChannelId').value.trim();
+            const clientId = document.getElementById('setYoutubeClientId').value.trim();
+            const privacy = document.getElementById('setYoutubePrivacy').value;
+            const autoUpload = document.getElementById('setYoutubeAutoUpload').checked;
+
+            const box = document.getElementById('youtubeTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(239,68,68,0.1)';
+            box.style.border = '1px solid #ef4444';
+            box.style.color = '#fca5a5';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving YouTube Cloud API settings...';
+
+            try {
+                const res = await fetch('/api/admin/youtube-config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        youtubeApiKey: apiKey || undefined,
+                        youtubeChannelId: channelId,
+                        youtubeClientId: clientId,
+                        youtubePrivacyStatus: privacy,
+                        youtubeAutoUpload: autoUpload
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+                    document.getElementById('setYoutubeApiKey').value = '';
+                    await loadSettingsData();
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(err) {
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error saving YouTube config: ' + err.message;
+            }
+        }
+
+        async function testYoutubeConnection() {
+            const apiKey = document.getElementById('setYoutubeApiKey').value.trim();
+            const channelId = document.getElementById('setYoutubeChannelId').value.trim();
+
+            const box = document.getElementById('youtubeTestBox');
+            box.style.display = 'block';
+            box.style.background = 'rgba(239,68,68,0.1)';
+            box.style.border = '1px solid #ef4444';
+            box.style.color = '#fca5a5';
+            box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing YouTube Data API connection...';
+
+            try {
+                const res = await fetch('/api/admin/test-youtube', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ apiKey, channelId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.style.background = 'rgba(16,185,129,0.15)';
+                    box.style.borderColor = '#10b981';
+                    box.style.color = '#86efac';
+                    box.innerHTML = `<i class="fas fa-check-circle"></i> <b>${data.message}</b> (${data.channelTitle || 'Channel Live'})`;
+                } else {
+                    box.style.background = 'rgba(239,68,68,0.15)';
+                    box.style.borderColor = '#ef4444';
+                    box.style.color = '#fca5a5';
+                    box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${data.message}`;
+                }
+            } catch(err) {
+                box.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Error testing YouTube: ' + err.message;
             }
         }
 
