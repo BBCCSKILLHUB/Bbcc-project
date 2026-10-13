@@ -2353,6 +2353,7 @@ app.get('/api/public/books', async (req, res) => {
                             physicalPrice: m.physicalPrice || 0,
                             physicalMrp: m.physicalMrp || 0,
                             pickupAddress: m.pickupAddress || '',
+                            directorContact: m.directorContact || '',
                             targetCenterId: c._id.toString(),
                             targetCenterName: c.centerName,
                             isRawData: m.isRawData || false,
@@ -3598,6 +3599,12 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                 }
             } catch(ce) {}
         }
+        if (note.pickupAddress && note.pickupAddress.trim()) {
+            centerPickupAddress = note.pickupAddress.trim();
+        }
+        if (note.directorContact && note.directorContact.trim()) {
+            centerDirectorPhone = note.directorContact.trim();
+        }
 
         // CASE A: Free E-PDF or Enrolled Student Benefit -> Instant 100% Free Delivery (Never for Physical Copy)
         if (!isPhysicalOrder && (price === 0 || isEnrolledStudent)) {
@@ -3617,6 +3624,7 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                 payerEmail: (payerEmail || '').trim(),
                 docId: note._id.toString(),
                 docTitle: note.title,
+                orderType: 'pdf',
                 paidAt: new Date()
             });
 
@@ -3670,7 +3678,10 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             payerPhone: (payerPhone || '').trim(),
             payerEmail: (payerEmail || '').trim(),
             docId: note._id.toString(),
-            docTitle: note.title
+            docTitle: note.title,
+            orderType: isPhysicalOrder ? 'physical' : 'pdf',
+            pickupAddress: centerPickupAddress,
+            fulfillmentStatus: isPhysicalOrder ? 'pending' : 'none'
         });
 
         res.json({
@@ -3915,8 +3926,8 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
         let whatsappUrl = '';
 
         if (isPhysicalOrder) {
-            let pickupAddress = "BBCC Central Directorate, Patna, Bihar - 800001";
-            let directorPhone = "9876543210";
+            let pickupAddress = (tx && tx.pickupAddress) || (note && note.pickupAddress) || "BBCC Central Directorate, Patna, Bihar - 800001";
+            let directorPhone = (note && note.directorContact) || "9876543210";
             let directorName = "Santosh Kumar (Founder & MD)";
             let centerName = (tx && tx.centerName) || (note ? note.targetCenterName : "BBCC SKILL HUB");
 
@@ -3925,12 +3936,21 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
                 try {
                     const c = await TuitionCenter.findById(targetCenterId).lean();
                     if (c) {
-                        pickupAddress = c.address || pickupAddress;
-                        directorPhone = c.whatsappNumber || c.contactNumber || directorPhone;
+                        if (!pickupAddress || pickupAddress === "BBCC Central Directorate, Patna, Bihar - 800001") {
+                            pickupAddress = c.address || pickupAddress;
+                        }
+                        directorPhone = (note && note.directorContact) || c.whatsappNumber || c.contactNumber || directorPhone;
                         directorName = c.directorName || directorName;
                         centerName = c.centerName || centerName;
                     }
                 } catch(e) {}
+            }
+
+            if (tx) {
+                tx.orderType = 'physical';
+                tx.purpose = 'physical_book_order';
+                if (!tx.pickupAddress) tx.pickupAddress = pickupAddress;
+                await tx.save();
             }
 
             pickupInfo = {
@@ -5233,8 +5253,10 @@ app.get('/api/director/book-orders', verifyDirector, async (req, res) => {
                 { centerId: center._id.toString() },
                 { centerName: center.centerName }
             ],
-            purpose: 'physical_book_order',
-            status: 'paid'
+            $and: [
+                { $or: [{ purpose: 'physical_book_order' }, { orderType: 'physical' }] },
+                { status: { $in: ['paid', 'success'] } }
+            ]
         }).sort({ createdAt: -1 });
 
         res.json({ success: true, data: orders });
@@ -6262,7 +6284,7 @@ app.get('/api/admin/book-orders', verifySuperAdmin, async (req, res) => {
                 { purpose: 'physical_book_order' },
                 { orderType: 'physical' }
             ],
-            status: 'paid'
+            status: { $in: ['paid', 'success'] }
         }).sort({ createdAt: -1 });
 
         res.json({ success: true, data: orders });

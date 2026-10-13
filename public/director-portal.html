@@ -2366,8 +2366,13 @@
 
                     const pickupAddr = ord.pickupAddress || (centerProfile ? centerProfile.address : 'Center Campus');
                     const cName = centerProfile ? (centerProfile.centerName || 'BBCC Center') : 'BBCC Center';
-                    const waText = encodeURIComponent(`नमस्ते ${ord.studentName || 'Student'} जी,\n\nआपकी पुस्तक "${ord.documentTitle}" (Order ID: ${ord.orderId}) तैयार है।\n\nकृपया हमारे संस्थान पर आकर हार्ड कॉपी प्राप्त करें:\n📍 पता: ${pickupAddr}\n\nधन्यवाद,\n${cName}`);
-                    const cleanPhone = (ord.studentPhone || '').replace(/\D/g, '').slice(-10);
+                    const sName = ord.payerName || ord.studentName || 'Student';
+                    const sPhone = ord.payerPhone || ord.studentPhone || '';
+                    const sEmail = ord.payerEmail || ord.studentEmail || '';
+                    const bTitle = ord.docTitle || ord.documentTitle || 'Study Book';
+
+                    const waText = encodeURIComponent(`नमस्ते ${sName} जी,\n\nआपकी पुस्तक "${bTitle}" (Order ID: ${ord.orderId}) तैयार है।\n\nकृपया हमारे संस्थान पर आकर हार्ड कॉपी प्राप्त करें:\n📍 पता: ${pickupAddr}\n\nधन्यवाद,\n${cName}`);
+                    const cleanPhone = sPhone.replace(/\D/g, '').slice(-10);
                     const waLink = cleanPhone ? `https://wa.me/91${cleanPhone}?text=${waText}` : null;
 
                     return `
@@ -2377,13 +2382,13 @@
                                 <div style="font-size:11px; color:#94a3b8;">${dateStr}</div>
                             </td>
                             <td style="padding:12px 8px;">
-                                <div style="font-weight:700; color:#ffffff;">${ord.studentName || 'Student'}</div>
-                                <div style="font-size:11px; color:#94a3b8;">📱 ${ord.studentPhone || 'N/A'}</div>
-                                ${ord.studentEmail ? `<div style="font-size:10.5px; color:#64748b;">${ord.studentEmail}</div>` : ''}
+                                <div style="font-weight:700; color:#ffffff;">${sName}</div>
+                                <div style="font-size:11px; color:#94a3b8;">📱 ${sPhone || 'N/A'}</div>
+                                ${sEmail ? `<div style="font-size:10.5px; color:#64748b;">${sEmail}</div>` : ''}
                             </td>
                             <td style="padding:12px 8px;">
                                 <div style="font-weight:600; color:#e2e8f0; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                    <i class="fas fa-book" style="color:#f59e0b; margin-right:5px;"></i>${ord.documentTitle}
+                                    <i class="fas fa-book" style="color:#f59e0b; margin-right:5px;"></i>${bTitle}
                                 </div>
                                 <span style="font-size:10px; background:rgba(245,158,11,0.15); color:#f59e0b; padding:1px 6px; border-radius:3px; font-weight:700;">HARD COPY PICKUP</span>
                             </td>

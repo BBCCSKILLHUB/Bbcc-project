@@ -1555,6 +1555,180 @@
             }
         }
 
+        /* Mobile App Layout & Compact 2-Column Cards Overhaul */
+        @media (max-width: 768px) {
+            .vault-grid, .courses-grid, .institutes-grid, .gallery-mosaic-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            .universe-section {
+                padding: 24px 12px !important;
+            }
+            .section-header-epic {
+                margin-bottom: 18px !important;
+            }
+            .section-header-epic h2 {
+                font-size: 20px !important;
+            }
+            .section-header-epic p {
+                font-size: 11.5px !important;
+            }
+
+            /* Compact Book Card for Mobile App View */
+            .vault-book-card {
+                border-radius: 14px !important;
+            }
+            .book-stage {
+                height: 145px !important;
+            }
+            .book-spine-3d {
+                width: 92px !important;
+                height: 122px !important;
+                padding: 8px 6px !important;
+                border-radius: 4px 10px 10px 4px !important;
+            }
+            .book-title-embossed {
+                font-size: 9.5px !important;
+                line-height: 1.2 !important;
+                max-height: 40px !important;
+                overflow: hidden !important;
+            }
+            .embossed-gold-seal {
+                width: 26px !important;
+                height: 26px !important;
+                font-size: 11px !important;
+            }
+            .book-discount-badge {
+                font-size: 9px !important;
+                padding: 2px 5px !important;
+                top: 6px !important;
+                left: 6px !important;
+            }
+            .price-badge-pill {
+                font-size: 9.5px !important;
+                padding: 2px 7px !important;
+                top: 6px !important;
+                right: 6px !important;
+            }
+            .book-body {
+                padding: 10px 8px 6px !important;
+            }
+            .book-center-tag {
+                font-size: 9.5px !important;
+                padding: 1px 5px !important;
+                margin-bottom: 3px !important;
+            }
+            .book-meta-title {
+                font-size: 12.5px !important;
+                line-height: 1.25 !important;
+                margin-bottom: 4px !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+            .book-meta-desc {
+                display: none !important;
+            }
+            .book-price-table {
+                padding: 5px 6px !important;
+                margin: 4px 0 !important;
+                gap: 3px !important;
+            }
+            .price-row {
+                font-size: 10px !important;
+            }
+            .price-mrp {
+                font-size: 9px !important;
+                margin-right: 3px !important;
+            }
+            .price-sale {
+                font-size: 11px !important;
+            }
+            .discount-pill {
+                font-size: 8px !important;
+                padding: 0 3px !important;
+                margin-left: 3px !important;
+            }
+            .pickup-address-hint {
+                display: none !important;
+            }
+            .book-action-dock.dual-actions {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 5px !important;
+                padding: 0 8px 10px !important;
+            }
+            .btn-book-action {
+                padding: 6px 2px !important;
+                font-size: 10px !important;
+                border-radius: 6px !important;
+            }
+
+            /* Compact Courses Card for Mobile */
+            .course-card-elite {
+                padding: 12px 10px !important;
+                border-radius: 14px !important;
+            }
+            .course-card-elite h3 {
+                font-size: 13px !important;
+                line-height: 1.25 !important;
+                margin: 4px 0 !important;
+            }
+            .course-card-elite p {
+                font-size: 10.5px !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+            .course-mode-badge {
+                font-size: 9.5px !important;
+                padding: 2px 6px !important;
+            }
+            .fee-compare-box {
+                padding: 5px 4px !important;
+                margin: 6px 0 !important;
+                gap: 4px !important;
+            }
+            .fee-item-title {
+                font-size: 9px !important;
+            }
+            .fee-item-val {
+                font-size: 11.5px !important;
+            }
+
+            /* Compact Institute Card for Mobile */
+            .institute-card-elite {
+                padding: 12px 10px !important;
+                border-radius: 14px !important;
+            }
+            .inst-header-dock {
+                gap: 8px !important;
+                margin-bottom: 8px !important;
+            }
+            .inst-logo-box {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 10px !important;
+            }
+            .inst-info-dock h4 {
+                font-size: 12.5px !important;
+                line-height: 1.2 !important;
+            }
+            .inst-info-dock p {
+                font-size: 10px !important;
+            }
+            .inst-director-dock {
+                padding: 6px 8px !important;
+                gap: 6px !important;
+                margin-bottom: 8px !important;
+            }
+            .director-avatar-box {
+                width: 28px !important;
+                height: 28px !important;
+            }
+        }
+
         #festivalBgCanvas {
             position: fixed;
             top: 0;
@@ -6324,24 +6498,27 @@
                 return;
             }
 
-            if (sessionStorage.getItem('bbcc_push_prompt_dismissed')) return;
-
-            if (Notification.permission === 'granted') {
-                syncPushSubscriptionSilently();
-            } else if (Notification.permission === 'default') {
-                setTimeout(() => {
-                    const banner = document.getElementById('pushPromptBanner');
-                    if (banner && !sessionStorage.getItem('bbcc_push_prompt_dismissed')) {
-                        banner.style.display = 'flex';
-                    }
-                }, 3500);
+            // Once dismissed or interacted, never show repeatedly on page reload
+            if (localStorage.getItem('bbcc_push_prompt_dismissed') || Notification.permission !== 'default') {
+                if (Notification.permission === 'granted') {
+                    syncPushSubscriptionSilently();
+                }
+                return;
             }
+
+            // Only prompt after quiet period if user has never dismissed
+            setTimeout(() => {
+                const banner = document.getElementById('pushPromptBanner');
+                if (banner && !localStorage.getItem('bbcc_push_prompt_dismissed') && Notification.permission === 'default') {
+                    banner.style.display = 'flex';
+                }
+            }, 8000);
         }
 
         function dismissPushPrompt() {
             const banner = document.getElementById('pushPromptBanner');
             if (banner) banner.style.display = 'none';
-            sessionStorage.setItem('bbcc_push_prompt_dismissed', 'true');
+            localStorage.setItem('bbcc_push_prompt_dismissed', 'true');
         }
 
         async function subscribeUserToPush() {
@@ -6385,6 +6562,7 @@
                 });
 
                 dismissPushPrompt();
+                localStorage.setItem('bbcc_push_prompt_dismissed', 'true');
                 showAuroraToast('✨ BBCC एवं भारती AI के नोटिफिकेशन सक्रिय हो गए हैं!');
             } catch (err) {
                 console.warn('Push subscription notice:', err);
