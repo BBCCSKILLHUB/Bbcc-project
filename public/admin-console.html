@@ -674,10 +674,34 @@
                         </span>
                     </div>
 
+                    <!-- Active API Credentials Status Overview -->
+                    <div style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:12px; padding:12px 16px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fab fa-google" style="color:#ef4444; font-size:20px;"></i>
+                            <div>
+                                <strong style="color:#ffffff; font-size:13px;">Google Cloud YouTube Data API v3 & OAuth 2.0</strong>
+                                <div style="color:#94a3b8; font-size:11.5px;">Auto-integrated for live classroom broadcasting & revision recording archival</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <span id="ytKeyIndicator" style="font-size:11px; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#34d399; font-weight:700;">
+                                <i class="fas fa-key"></i> Key Ready
+                            </span>
+                            <span id="ytOAuthIndicator" style="font-size:11px; padding:3px 10px; border-radius:12px; background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700;">
+                                <i class="fas fa-shield"></i> OAuth Ready
+                            </span>
+                        </div>
+                    </div>
+
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                         <div>
                             <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">YouTube Data API Key (Google Cloud Console)</label>
-                            <input type="password" id="setYoutubeApiKey" placeholder="AIzaSy... (Paste YouTube Data API Key)" class="console-input" style="font-family:monospace; margin-top:6px;">
+                            <div style="position:relative; margin-top:6px;">
+                                <input type="password" id="setYoutubeApiKey" placeholder="AIzaSy... (Paste YouTube Data API Key)" class="console-input" style="font-family:monospace; padding-right:40px;">
+                                <button type="button" onclick="toggleApiKeyVisibility('setYoutubeApiKey', this)" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#94a3b8; cursor:pointer;" title="Show/Hide Key">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Central Channel ID (UC...)</label>
@@ -685,11 +709,23 @@
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                         <div>
-                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">OAuth2 Client ID (Optional)</label>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">OAuth2 Client ID</label>
                             <input type="text" id="setYoutubeClientId" placeholder="xxxx.apps.googleusercontent.com" class="console-input" style="font-family:monospace; margin-top:6px;">
                         </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">OAuth2 Client Secret</label>
+                            <div style="position:relative; margin-top:6px;">
+                                <input type="password" id="setYoutubeClientSecret" placeholder="GOCSPX-..." class="console-input" style="font-family:monospace; padding-right:40px;">
+                                <button type="button" onclick="toggleApiKeyVisibility('setYoutubeClientSecret', this)" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#94a3b8; cursor:pointer;" title="Show/Hide Secret">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                         <div>
                             <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Privacy Mode for Live Recordings</label>
                             <select id="setYoutubePrivacy" class="console-input" style="margin-top:6px;">
@@ -759,9 +795,16 @@
                                 <input type="text" id="setFooterText" placeholder="BBCC SKILL HUB Digital Platform. Centralized Educational Verification..." class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Logo (Upload Image)</label>
-                                <input type="file" id="setBoardLogoFile" accept="image/*" class="console-input" style="padding:9px;" onchange="handleBoardLogoUpload(event)">
-                                <input type="hidden" id="setBoardLogoBase64">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Logo (Current & Upload)</label>
+                                <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+                                    <div style="width:48px; height:48px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                                        <img id="boardLogoCurrentImg" src="/data/branding/logo.png" alt="Board Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.onerror=null; this.src='/favicon.ico';">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <input type="file" id="setBoardLogoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleBoardLogoUpload(event)">
+                                        <input type="hidden" id="setBoardLogoBase64">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -855,9 +898,16 @@
                                 <input type="text" id="setFounderQualification" placeholder="M.Tech, Educational Reformer" class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Photo (Upload Image or paste URL)</label>
-                                <input type="file" id="setFounderPhotoFile" accept="image/*" class="console-input" style="padding:9px;" onchange="handleFounderPhotoUpload(event)">
-                                <input type="hidden" id="setFounderPhotoBase64">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Photo (Current & Upload)</label>
+                                <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+                                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.06); border:2px solid var(--admin-gold); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                                        <img id="founderPhotoCurrentImg" src="/data/photos/Santosh_Sir.jpg" alt="Founder Photo" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='/favicon.ico';">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <input type="file" id="setFounderPhotoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleFounderPhotoUpload(event)">
+                                        <input type="hidden" id="setFounderPhotoBase64">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div style="margin-bottom:14px;">
@@ -1424,6 +1474,19 @@
                     </div>
                 </div>
 
+                <!-- Center Faculty Members List & Quick Edit -->
+                <div style="margin-top:16px; margin-bottom:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="font-size:13.5px; color:var(--admin-gold); margin:0; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-chalkboard-user"></i> Teaching Faculty Members & Login IDs
+                        </h4>
+                        <span id="centerEditorFacultyCount" style="font-size:11px; color:#94a3b8;">0 Teachers</span>
+                    </div>
+                    <div id="centerEditorTeachersDock" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding-right:4px;">
+                        <div style="color:#94a3b8; font-size:12px;">No teachers registered under this institute.</div>
+                    </div>
+                </div>
+
                 <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:16px;">
                     <button type="button" onclick="deleteCenterFromModal()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
                         <i class="fas fa-trash"></i> Delete Center
@@ -1432,6 +1495,56 @@
                         <button type="button" onclick="closeCenterEditor()" class="btn-aurora" style="background:rgba(255,255,255,0.06);">Cancel</button>
                         <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Changes</button>
                     </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUPER ADMIN TEACHER EDITOR MODAL -->
+    <div class="admin-modal-overlay" id="adminTeacherEditorModal" style="display:none; z-index:10001;">
+        <div class="admin-modal-box" style="max-width:540px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border-glow); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:17px; color:var(--admin-gold); margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-user-pen"></i> Master Edit Teacher & Credentials
+                </h3>
+                <button type="button" onclick="closeAdminTeacherEditor()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <form onsubmit="saveAdminTeacherChanges(event)">
+                <input type="hidden" id="adTeachCenterId">
+                <input type="hidden" id="adTeachIdDb">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Teacher ID (Login Username) *</label>
+                        <input type="text" id="adTeachIdInput" required class="console-input" style="font-family:monospace; text-transform:uppercase;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Password *</label>
+                        <input type="text" id="adTeachPassInput" required class="console-input" style="font-family:monospace;">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Teacher Full Name *</label>
+                        <input type="text" id="adTeachNameInput" required class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Phone / Mobile *</label>
+                        <input type="tel" id="adTeachPhoneInput" required class="console-input">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Subject Taught *</label>
+                        <input type="text" id="adTeachSubInput" required class="console-input">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;">Qualification</label>
+                        <input type="text" id="adTeachQualInput" class="console-input">
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                    <button type="button" onclick="closeAdminTeacherEditor()" class="btn-aurora" style="background:rgba(255,255,255,0.08);">Cancel</button>
+                    <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-save"></i> Save Teacher</button>
                 </div>
             </form>
         </div>
@@ -2318,6 +2431,7 @@
                 // YouTube Status & Fields
                 const ytBadge = document.getElementById('youtubeStatusBadge');
                 const ytKeyInput = document.getElementById('setYoutubeApiKey');
+                const ytSecInput = document.getElementById('setYoutubeClientSecret');
                 const ytChInput = document.getElementById('setYoutubeChannelId');
                 const ytCliInput = document.getElementById('setYoutubeClientId');
                 const ytPrivInput = document.getElementById('setYoutubePrivacy');
@@ -2330,8 +2444,8 @@
                         ytBadge.style.borderColor = '#10b981';
                         ytBadge.style.color = '#34d399';
                     }
-                    if (ytKeyInput) {
-                        ytKeyInput.placeholder = cfg.youtubeApiKeyMasked ? `•••••••• (${cfg.youtubeApiKeyMasked})` : '•••••••• (YouTube Key Configured)';
+                    if (ytKeyInput && cfg.youtubeApiKey) {
+                        ytKeyInput.value = cfg.youtubeApiKey;
                     }
                 } else {
                     if (ytBadge) {
@@ -2341,15 +2455,19 @@
                         ytBadge.style.color = '#fca5a5';
                     }
                 }
+                if (ytKeyInput && cfg.youtubeApiKey) ytKeyInput.value = cfg.youtubeApiKey;
+                if (ytSecInput && cfg.youtubeClientSecret) ytSecInput.value = cfg.youtubeClientSecret;
                 if (ytChInput && cfg.youtubeChannelId) ytChInput.value = cfg.youtubeChannelId;
                 if (ytCliInput && cfg.youtubeClientId) ytCliInput.value = cfg.youtubeClientId;
                 if (ytPrivInput && cfg.youtubePrivacyStatus) ytPrivInput.value = cfg.youtubePrivacyStatus;
                 if (ytAutoInput && cfg.youtubeAutoUpload !== undefined) ytAutoInput.checked = Boolean(cfg.youtubeAutoUpload);
 
-                // Dynamic Favicon
+                // Dynamic Favicon & Current Logo Preview
                 if (cfg.boardLogo) {
                     const df = document.getElementById('dynamicFavicon');
                     if (df) df.href = cfg.boardLogo;
+                    const lImg = document.getElementById('boardLogoCurrentImg');
+                    if (lImg) lImg.src = cfg.boardLogo;
                 }
 
                 // Festival Theme
@@ -2357,13 +2475,17 @@
                     document.getElementById('setActiveFestivalTheme').value = cfg.activeFestivalTheme || 'auto';
                 }
 
-                // Founder Profile
+                // Founder Profile & Current Photo Preview
                 if (cfg.founderProfile) {
                     if (document.getElementById('setFounderName')) document.getElementById('setFounderName').value = cfg.founderProfile.name || '';
                     if (document.getElementById('setFounderDesignation')) document.getElementById('setFounderDesignation').value = cfg.founderProfile.designation || '';
                     if (document.getElementById('setFounderQualification')) document.getElementById('setFounderQualification').value = cfg.founderProfile.qualification || '';
                     if (document.getElementById('setFounderMessage')) document.getElementById('setFounderMessage').value = cfg.founderProfile.message || '';
                     if (document.getElementById('setFounderPhotoBase64')) document.getElementById('setFounderPhotoBase64').value = cfg.founderProfile.photo || '';
+                    if (cfg.founderProfile.photo) {
+                        const fImg = document.getElementById('founderPhotoCurrentImg');
+                        if (fImg) fImg.src = cfg.founderProfile.photo;
+                    }
                 }
 
                 // Bill Template
@@ -2389,8 +2511,45 @@
             }
         }
 
+        function toggleApiKeyVisibility(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                inp.type = 'password';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        function handleBoardLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('setBoardLogoBase64').value = e.target.result;
+                const prev = document.getElementById('boardLogoCurrentImg');
+                if (prev) prev.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFounderPhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('setFounderPhotoBase64').value = e.target.result;
+                const prev = document.getElementById('founderPhotoCurrentImg');
+                if (prev) prev.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function saveYoutubeConfig() {
             const apiKey = document.getElementById('setYoutubeApiKey').value.trim();
+            const clientSecret = document.getElementById('setYoutubeClientSecret') ? document.getElementById('setYoutubeClientSecret').value.trim() : '';
             const channelId = document.getElementById('setYoutubeChannelId').value.trim();
             const clientId = document.getElementById('setYoutubeClientId').value.trim();
             const privacy = document.getElementById('setYoutubePrivacy').value;
@@ -2412,6 +2571,7 @@
                     },
                     body: JSON.stringify({
                         youtubeApiKey: apiKey || undefined,
+                        youtubeClientSecret: clientSecret || undefined,
                         youtubeChannelId: channelId,
                         youtubeClientId: clientId,
                         youtubePrivacyStatus: privacy,
@@ -2424,7 +2584,6 @@
                     box.style.borderColor = '#10b981';
                     box.style.color = '#86efac';
                     box.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
-                    document.getElementById('setYoutubeApiKey').value = '';
                     await loadSettingsData();
                 } else {
                     box.style.background = 'rgba(239,68,68,0.15)';
@@ -3243,7 +3402,98 @@
             document.getElementById('edDueAmount').value = center.dueAmount || 0;
             document.getElementById('edIsBlocked').value = center.isBlocked ? 'true' : 'false';
 
+            renderCenterTeachersInModal(center);
+
             document.getElementById('centerEditorModal').style.display = 'flex';
+        }
+
+        function renderCenterTeachersInModal(center) {
+            const dock = document.getElementById('centerEditorTeachersDock');
+            const countEl = document.getElementById('centerEditorFacultyCount');
+            const teachers = center.teachers || [];
+            if (countEl) countEl.textContent = `${teachers.length} Teachers`;
+
+            if (teachers.length === 0) {
+                dock.innerHTML = '<div style="color:#94a3b8; font-size:12px; padding:8px 0;">No teachers registered under this institute yet.</div>';
+                return;
+            }
+
+            dock.innerHTML = teachers.map(t => `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${t.photo || '/data/branding/logo.png'}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--admin-gold);" onerror="this.src='/favicon.ico';">
+                        <div>
+                            <strong style="color:#ffffff; font-size:13.5px;">${t.name}</strong>
+                            <div style="color:var(--admin-gold); font-size:11.5px; font-weight:700;">${t.subject}</div>
+                            <div style="font-size:11px; color:#38bdf8;">
+                                <i class="fas fa-key"></i> ID: <strong>${t.teacherId || t.phone || 'TCH'}</strong> | Pass: <strong>${t.password || 'teach123'}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openAdminTeacherEditor('${center._id}', '${t._id}')" class="btn-aurora btn-gold" style="padding:4px 10px; font-size:11.5px;">
+                        <i class="fas fa-pen-to-square"></i> Edit
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openAdminTeacherEditor(centerId, teacherId) {
+            const center = globalCenters.find(c => c._id === centerId);
+            if (!center || !center.teachers) return;
+            const t = center.teachers.find(item => item._id === teacherId);
+            if (!t) return;
+
+            document.getElementById('adTeachCenterId').value = centerId;
+            document.getElementById('adTeachIdDb').value = teacherId;
+            document.getElementById('adTeachIdInput').value = t.teacherId || '';
+            document.getElementById('adTeachPassInput').value = t.password || 'teach123';
+            document.getElementById('adTeachNameInput').value = t.name || '';
+            document.getElementById('adTeachPhoneInput').value = t.phone || '';
+            document.getElementById('adTeachSubInput').value = t.subject || '';
+            document.getElementById('adTeachQualInput').value = t.qualification || '';
+
+            document.getElementById('adminTeacherEditorModal').style.display = 'flex';
+        }
+
+        function closeAdminTeacherEditor() {
+            document.getElementById('adminTeacherEditorModal').style.display = 'none';
+        }
+
+        async function saveAdminTeacherChanges(e) {
+            e.preventDefault();
+            const centerId = document.getElementById('adTeachCenterId').value;
+            const tid = document.getElementById('adTeachIdDb').value;
+            const payload = {
+                teacherId: document.getElementById('adTeachIdInput').value.trim(),
+                password: document.getElementById('adTeachPassInput').value.trim(),
+                name: document.getElementById('adTeachNameInput').value.trim(),
+                phone: document.getElementById('adTeachPhoneInput').value.trim(),
+                subject: document.getElementById('adTeachSubInput').value.trim(),
+                qualification: document.getElementById('adTeachQualInput').value.trim()
+            };
+
+            try {
+                const res = await fetch(`/api/admin/teachers/${centerId}/${tid}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Teacher updated successfully!');
+                    closeAdminTeacherEditor();
+                    await loadCentersList();
+                    const updatedCenter = globalCenters.find(c => c._id === centerId);
+                    if (updatedCenter) renderCenterTeachersInModal(updatedCenter);
+                } else {
+                    alert(data.message || 'Error updating teacher');
+                }
+            } catch(err) {
+                alert('Connection error: ' + err.message);
+            }
         }
 
         function closeCenterEditor() {

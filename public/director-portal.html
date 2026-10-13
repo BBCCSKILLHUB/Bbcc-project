@@ -1390,6 +1390,85 @@
     </div>
 
     <!-- ============================================================
+         EDIT FACULTY MEMBER & TEACHER PORTAL CREDENTIALS MODAL
+         ============================================================ -->
+    <div class="cert-modal-overlay" id="editFacultyModal" style="display:none;">
+        <div style="background:#0f172a; border:1px solid var(--border-glow); border-radius:18px; width:100%; max-width:680px; padding:26px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff; max-height:92vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--aurora-gold); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-user-pen"></i> Edit Faculty Member & Teacher Login
+                </h3>
+                <button type="button" onclick="closeEditFacultyModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <form onsubmit="saveFacultyChanges(event)">
+                <input type="hidden" id="editFacDbId">
+                <input type="hidden" id="editFacPhotoBase64">
+
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
+                    <img id="editFacPhotoPreview" src="/data/branding/logo.png" alt="Faculty Photo" style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">Change Faculty Photo</label>
+                        <input type="file" id="editFacPhotoFile" accept="image/*" class="studio-input" style="padding:5px; font-size:12px; width:100%;" onchange="handleEditFacPhotoUpload(this)">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Teacher ID (Login Username) *</label>
+                        <input type="text" id="editFacId" required class="studio-input" style="width:100%; font-family:monospace; font-weight:700; text-transform:uppercase;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Teacher Password (For Teacher Studio) *</label>
+                        <input type="text" id="editFacPass" required class="studio-input" style="width:100%; font-family:monospace;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Full Name *</label>
+                        <input type="text" id="editFacName" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Mobile / Phone (Login ID) *</label>
+                        <input type="tel" id="editFacPhone" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Subject Taught *</label>
+                        <input type="text" id="editFacSubject" required class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Qualification</label>
+                        <input type="text" id="editFacQual" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Experience (e.g. 5+ Years)</label>
+                        <input type="text" id="editFacExp" class="studio-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Assigned Classes (e.g. 9th & 10th)</label>
+                        <input type="text" id="editFacClass" class="studio-input" style="width:100%;">
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Teacher Short Bio / Specialization</label>
+                        <textarea id="editFacBio" rows="2" class="studio-input" style="width:100%; resize:vertical;"></textarea>
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:5px;">Teacher Account Status</label>
+                        <select id="editFacActive" class="studio-input" style="width:100%; background:#0b1120;">
+                            <option value="true">Active (Can stream live & log into Teacher Studio)</option>
+                            <option value="false">Suspended / Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" onclick="closeEditFacultyModal()" style="background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-aurora btn-gold" style="padding:8px 22px;">
+                        <i class="fas fa-save"></i> Save Faculty Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
          INDIAN FESTIVAL & SPECIAL DAYS BANNER SELECTOR MODAL
          ============================================================ -->
     <div class="cert-modal-overlay" id="festivalBannersModal" style="display:none;">
@@ -2063,30 +2142,112 @@
         }
 
         // Faculty
+        let globalDirectorTeachers = [];
+
         function renderFacultyList(teachers) {
+            globalDirectorTeachers = teachers || [];
             const dock = document.getElementById('facultyListDock');
             if (!teachers || teachers.length === 0) {
                 dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No faculty members added yet. Add your teachers above with photo!</div>';
                 return;
             }
             dock.innerHTML = teachers.map(t => `
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
+                        <img src="${t.photo || '/data/branding/logo.png'}" alt="${t.name}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--aurora-gold); flex-shrink:0;" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
                         <div>
-                            <strong style="color:#ffffff; font-size:14.5px;">${t.name}</strong>
+                            <strong style="color:#ffffff; font-size:15px;">${t.name}</strong>
                             <div style="color:var(--aurora-gold); font-size:12.5px; font-weight:700;">${t.subject}</div>
                             <div style="font-size:11.5px; color:#94a3b8;">${t.qualification || 'Certified Faculty'} • ${t.experience || 'Experienced'}</div>
-                            <div style="font-size:11px; color:#38bdf8; margin-top:3px;">
+                            <div style="font-size:11.5px; color:#38bdf8; margin-top:3px;">
                                 <i class="fas fa-key"></i> ID: <strong>${t.teacherId || t.phone || 'TCH'}</strong> | Pass: <strong>${t.password || 'teach123'}</strong>
                             </div>
                         </div>
                     </div>
-                    <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="openEditFacultyModal('${t._id}')" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                            <i class="fas fa-pen-to-square"></i> Edit ID & Details
+                        </button>
+                        <button onclick="removeFaculty('${t._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:6px 12px; border-radius:8px; cursor:pointer;" title="Remove Teacher">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function openEditFacultyModal(tid) {
+            const t = globalDirectorTeachers.find(item => item._id === tid);
+            if (!t) return;
+            document.getElementById('editFacDbId').value = t._id;
+            document.getElementById('editFacId').value = t.teacherId || '';
+            document.getElementById('editFacPass').value = t.password || 'teach123';
+            document.getElementById('editFacName').value = t.name || '';
+            document.getElementById('editFacPhone').value = t.phone || '';
+            document.getElementById('editFacSubject').value = t.subject || '';
+            document.getElementById('editFacQual').value = t.qualification || '';
+            document.getElementById('editFacExp').value = t.experience || '';
+            document.getElementById('editFacClass').value = t.class || '';
+            document.getElementById('editFacBio').value = t.bio || '';
+            document.getElementById('editFacActive').value = t.isActive !== false ? 'true' : 'false';
+            document.getElementById('editFacPhotoBase64').value = '';
+            document.getElementById('editFacPhotoPreview').src = t.photo || '/data/branding/logo.png';
+            document.getElementById('editFacultyModal').style.display = 'flex';
+        }
+
+        function closeEditFacultyModal() {
+            document.getElementById('editFacultyModal').style.display = 'none';
+        }
+
+        function handleEditFacPhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editFacPhotoBase64').value = e.target.result;
+                document.getElementById('editFacPhotoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveFacultyChanges(e) {
+            e.preventDefault();
+            const tid = document.getElementById('editFacDbId').value;
+            const sync = showSyncAnimation('Updating Teacher Details & Studio Credentials...');
+            const payload = {
+                teacherId: document.getElementById('editFacId').value.trim(),
+                password: document.getElementById('editFacPass').value.trim(),
+                name: document.getElementById('editFacName').value.trim(),
+                phone: document.getElementById('editFacPhone').value.trim(),
+                subject: document.getElementById('editFacSubject').value.trim(),
+                qualification: document.getElementById('editFacQual').value.trim(),
+                experience: document.getElementById('editFacExp').value.trim(),
+                class: document.getElementById('editFacClass').value.trim(),
+                bio: document.getElementById('editFacBio').value.trim(),
+                isActive: document.getElementById('editFacActive').value === 'true',
+                photo: document.getElementById('editFacPhotoBase64').value || undefined
+            };
+
+            try {
+                const res = await fetch(`/api/director/teachers/${tid}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sync.finish(`Teacher ${payload.name} updated! New ID: ${payload.teacherId}`);
+                    closeEditFacultyModal();
+                    initDirectorStudio();
+                } else {
+                    sync.error(data.message || 'Update failed');
+                }
+            } catch(err) {
+                sync.error('Error updating teacher: ' + err.message);
+            }
         }
 
         async function addFacultyMember(e) {
