@@ -287,6 +287,10 @@
                             <label style="font-size:12px; color:#cbd5e1;">Campus Address</label>
                             <input type="text" id="acAddress" placeholder="City, State" class="console-input">
                         </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-indian-rupee-sign" style="color:var(--admin-gold);"></i> Center Admission Fee (₹)</label>
+                            <input type="number" id="acAdmissionFee" value="200" min="0" placeholder="200" class="console-input" style="color:var(--admin-gold); font-weight:700;">
+                        </div>
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
                             <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Register Institute</button>
                         </div>
@@ -303,12 +307,13 @@
                                     <th>Username</th>
                                     <th>Director</th>
                                     <th>Status</th>
+                                    <th>Admission Fee (₹)</th>
                                     <th>Dues (₹)</th>
                                     <th>Actions / Master Editor</th>
                                 </tr>
                             </thead>
                             <tbody id="centersTbody">
-                                <tr><td colspan="6" style="text-align:center; padding:20px;">Loading centers...</td></tr>
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading centers...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -446,6 +451,7 @@
                         <table class="console-table">
                             <thead>
                                 <tr>
+                                    <th>Cover</th>
                                     <th>Title</th>
                                     <th>Subject / Class</th>
                                     <th>Scope / Center</th>
@@ -457,7 +463,7 @@
                                 </tr>
                             </thead>
                             <tbody id="booksTbody">
-                                <tr><td colspan="8" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                                <tr><td colspan="9" style="text-align:center; padding:20px;">Loading books...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1688,7 +1694,11 @@
                     <input type="text" id="edHeaderNotice" placeholder="Custom notice for students" class="console-input">
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-indian-rupee-sign" style="color:var(--admin-gold);"></i> Center Admission Fee (₹)</label>
+                        <input type="number" id="edAdmissionFee" min="0" placeholder="200" class="console-input" style="color:var(--admin-gold); font-weight:700;">
+                    </div>
                     <div>
                         <label style="font-size:12px; color:#cbd5e1;">Outstanding Dues (₹)</label>
                         <input type="number" id="edDueAmount" min="0" class="console-input">
@@ -1882,7 +1892,7 @@
 
                 <div style="margin-bottom:14px;">
                     <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-image" style="color:var(--admin-gold);"></i> Replace / Update PDF Thumbnail Cover (Optional)</label>
-                    <input type="file" id="edBookThumbInput" accept="image/*" class="console-input">
+                    <input type="file" id="edBookThumbInput" accept="image/*" class="console-input" onchange="previewEditBookThumb(this)">
                     <div id="edBookThumbPreview" style="margin-top:8px; display:none;">
                         <img id="edBookThumbImg" src="" style="height:70px; border-radius:6px; border:1px solid var(--border-glow);">
                     </div>
@@ -2112,18 +2122,42 @@
 
         async function initAdminMediaHardware() {
             try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('Camera/Microphone API is not supported in this browser.');
+                    return;
+                }
+
+                // 1. Try requesting both Camera and Microphone
+                try {
                     adminLocalStream = await navigator.mediaDevices.getUserMedia({
                         video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                        audio: true
+                        audio: { echoCancellation: true, noiseSuppression: true }
                     });
-                    const vid = document.getElementById('adminStudioVideoPreview');
-                    vid.srcObject = adminLocalStream;
-                    document.getElementById('adminStagePlaceholder').style.display = 'none';
                     showToast('Webcam & Microphone connected for Live Broadcast!');
+                } catch(audioConflictErr) {
+                    console.warn('Audio hardware busy/conflict. Falling back to video-only stream:', audioConflictErr);
+                    // 2. Fallback: acquire Video alone so camera starts immediately without blocking
+                    adminLocalStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    });
+                    showToast('⚠️ Microphone in use or unavailable. Camera started in video mode!', 'triangle-exclamation', '#f59e0b');
+
+                    // 3. Attempt to attach audio in background if it becomes available
+                    try {
+                        const separateAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        separateAudio.getAudioTracks().forEach(t => adminLocalStream.addTrack(t));
+                        showToast('Microphone connected successfully!');
+                    } catch(silentMicErr) {}
                 }
+
+                const vid = document.getElementById('adminStudioVideoPreview');
+                if (vid) vid.srcObject = adminLocalStream;
+                const placeholder = document.getElementById('adminStagePlaceholder');
+                if (placeholder) placeholder.style.display = 'none';
+
             } catch(e) {
-                alert('Could not access Camera/Mic: ' + e.message);
+                alert('Could not access Camera: ' + e.message + '\n\nPlease ensure another application (Zoom/Teams/Discord) is not locking your camera.');
             }
         }
 
@@ -4215,6 +4249,7 @@
                                     ${c.isBlocked ? 'Blocked' : 'Active'}
                                 </span>
                             </td>
+                            <td><strong style="color:var(--admin-gold);">₹${c.admissionFee !== undefined ? c.admissionFee : 200}</strong></td>
                             <td>₹${c.dueAmount || 0}</td>
                             <td>
                                 <button onclick="openCenterEditor('${c._id}')" class="btn-aurora btn-gold" style="padding:4px 10px; font-size:12px;">
@@ -4255,6 +4290,7 @@
             document.getElementById('edAddress').value = center.address || '';
             document.getElementById('edHeaderNotice').value = center.headerNotice || '';
             document.getElementById('edDueAmount').value = center.dueAmount || 0;
+            document.getElementById('edAdmissionFee').value = (center.admissionFee !== undefined ? center.admissionFee : 200);
             document.getElementById('edIsBlocked').value = center.isBlocked ? 'true' : 'false';
 
             renderCenterTeachersInModal(center);
@@ -4371,6 +4407,7 @@
                 address: document.getElementById('edAddress').value.trim(),
                 headerNotice: document.getElementById('edHeaderNotice').value.trim(),
                 dueAmount: Number(document.getElementById('edDueAmount').value) || 0,
+                admissionFee: Number(document.getElementById('edAdmissionFee') ? document.getElementById('edAdmissionFee').value : 200) || 200,
                 isBlocked: document.getElementById('edIsBlocked').value === 'true'
             };
 
@@ -4434,7 +4471,8 @@
                 username: document.getElementById('acUsername').value.trim(),
                 password: document.getElementById('acPassword').value.trim(),
                 contactNumber: document.getElementById('acPhone').value.trim(),
-                address: document.getElementById('acAddress').value.trim()
+                address: document.getElementById('acAddress').value.trim(),
+                admissionFee: Number(document.getElementById('acAdmissionFee') ? document.getElementById('acAdmissionFee').value : 200) || 200
             };
 
             const res = await fetch('/api/admin/centers', {
@@ -4498,6 +4536,9 @@
 
                         return `
                         <tr>
+                            <td>
+                                <img src="${b.thumbnail || '/data/branding/logo.png'}" alt="Cover" style="width:38px; height:50px; object-fit:cover; border-radius:6px; border:1px solid var(--border-glow);" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
+                            </td>
                             <td><strong>${b.title}</strong></td>
                             <td>${b.subject || '-'} <br><small style="color:#94a3b8;">${b.classLevel || 'All'}</small></td>
                             <td>
@@ -4644,6 +4685,19 @@
 
         function closeBookEditor() {
             document.getElementById('bookEditorModal').style.display = 'none';
+        }
+
+        function previewEditBookThumb(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const prev = document.getElementById('edBookThumbPreview');
+                const img = document.getElementById('edBookThumbImg');
+                if (img) img.src = e.target.result;
+                if (prev) prev.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
         }
 
         async function saveBookEditorData(e) {

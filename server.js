@@ -176,11 +176,22 @@ function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf'
     const approxByteSize = Math.round(base64Data.length * 0.75);
     const SAFE_MONGO_LIMIT = 2.5 * 1024 * 1024; // 2.5MB safe limit to keep MongoDB fast and avoid 16MB document cap
 
-    const isImportant = (storageMode === 'important');
+    const isImageSubdir = ['branding', 'teachers', 'students', 'covers', 'thumbnails', 'kyc'].includes(subDir);
+    const isImportant = (storageMode === 'important') || isImageSubdir;
     const exceedsLimit = approxByteSize > SAFE_MONGO_LIMIT;
 
-    // CASE 1: Important mode AND within safe limit -> Store directly in MongoDB
+    // CASE 1: Important mode OR profile/branding/thumbnail images within safe limit -> Store directly in MongoDB/Atlas!
+    // This guarantees photos & thumbnails NEVER disappear across Render reboots, deployments or Git updates!
     if (isImportant && !exceedsLimit) {
+        try {
+            const targetDir = path.join(__dirname, 'public', 'data', subDir);
+            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+            const safeBaseName = title ? title.slice(0, 30).replace(/[^a-zA-Z0-9_-]/g, '_') : subDir;
+            const filename = `${safeBaseName}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
+            const filePath = path.join(targetDir, filename);
+            fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+        } catch (ignore) {}
+
         return {
             fileUrl: dataUriOrBase64,
             storageUsed: 'mongodb',
@@ -5195,14 +5206,8 @@ app.post('/api/director/teachers', verifyDirector, async (req, res) => {
 
         let savedPhoto = photo || '';
         if (savedPhoto && savedPhoto.startsWith('data:image')) {
-            try {
-                const photoAsset = saveAssetFile(savedPhoto, 'branding', 'png', 'normal', (name || 'teacher').trim());
-                if (photoAsset && photoAsset.fileUrl) {
-                    savedPhoto = photoAsset.fileUrl;
-                }
-            } catch (pErr) {
-                console.warn('Teacher photo save notice:', pErr.message);
-            }
+            // Keep data URI permanently in database so Render restarts never lose it
+            savedPhoto = savedPhoto;
         }
 
         const cleanPhone = (phone || '').trim();
@@ -5225,7 +5230,19 @@ app.post('/api/director/teachers', verifyDirector, async (req, res) => {
             isActive: true
         });
 
+        center.markModified('teachers');
         await center.save();
+
+        try {
+            const db = loadPortalDb();
+            if (db && db.tuition_centers) {
+                const cIdx = db.tuition_centers.findIndex(c => c._id && c._id.toString() === center._id.toString());
+                if (cIdx !== -1) {
+                    db.tuition_centers[cIdx].teachers = center.teachers;
+                    await savePortalDb(db);
+                }
+            }
+        } catch (pSyncErr) {}
 
         // Sync or Create Universal TeacherAccount Login
         try {
@@ -5333,20 +5350,24 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
 
         let savedPhoto = photo;
         if (savedPhoto && savedPhoto.startsWith('data:image')) {
-            try {
-                const photoAsset = saveAssetFile(savedPhoto, 'branding', 'png', 'normal', (teacher.name || 'teacher').trim());
-                if (photoAsset && photoAsset.fileUrl) {
-                    savedPhoto = photoAsset.fileUrl;
-                    teacher.photo = savedPhoto;
-                }
-            } catch (pErr) {
-                console.warn('Teacher photo update notice:', pErr.message);
-            }
-        } else if (savedPhoto !== undefined) {
             teacher.photo = savedPhoto;
+        } else if (savedPhoto && savedPhoto.trim() && savedPhoto !== 'undefined' && savedPhoto !== 'null') {
+            teacher.photo = savedPhoto.trim();
         }
 
+        center.markModified('teachers');
         await center.save();
+
+        try {
+            const db = loadPortalDb();
+            if (db && db.tuition_centers) {
+                const cIdx = db.tuition_centers.findIndex(c => c._id && c._id.toString() === center._id.toString());
+                if (cIdx !== -1) {
+                    db.tuition_centers[cIdx].teachers = center.teachers;
+                    await savePortalDb(db);
+                }
+            }
+        } catch (pSyncErr) {}
 
         // Sync or update universal TeacherAccount login
         try {
@@ -5903,10 +5924,24 @@ app.post('/api/director/students', verifyDirector, async (req, res) => {
 
 app.get('/api/director/students', verifyDirector, async (req, res) => {
     try {
-        const students = await Student.find({ centerId: req.center.centerId }).sort({ createdAt: -1 });
-        res.json({ success: true, data: students });
+        let students = await Student.find({ centerId: req.center.centerId }).sort({ createdAt: -1 });
+        if (!students || students.length === 0) {
+            try {
+                const db = loadPortalDb();
+                if (db && db.students && db.students.length > 0) {
+                    students = db.students.filter(s => String(s.centerId) === String(req.center.centerId));
+                }
+            } catch(e) {}
+        }
+        res.json({ success: true, data: students || [] });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        try {
+            const db = loadPortalDb();
+            const students = (db && db.students) ? db.students.filter(s => String(s.centerId) === String(req.center.centerId)) : [];
+            res.json({ success: true, data: students });
+        } catch(fallbackErr) {
+            res.status(500).json({ success: false, message: err.message });
+        }
     }
 });
 
@@ -5943,11 +5978,19 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
         let student = null;
         if (mongoose.Types.ObjectId.isValid(sid)) {
             try { student = await Student.findOne({ _id: sid, centerId: req.center.centerId }); } catch(e) {}
+            if (!student) {
+                try { student = await Student.findById(sid); } catch(e) {}
+            }
         }
         if (!student) {
             student = await Student.findOne({
                 $or: [{ rollNo: sid }, { studentId: sid }],
                 centerId: req.center.centerId
+            });
+        }
+        if (!student) {
+            student = await Student.findOne({
+                $or: [{ rollNo: sid }, { studentId: sid }]
             });
         }
         if (!student) return res.status(404).json({ success: false, message: 'Student record not found' });
@@ -5996,16 +6039,9 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
         }
 
         if (photo && photo.startsWith('data:image')) {
-            try {
-                const photoAsset = saveAssetFile(photo, 'branding', 'png', 'normal', 'student_' + (student.rollNo || student.studentId));
-                if (photoAsset && photoAsset.fileUrl) {
-                    student.photo = photoAsset.fileUrl;
-                }
-            } catch(pErr) {
-                console.warn('Student photo update notice:', pErr.message);
-            }
-        } else if (photo !== undefined) {
             student.photo = photo;
+        } else if (photo && photo.trim() && photo !== 'undefined' && photo !== 'null') {
+            student.photo = photo.trim();
         }
 
         await student.save();
@@ -7403,7 +7439,7 @@ app.post('/api/admin/test-youtube', verifySuperAdmin, async (req, res) => {
 // 8.1 Center Management: Create Partner Center
 app.post('/api/admin/centers', verifySuperAdmin, async (req, res) => {
     try {
-        const { centerName, username, password, directorName, address, contactNumber, fromClass, toClass } = req.body;
+        const { centerName, username, password, directorName, address, contactNumber, fromClass, toClass, admissionFee } = req.body;
         if (!centerName || !username || !password || !directorName) {
             return res.status(400).json({ success: false, message: 'Center name, username, password, and director name required' });
         }
@@ -7426,6 +7462,7 @@ app.post('/api/admin/centers', verifySuperAdmin, async (req, res) => {
             contactNumber: contactNumber || '',
             fromClass: fromClass || 'Class 6th',
             toClass: toClass || 'Class 12th',
+            admissionFee: (admissionFee !== undefined ? Math.max(0, Number(admissionFee) || 0) : 200),
             affiliationCertificateId: certId,
             affiliationPaid: true
         });
@@ -7480,6 +7517,7 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
         if (clogo !== undefined) center.clogo = clogo;
         if (directorPhoto !== undefined) center.directorPhoto = directorPhoto;
         if (dueAmount !== undefined) center.dueAmount = Number(dueAmount) || 0;
+        if (req.body.admissionFee !== undefined) center.admissionFee = Math.max(0, Number(req.body.admissionFee) || 0);
         if (isBlocked !== undefined) center.isBlocked = Boolean(isBlocked);
         if (blockReason !== undefined) center.blockReason = blockReason;
         if (socials !== undefined) center.socials = { ...center.socials, ...socials };
@@ -7658,9 +7696,10 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         if (classLevel !== undefined) note.classLevel = classLevel.trim();
         if (description !== undefined) note.description = description;
         if (fileType !== undefined) note.fileType = safeExt;
-        if (thumbnail !== undefined && thumbnail !== '') {
-            const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || note.title).trim());
-            note.thumbnail = thumbAsset.fileUrl || thumbnail;
+        if (thumbnail && thumbnail.startsWith('data:image')) {
+            note.thumbnail = thumbnail;
+        } else if (thumbnail && thumbnail.trim() && thumbnail !== 'undefined' && thumbnail !== 'null') {
+            note.thumbnail = thumbnail.trim();
         }
         if (file !== undefined && file !== '') {
             const mode = storageMode === 'important' ? 'important' : 'normal';
@@ -7681,6 +7720,7 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
         if (targetCenterName !== undefined) note.targetCenterName = targetCenterName;
         if (isRawData !== undefined) note.isRawData = Boolean(isRawData);
 
+        sm.markModified('notes');
         await sm.save();
         clearCache();
         res.json({ success: true, message: 'Document updated successfully!', data: note });

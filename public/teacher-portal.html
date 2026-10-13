@@ -1090,24 +1090,49 @@
         // Hardware Camera & Mic Initialization
         async function initLocalMediaPreview() {
             try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showToast('Media devices not supported in this browser.', 'triangle-exclamation', '#ef4444');
+                    return;
+                }
+
+                // 1. Try requesting both Camera and Microphone
+                try {
                     localStream = await navigator.mediaDevices.getUserMedia({
                         video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                        audio: true
+                        audio: { echoCancellation: true, noiseSuppression: true }
                     });
-                    const videoElem = document.getElementById('studioVideoPreview');
-                    videoElem.srcObject = localStream;
-                    document.getElementById('stagePlaceholder').style.display = 'none';
-                    isCameraOn = true;
                     isMicOn = true;
-                    updateDeviceButtonStates();
+                } catch(audioConflictErr) {
+                    console.warn('Microphone hardware conflict or locked. Falling back to camera video stream:', audioConflictErr);
+                    // 2. Fallback: acquire Video alone so camera starts immediately
+                    localStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    });
+                    isMicOn = false;
+                    showToast('⚠️ Microphone busy in another app. Camera video started successfully!', 'microphone-slash', '#f59e0b');
+
+                    // 3. Attempt to add microphone in background
+                    try {
+                        const aStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        aStream.getAudioTracks().forEach(t => localStream.addTrack(t));
+                        isMicOn = true;
+                        showToast('Microphone connected successfully!', 'microphone', '#10b981');
+                    } catch(silentMicErr) {}
                 }
+
+                const videoElem = document.getElementById('studioVideoPreview');
+                if (videoElem) videoElem.srcObject = localStream;
+                const placeholder = document.getElementById('stagePlaceholder');
+                if (placeholder) placeholder.style.display = 'none';
+                isCameraOn = true;
+                updateDeviceButtonStates();
             } catch (err) {
                 console.warn('Local preview note: Media permission not granted or camera busy:', err.message);
                 document.getElementById('stagePlaceholder').innerHTML = `
                     <i class="fas fa-camera-slash" style="color:#f59e0b; font-size:48px; margin-bottom:8px;"></i>
                     <h4 style="font-size:15px; color:#cbd5e1;">Camera Preview Pending</h4>
-                    <p style="font-size:12px; color:#94a3b8;">Click below to grant camera/mic permissions, or share your screen.</p>
+                    <p style="font-size:12px; color:#94a3b8;">${err.message.includes('audio') ? 'Microphone was busy in another app.' : 'Camera access pending in browser.'} You can also click below to share your screen directly.</p>
                 `;
             }
         }
