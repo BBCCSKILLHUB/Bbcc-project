@@ -640,6 +640,12 @@
             </div>
         </a>
         <div class="nav-actions">
+            <button onclick="openTeacherManualModal()" class="btn-aurora" style="background:rgba(245,158,11,0.22); border:1px solid #f59e0b; color:#fbbf24; cursor:pointer; font-weight:700;" title="Open Teacher Studio Manual & SOP">
+                <i class="fas fa-book-open"></i> Teacher Manual & SOP
+            </button>
+            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); color:#fbbf24;" title="Download Platform User Manual PDF">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
             <a href="/" class="btn-aurora btn-outline"><i class="fas fa-home"></i> Home</a>
             <a href="/classroom" class="btn-aurora btn-outline"><i class="fas fa-desktop"></i> Student Classroom</a>
             <button id="headerLogoutBtn" onclick="teacherLogout()" class="btn-aurora btn-danger" style="display:none;">
@@ -1946,6 +1952,16 @@
             }
             showLoginView();
         }
+
+        function openTeacherManualModal() {
+            const m = document.getElementById('teacherManualModal');
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeTeacherManualModal() {
+            const m = document.getElementById('teacherManualModal');
+            if (m) m.style.display = 'none';
+        }
     </script>
 
     <!-- TEACHER LECTURE PREVIEW MODAL -->
@@ -1978,6 +1994,155 @@
                         Close
                     </button>
                 </div>
+    <!-- ============================================================
+         TEACHER STUDIO USER MANUAL & SOP MODAL
+         ============================================================ -->
+    <div id="teacherManualModal" style="display:none; position:fixed; inset:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(14px); z-index:10005; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:linear-gradient(145deg, #0f172a 0%, #060a14 100%); border:2px solid var(--border-glow); border-radius:24px; max-width:860px; width:100%; max-height:90vh; overflow-y:auto; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:2px solid var(--border-glow); padding-bottom:16px;">
+                <div>
+                    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--aurora-gold); font-weight:800; margin-bottom:4px;">
+                        <i class="fas fa-shield-halved"></i> Faculty Standard Operating Procedure (SOP)
+                    </div>
+                    <h2 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin:0; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-book-open" style="color:var(--aurora-gold);"></i> Teacher Studio Manual & Streaming Guide
+                    </h2>
+                    <p style="font-size:12.5px; color:#94a3b8; margin:4px 0 0 0;">
+                        Operational guidance for Universal Login, 1-Click Live Broadcast, YouTube Auto-Linking, Student Doubts & Auto-Upload.
+                    </p>
+                </div>
+                <button type="button" onclick="closeTeacherManualModal()" style="background:none; border:none; color:#cbd5e1; font-size:24px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+            </div>
+
+            <!-- Quick Action Links Bar -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px 16px; align-items:center; justify-content:space-between;">
+                <span style="font-size:12px; color:#cbd5e1; font-weight:700;">
+                    <i class="fas fa-file-circle-check" style="color:#10b981;"></i> Complete Platform User Manual Available:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fbbf24;">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </a>
+                    <a href="/user-manual.html#sec-teacher" target="_blank" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#7dd3fc;">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Open Web Manual
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- SOP Section 1: Universal Faculty Login -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#38bdf8; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-id-badge"></i> 1. Universal Faculty Login
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(56,189,248,0.15); color:#7dd3fc; padding:2px 8px; border-radius:10px; font-weight:700;">Login SOP</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    शिक्षक अपने कोचिंग डायरेक्टर द्वारा दिए गए Teacher ID (जैसे TCH-1024) या पंजीकृत मोबाइल नंबर और पासवर्ड (डिफ़ॉल्ट: teach123) से किसी भी डिवाइस पर सीधे लॉगिन कर सकते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #38bdf8; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">लॉगिन के बाद:</strong><br>
+                    • आपके केंद्र का नाम, आपका विषय और आपका प्रोफ़ाइल विवरण स्वतः लोड हो जाता है।<br>
+                    • यदि आप पासवर्ड बदलना चाहें तो ऊपर प्रोफ़ाइल सेटिंग्स में जाकर कभी भी नया पासवर्ड सुरक्षित कर सकते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 2: 1-Click Live Broadcast & Resilient Fallback -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#ef4444; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-tower-broadcast"></i> 2. 1-Click Live Broadcast (कैमरा व माइक स्वतः सक्रिय)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(239,68,68,0.15); color:#fca5a5; padding:2px 8px; border-radius:10px; font-weight:700;">Audio-Video Resilient</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    किसी जटिल सॉफ्टवेयर (जैसे OBS) की ज़रूरत नहीं है! ब्राउज़र में ही <strong>"🔴 Start Live Class"</strong> पर क्लिक करें। कैमरा और माइक स्वतः कनेक्ट हो जाते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #ef4444; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">स्मार्ट फॉलबैक:</strong><br>
+                    • यदि किसी तकनीकी कारण से माइक्रोफ़ोन व्यस्त हो, तब भी वीडियो क्लास चलती रहेगी और स्क्रीन पर वॉर्निंग दिखेगी।<br>
+                    • शिक्षक जब चाहें तब क्लास के बीच में माइक या कैमरा म्यूट/अनम्यूट कर सकते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 3: Automatic YouTube Integration -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#f59e0b; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fab fa-youtube"></i> 3. 100% Zero Copy-Paste YouTube Live Integration
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(245,158,11,0.15); color:#fcd34d; padding:2px 8px; border-radius:10px; font-weight:700;">Auto YouTube</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    शिक्षकों को यूट्यूब से लिंक कॉपी करने या किसी स्ट्रीम-की को पेस्ट करने की बिल्कुल भी ज़रूरत नहीं है।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">सिस्टम कार्यप्रणाली:</strong><br>
+                    • जैसे ही आप लाइव क्लास शुरू करते हैं, सिस्टम स्वतः YouTube Live से लिंक कर लेता है।<br>
+                    • यदि आपके पास पहले से कोई विशेष YouTube लिंक हो तभी आप उसे भरें, अन्यथा खाली छोड़ दें — सिस्टम सब कुछ स्वतः संभालता है।
+                </div>
+            </div>
+
+            <!-- SOP Section 4: Live Student Doubt Board -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#10b981; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-comments"></i> 4. Live Student Doubt Board & Interactive Chat
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(16,185,129,0.15); color:#6ee7b7; padding:2px 8px; border-radius:10px; font-weight:700;">Real-Time</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    लाइव क्लास के दौरान छात्र जो भी सवाल या शंका पूछते हैं, वे सीधे शिक्षक की स्क्रीन पर दाईं ओर ऑटो-स्क्रॉल के साथ दिखाई देते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">सुविधाएं:</strong><br>
+                    • छात्र का नाम और रोल नंबर साफ़-साफ़ दिखता है।<br>
+                    • नया डाउट आने पर हल्का साउन्ड अलर्ट मिलता है ताकि शिक्षक का ध्यान तुरंत सवाल पर जाए।
+                </div>
+            </div>
+
+            <!-- SOP Section 5: Low-Bandwidth Frame Relay for Rural Students -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#a855f7; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-network-wired"></i> 5. Low-Bandwidth Frame Relay (2G/3G ग्रामीण इंटरनेट सपोर्ट)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(168,85,247,0.15); color:#d8b4fe; padding:2px 8px; border-radius:10px; font-weight:700;">Smart Compression</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    गाँव-देहात और कमजोर इंटरनेट वाले क्षेत्रों के छात्रों के लिए विशेष फ्रेम रिले तकनीक।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #a855f7; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">लाभ:</strong><br>
+                    • वीडियो को ऑप्टिमाइज़्ड फ़्रेम के रूप में स्ट्रीम किया जाता है जिससे धीमी गति वाले मोबाइल नेटवर्क पर भी क्लास बिना बफ़रिंग के चलती रहती है।
+                </div>
+            </div>
+
+            <!-- SOP Section 6: End Class & Auto Recording Upload -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#ec4899; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-cloud-arrow-up"></i> 6. Class Finalization & Automatic YouTube Upload
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(236,72,153,0.15); color:#f472b6; padding:2px 8px; border-radius:10px; font-weight:700;">Auto Archival</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    जब आप <strong>"🔴 End Live Class"</strong> बटन दबाते हैं, तो पूरा लेक्चर अपने-आप रिकॉर्ड होकर सुरक्षित हो जाता है।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #ec4899; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">स्वतः प्रक्रिया:</strong><br>
+                    • बैकग्राउंड में उच्च गुणवत्ता की WebM वीडियो फ़ाइल तैयार होती है।<br>
+                    • वीडियो सीधे यूट्यूब चैनल पर अपलोड हो जाती है और स्टूडेंट पोर्टल के <em>"Revision Vault"</em> में जुड़ जाती है ताकि अनुपस्थित छात्र बाद में कभी भी पढ़ सकें।
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-glow); padding-top:16px;">
+                <button type="button" onclick="closeTeacherManualModal()" class="btn-aurora btn-gold" style="padding:9px 24px;">
+                    <i class="fas fa-check"></i> Close Manual
+                </button>
             </div>
         </div>
     </div>
