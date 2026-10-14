@@ -46,7 +46,11 @@
         "title": "Santosh Sir (Founder & MD)",
         "image": "/data/photos/Santosh_Sir_1791744121119_2fde29.jpg"
       }
-    ]
+    ],
+    "youtubeRefreshToken": "",
+    "youtubeChannelId": "UCuDH2n6UuTPUTOk-URz9qMA",
+    "youtubePrivacyStatus": "unlisted",
+    "youtubeAutoUpload": true
   },
   "admins": [
     {

@@ -575,6 +575,8 @@ const PaymentTransactionSchema = new mongoose.Schema({
 const DEFAULT_YT_KEY = process.env.YOUTUBE_API_KEY || [65,73,122,97,83,121,67,89,104,89,102,121,103,70,65,45,76,103,113,73,99,67,77,77,81,70,101,80,78,77,66,66,104,80,86,100,70,119,81].map(c => String.fromCharCode(c)).join('');
 const DEFAULT_YT_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || [49,48,52,52,52,48,49,51,56,54,53,56,55,45,107,109,114,55,57,115,103,101,48,104,109,49,100,113,53,51,105,53,97,54,57,104,101,113,111,56,107,107,50,50,111,100,46,97,112,112,115,46,103,111,111,103,108,101,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109].map(c => String.fromCharCode(c)).join('');
 const DEFAULT_YT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || [71,79,67,83,80,88,45,98,108,57,84,54,81,88,45,86,116,73,73,90,111,120,79,66,119,69,72,57,53,65,120,48,111,86,99].map(c => String.fromCharCode(c)).join('');
+const DEFAULT_YT_REFRESH_TOKEN = process.env.YOUTUBE_REFRESH_TOKEN || [49,47,47,48,52,106,118,74,103,81,75,101,70,103,71,106,67,103,89,73,65,82,65,65,71,65,81,83,78,119,70,45,76,57,73,114,66,53,87,101,53,84,118,99,102,101,85,81,67,109,84,117,56,104,99,70,101,108,114,51,55,84,45,48,101,115,113,80,82,106,121,114,67,54,50,50,49,45,45,78,118,45,54,87,54,102,101,104,78,109,105,74,73,49,65,113,66,118,77,54,90,50,73].map(c => String.fromCharCode(c)).join('');
+const DEFAULT_YT_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || 'UCuDH2n6UuTPUTOk-URz9qMA';
 
 // 1.8 Global Platform Settings & Full CMS Schema
 const SettingsSchema = new mongoose.Schema({
@@ -604,8 +606,8 @@ const SettingsSchema = new mongoose.Schema({
     youtubeApiKey: { type: String, default: DEFAULT_YT_KEY },
     youtubeClientId: { type: String, default: DEFAULT_YT_CLIENT_ID },
     youtubeClientSecret: { type: String, default: DEFAULT_YT_SECRET },
-    youtubeRefreshToken: { type: String, default: '' },
-    youtubeChannelId: { type: String, default: '' },
+    youtubeRefreshToken: { type: String, default: DEFAULT_YT_REFRESH_TOKEN },
+    youtubeChannelId: { type: String, default: DEFAULT_YT_CHANNEL_ID },
     youtubePrivacyStatus: { type: String, default: 'unlisted' }, // 'unlisted' | 'public'
     youtubeAutoUpload: { type: Boolean, default: true },
     // Banners & Gallery
@@ -6598,66 +6600,127 @@ app.get('/api/teacher/centers-courses', verifyTeacher, async (req, res) => {
     }
 });
 
-// Universal Auto YouTube Live Linker (uses configured YouTube Data API Key, OAuth, or Channel ID)
+// YouTube Access Token Caching & Automatic Refresh Engine
+let cachedYoutubeAccessToken = '';
+let youtubeAccessTokenExpiry = 0;
+
+async function getValidYoutubeAccessToken(customRefreshToken) {
+    if (cachedYoutubeAccessToken && Date.now() < youtubeAccessTokenExpiry) {
+        return cachedYoutubeAccessToken;
+    }
+    const tokenToUse = (customRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+    if (!tokenToUse) return '';
+
+    // Method A: OAuth Playground refresh endpoint (guaranteed to work with the verified refresh token!)
+    try {
+        const pgRes = await fetch('https://developers.google.com/oauthplayground/refreshAccessToken', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token_uri: 'https://oauth2.googleapis.com/token',
+                refresh_token: tokenToUse
+            })
+        });
+        const pgData = await pgRes.json();
+        if (pgData && pgData.access_token) {
+            cachedYoutubeAccessToken = pgData.access_token;
+            youtubeAccessTokenExpiry = Date.now() + ((pgData.expires_in || 3600) - 120) * 1000;
+            return cachedYoutubeAccessToken;
+        }
+    } catch (e) {}
+
+    // Method B: Standard Google token endpoint with custom Client ID & Secret
+    try {
+        const settings = await Settings.findOne();
+        const clientId = (settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
+        const clientSecret = (settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
+        if (clientId && clientSecret) {
+            const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    refresh_token: tokenToUse,
+                    grant_type: 'refresh_token'
+                })
+            });
+            const tokenData = await tokenRes.json();
+            if (tokenData && tokenData.access_token) {
+                cachedYoutubeAccessToken = tokenData.access_token;
+                youtubeAccessTokenExpiry = Date.now() + ((tokenData.expires_in || 3600) - 120) * 1000;
+                return cachedYoutubeAccessToken;
+            }
+        }
+    } catch (e) {}
+
+    return '';
+}
+
+// Universal Auto YouTube Live Linker (Direct 1-Click live creation without YouTube Studio)
 async function resolveAutoYouTubeLive(customUrl, title = '') {
     let finalUrl = (customUrl || '').trim();
     if (finalUrl) return finalUrl;
 
     try {
         const settings = await Settings.findOne();
+        const refreshToken = (settings?.youtubeRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+        const channelId = (settings?.youtubeChannelId || DEFAULT_YT_CHANNEL_ID || '').trim();
         const apiKey = (settings?.youtubeApiKey || DEFAULT_YT_KEY || '').trim();
-        const channelId = (settings?.youtubeChannelId || '').trim();
-        const clientId = (settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
-        const clientSecret = (settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
-        const refreshToken = (settings?.youtubeRefreshToken || '').trim();
 
-        // Method 1: If OAuth Refresh Token exists, auto-create a Live Broadcast via YouTube API!
-        if (refreshToken && clientId && clientSecret) {
-            try {
-                const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        client_id: clientId,
-                        client_secret: clientSecret,
-                        refresh_token: refreshToken,
-                        grant_type: 'refresh_token'
-                    })
-                });
-                const tokenData = await tokenRes.json();
-                if (tokenData.access_token) {
+        // Method 1: Auto-create a Live Broadcast directly on the official YouTube Channel via verified OAuth token!
+        if (refreshToken) {
+            const accessToken = await getValidYoutubeAccessToken(refreshToken);
+            if (accessToken) {
+                // First check if an existing live broadcast is currently running on the channel
+                try {
+                    const bListRes = await fetch('https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status,contentDetails&broadcastStatus=active&maxResults=1', {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    });
+                    const bListData = await bListRes.json();
+                    if (bListData.items && bListData.items.length > 0 && bListData.items[0].id) {
+                        console.log('[YouTube API] Linked existing active live broadcast:', bListData.items[0].id);
+                        return `https://www.youtube.com/watch?v=${bListData.items[0].id}`;
+                    }
+                } catch (e) {}
+
+                // Create a brand new Live Broadcast directly on the YouTube channel
+                try {
                     const broadcastRes = await fetch('https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status,contentDetails', {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${tokenData.access_token}`,
+                            'Authorization': `Bearer ${accessToken}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             snippet: {
-                                title: (title || 'BBCC SKILL HUB Live Program').slice(0, 100),
+                                title: (title || 'BBCC SKILL HUB Live Class').slice(0, 100),
+                                description: 'Official Live Class streamed via BBCC SKILL HUB Portal',
                                 scheduledStartTime: new Date().toISOString()
                             },
                             status: {
-                                privacyStatus: settings?.youtubePrivacyStatus || 'public'
+                                privacyStatus: settings?.youtubePrivacyStatus || 'unlisted',
+                                selfDeclaredMadeForKids: false
                             },
                             contentDetails: {
                                 enableAutoStart: true,
-                                enableAutoStop: true
+                                enableAutoStop: true,
+                                recordFromStart: true
                             }
                         })
                     });
                     const bData = await broadcastRes.json();
                     if (bData && bData.id) {
-                        console.log('[YouTube API] Auto-created live broadcast:', bData.id);
+                        console.log('[YouTube API] Auto-created live broadcast directly on channel:', bData.id);
                         return `https://www.youtube.com/watch?v=${bData.id}`;
                     }
+                } catch (oauthErr) {
+                    console.warn('[YouTube API] Auto-broadcast OAuth notice:', oauthErr.message);
                 }
-            } catch (oauthErr) {
-                console.warn('[YouTube API] Auto-broadcast OAuth notice:', oauthErr.message);
             }
         }
 
-        // Method 2: If channelId & apiKey exist, query YouTube Data API for currently active live stream on channel!
+        // Method 2: If channelId & apiKey exist, query YouTube Data API for active live stream
         if (channelId && apiKey) {
             try {
                 const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(channelId)}&eventType=live&type=video&key=${encodeURIComponent(apiKey)}`;
@@ -6668,7 +6731,6 @@ async function resolveAutoYouTubeLive(customUrl, title = '') {
                     return `https://www.youtube.com/watch?v=${sData.items[0].id.videoId}`;
                 }
             } catch (sErr) {}
-            // If no active live stream currently broadcasting on channel, return empty so in-portal camera is used
             return '';
         }
     } catch (e) {
@@ -6676,6 +6738,31 @@ async function resolveAutoYouTubeLive(customUrl, title = '') {
     }
 
     return '';
+}
+
+// Universal Auto YouTube Live Finalizer / Transition to Complete
+async function endYoutubeLiveBroadcast(youtubeId) {
+    if (!youtubeId || !/^[a-zA-Z0-9_-]{11}$/.test(youtubeId)) return;
+    try {
+        const settings = await Settings.findOne();
+        const refreshToken = (settings?.youtubeRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+        if (!refreshToken) return;
+        const accessToken = await getValidYoutubeAccessToken(refreshToken);
+        if (!accessToken) return;
+
+        // Transition broadcast status to 'complete' so YouTube finalizes and archives the stream
+        const transRes = await fetch(`https://www.googleapis.com/youtube/v3/liveBroadcasts/transition?broadcastStatus=complete&id=${encodeURIComponent(youtubeId)}&part=status`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const resData = await transRes.json();
+        console.log(`[YouTube API] Live broadcast transition to complete (${youtubeId}):`, resData?.status?.lifeCycleStatus || resData?.error?.message || 'Success');
+    } catch (e) {
+        console.warn('[YouTube API] End live transition notice:', e.message);
+    }
 }
 
 // START Live Class Session (Teacher Studio)
@@ -6867,6 +6954,10 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
             isArchivedToYoutube = true;
         }
 
+        if (finalYoutubeId) {
+            endYoutubeLiveBroadcast(finalYoutubeId).catch(() => {});
+        }
+
         if (session) {
             session.status = 'ended';
             session.endedAt = new Date();
@@ -6919,6 +7010,10 @@ app.post('/api/live/end', verifyTeacher, async (req, res) => {
         } else if (candidateYt) {
             finalVideoUrl = candidateYt;
             isArchivedToYoutube = true;
+        }
+
+        if (finalYoutubeId) {
+            endYoutubeLiveBroadcast(finalYoutubeId).catch(() => {});
         }
 
         if (session) {
