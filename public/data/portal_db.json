@@ -80,29 +80,6 @@
       "promotionalBanners": [],
       "encryptedCallLink": "https://call.doorvi.co/6a16b16de2dfc9742d223f53",
       "headerNotice": ""
-    },
-    {
-      "_id": "6acfc28a5f3a48d167aa0ad7",
-      "createdAt": "2026-10-14T17:57:30.791Z",
-      "updatedAt": "2026-10-14T17:57:30.791Z",
-      "centerName": "PTCC + BBCC",
-      "username": "jks9971",
-      "password": "$2a$10$5wY/Wp8HD8yguEXehs8V0e/ryD5hlABXZABDK6eHsGT45UpPr3tb6",
-      "directorName": "Jagannath sir",
-      "address": "Chakdah Chowk Near Railway station  Madhubani Bihar 847211",
-      "contactNumber": "9971095964",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-650582",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T17:57:30.582Z",
-      "walletBalance": 0,
-      "dueAmount": 0,
-      "isBlocked": false,
-      "teachers": [],
-      "courses": [],
-      "materials": []
     }
   ],
   "studyMaterials": {
@@ -137,21 +114,6 @@
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [
-    {
-      "_id": "6acfc28a5f3a48d167aa0ada",
-      "orderId": "ADM_GRANT_1792000650791",
-      "paymentId": "ADMIN_DIRECT_LICENSE",
-      "amount": 0,
-      "centerShare": 0,
-      "platformCut": 0,
-      "purpose": "Admin Direct Institute Affiliation & License Grant",
-      "status": "paid",
-      "payerName": "PTCC + BBCC",
-      "payerContact": "9971095964",
-      "centerName": "PTCC + BBCC",
-      "username": "jks9971",
-      "createdAt": "2026-10-14T17:57:30.791Z"
-    },
     {
       "_id": "6acfc10d9ebc43906b464c85",
       "orderId": "AFF_FREE_1792000268876",
@@ -212,20 +174,6 @@
     }
   ],
   "affiliationApplications": [
-    {
-      "_id": "6acfc28a5f3a48d167aa0ad9",
-      "centerName": "PTCC + BBCC",
-      "directorName": "Jagannath sir",
-      "contactNumber": "9971095964",
-      "email": "",
-      "address": "Chakdah Chowk Near Railway station  Madhubani Bihar 847211",
-      "username": "jks9971",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T17:57:30.791Z",
-      "status": "approved",
-      "feePaid": 0
-    },
     {
       "_id": "6acfc10d9ebc43906b464c82",
       "centerName": "PTCC+BBCC",
