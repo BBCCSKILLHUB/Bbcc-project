@@ -182,6 +182,25 @@
       "materials": [],
       "promotionalBanners": [],
       "blockReason": ""
+    },
+    {
+      "_id": "6acf92bbba0ed9c10070e783",
+      "createdAt": "2026-10-14T14:33:31.599Z",
+      "updatedAt": "2026-10-14T14:33:31.599Z",
+      "centerName": "New Affiliation Institute",
+      "username": "affil-test-1454",
+      "password": "$2a$10$7FQuA9uvqJt8tPza.uTSxeSPS695P30bcT0RV6eA19JureQupjbPa",
+      "directorName": "Director Verma",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "address": "Gaya, Bihar",
+      "affiliationCertificateId": "BBCC-AFF-411595",
+      "affiliationPaid": true,
+      "isBlocked": false,
+      "dueAmount": 0
     }
   ],
   "studyMaterials": {
@@ -240,7 +259,24 @@
     }
   ],
   "withdrawals": [],
-  "paymentTransactions": [],
+  "paymentTransactions": [
+    {
+      "_id": "6acf92bbba0ed9c10070e784",
+      "createdAt": "2026-10-14T14:33:31.610Z",
+      "updatedAt": "2026-10-14T14:33:31.610Z",
+      "orderId": "TEST_AFF_1791988411605",
+      "paymentId": "TEST_PAY_EB6186D4",
+      "purpose": "coaching_affiliation",
+      "amount": 999,
+      "status": "paid",
+      "payerName": "Director Verma",
+      "payerPhone": "9876543210",
+      "payerEmail": "",
+      "centerId": "6acf92bbba0ed9c10070e783",
+      "centerName": "New Affiliation Institute",
+      "paidAt": "2026-10-14T14:33:31.606Z"
+    }
+  ],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
