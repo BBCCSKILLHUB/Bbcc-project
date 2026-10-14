@@ -186,7 +186,14 @@
     }
   ],
   "push_history": [],
-  "bharti_auto_push_log": {},
+  "bharti_auto_push_log": {
+    "2026-10-14_morning": {
+      "dispatchedAt": "2026-10-14T02:40:17.268Z",
+      "slot": "morning",
+      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
+      "body": "भारती AI प्रेरणा: 'एकाग्रता और अनुशासन ही सामान्य छात्र को टॉपर बनाते हैं।' आज का अध्ययन सत्र अभी शुरू करें! 🎯"
+    }
+  },
   "teachers": [],
   "liveSessions": []
 }
