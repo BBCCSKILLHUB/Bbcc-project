@@ -54,31 +54,7 @@
   ],
   "centers": [],
   "studyMaterials": {
-    "notes": [
-      {
-        "_id": "6acfbb4d5fd6c943ecaed6fe",
-        "title": "Class 9th History",
-        "subject": "History",
-        "classLevel": "9th",
-        "description": "",
-        "fileType": "pdf",
-        "thumbnail": "/data/branding/Class_9th_History_1791998796999_699961.jpg",
-        "file": "/data/materials/Class_9th_History_1791998796993_6ecef2.pdf",
-        "pdf": "/data/materials/Class_9th_History_1791998796993_6ecef2.pdf",
-        "fileName": "BBCC_Platform_User_Manual.pdf",
-        "price": 0,
-        "pdfMrp": 199,
-        "physicalPrice": 149,
-        "physicalMrp": 299,
-        "pickupAddress": "",
-        "directorContact": "",
-        "targetCenterId": "all",
-        "targetCenterName": "Universal / All Coaching Centers",
-        "isRawData": false,
-        "storageMode": "github_data",
-        "createdAt": "2026-10-14T17:26:37.004Z"
-      }
-    ],
+    "notes": [],
     "videos": [],
     "_id": "6acf996abf475ef31ff53416"
   },
