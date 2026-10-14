@@ -310,16 +310,53 @@ function getCache(key) {
 function setCache(key, data, ttlMs = 25000) {
     memoryCache.set(key, { data, expiry: Date.now() + ttlMs });
 }
+
+// ============================================================
+// REAL-TIME SYNCHRONIZATION ENGINE (SSE & BROADCASTING)
+// ============================================================
+let lastDbVersion = Date.now();
+const sseClients = new Set();
+
+function broadcastRealtimeEvent(eventType = 'data_updated', extra = {}) {
+    lastDbVersion = Date.now();
+    const payload = JSON.stringify({
+        type: eventType,
+        version: lastDbVersion,
+        timestamp: lastDbVersion,
+        ...extra
+    });
+    for (const client of sseClients) {
+        try {
+            client.write(`event: update\ndata: ${payload}\n\n`);
+        } catch (err) {
+            sseClients.delete(client);
+        }
+    }
+}
+
+// Periodic keep-alive heartbeat for active SSE connections (every 20s)
+setInterval(() => {
+    for (const client of sseClients) {
+        try {
+            client.write(': ping\n\n');
+        } catch (err) {
+            sseClients.delete(client);
+        }
+    }
+}, 20000);
+
 function clearCache(keyPrefix = '') {
     if (!keyPrefix) {
         memoryCache.clear();
-        return;
-    }
-    for (const k of memoryCache.keys()) {
-        if (k.startsWith(keyPrefix) || k.includes(keyPrefix)) {
-            memoryCache.delete(k);
+    } else {
+        for (const k of memoryCache.keys()) {
+            if (k.startsWith(keyPrefix) || k.includes(keyPrefix)) {
+                memoryCache.delete(k);
+            }
         }
     }
+    const eventType = keyPrefix ? `${keyPrefix}_updated` : 'data_updated';
+    broadcastRealtimeEvent(eventType, { keyPrefix });
 }
 
 // ============================================================
@@ -1822,6 +1859,36 @@ app.get('/api/public/ping', (req, res) => {
         uptime: Math.round(process.uptime()),
         timestamp: new Date().toISOString(),
         service: 'BBCC SKILL HUB Digital Platform'
+    });
+});
+
+// 4.1C Real-Time Server-Sent Events (SSE) Stream for Instant UI Auto-Sync
+app.get('/api/public/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') {
+        res.flushHeaders();
+    }
+
+    // Send connection confirmation handshake
+    res.write(`event: connected\ndata: ${JSON.stringify({ status: 'connected', version: lastDbVersion, timestamp: Date.now() })}\n\n`);
+
+    sseClients.add(res);
+
+    req.on('close', () => {
+        sseClients.delete(res);
+    });
+});
+
+// 4.1D Database Version Check Endpoint (For Tab Focus / Offline Re-Sync)
+app.get('/api/public/db-version', (req, res) => {
+    res.json({
+        success: true,
+        version: lastDbVersion,
+        timestamp: Date.now(),
+        activeListeners: sseClients.size
     });
 });
 
@@ -4997,6 +5064,13 @@ async function registerAndPersistAffiliatedCenter(centerPayload, feeAmount, orde
 
     await savePortalDb(pdb);
     clearCache();
+    broadcastRealtimeEvent('centers_updated', {
+        action: 'center_registered',
+        centerName: centerName.trim(),
+        username: cleanUser,
+        district: centerPayload.district ? String(centerPayload.district).trim() : '',
+        state: centerPayload.state ? String(centerPayload.state).trim() : ''
+    });
 
     console.log(`✅ [AFFILIATION REGISTERED VIA INDEX] Center: "${centerName.trim()}" | Username: "${cleanUser}" | Order: ${finalOrderId}`);
     return centerObj;
