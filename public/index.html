@@ -2583,6 +2583,11 @@
                 display: none !important;
             }
         }
+
+        @keyframes liveDotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
     </style>
 </head>
 <body>
@@ -2674,8 +2679,11 @@
 
     <!-- 2. Institutional Top Bar -->
     <header class="aurora-topbar">
-        <div class="topbar-badge">
-            <i class="fas fa-certificate"></i> BBCC SKILL HUB — Digital Skill & Coaching Institute Platform
+        <div class="topbar-badge" style="display:inline-flex; align-items:center; gap:8px;">
+            <span><i class="fas fa-certificate"></i> BBCC SKILL HUB — Digital Skill & Coaching Institute Platform</span>
+            <span id="realtimeLiveIndicator" title="Live Real-time Database Auto-Sync Active" style="display:inline-flex; align-items:center; gap:5px; font-size:10px; padding:2px 8px; border-radius:12px; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-weight:700;">
+                <span style="width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e; display:inline-block; animation:liveDotPulse 2s infinite;"></span> LIVE
+            </span>
         </div>
         <div class="topbar-actions">
             <button onclick="openVisitorManualModal()" class="topbar-link" style="background:none; border:none; color:var(--aurora-gold); font-weight:700; cursor:pointer;" title="Open Platform User Manual & Guide">
@@ -4691,8 +4699,12 @@
         function populateAdmissionCentersDropdown() {
             const sel = document.getElementById('admCenterSelect');
             if (!sel) return;
+            const currentVal = sel.value;
             sel.innerHTML = '<option value="">-- Choose Institute --</option>' +
                 allCenters.map(c => `<option value="${c._id}">${c.centerName} (${c.district || c.city || 'Bihar'})</option>`).join('');
+            if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                sel.value = currentVal;
+            }
         }
 
         function openDirectAdmissionModal(preCenterId = '', preCourseId = '') {
@@ -6822,10 +6834,157 @@
             } catch(e) {}
         }
 
+        // ============================================================
+        // REAL-TIME AUTO-SYNC ENGINE (LIVE DATABASE UPDATES WITHOUT REFRESH)
+        // ============================================================
+        let realtimeEventSource = null;
+        let lastKnownDbVersion = null;
+        let realtimeReconnectTimer = null;
+        let realtimeUpdateDebounceTimer = null;
+        let fallbackPollingStarted = false;
+
+        function initRealtimeSync() {
+            if (typeof window.EventSource === 'undefined') {
+                console.warn('⚡ Real-time SSE not supported; falling back to periodic version sync.');
+                initPollingFallback();
+                return;
+            }
+
+            if (realtimeEventSource) {
+                try { realtimeEventSource.close(); } catch(e) {}
+            }
+
+            try {
+                realtimeEventSource = new EventSource('/api/public/events');
+
+                realtimeEventSource.addEventListener('connected', (e) => {
+                    try {
+                        const data = JSON.parse(e.data);
+                        lastKnownDbVersion = data.version;
+                        updateRealtimeIndicator(true);
+                        console.log('⚡ Real-time Live Sync active with server. DB Version:', lastKnownDbVersion);
+                    } catch(err) {}
+                });
+
+                realtimeEventSource.addEventListener('update', (e) => {
+                    try {
+                        const data = JSON.parse(e.data);
+                        console.log('⚡ Real-time database event received:', data);
+                        updateRealtimeIndicator(true);
+                        handleRealtimeUpdate(data);
+                    } catch(err) {
+                        console.error('Realtime update parse error:', err);
+                    }
+                });
+
+                realtimeEventSource.onmessage = (e) => {
+                    try {
+                        const data = JSON.parse(e.data);
+                        handleRealtimeUpdate(data);
+                    } catch(err) {}
+                };
+
+                realtimeEventSource.onerror = () => {
+                    updateRealtimeIndicator(false);
+                    try { realtimeEventSource.close(); } catch(e) {}
+                    clearTimeout(realtimeReconnectTimer);
+                    realtimeReconnectTimer = setTimeout(initRealtimeSync, 5000);
+                };
+            } catch (err) {
+                console.warn('Real-time connection setup notice:', err);
+                initPollingFallback();
+            }
+
+            // Sync immediately when tab regains focus / visibility
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    checkDbVersionAndSync();
+                }
+            });
+
+            // Start secondary periodic check (every 15s) in case SSE drops silently on mobile networks
+            initPollingFallback();
+        }
+
+        function updateRealtimeIndicator(isOnline) {
+            const ind = document.getElementById('realtimeLiveIndicator');
+            if (!ind) return;
+            if (isOnline) {
+                ind.style.background = 'rgba(34,197,94,0.15)';
+                ind.style.color = '#4ade80';
+                ind.style.borderColor = 'rgba(34,197,94,0.3)';
+                ind.innerHTML = '<span style="width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e; display:inline-block; animation:liveDotPulse 2s infinite;"></span> LIVE';
+            } else {
+                ind.style.background = 'rgba(234,179,8,0.15)';
+                ind.style.color = '#fde047';
+                ind.style.borderColor = 'rgba(234,179,8,0.3)';
+                ind.innerHTML = '<span style="width:6px; height:6px; border-radius:50%; background:#eab308; display:inline-block;"></span> SYNCING';
+            }
+        }
+
+        function handleRealtimeUpdate(payload) {
+            clearTimeout(realtimeUpdateDebounceTimer);
+            realtimeUpdateDebounceTimer = setTimeout(() => {
+                executeDynamicSync(payload);
+            }, 250);
+        }
+
+        async function executeDynamicSync(payload) {
+            const type = (payload && payload.type) ? payload.type : 'data_updated';
+            if (payload && payload.version) {
+                lastKnownDbVersion = payload.version;
+            }
+
+            // Check what changed and smoothly re-fetch without refreshing or resetting scroll
+            if (type === 'centers_updated' || type.includes('center') || type === 'data_updated') {
+                try { await loadCenters(); } catch(e) {}
+            }
+            if (type === 'courses_updated' || type.includes('course') || type === 'data_updated') {
+                try { await loadCourses(); } catch(e) {}
+            }
+            if (type === 'books_updated' || type.includes('book') || type.includes('note') || type === 'data_updated') {
+                try { await loadBooks(); } catch(e) {}
+            }
+            if (type === 'teachers_updated' || type.includes('teacher') || type === 'data_updated') {
+                try { await loadExpertTeachers(); } catch(e) {}
+            }
+            if (type === 'banners_updated' || type.includes('banner') || type === 'data_updated') {
+                try { await loadPromotionalBanners(); } catch(e) {}
+            }
+            if (type === 'live_updated' || type.includes('live') || type === 'data_updated') {
+                try { await checkIndexLiveClasses(); } catch(e) {}
+            }
+            if (type === 'config_updated' || type.includes('config')) {
+                try { await loadConfig(); } catch(e) {}
+            }
+        }
+
+        async function checkDbVersionAndSync() {
+            try {
+                const res = await fetch('/api/public/db-version?_t=' + Date.now());
+                const data = await res.json();
+                if (data.success && data.version) {
+                    if (lastKnownDbVersion && data.version > lastKnownDbVersion) {
+                        lastKnownDbVersion = data.version;
+                        executeDynamicSync({ type: 'data_updated', version: data.version });
+                    } else if (!lastKnownDbVersion) {
+                        lastKnownDbVersion = data.version;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function initPollingFallback() {
+            if (fallbackPollingStarted) return;
+            fallbackPollingStarted = true;
+            setInterval(checkDbVersionAndSync, 15000);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             initSplashScreenAnimation();
             initPushNotificationPrompt();
             initPortal();
+            initRealtimeSync();
         });
     </script>
 
