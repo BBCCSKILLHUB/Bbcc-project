@@ -37,7 +37,15 @@
         "image": ""
       }
     ],
-    "gallery": [],
+    "gallery": [
+      {
+        "_id": "6acfc5bcb01decc2794dc752",
+        "image": "/data/photos/BBCC_1792001468511_36439e.png",
+        "title": "BBCC",
+        "storageMode": "github_data",
+        "uploadedAt": "2026-10-14T18:11:08.532Z"
+      }
+    ],
     "youtubeRefreshToken": "",
     "youtubeChannelId": "UCuDH2n6UuTPUTOk-URz9qMA",
     "youtubePrivacyStatus": "unlisted",
