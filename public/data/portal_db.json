@@ -61,7 +61,34 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "6acfa879cc47dfd6998ed534",
+      "createdAt": "2026-10-14T16:06:18.135Z",
+      "updatedAt": "2026-10-14T16:06:18.135Z",
+      "centerName": "PTCC+BBCC",
+      "username": "jkssdfg",
+      "password": "$2a$10$sCPnV2yeaf0x2VP/rqgoOumV9XIiLSLNaqHX//fCr.sd3s25/kA22",
+      "directorName": "jagannath sir",
+      "contactNumber": "9971095964",
+      "whatsappNumber": "9971095964",
+      "email": "",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "address": "Chakdah chowk",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-977246",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T16:06:17.842Z",
+      "isBlocked": false,
+      "dueAmount": 0,
+      "walletBalance": 0,
+      "teachers": [],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": []
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -69,7 +96,23 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [],
+  "paymentTransactions": [
+    {
+      "_id": "6acfa87acc47dfd6998ed539",
+      "orderId": "AFF_FREE_1791993977246",
+      "paymentId": "FREE_AFFILIATION",
+      "purpose": "coaching_affiliation",
+      "amount": 0,
+      "status": "paid",
+      "payerName": "jagannath sir",
+      "payerPhone": "9971095964",
+      "payerEmail": "",
+      "centerId": "6acfa879cc47dfd6998ed534",
+      "centerName": "PTCC+BBCC",
+      "createdAt": "2026-10-14T16:06:18.330Z",
+      "paidAt": "2026-10-14T16:06:18.330Z"
+    }
+  ],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -113,5 +156,21 @@
       "assignedOfficer": "Senior Academic Counselor"
     }
   ],
-  "affiliationApplications": []
+  "affiliationApplications": [
+    {
+      "_id": "6acfa87acc47dfd6998ed536",
+      "centerName": "PTCC+BBCC",
+      "directorName": "jagannath sir",
+      "contactNumber": "9971095964",
+      "whatsappNumber": "9971095964",
+      "email": "",
+      "address": "Chakdah chowk",
+      "username": "jkssdfg",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "appliedAt": "2026-10-14T16:06:18.135Z",
+      "status": "approved",
+      "feePaid": 0
+    }
+  ]
 }
