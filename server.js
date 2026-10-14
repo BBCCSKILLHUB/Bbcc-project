@@ -1673,7 +1673,7 @@ function verifyTeacher(req, res, next) {
 async function initSystem() {
     loadPortalDb();
     // Ensure static upload & data directories exist
-    const uploadSubdirs = ['materials', 'students', 'kyc', 'branding', 'banners'];
+    const uploadSubdirs = ['materials', 'students', 'kyc', 'branding', 'banners', 'photos', 'recordings', 'notes', 'thumbnails'];
     uploadSubdirs.forEach(d => {
         const dirPath = path.join(__dirname, 'public', 'uploads', d);
         if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
