@@ -123,7 +123,16 @@
           "description": "Full live syllabus coverage with study notes and mock test series.",
           "active": true,
           "_id": "6acf4312603cd51e3eff7232",
-          "createdAt": "2026-10-14T08:53:38.083Z"
+          "createdAt": "2026-10-14T08:53:38.083Z",
+          "recordedLectures": [
+            {
+              "title": "Live Calculus & Derivatives Problem Solving Workshop",
+              "videoUrl": "/data/recordings/LIVE_1791968018312_1cc4a4.webm",
+              "youtubeVideoId": "",
+              "teacherName": "Prof. Alok Verma",
+              "recordedAt": "2026-10-14T08:53:41.196Z"
+            }
+          ]
         }
       ],
       "materials": [
@@ -254,7 +263,8 @@
         "isRawData": false,
         "storageMode": "github_data",
         "createdAt": "2026-10-14T08:53:38.114Z",
-        "_id": "6acf4312603cd51e3eff7234"
+        "_id": "6acf4312603cd51e3eff7234",
+        "hasFile": true
       }
     ],
     "videos": [],
@@ -452,11 +462,29 @@
       "courseName": "IIT JEE Advanced Mathematics Mastery",
       "subject": "Mathematics",
       "title": "Live Calculus & Derivatives Problem Solving Workshop",
-      "status": "live",
+      "status": "ended",
       "youtubeLiveUrl": "https://www.youtube.com/watch?v=HCu8oKvEgqI",
-      "youtubeWatchUrl": "https://www.youtube.com/watch?v=HCu8oKvEgqI",
+      "youtubeWatchUrl": "/data/recordings/LIVE_1791968018312_1cc4a4.webm",
       "startedAt": "2026-10-14T08:53:41.103Z",
-      "activeStudentsCount": 0
+      "activeStudentsCount": 0,
+      "recordingUrl": "/data/recordings/LIVE_1791968018312_1cc4a4.webm",
+      "endedAt": "2026-10-14T08:53:41.190Z",
+      "isArchivedToYoutube": true,
+      "messages": [
+        {
+          "sender": "System Notice",
+          "role": "system",
+          "text": "🔴 Live Class \"Live Calculus & Derivatives Problem Solving Workshop\" started by Prof. Alok Verma. Doubts & live questions welcome!",
+          "time": "2026-10-14T08:53:41.111Z"
+        },
+        {
+          "id": "msg_1791968021131_185",
+          "sender": "Prof. Alok Verma",
+          "role": "teacher",
+          "text": "Welcome students to today live calculus session! Feel free to ask questions.",
+          "time": "2026-10-14T08:53:41.131Z"
+        }
+      ]
     }
   ],
   "admissionInquiries": [
@@ -465,6 +493,18 @@
       "createdAt": "2026-10-14T08:50:50.494Z",
       "updatedAt": "2026-10-14T08:50:50.494Z",
       "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "studentName": "Kavita Singh",
+      "parentName": "",
+      "mobile": "9988776655",
+      "targetClass": "IIT JEE Advanced Mathematics Mastery",
+      "message": "Interested in weekend classroom batches"
+    },
+    {
+      "_id": "6acf4315603cd51e3eff7237",
+      "createdAt": "2026-10-14T08:53:41.235Z",
+      "updatedAt": "2026-10-14T08:53:41.235Z",
+      "centerId": "6acf4311603cd51e3eff7230",
       "centerName": "Bal Bharti Model Coaching Institute",
       "studentName": "Kavita Singh",
       "parentName": "",
@@ -482,6 +522,21 @@
       "studentName": "Rahul Kumar",
       "phone": "9812345678",
       "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "category": "Academic Counseling & Callback",
+      "issueSummary": "Requesting syllabus roadmap and past lecture video links",
+      "status": "CALLBACK_SCHEDULED",
+      "scheduledCallback": "Within 15-30 Minutes",
+      "assignedOfficer": "Director Dr. R. K. Sharma"
+    },
+    {
+      "_id": "6acf4315603cd51e3eff7238",
+      "createdAt": "2026-10-14T08:53:41.272Z",
+      "updatedAt": "2026-10-14T08:53:41.272Z",
+      "ticketId": "TKT-BBCC-798305",
+      "studentName": "Rahul Kumar",
+      "phone": "9812345678",
+      "centerId": "6acf4311603cd51e3eff7230",
       "centerName": "Bal Bharti Model Coaching Institute",
       "category": "Academic Counseling & Callback",
       "issueSummary": "Requesting syllabus roadmap and past lecture video links",
