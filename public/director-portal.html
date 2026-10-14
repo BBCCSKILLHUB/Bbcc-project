@@ -256,8 +256,11 @@
         </a>
 
         <div style="display:flex; align-items:center; gap:12px;">
-            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24;" title="Download Platform User Manual PDF">
-                <i class="fas fa-file-pdf"></i> User Manual (PDF)
+            <button onclick="openDirectorManualModal()" class="btn-aurora" style="background:rgba(245,158,11,0.22); border:1px solid #f59e0b; color:#fbbf24; cursor:pointer; font-weight:700;" title="Open Coaching Director User Manual & SOP">
+                <i class="fas fa-book-open"></i> Director SOP & Manual
+            </button>
+            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); color:#fbbf24;" title="Download Platform User Manual PDF">
+                <i class="fas fa-file-pdf"></i> PDF
             </a>
             <button onclick="openWallCertificate()" class="btn-aurora" style="background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--aurora-gold);">
                 <i class="fas fa-award"></i> View Wall Certificate
@@ -313,6 +316,9 @@
             </button>
             <button class="studio-nav-btn" onclick="switchTab('notifications')">
                 <i class="fas fa-bullhorn"></i> Student Push Broadcast
+            </button>
+            <button class="studio-nav-btn" onclick="openDirectorManualModal()" style="border-left:3px solid var(--aurora-gold); background:rgba(245,158,11,0.08);">
+                <i class="fas fa-book-open" style="color:var(--aurora-gold);"></i> 📖 Director SOP & Manual
             </button>
         </aside>
 
@@ -1715,10 +1721,174 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         COACHING DIRECTOR USER MANUAL & SOP MODAL
+         ============================================================ -->
+    <div class="cert-modal-overlay" id="directorManualModal" style="display:none; z-index:10005;">
+        <div style="background:linear-gradient(145deg, #0f172a 0%, #060a14 100%); border:2px solid var(--border-glow); border-radius:24px; width:100%; max-width:860px; max-height:90vh; overflow-y:auto; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:2px solid var(--border-glow); padding-bottom:16px;">
+                <div>
+                    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--aurora-gold); font-weight:800; margin-bottom:4px;">
+                        <i class="fas fa-shield-halved"></i> Center Director Standard Operating Procedure (SOP)
+                    </div>
+                    <h2 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin:0; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-book-open" style="color:var(--aurora-gold);"></i> Coaching Director Portal Manual & SOP
+                    </h2>
+                    <p style="font-size:12.5px; color:#94a3b8; margin:4px 0 0 0;">
+                        Operational guidance for Managing Faculty, Scheduling Courses, Uploading Notes, Student Admissions & 80% Wallet Payouts.
+                    </p>
+                </div>
+                <button type="button" onclick="closeDirectorManualModal()" style="background:none; border:none; color:#cbd5e1; font-size:24px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+            </div>
+
+            <!-- Quick Action Links Bar -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px 16px; align-items:center; justify-content:space-between;">
+                <span style="font-size:12px; color:#cbd5e1; font-weight:700;">
+                    <i class="fas fa-file-circle-check" style="color:#10b981;"></i> Complete Platform User Manual Available:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fbbf24;">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </a>
+                    <a href="/user-manual.html#sec-director" target="_blank" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#7dd3fc;">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Open Web Manual
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- SOP Section 1: Faculty Members Management -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#38bdf8; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-chalkboard-user"></i> 1. Faculty Members & Teacher IDs Setup
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(56,189,248,0.15); color:#7dd3fc; padding:2px 8px; border-radius:10px; font-weight:700;">Faculty Studio</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    अपनी कोचिंग के शिक्षकों को अधिकृत करें ताकि वे Teacher Studio (/teacher-portal) पर अपने Teacher ID या मोबाइल नंबर से लॉगिन कर लाइव क्लास ले सकें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #38bdf8; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Faculty Members"</strong> टैब में जाएं। शिक्षक का नाम, मोबाइल नंबर, विषय और पासवर्ड (डिफ़ॉल्ट: teach123) भरें।<br>
+                    • शिक्षक को उनका Teacher ID व पासवर्ड साझा करें। शिक्षक सीधे <code>/teacher-portal</code> पर लॉगिन कर सकेंगे।
+                </div>
+            </div>
+
+            <!-- SOP Section 2: Courses & Batches -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#f59e0b; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-graduation-cap"></i> 2. Courses, Batches & Admission Fee Scheduling
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(245,158,11,0.15); color:#fcd34d; padding:2px 8px; border-radius:10px; font-weight:700;">Batch Hub</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    अपनी कोचिंग में पढ़ाए जाने वाले पाठ्यक्रमों (जैसे 10th Board, 12th Board, ADCA, DCA, Tally Prime) की अवधि और मासिक/फुल फ़ीस तय करें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Courses & Batches"</strong> टैब में <strong>"Add Course"</strong> या <strong>"Course Templates"</strong> से 1-क्लिक में कोर्स चुनें।<br>
+                    • कोर्स का नाम, अवधि, कक्षा और शुल्क निर्धारित कर प्रकाशित करें। यह आपकी कोचिंग की वेबसाइट पर छात्रों को तुरंत दिखेगा।
+                </div>
+            </div>
+
+            <!-- SOP Section 3: Study Notes & Raw Materials -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#10b981; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-book"></i> 3. Study Notes & Question Papers Upload (Zero DB Bloat)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(16,185,129,0.15); color:#6ee7b7; padding:2px 8px; border-radius:10px; font-weight:700;">GitHub Raw Vault</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    छात्रों के लिए अध्यायवार नोट्स, असाइनमेंट और मॉडल पेपर्स अपलोड करें। आपकी सभी फाइलें सुरक्षित GitHub/डिस्क पर सेव होती हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Study Notes & MRP"</strong> टैब खोलें। PDF फाइल चुनें, टाइटल, विषय और मूल्य (₹0 = नामांकित छात्रों के लिए 100% फ्री) सेट करें।<br>
+                    • छात्र सीधे अपने क्लासरूम (/classroom) में बिना किसी शुल्क के इन नोट्स को पढ़ और डाउनलोड कर सकते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 4: Student Enrollment & WhatsApp Receipts -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#22c55e; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-id-card"></i> 4. Student Enrollment & Instant 1-Click WhatsApp Receipts
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(34,197,94,0.15); color:#86efac; padding:2px 8px; border-radius:10px; font-weight:700;">Auto Enrollment</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    छात्रों का नया एडमिशन करें, सेंट्रल रोल नंबर जारी करें और अभिभावकों के मोबाइल पर तुरंत औपचारिक डिजिटल व्हाट्सएप रसीद भेजें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #22c55e; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Student Enrolment"</strong> टैब में छात्र का नाम, पिता का नाम, आधार नंबर (12 अंक), मोबाइल नंबर, कोर्स व बैच चुनें।<br>
+                    • <strong>"Enroll Student"</strong> बटन दबाते ही यूनिक रोल नंबर (जैसे BBCC-2026-...) जारी हो जाता है और 1-क्लिक में व्हाट्सएप रसीद भेजने का विकल्प मिलता है।
+                </div>
+            </div>
+
+            <!-- SOP Section 5: Live Teaching Monitor -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#ef4444; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-tower-broadcast"></i> 5. Live Teaching Monitor Desk
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(239,68,68,0.15); color:#fca5a5; padding:2px 8px; border-radius:10px; font-weight:700;">Live Supervision</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    अपनी कोचिंग के शिक्षकों द्वारा ली जा रही लाइव क्लास को रीयल-टाइम में मॉनिटर करें कि कितने छात्र जुड़े हैं और पढ़ाई कैसी चल रही है।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #ef4444; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • जब भी आपकी कोचिंग का कोई शिक्षक लाइव क्लास शुरू करता है, साइडबार में लाल रंग का <strong>"LIVE"</strong> बैज चमकने लगता है।<br>
+                    • <strong>"Live Teaching Monitor"</strong> टैब खोलकर डायरेक्टर सीधे लाइव स्ट्रीम प्रीव्यू देख सकते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 6: Earnings & 80/20 Bank Withdrawals -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#a855f7; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-wallet"></i> 6. Earnings & Bank Withdrawals (80/20 Profit Share)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(168,85,247,0.15); color:#d8b4fe; padding:2px 8px; border-radius:10px; font-weight:700;">Direct Wallet</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    आपकी कोचिंग में लिए गए हर एडमिशन व कोर्स शुल्क का 80% हिस्सा सीधे आपके वॉलेट में क्रेडिट होता है, जिसे आप कभी भी बैंक या UPI में विथड्रॉ कर सकते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #a855f7; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Earnings & Bank (80/20)"</strong> टैब में कुल कमाई और उपलब्ध बैलेंस देखें।<br>
+                    • <strong>"Withdraw Balance"</strong> बटन दबाकर राशि भरें और अनुरोध भेजें। एडमिन द्वारा UTR जारी होते ही स्थिति "Disbursed" हो जाती है।
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-glow); padding-top:16px;">
+                <button type="button" onclick="closeDirectorManualModal()" class="btn-aurora btn-gold" style="padding:9px 24px;">
+                    <i class="fas fa-check"></i> Close Manual
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
         if (!token) window.location.replace('/login');
+
+        function openDirectorManualModal() {
+            const m = document.getElementById('directorManualModal');
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeDirectorManualModal() {
+            const m = document.getElementById('directorManualModal');
+            if (m) m.style.display = 'none';
+        }
 
         let centerProfile = null;
 
