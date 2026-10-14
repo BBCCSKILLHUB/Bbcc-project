@@ -63,22 +63,6 @@
   ],
   "centers": [
     {
-      "_id": "6acf595a84851cbb199e316f",
-      "createdAt": "2026-10-14T10:28:42.954Z",
-      "updatedAt": "2026-10-14T10:28:42.954Z",
-      "centerName": "Apex Science Academy",
-      "username": "apex",
-      "password": "$2a$10$c2SzNOAU5AnyrqN0tbXaPOGBsfP7Wwr4m8lrjLpYGJRv42WwOrFhi",
-      "directorName": "Prof. R. K. Sharma",
-      "address": "Patna, Bihar",
-      "contactNumber": "9876543210",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-722952",
-      "affiliationPaid": true
-    },
-    {
       "_id": "6acf8fe4f51b4d359814906f",
       "createdAt": "2026-10-14T14:21:24.566Z",
       "updatedAt": "2026-10-14T14:21:24.566Z",
