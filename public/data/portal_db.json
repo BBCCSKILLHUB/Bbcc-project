@@ -607,6 +607,54 @@
       "centerId": "6acf4369e38e18f519344d8d",
       "centerName": "Bal Bharti Model Coaching Institute",
       "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf43b5e38e18f519344d9c",
+      "createdAt": "2026-10-14T08:56:21.209Z",
+      "updatedAt": "2026-10-14T08:56:21.209Z",
+      "studentId": "STU-181204",
+      "rollNo": "BBCC-181204",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "parentName": "Suresh Kumar",
+      "dob": "2006-05-15",
+      "phone": "9812345678",
+      "mobile": "9812345678",
+      "parentMobile": "",
+      "address": "Main Road, Kankarbagh",
+      "mode": "physical",
+      "email": "",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "courseName": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "aadharNumber": "999999542968",
+      "photo": "",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "totalPaid": 0,
+      "certificateId": "BBCC-181204",
+      "centerId": "6acf43b4e38e18f519344d97",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf43b5e38e18f519344d9c",
+      "studentId": "STU-181204",
+      "rollNo": "BBCC-181204",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "phone": "9812345678",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "photo": "",
+      "aadharNumber": "999999542968",
+      "centerId": "6acf43b4e38e18f519344d97",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
     }
   ],
   "withdrawals": [],
@@ -673,7 +721,8 @@
       "_id": "6acf43b5e38e18f519344d98",
       "createdAt": "2026-10-14T08:56:21.145Z",
       "centerId": "6acf43b4e38e18f519344d97",
-      "centerName": "Bal Bharti Model Coaching Institute"
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "lastLogin": "2026-10-14T08:56:21.348Z"
     }
   ],
   "liveSessions": [
@@ -846,6 +895,27 @@
       "isArchivedToYoutube": true,
       "recordingUrl": "https://www.youtube.com/watch?v=5T5bgyaTt4Q",
       "youtubeVideoId": "5T5bgyaTt4Q"
+    },
+    {
+      "_id": "6acf43b8e38e18f519344d9d",
+      "createdAt": "2026-10-14T08:56:24.189Z",
+      "updatedAt": "2026-10-14T08:56:24.189Z",
+      "sessionId": "LIVE_1791968181356_50ba69",
+      "teacherId": "TCH-81045",
+      "teacherName": "Prof. Alok Verma",
+      "centerId": "6acf43b4e38e18f519344d97",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "courseId": "6acf43b5e38e18f519344d99",
+      "courseName": "IIT JEE Advanced Mathematics Mastery",
+      "subject": "Mathematics",
+      "title": "Live Calculus & Derivatives Problem Solving Workshop",
+      "status": "ended",
+      "youtubeLiveUrl": "https://www.youtube.com/watch?v=83qa2ItL4t4",
+      "youtubeWatchUrl": "/data/recordings/LIVE_1791968181356_50ba69.webm",
+      "startedAt": "2026-10-14T08:56:24.185Z",
+      "activeStudentsCount": 0,
+      "recordingUrl": "/data/recordings/LIVE_1791968181356_50ba69.webm",
+      "endedAt": "2026-10-14T08:56:24.237Z"
     }
   ],
   "admissionInquiries": [
