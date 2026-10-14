@@ -303,8 +303,9 @@
                             <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-indian-rupee-sign" style="color:var(--admin-gold);"></i> Center Admission Fee (₹)</label>
                             <input type="number" id="acAdmissionFee" value="200" min="0" placeholder="200" class="console-input" style="color:var(--admin-gold); font-weight:700;">
                         </div>
+                        <div id="registerCenterStatus" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
-                            <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Register Institute</button>
+                            <button type="submit" id="btnRegisterCenter" class="btn-aurora btn-gold"><i class="fas fa-plus"></i> Register Institute</button>
                         </div>
                     </form>
                 </div>
@@ -4854,10 +4855,11 @@
 
         async function loadCentersList() {
             try {
-                const res = await fetch('/api/public/centers');
+                const res = await fetch(`/api/public/centers?_t=${Date.now()}`);
                 const data = await res.json();
                 const tbody = document.getElementById('centersTbody');
-                if (data.success && data.data) {
+                if (!tbody) return;
+                if (data.success && Array.isArray(data.data)) {
                     globalCenters = data.data;
 
                     // Populate Target Center dropdowns
@@ -4867,6 +4869,11 @@
                         globalCenters.map(c => `<option value="${c._id}">${c.centerName} (${c.username})</option>`).join('');
                     if (vbTarget) vbTarget.innerHTML = options;
                     if (edBookTarget) edBookTarget.innerHTML = options;
+
+                    if (globalCenters.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;"><i class="fas fa-school" style="font-size:24px; color:var(--admin-gold); display:block; margin-bottom:8px;"></i> No partner coaching centers registered yet. Use the form above to add your first center.</td></tr>';
+                        return;
+                    }
 
                     tbody.innerHTML = globalCenters.map(c => `
                         <tr>
@@ -5094,32 +5101,97 @@
 
         async function registerCenter(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnRegisterCenter');
+            const statusBox = document.getElementById('registerCenterStatus');
+
+            const activeToken = localStorage.getItem('bbcc_token') || token;
+            if (!activeToken) {
+                alert('Session expired. Please log in again to register coaching centers.');
+                window.location.replace('/login');
+                return;
+            }
+
+            const rawUser = document.getElementById('acUsername').value.trim();
+            const cleanUser = rawUser.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+
+            if (!cleanUser || cleanUser.length < 3) {
+                if (statusBox) {
+                    statusBox.style.display = 'block';
+                    statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                    statusBox.style.border = '1px solid #ef4444';
+                    statusBox.style.color = '#fca5a5';
+                    statusBox.innerHTML = '<i class="fas fa-circle-exclamation"></i> Username must be at least 3 alphanumeric characters (e.g. apex-academy).';
+                }
+                alert('Username must be at least 3 characters and alphanumeric (e.g. apex-academy)');
+                return;
+            }
+
             const payload = {
                 centerName: document.getElementById('acName').value.trim(),
                 directorName: document.getElementById('acDirector').value.trim(),
-                username: document.getElementById('acUsername').value.trim(),
+                username: cleanUser,
                 password: document.getElementById('acPassword').value.trim(),
-                contactNumber: document.getElementById('acPhone').value.trim(),
-                address: document.getElementById('acAddress').value.trim(),
+                contactNumber: document.getElementById('acPhone') ? document.getElementById('acPhone').value.trim() : '',
+                address: document.getElementById('acAddress') ? document.getElementById('acAddress').value.trim() : '',
                 admissionFee: Number(document.getElementById('acAdmissionFee') ? document.getElementById('acAdmissionFee').value : 200) || 200
             };
 
-            const res = await fetch('/api/admin/centers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering Institute...';
+            }
+            if (statusBox) {
+                statusBox.style.display = 'block';
+                statusBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                statusBox.style.border = '1px solid #f59e0b';
+                statusBox.style.color = '#fbbf24';
+                statusBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering new coaching center across MongoDB & GitHub...';
+            }
 
-            const data = await res.json();
-            if (data.success) {
-                alert('Institute registered successfully!');
-                e.target.reset();
-                loadCentersList();
-            } else {
-                alert(data.message || 'Error creating center');
+            try {
+                const res = await fetch('/api/admin/centers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${activeToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    if (statusBox) {
+                        statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                        statusBox.style.border = '1px solid #10b981';
+                        statusBox.style.color = '#6ee7b7';
+                        statusBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>सफलता:</strong> Institute "${payload.centerName}" registered successfully! (Username: <code>${payload.username}</code>)`;
+                    }
+                    alert(`✅ Institute "${payload.centerName}" registered successfully!\n\nDirector Username: ${payload.username}\nPassword: [Saved securely]\nDirector Login URL: /director-portal.html`);
+                    e.target.reset();
+                    await loadCentersList();
+                } else {
+                    if (statusBox) {
+                        statusBox.style.background = 'rgba(239, 68, 68, 0.18)';
+                        statusBox.style.border = '1px solid #ef4444';
+                        statusBox.style.color = '#fca5a5';
+                        statusBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> <strong>Error:</strong> ${data.message || 'Error creating center'}`;
+                    }
+                    alert(data.message || 'Error creating center');
+                }
+            } catch (err) {
+                console.error('registerCenter error:', err);
+                if (statusBox) {
+                    statusBox.style.background = 'rgba(239, 68, 68, 0.18)';
+                    statusBox.style.border = '1px solid #ef4444';
+                    statusBox.style.color = '#fca5a5';
+                    statusBox.innerHTML = `<i class="fas fa-triangle-exclamation"></i> Network connection error: ${err.message}`;
+                }
+                alert('Connection error while registering center: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-plus"></i> Register Institute';
+                }
             }
         }
 
