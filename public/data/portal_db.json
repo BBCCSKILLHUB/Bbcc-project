@@ -127,6 +127,21 @@
           "isActive": true,
           "_id": "6acf92b5ba0ed9c10070e781",
           "createdAt": "2026-10-14T14:33:25.221Z"
+        },
+        {
+          "teacherId": "TCH-TEST-2308",
+          "password": "teachPass123",
+          "name": "Prof. Anjali Mehta",
+          "subject": "Physics & Mechanics",
+          "class": "All",
+          "qualification": "M.Sc Physics (Gold Medalist)",
+          "photo": "",
+          "phone": "9811223344",
+          "experience": "5+ Years",
+          "bio": "",
+          "isActive": true,
+          "_id": "6acf941ab08ed4f8179eaf98",
+          "createdAt": "2026-10-14T14:39:22.467Z"
         }
       ],
       "courses": [],
@@ -223,7 +238,9 @@
       "isBlocked": false,
       "teachers": [],
       "courses": [],
-      "materials": []
+      "materials": [],
+      "promotionalBanners": [],
+      "blockReason": ""
     }
   ],
   "studyMaterials": {
@@ -279,6 +296,54 @@
       "centerId": "6acf8e22c86b8944207efad9",
       "centerName": "Patna Central Science Academy",
       "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf941ab08ed4f8179eaf99",
+      "createdAt": "2026-10-14T14:39:22.495Z",
+      "updatedAt": "2026-10-14T14:39:22.495Z",
+      "studentId": "STU-762490",
+      "rollNo": "PAT-758009",
+      "name": "Aman Kumar",
+      "fatherName": "",
+      "parentName": "",
+      "dob": "",
+      "phone": "9876543299",
+      "mobile": "9876543299",
+      "parentMobile": "",
+      "address": "Patna, Bihar",
+      "mode": "physical",
+      "email": "",
+      "course": "Standard Curriculum",
+      "courseName": "Standard Curriculum",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "aadharNumber": "999985935408",
+      "photo": "",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "totalPaid": 0,
+      "certificateId": "PAT-758009",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf941ab08ed4f8179eaf99",
+      "studentId": "STU-762490",
+      "rollNo": "PAT-758009",
+      "name": "Aman Kumar",
+      "fatherName": "",
+      "course": "Standard Curriculum",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "phone": "9876543299",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "photo": "",
+      "aadharNumber": "999985935408",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "status": "Certified & Verified"
     }
   ],
   "withdrawals": [],
@@ -318,8 +383,8 @@
   },
   "teachers": [
     {
-      "teacherId": "TCH-TEST-5094",
-      "password": "$2a$10$i1wSsts7KI6EAwFYCbCdNOvmI8hxXfjsPbkhXgTnvQis76KFoVNu2",
+      "teacherId": "TCH-TEST-2308",
+      "password": "$2a$10$AvfDLZH8mPuZBZI3nCcgiODYeKZkmAaVSP7aW6e4JWqp3k2OUnd9W",
       "name": "Prof. Anjali Mehta",
       "subject": "Physics & Mechanics",
       "class": "All",
@@ -333,7 +398,7 @@
       "createdAt": "2026-10-14T14:23:29.197Z",
       "centerId": "6acf8e22c86b8944207efad9",
       "centerName": "Patna Central Science Academy",
-      "lastLogin": "2026-10-14T14:33:25.446Z"
+      "lastLogin": "2026-10-14T14:39:22.658Z"
     }
   ],
   "liveSessions": [
@@ -391,6 +456,44 @@
           "role": "teacher",
           "text": "Welcome students to today's live physics class!",
           "time": "2026-10-14T14:33:31.307Z"
+        }
+      ]
+    },
+    {
+      "_id": "6acf941fb08ed4f8179eaf9a",
+      "createdAt": "2026-10-14T14:39:27.272Z",
+      "updatedAt": "2026-10-14T14:39:27.272Z",
+      "sessionId": "LIVE_1791988762676_fd0479",
+      "teacherId": "TCH-TEST-2308",
+      "teacherName": "Prof. Anjali Mehta",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "courseId": "",
+      "courseName": "Live Interactive Lecture",
+      "subject": "Physics",
+      "title": "Live Masterclass: Electromagnetism & Waves",
+      "status": "ended",
+      "youtubeLiveUrl": "https://www.youtube.com/watch?v=GCxgCSIGyDw",
+      "youtubeWatchUrl": "https://www.youtube.com/watch?v=GCxgCSIGyDw",
+      "startedAt": "2026-10-14T14:39:27.268Z",
+      "activeStudentsCount": 0,
+      "endedAt": "2026-10-14T14:39:27.314Z",
+      "recordingUrl": "https://www.youtube.com/watch?v=GCxgCSIGyDw",
+      "youtubeVideoId": "GCxgCSIGyDw",
+      "isArchivedToYoutube": true,
+      "messages": [
+        {
+          "sender": "System Notice",
+          "role": "system",
+          "text": "🔴 Live Class \"Live Masterclass: Electromagnetism & Waves\" started by Prof. Anjali Mehta. Doubts & live questions welcome!",
+          "time": "2026-10-14T14:39:27.277Z"
+        },
+        {
+          "id": "msg_1791988767296_948",
+          "sender": "Anonymous",
+          "role": "teacher",
+          "text": "Welcome students to today's live physics class!",
+          "time": "2026-10-14T14:39:27.296Z"
         }
       ]
     }
