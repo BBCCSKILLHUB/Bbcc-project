@@ -61,57 +61,7 @@
       "role": "superadmin"
     }
   ],
-  "centers": [
-    {
-      "_id": "6acfa2ec4cbd2382c6c009ab",
-      "createdAt": "2026-10-14T15:42:36.978Z",
-      "updatedAt": "2026-10-14T15:42:36.978Z",
-      "centerName": "PTCC+BBCC",
-      "username": "jks12",
-      "password": "$2a$10$9BSD6I5Ma3SmMfQQ/i4JmeRTzhv6Ui1ovItmV/hBFRyR/k.OfWCky",
-      "directorName": "jagannath sir",
-      "contactNumber": "9971095964",
-      "whatsappNumber": "9971095964",
-      "email": "",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "address": "Chakdah chowk",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-556103",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T15:42:36.672Z",
-      "isBlocked": false,
-      "dueAmount": 0,
-      "walletBalance": 0,
-      "teachers": [],
-      "courses": [],
-      "materials": [],
-      "promotionalBanners": []
-    },
-    {
-      "_id": "6acfa409b4614ef193929384",
-      "createdAt": "2026-10-14T15:47:22.034Z",
-      "updatedAt": "2026-10-14T15:47:22.034Z",
-      "centerName": "PTCC + BBCC",
-      "username": "jks9971",
-      "password": "$2a$10$LfgY4N/Wuk2KlnkX/D3aUezyJ1dOeuTDOadYngXZ8E3Q3lGMh1taG",
-      "directorName": "Jagannath sir",
-      "address": "Chakdah Chowk Near Railway station  Madhubani Bihar 847211",
-      "contactNumber": "9971095964",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-841826",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T15:47:21.827Z",
-      "walletBalance": 0,
-      "dueAmount": 0,
-      "isBlocked": false,
-      "teachers": [],
-      "courses": [],
-      "materials": []
-    }
-  ],
+  "centers": [],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -119,23 +69,7 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [
-    {
-      "_id": "6acfa2ed4cbd2382c6c009b0",
-      "orderId": "AFF_FREE_1791992556103",
-      "paymentId": "FREE_AFFILIATION",
-      "purpose": "coaching_affiliation",
-      "amount": 0,
-      "status": "paid",
-      "payerName": "jagannath sir",
-      "payerPhone": "9971095964",
-      "payerEmail": "",
-      "centerId": "6acfa2ec4cbd2382c6c009ab",
-      "centerName": "PTCC+BBCC",
-      "createdAt": "2026-10-14T15:42:37.186Z",
-      "paidAt": "2026-10-14T15:42:37.186Z"
-    }
-  ],
+  "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -150,21 +84,5 @@
   "liveSessions": [],
   "admissionInquiries": [],
   "supportTickets": [],
-  "affiliationApplications": [
-    {
-      "_id": "6acfa2ec4cbd2382c6c009ad",
-      "centerName": "PTCC+BBCC",
-      "directorName": "jagannath sir",
-      "contactNumber": "9971095964",
-      "whatsappNumber": "9971095964",
-      "email": "",
-      "address": "Chakdah chowk",
-      "username": "jks12",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T15:42:36.979Z",
-      "status": "approved",
-      "feePaid": 0
-    }
-  ]
+  "affiliationApplications": []
 }
