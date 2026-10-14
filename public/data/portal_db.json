@@ -85,6 +85,29 @@
   "studyMaterials": {
     "notes": [
       {
+        "_id": "6acfc4f27227e3c7ce30d292",
+        "title": "Class 9th Economics",
+        "subject": "Economic",
+        "classLevel": "9th",
+        "description": "",
+        "fileType": "pdf",
+        "thumbnail": "/data/branding/Class_9th_Economics_1792001266786_3679f2.png",
+        "file": "/data/materials/Class_9th_Economics_1792001266692_322c7f.pdf",
+        "pdf": "/data/materials/Class_9th_Economics_1792001266692_322c7f.pdf",
+        "fileName": "class 9th economics book notes.pdf",
+        "price": 29,
+        "pdfMrp": 199,
+        "physicalPrice": 57,
+        "physicalMrp": 299,
+        "pickupAddress": "",
+        "directorContact": "",
+        "targetCenterId": "all",
+        "targetCenterName": "Universal / All Coaching Centers",
+        "isRawData": false,
+        "storageMode": "github_data",
+        "createdAt": "2026-10-14T18:07:46.796Z"
+      },
+      {
         "_id": "6acfc470e1e2cef89c72d7e0",
         "title": "Class 9th History",
         "subject": "History",
