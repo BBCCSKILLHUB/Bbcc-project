@@ -424,23 +424,12 @@
                             </div>
                         </div>
 
-                        <!-- Storage Destination Selector (Normal vs Important) -->
-                        <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:12px 16px; border-radius:10px;">
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:8px;">
-                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                            </label>
-                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                                    <input type="radio" name="adminBookStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                                    <span><strong>Normal</strong> (GitHub Data Folder / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                                </label>
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                                    <input type="radio" name="adminBookStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
-                                </label>
-                            </div>
-                            <div style="font-size:11px; color:#94a3b8; margin-top:6px;">
-                                <i class="fas fa-shield-alt"></i> Safe fallback: If Important file exceeds 2.5MB safe limit, it automatically routes to GitHub data storage safely.
+                        <!-- Strict GitHub Data Storage Indicator -->
+                        <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:10px 16px; border-radius:10px; display:flex; align-items:center; gap:10px;">
+                            <i class="fab fa-github" style="color:#10b981; font-size:18px;"></i>
+                            <div>
+                                <span style="font-size:12px; font-weight:700; color:#10b981;">GitHub Data Storage Engine Active</span>
+                                <p style="font-size:11px; color:#94a3b8; margin:2px 0 0 0;">All PDF files and images automatically save into GitHub <code>public/data/</code> folder. MongoDB is kept 100% free of media bloat for ultra-fast server response.</p>
                             </div>
                         </div>
 
@@ -1204,21 +1193,10 @@
                             </div>
                         </div>
 
-                        <!-- Storage Destination Selector -->
-                        <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                            </label>
-                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                                    <input type="radio" name="adminGalStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                                    <span><strong>Normal</strong> (GitHub Photos / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                                </label>
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                                    <input type="radio" name="adminGalStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
-                                </label>
-                            </div>
+                        <!-- Strict GitHub Data Storage Indicator -->
+                        <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fab fa-github" style="color:#10b981;"></i>
+                            <span style="font-size:12px; color:#10b981; font-weight:700;">Saved into GitHub <code>public/data/photos/</code> (Zero MongoDB bloat)</span>
                         </div>
 
                         <div>
@@ -1975,21 +1953,10 @@
                     </div>
                 </div>
 
-                <!-- Storage Destination Selector for Replaced File -->
-                <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
-                    <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                        <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                    </label>
-                    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                            <input type="radio" name="edBookStorageMode" value="normal" checked style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                            <span><strong>Normal</strong> (GitHub / CDN) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                            <input type="radio" name="edBookStorageMode" value="important" style="accent-color:var(--admin-gold); width:16px; height:16px;">
-                            <span><strong>Important</strong> (MongoDB Direct)</span>
-                        </label>
-                    </div>
+                <!-- Strict GitHub Data Storage Indicator -->
+                <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                    <i class="fab fa-github" style="color:#10b981;"></i>
+                    <span style="font-size:12px; color:#10b981; font-weight:700;">Storage: GitHub <code>public/data/materials/</code> (Zero MongoDB Bloat)</span>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:16px;">
