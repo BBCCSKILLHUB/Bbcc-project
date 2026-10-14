@@ -189,8 +189,42 @@
           "createdAt": "2026-10-14T08:55:05.980Z"
         }
       ],
-      "courses": [],
-      "materials": [],
+      "courses": [
+        {
+          "courseName": "IIT JEE Advanced Mathematics Mastery",
+          "subject": "Mathematics",
+          "classLevel": "Class 12th",
+          "mode": "both",
+          "onlineFee": 4500,
+          "offlineFee": 6500,
+          "batchTiming": "Morning 8:00 AM - 10:00 AM",
+          "liveClassLink": "",
+          "description": "Full live syllabus coverage with study notes and mock test series.",
+          "active": true,
+          "_id": "6acf436ae38e18f519344d8f",
+          "createdAt": "2026-10-14T08:55:06.004Z"
+        }
+      ],
+      "materials": [
+        {
+          "title": "JEE Advanced Calculus Chapter Notes Vol 1",
+          "description": "Comprehensive formulas and solved problems",
+          "price": 149,
+          "pdfMrp": 299,
+          "physicalPrice": 399,
+          "physicalMrp": 599,
+          "pickupAddress": "BBCC Knowledge Park, Sector 4, Patna",
+          "fileType": "pdf",
+          "thumbnail": "",
+          "pdf": "/data/materials/JEE_Advanced_Calculus_Chapter__1791968106017_d3f129.pdf",
+          "file": "/data/materials/JEE_Advanced_Calculus_Chapter__1791968106017_d3f129.pdf",
+          "link": "",
+          "isRawData": false,
+          "storageMode": "github_data",
+          "_id": "6acf436ae38e18f519344d90",
+          "createdAt": "2026-10-14T08:55:06.021Z"
+        }
+      ],
       "promotionalBanners": []
     }
   ],
@@ -301,6 +335,28 @@
         "createdAt": "2026-10-14T08:53:38.114Z",
         "_id": "6acf4312603cd51e3eff7234",
         "hasFile": true
+      },
+      {
+        "title": "JEE Advanced Calculus Chapter Notes Vol 1",
+        "subject": "Bal Bharti Model Coaching Institute",
+        "classLevel": "All Classes",
+        "description": "Comprehensive formulas and solved problems",
+        "fileType": "pdf",
+        "thumbnail": "",
+        "pdf": "/data/materials/JEE_Advanced_Calculus_Chapter__1791968106017_d3f129.pdf",
+        "file": "/data/materials/JEE_Advanced_Calculus_Chapter__1791968106017_d3f129.pdf",
+        "price": 149,
+        "pdfMrp": 299,
+        "physicalPrice": 399,
+        "physicalMrp": 599,
+        "pickupAddress": "BBCC Knowledge Park, Sector 4, Patna",
+        "directorContact": "Dr. R. K. Sharma (9876543210)",
+        "targetCenterId": "6acf4369e38e18f519344d8d",
+        "targetCenterName": "Bal Bharti Model Coaching Institute",
+        "isRawData": false,
+        "storageMode": "github_data",
+        "createdAt": "2026-10-14T08:55:06.029Z",
+        "_id": "6acf436ae38e18f519344d91"
       }
     ],
     "videos": [],
@@ -402,6 +458,54 @@
       "centerId": "6acf4311603cd51e3eff7230",
       "centerName": "Bal Bharti Model Coaching Institute",
       "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf436ae38e18f519344d92",
+      "createdAt": "2026-10-14T08:55:06.046Z",
+      "updatedAt": "2026-10-14T08:55:06.046Z",
+      "studentId": "STU-106043",
+      "rollNo": "BBCC-106043",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "parentName": "Suresh Kumar",
+      "dob": "2006-05-15",
+      "phone": "9812345678",
+      "mobile": "9812345678",
+      "parentMobile": "",
+      "address": "Main Road, Kankarbagh",
+      "mode": "physical",
+      "email": "",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "courseName": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "aadharNumber": "999995440646",
+      "photo": "",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "totalPaid": 0,
+      "certificateId": "BBCC-106043",
+      "centerId": "6acf4369e38e18f519344d8d",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf436ae38e18f519344d92",
+      "studentId": "STU-106043",
+      "rollNo": "BBCC-106043",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "phone": "9812345678",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "photo": "",
+      "aadharNumber": "999995440646",
+      "centerId": "6acf4369e38e18f519344d8d",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
     }
   ],
   "withdrawals": [],
@@ -434,6 +538,24 @@
       "centerId": "6acf4311603cd51e3eff7230",
       "centerName": "Bal Bharti Model Coaching Institute",
       "lastLogin": "2026-10-14T08:53:38.301Z"
+    },
+    {
+      "teacherId": "TCH-05883",
+      "password": "$2a$10$mkavgnWacr7AFEnGMPrhBOddP8j3ZziB1OEdFlc4I4XtwXhGJ6k.m",
+      "name": "Prof. Alok Verma",
+      "subject": "Mathematics & Quantum Mechanics",
+      "class": "All",
+      "qualification": "M.Sc., Ph.D. Mathematics",
+      "photo": "",
+      "phone": "9155011166",
+      "experience": "8+ Years Senior Faculty",
+      "bio": "",
+      "isActive": true,
+      "_id": "6acf4369e38e18f519344d8e",
+      "createdAt": "2026-10-14T08:55:05.980Z",
+      "centerId": "6acf4369e38e18f519344d8d",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "lastLogin": "2026-10-14T08:55:06.236Z"
     }
   ],
   "liveSessions": [
@@ -545,6 +667,25 @@
       "isArchivedToYoutube": true,
       "recordingUrl": "https://www.youtube.com/watch?v=845B4Wl1e70",
       "youtubeVideoId": "845B4Wl1e70"
+    },
+    {
+      "_id": "6acf436ce38e18f519344d93",
+      "createdAt": "2026-10-14T08:55:08.838Z",
+      "updatedAt": "2026-10-14T08:55:08.838Z",
+      "sessionId": "LIVE_1791968106247_1391e2",
+      "teacherId": "TCH-05883",
+      "teacherName": "Prof. Alok Verma",
+      "centerId": "6acf4369e38e18f519344d8d",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "courseId": "6acf436ae38e18f519344d8f",
+      "courseName": "IIT JEE Advanced Mathematics Mastery",
+      "subject": "Mathematics",
+      "title": "Live Calculus & Derivatives Problem Solving Workshop",
+      "status": "live",
+      "youtubeLiveUrl": "https://www.youtube.com/watch?v=BSCs6I3zuN0",
+      "youtubeWatchUrl": "https://www.youtube.com/watch?v=BSCs6I3zuN0",
+      "startedAt": "2026-10-14T08:55:08.833Z",
+      "activeStudentsCount": 0
     }
   ],
   "admissionInquiries": [
