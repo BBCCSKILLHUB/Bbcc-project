@@ -77,7 +77,9 @@
       "teachers": [],
       "courses": [],
       "materials": [],
-      "promotionalBanners": []
+      "promotionalBanners": [],
+      "encryptedCallLink": "https://call.doorvi.co/6a16b16de2dfc9742d223f53",
+      "headerNotice": ""
     }
   ],
   "studyMaterials": {
