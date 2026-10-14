@@ -145,7 +145,14 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {},
+  "bharti_auto_push_log": {
+    "2026-10-14_morning": {
+      "dispatchedAt": "2026-10-14T04:12:05.747Z",
+      "slot": "morning",
+      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
+      "body": "आज का सुविचार: अपनी कमियों को पहचानें और उन पर काम करें। कोई भी कठिन सवाल हो तो सीधे मुझसे पूछें! 💡"
+    }
+  },
   "teachers": [],
   "liveSessions": []
 }
