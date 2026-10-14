@@ -52,13 +52,81 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "testcenter1792002793535",
+      "username": "test_director_center",
+      "password": "$2a$10$qTmj9HGVBAi/9iQpOHXPneG6SnTmBT8nOyi4etp6Me9KuX6TSrGrm",
+      "centerName": "Pinnacle Science Academy",
+      "directorName": "Er. Rajesh Verma",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "rajesh@pinnacle.org",
+      "address": "Station Road, Kota, Rajasthan",
+      "description": "Premier IIT-JEE & NEET Coaching Center",
+      "admissionFee": 300,
+      "walletBalance": 1500,
+      "dueAmount": 0,
+      "isBlocked": false,
+      "teachers": [],
+      "courses": [
+        {
+          "courseName": "Target JEE Advanced 2027",
+          "subject": "Physics & Mathematics",
+          "classLevel": "Class 11-12",
+          "mode": "both",
+          "onlineFee": 2500,
+          "offlineFee": 5000,
+          "batchTiming": "Regular Batch",
+          "liveClassLink": "",
+          "description": "",
+          "active": true,
+          "_id": "6acfcae9e895ecbe184d5530",
+          "createdAt": "2026-10-14T18:33:13.822Z"
+        }
+      ],
+      "materials": [],
+      "promotionalBanners": [],
+      "headerNotice": "Special Batch for Class 10 & 12 Boards starting next week!"
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": [],
     "_id": "6acf996abf475ef31ff53416"
   },
-  "students": [],
+  "students": [
+    {
+      "_id": "6acfcae9e895ecbe184d5531",
+      "createdAt": "2026-10-14T18:33:13.841Z",
+      "updatedAt": "2026-10-14T18:33:13.841Z",
+      "studentId": "STU-793837",
+      "rollNo": "BBCC-793837",
+      "name": "Aman Kumar Sharma",
+      "fatherName": "Sanjay Sharma",
+      "parentName": "Sanjay Sharma",
+      "dob": "",
+      "phone": "9876501234",
+      "mobile": "9876501234",
+      "parentMobile": "",
+      "address": "",
+      "mode": "physical",
+      "email": "",
+      "course": "Target JEE Advanced 2027",
+      "courseName": "Target JEE Advanced 2027",
+      "classLevel": "Class 11",
+      "marksGrade": "A+",
+      "aadharNumber": "",
+      "photo": "",
+      "feeAmount": 2500,
+      "feePaid": 2500,
+      "totalPaid": 2500,
+      "certificateId": "BBCC-793837",
+      "centerId": "testcenter1792002793535",
+      "centerName": "Pinnacle Science Academy",
+      "status": "Certified & Verified"
+    }
+  ],
   "withdrawals": [],
   "paymentTransactions": [],
   "push_subscriptions": [],
