@@ -374,6 +374,7 @@
                     <div class="studio-card" style="margin:0;">
                         <span style="font-size:12px; color:#94a3b8; text-transform:uppercase;">Admission Leads</span>
                         <h3 style="font-size:32px; color:var(--aurora-gold); font-family:'Space Grotesk',sans-serif;" id="statInquiriesCount">0</h3>
+                    </div>
                 </div>
 
                 <!-- Real-time Faculty Live Broadcast Alert Banner -->
@@ -1842,7 +1843,16 @@
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
-        if (!token) window.location.replace('/login');
+        if (!token) {
+            window.location.replace('/login');
+        }
+
+        function logoutDirector() {
+            localStorage.removeItem('bbcc_token');
+            localStorage.removeItem('bbcc_role');
+            window.location.replace('/login');
+        }
+        window.logoutDirector = logoutDirector;
 
         function openDirectorManualModal() {
             const m = document.getElementById('directorManualModal');
@@ -1857,27 +1867,36 @@
         let centerProfile = null;
 
         async function initDirectorStudio() {
+            if (!token) {
+                window.location.replace('/login');
+                return;
+            }
             try {
                 const res = await fetch('/api/director/profile', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
                 if (!data.success) {
-                    localStorage.removeItem('bbcc_token');
-                    window.location.replace('/login');
-                    return;
+                    console.warn('Director profile load notice:', data.message);
+                    if (res.status === 401 || res.status === 403) {
+                        localStorage.removeItem('bbcc_token');
+                        localStorage.removeItem('bbcc_role');
+                        window.location.replace('/login');
+                        return;
+                    }
+                } else {
+                    centerProfile = data.data;
+                    populateStudioUI(centerProfile);
                 }
 
-                centerProfile = data.data;
-                populateStudioUI(centerProfile);
-                loadBanners();
-                loadStudents();
-                loadCoursesList();
-                loadEarningsLedger();
-                loadWithdrawalHistory();
-                loadInquiries();
-                loadRawMaterials();
-                checkDirectorLiveClassStatus();
+                try { await loadBanners(); } catch(e) { console.error('Banners load error:', e); }
+                try { await loadStudents(); } catch(e) { console.error('Students load error:', e); }
+                try { await loadCoursesList(); } catch(e) { console.error('Courses load error:', e); }
+                try { await loadEarningsLedger(); } catch(e) { console.error('Earnings load error:', e); }
+                try { await loadWithdrawalHistory(); } catch(e) { console.error('Withdrawals load error:', e); }
+                try { await loadInquiries(); } catch(e) { console.error('Inquiries load error:', e); }
+                try { await loadRawMaterials(); } catch(e) { console.error('Raw materials load error:', e); }
+                try { checkDirectorLiveClassStatus(); } catch(e) {}
                 setInterval(checkDirectorLiveClassStatus, 12000);
 
                 // Dynamic Favicon sync
@@ -1888,17 +1907,23 @@
                     }
                 }).catch(()=>{});
             } catch(e) {
-                console.error(e);
+                console.error('initDirectorStudio error:', e);
             }
         }
 
         function populateStudioUI(c) {
-            document.getElementById('dirCenterName').textContent = c.centerName;
-            document.getElementById('shareableUrlInput').value = `${window.location.origin}/center/${c.username || c._id}`;
-            document.getElementById('btnPublicWebsite').href = `/center/${c.username || c._id}`;
+            if (!c) return;
+            const elCenterName = document.getElementById('dirCenterName');
+            if (elCenterName) elCenterName.textContent = c.centerName || 'Director Studio';
+            const elShareUrl = document.getElementById('shareableUrlInput');
+            if (elShareUrl) elShareUrl.value = `${window.location.origin}/center/${c.username || c._id || ''}`;
+            const elBtnPub = document.getElementById('btnPublicWebsite');
+            if (elBtnPub) elBtnPub.href = `/center/${c.username || c._id || ''}`;
 
-            document.getElementById('statFacultyCount').textContent = (c.teachers || []).length;
-            document.getElementById('statBannersCount').textContent = (c.promotionalBanners || []).length;
+            const elFacultyCount = document.getElementById('statFacultyCount');
+            if (elFacultyCount) elFacultyCount.textContent = (c.teachers || []).length;
+            const elBannersCount = document.getElementById('statBannersCount');
+            if (elBannersCount) elBannersCount.textContent = (c.promotionalBanners || []).length;
 
             // Bank details warning banner
             const bWarn = document.getElementById('bankDetailsWarningBanner');
@@ -1909,32 +1934,43 @@
 
             // Dues lockout check
             const lockoutCard = document.getElementById('lockoutCard');
-            if (c.isBlocked) {
-                lockoutCard.style.display = 'block';
-                document.getElementById('lockoutReasonText').textContent = 'Reason: ' + (c.blockReason || 'Outstanding fee dues');
-                document.getElementById('lockoutAmountDisplay').textContent = `₹${c.dueAmount || 0}`;
-            } else {
-                lockoutCard.style.display = 'none';
+            if (lockoutCard) {
+                if (c.isBlocked) {
+                    lockoutCard.style.display = 'block';
+                    const elReason = document.getElementById('lockoutReasonText');
+                    if (elReason) elReason.textContent = 'Reason: ' + (c.blockReason || 'Outstanding fee dues');
+                    const elAmt = document.getElementById('lockoutAmountDisplay');
+                    if (elAmt) elAmt.textContent = `₹${c.dueAmount || 0}`;
+                } else {
+                    lockoutCard.style.display = 'none';
+                }
             }
 
             // Profile fields
-            document.getElementById('cpPhone').value = c.contactNumber || '';
-            document.getElementById('cpWhatsapp').value = c.whatsappNumber || '';
-            document.getElementById('cpEmail').value = c.email || '';
-            document.getElementById('cpEncLink').value = c.encryptedCallLink || '';
-            document.getElementById('cpHeaderNotice').value = c.headerNotice || '';
-            if (document.getElementById('cpFooterText')) document.getElementById('cpFooterText').value = c.footerText || '';
-            document.getElementById('cpAddress').value = c.address || '';
-            document.getElementById('cpDesc').value = c.description || '';
-            if (document.getElementById('cpAdmissionFee')) document.getElementById('cpAdmissionFee').value = c.admissionFee !== undefined ? c.admissionFee : 200;
-            if (document.getElementById('cpThemeColor')) document.getElementById('cpThemeColor').value = c.themeColor || 'gold';
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = (val !== undefined && val !== null) ? val : '';
+            };
+
+            setVal('cpPhone', c.contactNumber);
+            setVal('cpWhatsapp', c.whatsappNumber);
+            setVal('cpEmail', c.email);
+            setVal('cpEncLink', c.encryptedCallLink);
+            setVal('cpHeaderNotice', c.headerNotice);
+            setVal('cpFooterText', c.footerText);
+            setVal('cpAddress', c.address);
+            setVal('cpDesc', c.description);
+            setVal('cpAdmissionFee', c.admissionFee !== undefined ? c.admissionFee : 200);
+            setVal('cpThemeColor', c.themeColor || 'gold');
 
             // Auto-prefill Hard Copy Pickup details if available
-            if (document.getElementById('matPickupAddress') && !document.getElementById('matPickupAddress').value) {
-                document.getElementById('matPickupAddress').value = c.address || `${c.centerName || 'Center'}, Campus Office`;
+            const elPickup = document.getElementById('matPickupAddress');
+            if (elPickup && !elPickup.value) {
+                elPickup.value = c.address || `${c.centerName || 'Center'}, Campus Office`;
             }
-            if (document.getElementById('matDirectorContact') && !document.getElementById('matDirectorContact').value) {
-                document.getElementById('matDirectorContact').value = c.contactNumber || c.whatsappNumber || '';
+            const elDirContact = document.getElementById('matDirectorContact');
+            if (elDirContact && !elDirContact.value) {
+                elDirContact.value = c.contactNumber || c.whatsappNumber || '';
             }
 
             renderFacultyList(c.teachers || []);
@@ -1946,26 +1982,25 @@
             document.querySelectorAll('.studio-nav-btn').forEach(b => b.classList.remove('active'));
             const target = document.getElementById(`tab-${tabId}`);
             if (target) target.classList.add('active');
-            if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
-                window.event.currentTarget.classList.add('active');
-            } else {
-                const btns = document.querySelectorAll('.studio-nav-btn');
-                btns.forEach(b => {
-                    const oc = b.getAttribute('onclick') || '';
-                    if (oc.includes(`'${tabId}'`)) b.classList.add('active');
-                });
-            }
+
+            const btns = document.querySelectorAll('.studio-nav-btn');
+            btns.forEach(b => {
+                const oc = b.getAttribute('onclick') || '';
+                if (oc.includes(`'${tabId}'`)) b.classList.add('active');
+            });
+
             if (tabId === 'live-monitor') {
-                loadDirectorLiveMonitorDeck();
-                loadDirectorPastLectures();
+                try { loadDirectorLiveMonitorDeck(); } catch(e){}
+                try { loadDirectorPastLectures(); } catch(e){}
             }
             if (tabId === 'tickets') {
-                loadDirectorTickets();
+                try { loadDirectorTickets(); } catch(e){}
             }
             if (tabId === 'book-orders') {
-                loadDirectorBookOrders();
+                try { loadDirectorBookOrders(); } catch(e){}
             }
         }
+        window.switchTab = switchTab;
 
         async function broadcastDirectorPush(event) {
             event.preventDefault();
@@ -2030,7 +2065,7 @@
 
         // Wall Certificate Modal
         function openWallCertificate() {
-            if (!centerProfile) return;
+            if (!centerProfile) return alert('Center profile is still loading, please wait a moment.');
             document.getElementById('wcCenterName').textContent = centerProfile.centerName;
             document.getElementById('wcDirectorName').textContent = centerProfile.directorName;
             document.getElementById('wcAffId').textContent = centerProfile.affiliationCertificateId || ('BBCC-AFF-' + centerProfile._id.toString().slice(-6).toUpperCase());
@@ -2077,48 +2112,51 @@
         // Banners (30-Day Auto Expiry) & WYSIWYG Card Editor
         async function loadBanners() {
             const dock = document.getElementById('bannersListDock');
-            const banners = centerProfile.promotionalBanners || [];
-            document.getElementById('statBannersCount').textContent = banners.length;
+            const banners = (centerProfile && centerProfile.promotionalBanners) || [];
+            const elStat = document.getElementById('statBannersCount');
+            if (elStat) elStat.textContent = banners.length;
 
             if (banners.length === 0) {
-                dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No promotional banners uploaded yet.</div>';
+                if (dock) dock.innerHTML = '<div style="color:#94a3b8; font-size:13px; grid-column:1/-1;">No promotional banners uploaded yet.</div>';
                 return;
             }
 
             const now = new Date();
-            dock.innerHTML = banners.map(b => {
-                const daysLeft = b.expiresAt ? Math.max(0, Math.ceil((new Date(b.expiresAt) - now) / (1000 * 60 * 60 * 24))) : 30;
-                return `
-                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, box-shadow 0.2s;">
-                    <div style="position:relative; cursor:pointer;" onclick="openEditBannerModal('${b._id}')">
-                        <img src="${b.image}" onerror="this.onerror=null; this.src='/data/branding/logo.png'; this.style.objectFit='contain'; this.style.padding='16px'; this.style.background='#020617';" style="width:100%; height:145px; object-fit:cover;">
-                        <span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:var(--aurora-gold); border:1px solid var(--border-glow); padding:3px 8px; border-radius:6px; font-size:10.5px; font-weight:700;">
-                            <i class="fas fa-edit"></i> Click to Edit
-                        </span>
-                    </div>
-                    <div style="padding:14px; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
-                        <div>
-                            <strong style="color:#ffffff; font-size:14.5px; display:block; margin-bottom:4px; font-family:'Cinzel',serif;">${b.title}</strong>
-                            <div style="color:var(--aurora-gold); font-size:12.5px; margin-bottom:8px;">${b.subtitle || 'Active Offer'}</div>
-                            <span style="font-size:11px; padding:3px 8px; border-radius:10px; background:rgba(245,158,11,0.15); color:var(--aurora-gold); border:1px solid var(--border-glow); display:inline-block;">
-                                <i class="fas fa-clock"></i> ⏳ ${daysLeft} Days Remaining
+            if (dock) {
+                dock.innerHTML = banners.map(b => {
+                    const daysLeft = b.expiresAt ? Math.max(0, Math.ceil((new Date(b.expiresAt) - now) / (1000 * 60 * 60 * 24))) : 30;
+                    return `
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s, box-shadow 0.2s;">
+                        <div style="position:relative; cursor:pointer;" onclick="openEditBannerModal('${b._id}')">
+                            <img src="${b.image}" onerror="this.onerror=null; this.src='/data/branding/logo.png'; this.style.objectFit='contain'; this.style.padding='16px'; this.style.background='#020617';" style="width:100%; height:145px; object-fit:cover;">
+                            <span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:var(--aurora-gold); border:1px solid var(--border-glow); padding:3px 8px; border-radius:6px; font-size:10.5px; font-weight:700;">
+                                <i class="fas fa-edit"></i> Click to Edit
                             </span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
-                            <button type="button" onclick="openEditBannerModal('${b._id}')" class="btn-aurora btn-gold" style="padding:5px 12px; font-size:11.5px; border-radius:6px;">
-                                <i class="fas fa-pen-nib"></i> Edit Card
-                            </button>
-                            <button type="button" onclick="removeBanner('${b._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:5px 10px; border-radius:6px; cursor:pointer; font-size:11.5px;">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
+                        <div style="padding:14px; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+                            <div>
+                                <strong style="color:#ffffff; font-size:14.5px; display:block; margin-bottom:4px; font-family:'Cinzel',serif;">${b.title}</strong>
+                                <div style="color:var(--aurora-gold); font-size:12.5px; margin-bottom:8px;">${b.subtitle || 'Active Offer'}</div>
+                                <span style="font-size:11px; padding:3px 8px; border-radius:10px; background:rgba(245,158,11,0.15); color:var(--aurora-gold); border:1px solid var(--border-glow); display:inline-block;">
+                                    <i class="fas fa-clock"></i> ⏳ ${daysLeft} Days Remaining
+                                </span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
+                                <button type="button" onclick="openEditBannerModal('${b._id}')" class="btn-aurora btn-gold" style="padding:5px 12px; font-size:11.5px; border-radius:6px;">
+                                    <i class="fas fa-pen-nib"></i> Edit Card
+                                </button>
+                                <button type="button" onclick="removeBanner('${b._id}')" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:5px 10px; border-radius:6px; cursor:pointer; font-size:11.5px;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;}).join('');
+                `;}).join('');
+            }
         }
 
         function openEditBannerModal(bid) {
-            const banners = centerProfile.promotionalBanners || [];
+            const banners = (centerProfile && centerProfile.promotionalBanners) || [];
             const b = banners.find(x => x._id === bid);
             if (!b) return;
 
@@ -3205,7 +3243,8 @@
                     }
                     tbody.innerHTML = data.data.map(q => {
                         const cleanMobile = (q.mobile || '').replace(/[^0-9]/g, '').slice(-10);
-                        const waMsg = encodeURIComponent(`Hello ${q.studentName}, Thank you for your admission inquiry at ${centerProfile.centerName} through BBCC SKILL HUB. We would love to guide you on courses and batch timings.`);
+                        const cName = (centerProfile && centerProfile.centerName) || 'our institute';
+                        const waMsg = encodeURIComponent(`Hello ${q.studentName}, Thank you for your admission inquiry at ${cName} through BBCC SKILL HUB. We would love to guide you on courses and batch timings.`);
                         const waLink = `https://wa.me/91${cleanMobile}?text=${waMsg}`;
 
                         return `
@@ -3341,7 +3380,7 @@
 
         // Automated unblock payment
         async function payCoachingDuesOnline() {
-            const dueAmount = centerProfile.dueAmount || 0;
+            const dueAmount = (centerProfile && centerProfile.dueAmount) || 0;
             if (dueAmount <= 0) return alert('No pending dues found.');
 
             const btn = document.getElementById('btnPayDuesInstant');
@@ -3611,7 +3650,11 @@
         // WALLET PAYOUT WITHDRAWAL & HISTORY
         // ============================================
         function openWithdrawalModal() {
-            const hasBank = centerProfile && centerProfile.bankDetails && centerProfile.bankDetails.accountNumber && centerProfile.bankDetails.ifscCode;
+            if (!centerProfile) {
+                alert('Center profile is loading, please wait a moment.');
+                return;
+            }
+            const hasBank = centerProfile.bankDetails && centerProfile.bankDetails.accountNumber && centerProfile.bankDetails.ifscCode;
             if (!hasBank) {
                 alert('⚠️ Please save your Bank Account Details first in the "Earnings & Bank" tab before requesting a withdrawal.');
                 switchTab('earnings');
@@ -3638,6 +3681,10 @@
 
         async function submitWithdrawalRequest(e) {
             e.preventDefault();
+            if (!centerProfile) {
+                alert('Center profile is loading, please wait a moment.');
+                return;
+            }
             const amount = Number(document.getElementById('wmAmountInput').value);
             if (!amount || amount < 50) {
                 alert('Minimum withdrawal amount is ₹50.');
