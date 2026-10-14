@@ -372,7 +372,20 @@
       ]
     }
   ],
-  "admissionInquiries": [],
+  "admissionInquiries": [
+    {
+      "_id": "6acf9416b08ed4f8179eaf95",
+      "createdAt": "2026-10-14T14:39:18.314Z",
+      "updatedAt": "2026-10-14T14:39:18.314Z",
+      "centerId": null,
+      "centerName": "BBCC Central Board",
+      "studentName": "Rahul Verma",
+      "parentName": "",
+      "mobile": "9876501234",
+      "targetClass": "",
+      "message": "Inquiring about science batch timings"
+    }
+  ],
   "supportTickets": [
     {
       "_id": "6acf905cba0ed9c10070e77a",
