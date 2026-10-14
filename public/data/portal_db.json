@@ -64,14 +64,22 @@
   "centers": [],
   "studyMaterials": {
     "notes": [],
-    "videos": []
+    "videos": [],
+    "_id": "6acf996abf475ef31ff53416"
   },
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {},
+  "bharti_auto_push_log": {
+    "2026-10-14_evening": {
+      "dispatchedAt": "2026-10-14T15:02:47.943Z",
+      "slot": "evening",
+      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
+      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙"
+    }
+  },
   "teachers": [],
   "liveSessions": [],
   "admissionInquiries": [],
