@@ -514,21 +514,10 @@
                             <input type="file" id="bnFileInput" required accept="image/*" class="studio-input">
                         </div>
 
-                        <!-- Storage Destination Selector -->
-                        <div style="grid-column:1/-1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                            </label>
-                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                                    <input type="radio" name="dirBannerStorageMode" value="normal" checked style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                                    <span><strong>Normal</strong> (GitHub Banners / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                                </label>
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                                    <input type="radio" name="dirBannerStorageMode" value="important" style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
-                                </label>
-                            </div>
+                        <!-- Strict GitHub Data Storage Indicator -->
+                        <div style="grid-column:1/-1; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fab fa-github" style="color:#10b981;"></i>
+                            <span style="font-size:12px; color:#10b981; font-weight:700;">Storage: GitHub <code>public/data/banners/</code> (Zero MongoDB Bloat)</span>
                         </div>
 
                         <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
@@ -837,24 +826,10 @@
                             <input type="file" id="matThumbInput" accept="image/*" class="studio-input">
                         </div>
 
-                        <!-- Storage Destination Selector -->
-                        <div style="margin-bottom:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                            </label>
-                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                                    <input type="radio" name="dirMatStorageMode" value="normal" checked style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                                    <span><strong>Normal</strong> (GitHub Materials / CDN — Fast & No DB Bloat) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                                </label>
-                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                                    <input type="radio" name="dirMatStorageMode" value="important" style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                                    <span><strong>Important</strong> (MongoDB Direct — &le; 2.5MB Safe Limit)</span>
-                                </label>
-                            </div>
-                            <div style="font-size:11px; color:#94a3b8; margin-top:6px;">
-                                <i class="fas fa-shield-alt"></i> Safe fallback: If Important file exceeds 2.5MB safe limit, it automatically routes to GitHub data storage safely.
-                            </div>
+                        <!-- Strict GitHub Data Storage Indicator -->
+                        <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fab fa-github" style="color:#10b981;"></i>
+                            <span style="font-size:12px; color:#10b981; font-weight:700;">Storage: GitHub <code>public/data/materials/</code> (Zero MongoDB Bloat)</span>
                         </div>
 
                         <button type="submit" class="btn-aurora btn-gold"><i class="fas fa-upload"></i> Publish Study Note to Marketplace</button>
@@ -1360,21 +1335,10 @@
                     </div>
                 </div>
 
-                <!-- Storage Destination Selector -->
-                <div style="margin-bottom:20px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:10px 14px; border-radius:10px;">
-                    <label style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                        <i class="fas fa-server"></i> Storage Destination / स्टोरेज विकल्प:
-                    </label>
-                    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#f8fafc;">
-                            <input type="radio" name="dirEditMatStorageMode" value="normal" checked style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                            <span><strong>Normal</strong> (GitHub / CDN) <span style="font-size:11px; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Default</span></span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#cbd5e1;">
-                            <input type="radio" name="dirEditMatStorageMode" value="important" style="accent-color:var(--aurora-gold); width:16px; height:16px;">
-                            <span><strong>Important</strong> (MongoDB Direct)</span>
-                        </label>
-                    </div>
+                <!-- Strict GitHub Data Storage Indicator -->
+                <div style="margin-bottom:20px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                    <i class="fab fa-github" style="color:#10b981;"></i>
+                    <span style="font-size:12px; color:#10b981; font-weight:700;">Storage: GitHub <code>public/data/materials/</code> (Zero MongoDB Bloat)</span>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
