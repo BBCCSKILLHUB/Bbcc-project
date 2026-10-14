@@ -61,85 +61,7 @@
       "role": "superadmin"
     }
   ],
-  "centers": [
-    {
-      "_id": "6acfa7191116fb7d191fb8c2",
-      "createdAt": "2026-10-14T16:00:25.243Z",
-      "updatedAt": "2026-10-14T16:00:25.243Z",
-      "centerName": "Master Testing Academy",
-      "username": "master-test-5116",
-      "password": "$2a$10$sw61rEfCQrMvSCmiY8GYn.Z/z.Ov2MXKzVBdJP7zYj0c4LZWBxdeu",
-      "directorName": "Director Sharma",
-      "address": "Test City, Bihar",
-      "contactNumber": "9123456789",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 250,
-      "affiliationCertificateId": "BBCC-AFF-625241",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T16:00:25.241Z",
-      "walletBalance": 0,
-      "dueAmount": 0,
-      "isBlocked": false,
-      "teachers": [],
-      "courses": [],
-      "materials": [],
-      "promotionalBanners": [],
-      "blockReason": ""
-    },
-    {
-      "_id": "6acfa7191116fb7d191fb8c3",
-      "createdAt": "2026-10-14T16:00:25.447Z",
-      "updatedAt": "2026-10-14T16:00:25.447Z",
-      "centerName": "New Affiliation Institute",
-      "username": "affil-test-5333",
-      "password": "$2a$10$H5GEeboQeNgUlcReNlydv.R.3UTdq3xeNLHaKVGsl6lsU4DQ9VlD2",
-      "directorName": "Director Verma",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "email": "",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "address": "Gaya, Bihar",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-625341",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T16:00:25.447Z",
-      "isBlocked": false,
-      "dueAmount": 0,
-      "walletBalance": 0,
-      "teachers": [],
-      "courses": [],
-      "materials": [],
-      "promotionalBanners": []
-    },
-    {
-      "_id": "6acfa75e11e4533fb50b2b8e",
-      "createdAt": "2026-10-14T16:01:34.458Z",
-      "updatedAt": "2026-10-14T16:01:34.458Z",
-      "centerName": "Galaxy Coaching Institute",
-      "username": "galaxy-academy-4317",
-      "password": "$2a$10$TGY6Yzodn.ETHfQQHr..Wug5vAgWR3YdluKygghbPYe6RenvCTwJi",
-      "directorName": "Prof. Alok Pandey",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "email": "",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "address": "Boring Road, Patna, Bihar",
-      "admissionFee": 200,
-      "affiliationCertificateId": "BBCC-AFF-694332",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T16:01:34.458Z",
-      "isBlocked": false,
-      "dueAmount": 0,
-      "walletBalance": 0,
-      "teachers": [],
-      "courses": [],
-      "materials": [],
-      "promotionalBanners": []
-    }
-  ],
+  "centers": [],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -147,23 +69,7 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [
-    {
-      "_id": "6acfa75e11e4533fb50b2b90",
-      "orderId": "TEST_AFF_1791993694331",
-      "paymentId": "TEST_PAY_45892E00",
-      "purpose": "coaching_affiliation",
-      "amount": 999,
-      "status": "paid",
-      "payerName": "Prof. Alok Pandey",
-      "payerPhone": "9876543210",
-      "payerEmail": "",
-      "centerId": "6acfa75e11e4533fb50b2b8e",
-      "centerName": "Galaxy Coaching Institute",
-      "createdAt": "2026-10-14T16:01:34.460Z",
-      "paidAt": "2026-10-14T16:01:34.460Z"
-    }
-  ],
+  "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -207,21 +113,5 @@
       "assignedOfficer": "Senior Academic Counselor"
     }
   ],
-  "affiliationApplications": [
-    {
-      "_id": "6acfa75e11e4533fb50b2b8f",
-      "centerName": "Galaxy Coaching Institute",
-      "directorName": "Prof. Alok Pandey",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "email": "",
-      "address": "Boring Road, Patna, Bihar",
-      "username": "galaxy-academy-4317",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T16:01:34.460Z",
-      "status": "approved",
-      "feePaid": 999
-    }
-  ]
+  "affiliationApplications": []
 }
