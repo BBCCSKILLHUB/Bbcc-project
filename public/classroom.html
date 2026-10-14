@@ -750,6 +750,12 @@
             </div>
         </a>
         <div class="nav-links">
+            <button onclick="openStudentManualModal()" class="btn-outline" style="border-color:var(--accent-gold); color:var(--accent-gold); cursor:pointer; font-weight:700;" title="Open Student Classroom Guide & Manual">
+                <i class="fas fa-book-open-reader"></i> Student Guide & Manual
+            </button>
+            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-outline" style="border-color:rgba(245,158,11,0.4); color:#fbbf24;" title="Download Platform User Manual PDF">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
             <a href="/about" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
             <button id="logoutBtn" class="btn-outline" style="display:none;" onclick="handleStudentLogout()">
@@ -1956,6 +1962,152 @@
             div.textContent = text || '';
             return div.innerHTML;
         }
+
+        function openStudentManualModal() {
+            const m = document.getElementById('studentManualModal');
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeStudentManualModal() {
+            const m = document.getElementById('studentManualModal');
+            if (m) m.style.display = 'none';
+        }
     </script>
+
+    <!-- ============================================================
+         STUDENT CLASSROOM USER MANUAL & GUIDE MODAL
+         ============================================================ -->
+    <div id="studentManualModal" style="display:none; position:fixed; inset:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(14px); z-index:10005; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:linear-gradient(145deg, #0f172a 0%, #060a14 100%); border:2px solid var(--accent-gold); border-radius:24px; max-width:860px; width:100%; max-height:90vh; overflow-y:auto; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:2px solid rgba(245,158,11,0.3); padding-bottom:16px;">
+                <div>
+                    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--accent-gold); font-weight:800; margin-bottom:4px;">
+                        <i class="fas fa-graduation-cap"></i> Student Learning Guide & SOP
+                    </div>
+                    <h2 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin:0; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-book-open-reader" style="color:var(--accent-gold);"></i> Student Classroom User Manual & Guide
+                    </h2>
+                    <p style="font-size:12.5px; color:#94a3b8; margin:4px 0 0 0;">
+                        Step-by-step guidance for KYC Login, Joining Live Lectures, Asking Doubts, Downloading 100% Free Notes & Revision.
+                    </p>
+                </div>
+                <button type="button" onclick="closeStudentManualModal()" style="background:none; border:none; color:#cbd5e1; font-size:24px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+            </div>
+
+            <!-- Quick Action Links Bar -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; background:rgba(255,255,255,0.03); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:12px 16px; align-items:center; justify-content:space-between;">
+                <span style="font-size:12px; color:#cbd5e1; font-weight:700;">
+                    <i class="fas fa-file-circle-check" style="color:#10b981;"></i> Complete Platform Guide Available:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-outline" style="padding:6px 14px; font-size:12px; background:rgba(245,158,11,0.2); border-color:#f59e0b; color:#fbbf24; text-decoration:none; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </a>
+                    <a href="/user-manual.html#sec-student" target="_blank" class="btn-outline" style="padding:6px 14px; font-size:12px; background:rgba(56,189,248,0.2); border-color:#38bdf8; color:#7dd3fc; text-decoration:none; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Open Web Manual
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn-outline" style="padding:6px 14px; font-size:12px; background:rgba(255,255,255,0.06); color:#cbd5e1; border-color:rgba(255,255,255,0.2); border-radius:8px; cursor:pointer;">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- SOP Section 1: Classroom Login & Verification -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#38bdf8; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-fingerprint"></i> 1. Aadhar & Roll Number KYC Login
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(56,189,248,0.15); color:#7dd3fc; padding:2px 8px; border-radius:10px; font-weight:700;">Zero Password Friction</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    छात्रों को कोई जटिल पासवर्ड याद रखने की आवश्यकता नहीं है। अपने 12 अंकों के आधार कार्ड नंबर या सत्यापित रोल नंबर से सीधे लॉगिन करें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #38bdf8; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">सत्यापन के बाद:</strong><br>
+                    • आपकी डिजिटल स्टूडेंट आईडी (Digital ID Card) स्क्रीन पर दिखेगी, जिसे आप 1-क्लिक में प्रिंट या सेव कर सकते हैं।<br>
+                    • आपके केंद्र का नाम, आपका बैच, शिक्षक और सभी अध्ययन सामग्री स्वतः अनलॉक हो जाती है।
+                </div>
+            </div>
+
+            <!-- SOP Section 2: Attending Live Classes -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#22c55e; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-video"></i> 2. Joining Live Classes (1-क्लिक में लाइव क्लास में जुड़ें)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(34,197,94,0.15); color:#86efac; padding:2px 8px; border-radius:10px; font-weight:700;">Ultra Low Latency</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    जब भी आपकी कोचिंग के शिक्षक लाइव क्लास शुरू करते हैं, आपके डैशबोर्ड पर बड़ा हरा बटन <strong>"🔴 JOIN LIVE CLASS"</strong> चमकने लगता है।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #22c55e; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">सुविधाएं:</strong><br>
+                    • क्लिक करते ही लाइव क्लास तुरंत शुरू हो जाती है (बिना किसी YouTube विज्ञापन या रुकावट के)।<br>
+                    • कमजोर 2G/3G इंटरनेट पर भी फ्रेम रिले तकनीक द्वारा क्लास बिना बफ़रिंग के आसानी से चलती है।
+                </div>
+            </div>
+
+            <!-- SOP Section 3: Live Doubt Board -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#f59e0b; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-comment-dots"></i> 3. Asking Doubts During Live Lectures
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(245,158,11,0.15); color:#fcd34d; padding:2px 8px; border-radius:10px; font-weight:700;">Real-Time Chat</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    क्लास देखते समय कोई भी सवाल होने पर वीडियो के नीचे दिए गए डाउट बॉक्स में अपना प्रश्न टाइप करें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • शिक्षक की स्क्रीन पर आपका प्रश्न और रोल नंबर तुरंत दिखता है।<br>
+                    • शिक्षक बोलते हुए आपके प्रश्न का सीधा उत्तर देते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 4: 100% Free Notes Download -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#10b981; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-book-open"></i> 4. 100% Free Study Notes & E-Books
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(16,185,129,0.15); color:#6ee7b7; padding:2px 8px; border-radius:10px; font-weight:700;">Zero Cost</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    सत्यापित विद्यार्थियों के लिए उनके पाठ्यक्रम की सभी पुस्तकें, अध्यायवार नोट्स और मॉडल पेपर्स 100% मुफ़्त हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"E-Library & Course Notes"</strong> टैब में किसी भी चैप्टर के <strong>"Download PDF"</strong> बटन पर क्लिक करें।<br>
+                    • नोट्स सीधे आपके फ़ोन या कंप्यूटर पर डाउनलोड हो जाएंगे।
+                </div>
+            </div>
+
+            <!-- SOP Section 5: Revision Vault -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#a855f7; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-clock-rotate-left"></i> 5. Revision Vault (छूटे हुए लेक्चर्स का रिवीज़न)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(168,85,247,0.15); color:#d8b4fe; padding:2px 8px; border-radius:10px; font-weight:700;">24/7 Access</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    यदि आपकी कोई लाइव क्लास छूट जाए, तो चिंता करने की कोई बात नहीं है!
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #a855f7; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"Lecture Recordings & Revision Vault"</strong> में शिक्षक द्वारा ली गई हर क्लास की रिकॉर्डिंग सुरक्षित रहती है।<br>
+                    • परीक्षा से पहले आप कभी भी 1.5x या 2x स्पीड पर रिवीजन कर सकते हैं।
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid rgba(245,158,11,0.3); padding-top:16px;">
+                <button type="button" onclick="closeStudentManualModal()" class="btn-outline" style="background:var(--accent-gold); color:#0b1120; font-weight:800; padding:9px 24px; border:none; border-radius:8px; cursor:pointer;">
+                    <i class="fas fa-check"></i> Close Manual
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
