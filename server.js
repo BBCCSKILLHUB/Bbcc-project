@@ -4864,6 +4864,144 @@ app.get('/api/pay/download-file', async (req, res) => {
     }
 });
 
+// Universal Helper: Persist newly affiliated center to MongoDB, Portal DB, Affiliations list & Transactions ledger
+async function registerAndPersistAffiliatedCenter(centerPayload, feeAmount, orderId, paymentId) {
+    const {
+        centerName,
+        username,
+        password,
+        hashedPassword,
+        directorName,
+        contactNumber,
+        whatsappNumber,
+        email,
+        fromClass,
+        toClass,
+        address
+    } = centerPayload;
+
+    const cleanUser = (username || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+    const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
+    const finalHash = hashedPassword || (await bcrypt.hash(password.trim(), 10));
+
+    const newCenterData = {
+        centerName: centerName.trim(),
+        username: cleanUser,
+        password: finalHash,
+        directorName: directorName.trim(),
+        contactNumber: (contactNumber || '').trim(),
+        whatsappNumber: (whatsappNumber || contactNumber || '').trim(),
+        email: (email || '').trim(),
+        fromClass: fromClass || 'Class 6th',
+        toClass: toClass || 'Class 12th',
+        address: (address || '').trim(),
+        admissionFee: 200,
+        affiliationCertificateId: certId,
+        affiliationPaid: true,
+        affiliationDate: new Date(),
+        isBlocked: false,
+        dueAmount: 0,
+        walletBalance: 0,
+        teachers: [],
+        courses: [],
+        materials: [],
+        promotionalBanners: []
+    };
+
+    let mongoDoc = null;
+    if (isMongoConnected) {
+        try {
+            mongoDoc = await TuitionCenter.create(newCenterData);
+        } catch(e) {
+            console.warn('MongoDB affiliate center create notice:', e.message);
+        }
+    }
+
+    const centerIdStr = (mongoDoc && mongoDoc._id) ? mongoDoc._id.toString() : new mongoose.Types.ObjectId().toString();
+    const centerObj = {
+        _id: centerIdStr,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...newCenterData
+    };
+
+    // Dual-Persist into portal_db.json
+    const pdb = loadPortalDb();
+    if (!pdb.centers) pdb.centers = [];
+    const exIdx = pdb.centers.findIndex(c => (c.username || '').toLowerCase() === cleanUser);
+    if (exIdx !== -1) {
+        pdb.centers[exIdx] = centerObj;
+    } else {
+        pdb.centers.push(centerObj);
+    }
+
+    // 1. Record in Affiliations list so it shows in Admin Console Tab 4: "AFFILIATIONS & LICENSES"!
+    if (!pdb.affiliationApplications) pdb.affiliationApplications = [];
+    const affDoc = {
+        _id: new mongoose.Types.ObjectId().toString(),
+        centerName: centerName.trim(),
+        directorName: directorName.trim(),
+        contactNumber: (contactNumber || '').trim(),
+        whatsappNumber: (whatsappNumber || contactNumber || '').trim(),
+        email: (email || '').trim(),
+        address: (address || '').trim(),
+        username: cleanUser,
+        fromClass: fromClass || 'Class 6th',
+        toClass: toClass || 'Class 12th',
+        appliedAt: new Date(),
+        status: 'approved',
+        feePaid: feeAmount || 0
+    };
+    pdb.affiliationApplications.unshift(affDoc);
+
+    if (isMongoConnected) {
+        try {
+            await AffiliationApplication.create({
+                centerName: centerName.trim(),
+                directorName: directorName.trim(),
+                contactNumber: (contactNumber || '').trim(),
+                email: (email || '').trim(),
+                address: (address || '').trim(),
+                status: 'approved',
+                appliedAt: new Date()
+            });
+        } catch(e) {}
+    }
+
+    // 2. Record in Payment Transactions so it shows in Admin Console Tab 5: "TRANSACTIONS"!
+    if (!pdb.paymentTransactions) pdb.paymentTransactions = [];
+    const finalOrderId = orderId || ('AFF_' + Date.now());
+    const finalPaymentId = paymentId || ('PAY_' + crypto.randomBytes(4).toString('hex').toUpperCase());
+    const txnDoc = {
+        _id: new mongoose.Types.ObjectId().toString(),
+        orderId: finalOrderId,
+        paymentId: finalPaymentId,
+        purpose: 'coaching_affiliation',
+        amount: feeAmount || 0,
+        status: 'paid',
+        payerName: directorName.trim(),
+        payerPhone: (contactNumber || '').trim(),
+        payerEmail: email || '',
+        centerId: centerIdStr,
+        centerName: centerName.trim(),
+        createdAt: new Date(),
+        paidAt: new Date()
+    };
+    pdb.paymentTransactions.unshift(txnDoc);
+
+    if (isMongoConnected) {
+        try {
+            await PaymentTransaction.create(txnDoc);
+        } catch(e) {}
+    }
+
+    await savePortalDb(pdb);
+    clearCache();
+
+    console.log(`✅ [AFFILIATION REGISTERED VIA INDEX] Center: "${centerName.trim()}" | Username: "${cleanUser}" | Order: ${finalOrderId}`);
+    return centerObj;
+}
+
 // 5.3 Self-Service Coaching Center Registration: Create Affiliation Order
 app.post('/api/pay/create-affiliation-order', async (req, res) => {
     try {
@@ -4884,8 +5022,21 @@ app.post('/api/pay/create-affiliation-order', async (req, res) => {
             return res.status(400).json({ success: false, message: 'All required institute fields must be provided' });
         }
 
-        const cleanUser = username.trim().toLowerCase();
-        const existing = await TuitionCenter.findOne({ username: cleanUser });
+        const cleanUser = username.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+        if (!cleanUser || cleanUser.length < 3) {
+            return res.status(400).json({ success: false, message: 'Username must be at least 3 characters and contain only letters, numbers, hyphens or underscores (e.g. apex-academy)' });
+        }
+
+        let existing = null;
+        if (isMongoConnected) {
+            try {
+                existing = await TuitionCenter.findOne({ username: cleanUser });
+            } catch(e) {}
+        }
+        if (!existing) {
+            const pdb = loadPortalDb();
+            existing = (pdb.centers || []).find(c => (c.username || '').toLowerCase() === cleanUser);
+        }
         if (existing) {
             return res.status(400).json({ success: false, message: `Username "${cleanUser}" is already taken. Please choose another username.` });
         }
@@ -4896,39 +5047,20 @@ app.post('/api/pay/create-affiliation-order', async (req, res) => {
 
         // If Fee is 0 -> Instant Free Activation!
         if (affiliationFee === 0) {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
-
-            const newCenter = await TuitionCenter.create({
-                centerName: centerName.trim(),
+            const orderId = 'AFF_FREE_' + Date.now();
+            const paymentId = 'FREE_AFFILIATION';
+            const newCenter = await registerAndPersistAffiliatedCenter({
+                centerName,
                 username: cleanUser,
-                password: hashedPassword,
-                directorName: directorName.trim(),
-                contactNumber: contactNumber.trim(),
-                whatsappNumber: (whatsappNumber || contactNumber).trim(),
-                email: (email || '').trim(),
-                fromClass: fromClass || 'Class 6th',
-                toClass: toClass || 'Class 12th',
-                address: address.trim(),
-                affiliationCertificateId: certId,
-                affiliationPaid: true,
-                isBlocked: false,
-                dueAmount: 0
-            });
-
-            await PaymentTransaction.create({
-                orderId: 'AFF_FREE_' + Date.now(),
-                paymentId: 'FREE_AFFILIATION',
-                purpose: 'coaching_affiliation',
-                amount: 0,
-                status: 'paid',
-                payerName: directorName,
-                payerPhone: contactNumber,
-                payerEmail: email || '',
-                centerId: newCenter._id.toString(),
-                centerName: newCenter.centerName,
-                paidAt: new Date()
-            });
+                password,
+                directorName,
+                contactNumber,
+                whatsappNumber,
+                email,
+                fromClass,
+                toClass,
+                address
+            }, 0, orderId, paymentId);
 
             return res.json({
                 success: true,
@@ -4943,42 +5075,20 @@ app.post('/api/pay/create-affiliation-order', async (req, res) => {
         const { client, keyId } = await getRazorpayClient();
         if (!client) {
             // Test Sandbox Instant Activation
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
-
-            const newCenter = await TuitionCenter.create({
-                centerName: centerName.trim(),
-                username: cleanUser,
-                password: hashedPassword,
-                directorName: directorName.trim(),
-                contactNumber: contactNumber.trim(),
-                whatsappNumber: (whatsappNumber || contactNumber).trim(),
-                email: (email || '').trim(),
-                fromClass: fromClass || 'Class 6th',
-                toClass: toClass || 'Class 12th',
-                address: address.trim(),
-                affiliationCertificateId: certId,
-                affiliationPaid: true,
-                isBlocked: false,
-                dueAmount: 0
-            });
-
             const orderId = 'TEST_AFF_' + Date.now();
             const paymentId = 'TEST_PAY_' + crypto.randomBytes(4).toString('hex').toUpperCase();
-
-            await PaymentTransaction.create({
-                orderId: orderId,
-                paymentId: paymentId,
-                purpose: 'coaching_affiliation',
-                amount: affiliationFee,
-                status: 'paid',
-                payerName: directorName,
-                payerPhone: contactNumber,
-                payerEmail: email || '',
-                centerId: newCenter._id.toString(),
-                centerName: newCenter.centerName,
-                paidAt: new Date()
-            });
+            const newCenter = await registerAndPersistAffiliatedCenter({
+                centerName,
+                username: cleanUser,
+                password,
+                directorName,
+                contactNumber,
+                whatsappNumber,
+                email,
+                fromClass,
+                toClass,
+                address
+            }, affiliationFee, orderId, paymentId);
 
             return res.json({
                 success: true,
@@ -5082,27 +5192,39 @@ app.post('/api/pay/verify-affiliation-order', async (req, res) => {
         }
 
         // Check if center was already created by duplicate hook
-        let center = await TuitionCenter.findOne({ username: reg.username.toLowerCase() });
+        let center = await TuitionCenter.findOne({ username: (reg.username || '').toLowerCase().trim() });
         if (!center) {
-            const hashedPassword = await bcrypt.hash(reg.password, 10);
-            const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
-
-            center = await TuitionCenter.create({
-                centerName: reg.centerName.trim(),
-                username: reg.username.toLowerCase().trim(),
-                password: hashedPassword,
-                directorName: reg.directorName.trim(),
-                contactNumber: reg.contactNumber.trim(),
-                whatsappNumber: (reg.whatsappNumber || reg.contactNumber).trim(),
-                email: (reg.email || '').trim(),
-                fromClass: reg.fromClass || 'Class 6th',
-                toClass: reg.toClass || 'Class 12th',
-                address: reg.address.trim(),
-                affiliationCertificateId: certId,
-                affiliationPaid: true,
-                isBlocked: false,
-                dueAmount: 0
-            });
+            center = await registerAndPersistAffiliatedCenter(reg, txn ? txn.amount : 999, razorpay_order_id, razorpay_payment_id);
+        } else {
+            const pdb = loadPortalDb();
+            if (!pdb.centers) pdb.centers = [];
+            const exIdx = pdb.centers.findIndex(c => (c.username || '').toLowerCase() === (center.username || '').toLowerCase());
+            if (exIdx === -1) {
+                pdb.centers.push({
+                    _id: center._id.toString(),
+                    createdAt: center.createdAt || new Date(),
+                    updatedAt: new Date(),
+                    centerName: center.centerName,
+                    username: center.username,
+                    password: center.password,
+                    directorName: center.directorName,
+                    contactNumber: center.contactNumber,
+                    whatsappNumber: center.whatsappNumber || center.contactNumber,
+                    email: center.email || '',
+                    fromClass: center.fromClass || 'Class 6th',
+                    toClass: center.toClass || 'Class 12th',
+                    address: center.address,
+                    admissionFee: 200,
+                    affiliationPaid: true,
+                    isBlocked: false,
+                    dueAmount: 0,
+                    teachers: [],
+                    courses: [],
+                    materials: []
+                });
+                await savePortalDb(pdb);
+                clearCache();
+            }
         }
 
         await PaymentTransaction.findOneAndUpdate(
