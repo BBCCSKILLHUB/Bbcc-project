@@ -168,7 +168,56 @@
     "videos": [],
     "_id": "6acf4258653f7d80df426d16"
   },
-  "students": [],
+  "students": [
+    {
+      "_id": "6acf426a653f7d80df426d1a",
+      "createdAt": "2026-10-14T08:50:50.332Z",
+      "updatedAt": "2026-10-14T08:50:50.332Z",
+      "studentId": "STU-850329",
+      "rollNo": "BBCC-850329",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "parentName": "Suresh Kumar",
+      "dob": "2006-05-15",
+      "phone": "9812345678",
+      "mobile": "9812345678",
+      "parentMobile": "",
+      "address": "Main Road, Kankarbagh",
+      "mode": "physical",
+      "email": "",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "courseName": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "aadharNumber": "999916924405",
+      "photo": "",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "totalPaid": 0,
+      "certificateId": "BBCC-850329",
+      "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf426a653f7d80df426d1a",
+      "studentId": "STU-850329",
+      "rollNo": "BBCC-850329",
+      "name": "Rahul Kumar",
+      "fatherName": "Suresh Kumar",
+      "course": "IIT JEE Advanced Mathematics Mastery",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "phone": "9812345678",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "photo": "",
+      "aadharNumber": "999916924405",
+      "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "status": "Certified & Verified"
+    }
+  ],
   "withdrawals": [],
   "paymentTransactions": [],
   "push_subscriptions": [],
@@ -202,6 +251,37 @@
       "youtubeWatchUrl": "https://www.youtube.com/watch?v=Hey5MDGVVfE",
       "startedAt": "2026-10-14T08:50:49.758Z",
       "activeStudentsCount": 0
+    }
+  ],
+  "admissionInquiries": [
+    {
+      "_id": "6acf426a653f7d80df426d1b",
+      "createdAt": "2026-10-14T08:50:50.494Z",
+      "updatedAt": "2026-10-14T08:50:50.494Z",
+      "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "studentName": "Kavita Singh",
+      "parentName": "",
+      "mobile": "9988776655",
+      "targetClass": "IIT JEE Advanced Mathematics Mastery",
+      "message": "Interested in weekend classroom batches"
+    }
+  ],
+  "supportTickets": [
+    {
+      "_id": "6acf426a653f7d80df426d1c",
+      "createdAt": "2026-10-14T08:50:50.522Z",
+      "updatedAt": "2026-10-14T08:50:50.522Z",
+      "ticketId": "TKT-BBCC-464903",
+      "studentName": "Rahul Kumar",
+      "phone": "9812345678",
+      "centerId": "6acf4269653f7d80df426d19",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "category": "Academic Counseling & Callback",
+      "issueSummary": "Requesting syllabus roadmap and past lecture video links",
+      "status": "CALLBACK_SCHEDULED",
+      "scheduledCallback": "Within 15-30 Minutes",
+      "assignedOfficer": "Director Dr. R. K. Sharma"
     }
   ]
 }
