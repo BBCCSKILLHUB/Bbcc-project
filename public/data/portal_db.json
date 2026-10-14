@@ -52,31 +52,7 @@
       "role": "superadmin"
     }
   ],
-  "centers": [
-    {
-      "_id": "6acfb235defd6519cc882977",
-      "createdAt": "2026-10-14T16:47:49.068Z",
-      "updatedAt": "2026-10-14T16:47:49.068Z",
-      "centerName": "Audit Excellence Academy",
-      "username": "audit-center-8900",
-      "password": "$2a$10$KXAUiFdPKOqCNhPIkT73wOUUgnJlV2NCTO01hRqz6nwEsjF3txkpG",
-      "directorName": "Er. Rajesh Kumar",
-      "address": "Patna, Bihar",
-      "contactNumber": "9876543210",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 750,
-      "affiliationCertificateId": "BBCC-AFF-469064",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T16:47:49.064Z",
-      "walletBalance": 0,
-      "dueAmount": 0,
-      "isBlocked": false,
-      "teachers": [],
-      "courses": [],
-      "materials": []
-    }
-  ],
+  "centers": [],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -84,23 +60,7 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [
-    {
-      "_id": "6acfb235defd6519cc882979",
-      "orderId": "ADM_GRANT_1791996469068",
-      "paymentId": "ADMIN_DIRECT_LICENSE",
-      "amount": 0,
-      "centerShare": 0,
-      "platformCut": 0,
-      "purpose": "Admin Direct Institute Affiliation & License Grant",
-      "status": "paid",
-      "payerName": "Audit Excellence Academy",
-      "payerContact": "9876543210",
-      "centerName": "Audit Excellence Academy",
-      "username": "audit-center-8900",
-      "createdAt": "2026-10-14T16:47:49.068Z"
-    }
-  ],
+  "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -144,20 +104,5 @@
       "assignedOfficer": "Senior Academic Counselor"
     }
   ],
-  "affiliationApplications": [
-    {
-      "_id": "6acfb235defd6519cc882978",
-      "centerName": "Audit Excellence Academy",
-      "directorName": "Er. Rajesh Kumar",
-      "contactNumber": "9876543210",
-      "email": "",
-      "address": "Patna, Bihar",
-      "username": "audit-center-8900",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T16:47:49.068Z",
-      "status": "approved",
-      "feePaid": 0
-    }
-  ]
+  "affiliationApplications": []
 }
