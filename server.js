@@ -2091,39 +2091,43 @@ app.post('/api/call/initiate', async (req, res) => {
     try {
         const { deviceId, mode = 'video', callerName = 'BBCC Central Directorate' } = req.body;
         const db = loadPortalDb();
-        const target = (db.push_subscriptions || []).find(s => {
-            const did = s.deviceId || ('dev_' + crypto.createHash('md5').update(s.endpoint).digest('hex').slice(0, 8));
-            return did === deviceId;
-        });
-
-        if (!target) {
-            return res.status(404).json({ success: false, message: 'Target device not found or unregistered' });
+        let target = null;
+        if (deviceId && deviceId !== 'direct') {
+            target = (db.push_subscriptions || []).find(s => {
+                const did = s.deviceId || ('dev_' + crypto.createHash('md5').update(s.endpoint).digest('hex').slice(0, 8));
+                return did === deviceId;
+            });
+            if (!target) {
+                return res.status(404).json({ success: false, message: 'Target device not found or unregistered' });
+            }
         }
 
-        const roomId = 'call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+        const roomId = req.body.roomId || ('call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6));
         activeCallRooms.set(roomId, {
             roomId,
-            deviceId,
+            deviceId: deviceId || 'direct',
             mode,
             callerName,
-            status: 'ringing',
+            status: target ? 'ringing' : 'active',
             signals: { admin: [], student: [] },
             createdAt: Date.now()
         });
 
-        // Dispatch high-priority incoming call push notification with repeating vibration
-        try {
-            await webpush.sendNotification(target, JSON.stringify({
-                title: `📞 INCOMING ${mode === 'video' ? 'VIDEO' : 'VOICE'} CALL — BBCC Central`,
-                body: `${callerName} आपसे सीधे बात करना चाहते हैं। कॉल उठाने के लिए टैप करें!`,
-                icon: '/data/branding/logo.png',
-                badge: '/data/branding/logo.png',
-                url: `/call.html?room=${roomId}&role=student&mode=${mode}`,
-                vibrate: [500, 250, 500, 250, 500, 250, 500]
-            }), { TTL: 120, urgency: 'high' });
-            console.log(`📞 Incoming call notification dispatched to device ${deviceId} (Room: ${roomId})`);
-        } catch(pushErr) {
-            console.warn('Call push notification dispatch notice:', pushErr.message);
+        // Dispatch push notification if targeted device is online
+        if (target) {
+            try {
+                await webpush.sendNotification(target, JSON.stringify({
+                    title: `📞 INCOMING ${mode === 'video' ? 'VIDEO' : 'VOICE'} CALL — BBCC Central`,
+                    body: `${callerName} आपसे सीधे बात करना चाहते हैं। कॉल उठाने के लिए टैप करें!`,
+                    icon: '/data/branding/logo.png',
+                    badge: '/data/branding/logo.png',
+                    url: `/call.html?room=${roomId}&role=student&mode=${mode}`,
+                    vibrate: [500, 250, 500, 250, 500, 250, 500]
+                }), { TTL: 120, urgency: 'high' });
+                console.log(`📞 Incoming call notification dispatched to device ${deviceId} (Room: ${roomId})`);
+            } catch(pushErr) {
+                console.warn('Call push notification dispatch notice:', pushErr.message);
+            }
         }
 
         res.json({
@@ -2139,9 +2143,10 @@ app.post('/api/call/initiate', async (req, res) => {
 
 // 12. Exchange WebRTC signals (offer, answer, ice-candidate, ready, ping)
 app.post('/api/call/signal', (req, res) => {
-    const { roomId, sender, data } = req.body;
-    if (!roomId || !sender || !data) {
-        return res.status(400).json({ error: 'Missing roomId, sender, or data' });
+    const { roomId, sender, data, signal } = req.body;
+    const signalPayload = data || signal;
+    if (!roomId || !sender || !signalPayload) {
+        return res.status(400).json({ error: 'Missing roomId, sender, or data/signal' });
     }
     let room = activeCallRooms.get(roomId);
     if (!room) {
@@ -2159,7 +2164,7 @@ app.post('/api/call/signal', (req, res) => {
 
     const recipient = (sender === 'admin') ? 'student' : 'admin';
     if (!room.signals[recipient]) room.signals[recipient] = [];
-    room.signals[recipient].push(data);
+    room.signals[recipient].push(signalPayload);
     res.json({ success: true });
 });
 
@@ -2995,8 +3000,9 @@ app.get('/api/public/books', async (req, res) => {
 // 4.6 Public Student Admission Inquiry Submission
 app.post('/api/public/inquiry', async (req, res) => {
     try {
-        const { centerId, studentName, parentName, mobile, targetClass, message } = req.body;
-        if (!studentName || !mobile) {
+        const { centerId, studentName, parentName, mobile, phone, targetClass, message } = req.body;
+        const cleanMobile = (mobile || phone || '').trim();
+        if (!studentName || !cleanMobile) {
             return res.status(400).json({ success: false, message: 'Student Name and Mobile Number are required' });
         }
 
@@ -5730,10 +5736,11 @@ app.post('/api/director/teachers', verifyDirector, async (req, res) => {
 
         try {
             const db = loadPortalDb();
-            if (db && db.tuition_centers) {
-                const cIdx = db.tuition_centers.findIndex(c => c._id && c._id.toString() === center._id.toString());
+            const centerList = (db && (db.centers || db.tuition_centers));
+            if (centerList) {
+                const cIdx = centerList.findIndex(c => c._id && c._id.toString() === center._id.toString());
                 if (cIdx !== -1) {
-                    db.tuition_centers[cIdx].teachers = center.teachers;
+                    centerList[cIdx].teachers = center.teachers;
                     await savePortalDb(db);
                 }
             }
@@ -5855,10 +5862,11 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
 
         try {
             const db = loadPortalDb();
-            if (db && db.tuition_centers) {
-                const cIdx = db.tuition_centers.findIndex(c => c._id && c._id.toString() === center._id.toString());
+            const centerList = (db && (db.centers || db.tuition_centers));
+            if (centerList) {
+                const cIdx = centerList.findIndex(c => c._id && c._id.toString() === center._id.toString());
                 if (cIdx !== -1) {
-                    db.tuition_centers[cIdx].teachers = center.teachers;
+                    centerList[cIdx].teachers = center.teachers;
                     await savePortalDb(db);
                 }
             }
@@ -7835,6 +7843,7 @@ app.get('/api/live/active', async (req, res) => {
         res.json({
             success: true,
             count: activeList.length,
+            data: activeList,
             activeClasses: activeList,
             activeSessions: activeList // Guaranteed compatibility across all pages!
         });
