@@ -97,9 +97,26 @@
       "walletBalance": 0,
       "dueAmount": 0,
       "isBlocked": false,
-      "teachers": [],
+      "teachers": [
+        {
+          "teacherId": "TCH-TEST-9082",
+          "password": "teachPass123",
+          "name": "Prof. Anjali Mehta",
+          "subject": "Physics & Mechanics",
+          "class": "All",
+          "qualification": "M.Sc Physics (Gold Medalist)",
+          "photo": "",
+          "phone": "9811223344",
+          "experience": "5+ Years",
+          "bio": "",
+          "isActive": true,
+          "_id": "6acf9061ba0ed9c10070e77c",
+          "createdAt": "2026-10-14T14:23:29.197Z"
+        }
+      ],
       "courses": [],
-      "materials": []
+      "materials": [],
+      "promotionalBanners": []
     },
     {
       "_id": "6acf9060ba0ed9c10070e77b",
@@ -118,13 +135,13 @@
       "affiliationPaid": true,
       "affiliationDate": "2026-10-14T14:23:28.876Z",
       "walletBalance": 0,
-      "dueAmount": 500,
-      "isBlocked": true,
+      "dueAmount": 0,
+      "isBlocked": false,
       "teachers": [],
       "courses": [],
       "materials": [],
       "promotionalBanners": [],
-      "blockReason": "Routine Maintenance Verification"
+      "blockReason": ""
     }
   ],
   "studyMaterials": {
@@ -132,7 +149,56 @@
     "videos": [],
     "_id": "6acf594684851cbb199e316e"
   },
-  "students": [],
+  "students": [
+    {
+      "_id": "6acf9061ba0ed9c10070e77d",
+      "createdAt": "2026-10-14T14:23:29.231Z",
+      "updatedAt": "2026-10-14T14:23:29.231Z",
+      "studentId": "STU-809228",
+      "rollNo": "PAT-2026-001",
+      "name": "Aman Kumar",
+      "fatherName": "",
+      "parentName": "",
+      "dob": "",
+      "phone": "9876543299",
+      "mobile": "9876543299",
+      "parentMobile": "",
+      "address": "Patna, Bihar",
+      "mode": "physical",
+      "email": "",
+      "course": "Standard Curriculum",
+      "courseName": "Standard Curriculum",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "aadharNumber": "999988887777",
+      "photo": "",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "totalPaid": 0,
+      "certificateId": "PAT-2026-001",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "status": "Certified & Verified"
+    },
+    {
+      "_id": "6acf9061ba0ed9c10070e77d",
+      "studentId": "STU-809228",
+      "rollNo": "PAT-2026-001",
+      "name": "Aman Kumar",
+      "fatherName": "",
+      "course": "Standard Curriculum",
+      "classLevel": "Class 12th",
+      "marksGrade": "A+",
+      "phone": "9876543299",
+      "feeAmount": 0,
+      "feePaid": 0,
+      "photo": "",
+      "aadharNumber": "999988887777",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "status": "Certified & Verified"
+    }
+  ],
   "withdrawals": [],
   "paymentTransactions": [],
   "push_subscriptions": [],
@@ -151,8 +217,47 @@
       "body": "BBCC चेक-इन: अपनी कमजोरियों को मजबूत बनाने के लिए ई-लाइब्रेरी से चैप्टर नोट्स का दोबारा अध्ययन करें। 🎯"
     }
   },
-  "teachers": [],
-  "liveSessions": [],
+  "teachers": [
+    {
+      "teacherId": "TCH-TEST-9082",
+      "password": "$2a$10$7bZHKs8lRYVFCrGqgO9cZeZXjs52813dlKh6oRpv.ynxveG1duTt.",
+      "name": "Prof. Anjali Mehta",
+      "subject": "Physics & Mechanics",
+      "class": "All",
+      "qualification": "M.Sc Physics (Gold Medalist)",
+      "photo": "",
+      "phone": "9811223344",
+      "experience": "5+ Years",
+      "bio": "",
+      "isActive": true,
+      "_id": "6acf9061ba0ed9c10070e77c",
+      "createdAt": "2026-10-14T14:23:29.197Z",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "lastLogin": "2026-10-14T14:23:29.381Z"
+    }
+  ],
+  "liveSessions": [
+    {
+      "_id": "6acf9065ba0ed9c10070e77e",
+      "createdAt": "2026-10-14T14:23:33.018Z",
+      "updatedAt": "2026-10-14T14:23:33.018Z",
+      "sessionId": "LIVE_1791987809430_a16f36",
+      "teacherId": "TCH-TEST-9082",
+      "teacherName": "Prof. Anjali Mehta",
+      "centerId": "6acf8e22c86b8944207efad9",
+      "centerName": "Patna Central Science Academy",
+      "courseId": "",
+      "courseName": "Live Interactive Lecture",
+      "subject": "Physics",
+      "title": "Live Masterclass: Electromagnetism & Waves",
+      "status": "live",
+      "youtubeLiveUrl": "https://www.youtube.com/watch?v=t5VKYHFz9wE",
+      "youtubeWatchUrl": "https://www.youtube.com/watch?v=t5VKYHFz9wE",
+      "startedAt": "2026-10-14T14:23:33.016Z",
+      "activeStudentsCount": 0
+    }
+  ],
   "admissionInquiries": [],
   "supportTickets": [
     {
