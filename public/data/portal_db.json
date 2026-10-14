@@ -55,8 +55,8 @@
   },
   "admins": [
     {
-      "adminId": "admin",
-      "password": "$2a$10$o0CsLvC6ifIKO/dI2c94Q.lIJPprxN5a4lrc9dnt7CHgBSQLLQuky",
+      "adminId": "Santosh@7543",
+      "password": "$2a$10$eSy9hqmy7K/lTmlai2cz4OsL/1LMgaYg5pttlcYSbouHuPp7q7Xla",
       "name": "BBCC Central Directorate",
       "role": "superadmin"
     }
@@ -71,14 +71,7 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {
-    "2026-10-14_afternoon": {
-      "dispatchedAt": "2026-10-14T10:08:44.834Z",
-      "slot": "afternoon",
-      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
-      "body": "दोपहर का रिविजन: क्या आपने आज का रिविजन पूरा किया? क्लास 9वीं, 10वीं व 12वीं के फॉर्मूला शीट्स ई-लाइब्रेरी से पढ़ें। 📚"
-    }
-  },
+  "bharti_auto_push_log": {},
   "teachers": [],
   "liveSessions": [],
   "admissionInquiries": [],
