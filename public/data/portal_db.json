@@ -100,6 +100,31 @@
       "teachers": [],
       "courses": [],
       "materials": []
+    },
+    {
+      "_id": "6acf9060ba0ed9c10070e77b",
+      "createdAt": "2026-10-14T14:23:28.879Z",
+      "updatedAt": "2026-10-14T14:23:28.879Z",
+      "centerName": "Master Testing Academy",
+      "username": "master-test-8734",
+      "password": "$2a$10$0/Bx2WfcJz1vvy658ZXeoeh/w5j9VT73vLcXc36fagVL4ozxJpNeG",
+      "directorName": "Director Sharma",
+      "address": "Test City, Bihar",
+      "contactNumber": "9123456789",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 250,
+      "affiliationCertificateId": "BBCC-AFF-808876",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T14:23:28.876Z",
+      "walletBalance": 0,
+      "dueAmount": 500,
+      "isBlocked": true,
+      "teachers": [],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": [],
+      "blockReason": "Routine Maintenance Verification"
     }
   ],
   "studyMaterials": {
