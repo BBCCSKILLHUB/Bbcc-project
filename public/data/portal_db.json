@@ -69,23 +69,7 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [
-    {
-      "_id": "6acfa1bd8add3e78e18bb7bb",
-      "orderId": "TEST_AFF_1791992253764",
-      "paymentId": "TEST_PAY_704B79E4",
-      "purpose": "coaching_affiliation",
-      "amount": 999,
-      "status": "paid",
-      "payerName": "Prof. Alok Pandey",
-      "payerPhone": "9876543210",
-      "payerEmail": "",
-      "centerId": "6acfa1bd8add3e78e18bb7b9",
-      "centerName": "Galaxy Coaching Institute",
-      "createdAt": "2026-10-14T15:37:33.920Z",
-      "paidAt": "2026-10-14T15:37:33.920Z"
-    }
-  ],
+  "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -100,21 +84,5 @@
   "liveSessions": [],
   "admissionInquiries": [],
   "supportTickets": [],
-  "affiliationApplications": [
-    {
-      "_id": "6acfa1bd8add3e78e18bb7ba",
-      "centerName": "Galaxy Coaching Institute",
-      "directorName": "Prof. Alok Pandey",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "email": "",
-      "address": "Boring Road, Patna, Bihar",
-      "username": "galaxy-academy-3741",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T15:37:33.920Z",
-      "status": "approved",
-      "feePaid": 999
-    }
-  ]
+  "affiliationApplications": []
 }
