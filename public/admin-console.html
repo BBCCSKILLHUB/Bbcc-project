@@ -2343,24 +2343,55 @@
 
         async function handleAdminEndLive() {
             if (!confirm('Are you sure you want to conclude this Central Live Program?')) return;
-            const concludingClassId = adminActiveLiveClassId;
-            try {
-                if (adminMediaRecorder && adminMediaRecorder.state !== 'inactive') {
-                    adminMediaRecorder.stop();
-                }
+            const concludingClassId = adminActiveLiveClassId || '';
 
-                let recordedVideoUrl = '';
-                if (adminRecordedChunks.length > 0) {
+            // 1. Immediately turn off live state in UI
+            adminIsLiveBroadcasting = false;
+            adminActiveLiveClassId = '';
+            document.getElementById('adminLiveBadge').style.display = 'none';
+            document.getElementById('btnAdminStartBroadcast').style.display = 'inline-flex';
+            document.getElementById('btnAdminEndBroadcast').style.display = 'none';
+            document.getElementById('adminSpectatorCountBadge').style.display = 'none';
+
+            if (adminChatPollInterval) clearInterval(adminChatPollInterval);
+            if (adminFrameRelayInterval) clearInterval(adminFrameRelayInterval);
+
+            // 2. Call /api/admin/live/end FIRST so the server immediately ends the broadcast room for everyone
+            try {
+                const res = await fetch('/api/admin/live/end', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ classId: concludingClassId })
+                });
+                const data = await res.json();
+                showToast('Central broadcast concluded successfully.');
+                loadAdminAllRecordings();
+                loadAdminLiveMonitorDeck();
+            } catch(e) {
+                showToast('Broadcast concluded: ' + e.message, 'circle-info', '#f59e0b');
+            }
+
+            // 3. Stop recorder & upload video recording to server & YouTube in background
+            if (adminMediaRecorder && adminMediaRecorder.state !== 'inactive') {
+                try { adminMediaRecorder.stop(); } catch(e) {}
+            }
+            if (adminRecordedChunks.length > 0) {
+                const chunksToUpload = [...adminRecordedChunks];
+                adminRecordedChunks = [];
+                adminMediaRecorder = null;
+                setTimeout(async () => {
                     try {
-                        showToast('Archiving lecture video to server vault...', 'cloud-arrow-up', '#38bdf8');
-                        const blob = new Blob(adminRecordedChunks, { type: 'video/webm' });
+                        const blob = new Blob(chunksToUpload, { type: 'video/webm' });
                         const base64Data = await new Promise((resolve) => {
                             const reader = new FileReader();
                             reader.onloadend = () => resolve(reader.result);
                             reader.readAsDataURL(blob);
                         });
 
-                        const upRes = await fetch('/api/live/upload-recording', {
+                        await fetch('/api/live/upload-recording', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2373,40 +2404,11 @@
                                 teacherName: document.getElementById('adminLiveHost').value.trim() || 'BBCC Central Directorate'
                             })
                         });
-                        const upData = await upRes.json();
-                        if (upData.success && upData.videoUrl) {
-                            recordedVideoUrl = upData.videoUrl;
-                        }
+                        loadAdminAllRecordings();
                     } catch(upErr) {
-                        console.warn('Admin recording upload notice:', upErr);
+                        console.warn('Background recording upload notice:', upErr);
                     }
-                }
-
-                const res = await fetch('/api/admin/live/end', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ classId: concludingClassId, recordedVideoUrl })
-                });
-                const data = await res.json();
-                adminIsLiveBroadcasting = false;
-                adminActiveLiveClassId = '';
-                adminRecordedChunks = [];
-                adminMediaRecorder = null;
-                if (adminChatPollInterval) clearInterval(adminChatPollInterval);
-                if (adminFrameRelayInterval) clearInterval(adminFrameRelayInterval);
-
-                document.getElementById('adminLiveBadge').style.display = 'none';
-                document.getElementById('btnAdminStartBroadcast').style.display = 'inline-flex';
-                document.getElementById('btnAdminEndBroadcast').style.display = 'none';
-                document.getElementById('adminSpectatorCountBadge').style.display = 'none';
-                showToast('Central broadcast concluded and archived successfully.');
-                loadAdminAllRecordings();
-                loadAdminLiveMonitorDeck();
-            } catch(e) {
-                showToast('Notice: ' + e.message, 'circle-info', '#f59e0b');
+                }, 300);
             }
         }
 

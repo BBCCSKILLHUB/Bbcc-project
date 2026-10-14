@@ -7033,17 +7033,54 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
 // END Central Admin Live Class / Special Program
 app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
     try {
-        const { classId, recordedVideoUrl, youtubeVideoId, youtubeWatchUrl, youtubeLiveUrl } = req.body;
-        if (!classId) return res.status(400).json({ success: false, message: 'Class ID required' });
+        let { classId, recordedVideoUrl, youtubeVideoId, youtubeWatchUrl, youtubeLiveUrl } = req.body;
 
-        const session = await LiveClassSession.findOne({ sessionId: classId });
-        const room = activeLiveRooms.get(classId);
+        // 1. Resolve classId if missing or empty: find any active Central Admin room in memory or DB
+        if (!classId || !classId.trim()) {
+            for (const [id, r] of activeLiveRooms.entries()) {
+                if (r.isCentralAdmin || r.teacherId === 'ADMIN_DIRECTORATE') {
+                    classId = id;
+                    break;
+                }
+            }
+            if (!classId) {
+                const activeCentral = await LiveClassSession.findOne({ status: 'live', isCentralAdmin: true }).sort({ startedAt: -1 });
+                if (activeCentral) classId = activeCentral.sessionId;
+            }
+        }
 
         let finalVideoUrl = (recordedVideoUrl || '').trim();
         let finalYoutubeId = (youtubeVideoId || '').trim();
         let isArchivedToYoutube = false;
 
-        const candidateYt = (youtubeWatchUrl || youtubeLiveUrl || finalVideoUrl || (session ? (session.youtubeWatchUrl || session.youtubeLiveUrl) : '') || (room ? room.youtubeLiveUrl : '') || '').trim();
+        // 2. Terminate matching room(s) in activeLiveRooms map
+        const roomsToClose = new Set();
+        for (const [id, r] of activeLiveRooms.entries()) {
+            if (id === classId || (classId && id.includes(classId)) || r.isCentralAdmin || r.teacherId === 'ADMIN_DIRECTORATE') {
+                roomsToClose.add(id);
+            }
+        }
+        if (classId) roomsToClose.add(classId);
+
+        for (const rId of roomsToClose) {
+            const room = activeLiveRooms.get(rId);
+            if (room) {
+                room.status = 'ended';
+                room.endedAt = Date.now();
+                if (room.youtubeLiveUrl && !finalVideoUrl) {
+                    finalVideoUrl = room.youtubeLiveUrl;
+                }
+                if (room.studentQueues) {
+                    for (const [sId, queue] of room.studentQueues.entries()) {
+                        queue.push({ type: 'class_ended', status: 'ended', time: Date.now() });
+                    }
+                }
+                activeLiveRooms.delete(rId);
+            }
+        }
+
+        // 3. Extract YouTube Video ID if present
+        const candidateYt = (youtubeWatchUrl || youtubeLiveUrl || finalVideoUrl || '').trim();
         const ytMatch = candidateYt.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
         if (ytMatch) {
             finalYoutubeId = ytMatch[1];
@@ -7058,27 +7095,21 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
             endYoutubeLiveBroadcast(finalYoutubeId).catch(() => {});
         }
 
-        if (session) {
-            session.status = 'ended';
-            session.endedAt = new Date();
-            if (finalVideoUrl) session.recordingUrl = finalVideoUrl;
-            if (finalYoutubeId) session.youtubeVideoId = finalYoutubeId;
-            session.youtubeWatchUrl = finalVideoUrl;
-            session.isArchivedToYoutube = isArchivedToYoutube;
-            if (room && room.chat) session.messages = room.chat;
-            await session.save();
-        }
+        // 4. Update MongoDB LiveClassSession(s)
+        const sessionQuery = classId 
+            ? { $or: [{ sessionId: classId }, { isCentralAdmin: true, status: 'live' }, { teacherId: 'ADMIN_DIRECTORATE', status: 'live' }] }
+            : { $or: [{ isCentralAdmin: true, status: 'live' }, { teacherId: 'ADMIN_DIRECTORATE', status: 'live' }] };
 
-        if (room) {
-            room.status = 'ended';
-            room.endedAt = Date.now();
-            if (room.studentQueues) {
-                for (const [sId, queue] of room.studentQueues.entries()) {
-                    queue.push({ type: 'class_ended', status: 'ended', time: Date.now() });
-                }
-            }
-            activeLiveRooms.delete(classId);
-        }
+        const updateFields = {
+            status: 'ended',
+            endedAt: new Date(),
+            isArchivedToYoutube
+        };
+        if (finalVideoUrl) updateFields.recordingUrl = finalVideoUrl;
+        if (finalYoutubeId) updateFields.youtubeVideoId = finalYoutubeId;
+        if (finalVideoUrl) updateFields.youtubeWatchUrl = finalVideoUrl;
+
+        await LiveClassSession.updateMany(sessionQuery, { $set: updateFields });
 
         clearCache();
         res.json({ success: true, message: 'Central live program concluded successfully.', recordingUrl: finalVideoUrl });
