@@ -737,19 +737,450 @@ const LiveClassSessionSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
-// Compile Models
-const Admin = mongoose.model('Admin', AdminSchema);
-const TuitionCenter = mongoose.model('TuitionCenter', CenterSchema);
-const StudyMaterial = mongoose.model('StudyMaterial', StudyMaterialSchema);
-const Student = mongoose.model('Student', StudentSchema);
-const AffiliationApplication = mongoose.model('AffiliationApplication', AffiliationApplicationSchema);
-const AdmissionInquiry = mongoose.model('AdmissionInquiry', AdmissionInquirySchema);
-const PaymentTransaction = mongoose.model('PaymentTransaction', PaymentTransactionSchema);
-const Settings = mongoose.model('Settings', SettingsSchema);
-const WithdrawalRequest = mongoose.model('WithdrawalRequest', WithdrawalRequestSchema);
-const SupportTicket = mongoose.model('SupportTicket', SupportTicketSchema);
-const TeacherAccount = mongoose.model('TeacherAccount', TeacherAccountSchema);
-const LiveClassSession = mongoose.model('LiveClassSession', LiveClassSessionSchema);
+// ============================================================
+// 1.9 HYBRID FALLBACK MODEL LAYER FOR LOCAL & GITHUB STORAGE
+// ============================================================
+
+function matchItem(item, filter) {
+    if (!item || typeof item !== 'object') return false;
+    if (!filter || Object.keys(filter).length === 0) return true;
+    for (const key of Object.keys(filter)) {
+        if (key === '$or') {
+            const orArr = filter.$or;
+            if (!Array.isArray(orArr) || orArr.length === 0) continue;
+            const anyMatch = orArr.some(cond => matchItem(item, cond));
+            if (!anyMatch) return false;
+            continue;
+        }
+        if (key === '$and') {
+            const andArr = filter.$and;
+            if (!Array.isArray(andArr)) continue;
+            const allMatch = andArr.every(cond => matchItem(item, cond));
+            if (!allMatch) return false;
+            continue;
+        }
+
+        const expected = filter[key];
+        if (key.includes('.')) {
+            const parts = key.split('.');
+            let val = item;
+            let handledArray = false;
+            for (let i = 0; i < parts.length; i++) {
+                const p = parts[i];
+                if (val === undefined || val === null) break;
+                if (Array.isArray(val)) {
+                    const subPath = parts.slice(i).join('.');
+                    if (!val.some(subElem => matchItem(subElem, { [subPath]: expected }))) return false;
+                    handledArray = true;
+                    break;
+                }
+                val = val[p];
+            }
+            if (handledArray) continue;
+            if (expected && typeof expected === 'object' && expected.$exists !== undefined) {
+                const exists = val !== undefined && val !== null;
+                if (Boolean(expected.$exists) !== exists) return false;
+                continue;
+            }
+            if (val != expected) return false;
+            continue;
+        }
+
+        const val = item[key];
+        if (expected instanceof RegExp) {
+            if (!expected.test(String(val || ''))) return false;
+        } else if (expected && typeof expected === 'object' && expected.$regex) {
+            const re = new RegExp(expected.$regex, expected.$options || '');
+            if (!re.test(String(val || ''))) return false;
+        } else if (expected && typeof expected === 'object' && expected.$exists !== undefined) {
+            const exists = val !== undefined && val !== null;
+            if (Boolean(expected.$exists) !== exists) return false;
+        } else if (expected && typeof expected === 'object' && expected.$elemMatch) {
+            if (!Array.isArray(val)) return false;
+            if (!val.some(subItem => matchItem(subItem, expected.$elemMatch))) return false;
+        } else if (expected && typeof expected === 'object' && Array.isArray(expected.$in)) {
+            if (!expected.$in.some(targetVal => targetVal == val || (typeof targetVal === 'string' && typeof val === 'string' && targetVal.toLowerCase() === val.toLowerCase()))) return false;
+        } else if (expected && typeof expected === 'object' && Array.isArray(expected.$nin)) {
+            if (expected.$nin.some(targetVal => targetVal == val)) return false;
+        } else if (key === '_id') {
+            if (!val || val.toString() !== expected.toString()) return false;
+        } else {
+            if (typeof expected === 'string' && typeof val === 'string') {
+                if (val.toLowerCase() !== expected.toLowerCase()) return false;
+            } else {
+                if (val != expected) return false;
+            }
+        }
+    }
+    return true;
+}
+
+class MockQuery {
+    constructor(promiseOrData) {
+        this._promise = Promise.resolve(promiseOrData);
+    }
+    sort(sortObj) {
+        this._promise = this._promise.then(data => {
+            if (!Array.isArray(data) || !sortObj) return data;
+            const keys = Object.keys(sortObj);
+            return [...data].sort((a, b) => {
+                for (const k of keys) {
+                    const dir = sortObj[k];
+                    const valA = a[k] || 0;
+                    const valB = b[k] || 0;
+                    if (valA < valB) return dir === -1 ? 1 : -1;
+                    if (valA > valB) return dir === -1 ? -1 : 1;
+                }
+                return 0;
+            });
+        });
+        return this;
+    }
+    limit(n) {
+        this._promise = this._promise.then(data => Array.isArray(data) ? data.slice(0, n) : data);
+        return this;
+    }
+    skip(n) {
+        this._promise = this._promise.then(data => Array.isArray(data) ? data.slice(n) : data);
+        return this;
+    }
+    select() { return this; }
+    populate() { return this; }
+    lean() { return this; }
+    exec() { return this._promise; }
+    then(onFulfilled, onRejected) {
+        return this._promise.then(onFulfilled, onRejected);
+    }
+    catch(onRejected) {
+        return this._promise.catch(onRejected);
+    }
+    finally(onFinally) {
+        return this._promise.finally(onFinally);
+    }
+}
+
+function makeSubdocArray(arr = []) {
+    if (!Array.isArray(arr)) arr = [];
+    arr.id = function(id) {
+        if (!id) return null;
+        const sId = id.toString();
+        return this.find(item => (item._id && item._id.toString() === sId) || item.id === sId);
+    };
+    const origPush = arr.push.bind(arr);
+    arr.push = function(...items) {
+        for (const item of items) {
+            if (item && typeof item === 'object') {
+                if (!item._id) item._id = new mongoose.Types.ObjectId().toString();
+                if (!item.createdAt) item.createdAt = new Date();
+            }
+        }
+        return origPush(...items);
+    };
+    return arr;
+}
+
+function wrapDoc(rawDoc, collectionKey) {
+    if (!rawDoc || typeof rawDoc !== 'object') return rawDoc;
+    if (!rawDoc._id) rawDoc._id = new mongoose.Types.ObjectId().toString();
+
+    if (collectionKey === 'centers') {
+        if (!Array.isArray(rawDoc.teachers)) rawDoc.teachers = [];
+        if (!Array.isArray(rawDoc.courses)) rawDoc.courses = [];
+        if (!Array.isArray(rawDoc.materials)) rawDoc.materials = [];
+        if (!Array.isArray(rawDoc.promotionalBanners)) rawDoc.promotionalBanners = [];
+    }
+    if (collectionKey === 'studyMaterials') {
+        if (!Array.isArray(rawDoc.notes)) rawDoc.notes = [];
+        if (!Array.isArray(rawDoc.videos)) rawDoc.videos = [];
+    }
+
+    ['teachers', 'courses', 'materials', 'promotionalBanners', 'notes', 'videos'].forEach(k => {
+        if (rawDoc[k] !== undefined) {
+            rawDoc[k] = makeSubdocArray(rawDoc[k]);
+        }
+    });
+
+    if (!rawDoc.save) {
+        rawDoc.save = async function() {
+            const pdb = loadPortalDb();
+            if (collectionKey === 'settings') {
+                pdb.settings = { ...this };
+                delete pdb.settings.save;
+                delete pdb.settings.markModified;
+                delete pdb.settings.toObject;
+                delete pdb.settings.toJSON;
+                await savePortalDb(pdb);
+                return this;
+            }
+            if (collectionKey === 'studyMaterials') {
+                pdb.studyMaterials = { ...this };
+                delete pdb.studyMaterials.save;
+                delete pdb.studyMaterials.markModified;
+                delete pdb.studyMaterials.toObject;
+                delete pdb.studyMaterials.toJSON;
+                await savePortalDb(pdb);
+                return this;
+            }
+            if (!pdb[collectionKey]) pdb[collectionKey] = [];
+            const cleanObj = { ...this };
+            delete cleanObj.save;
+            delete cleanObj.markModified;
+            delete cleanObj.toObject;
+            delete cleanObj.toJSON;
+            const idx = pdb[collectionKey].findIndex(item => item._id && item._id.toString() === this._id.toString());
+            if (idx !== -1) {
+                pdb[collectionKey][idx] = cleanObj;
+            } else {
+                pdb[collectionKey].push(cleanObj);
+            }
+            await savePortalDb(pdb);
+            return this;
+        };
+    }
+    if (!rawDoc.markModified) rawDoc.markModified = function() { return this; };
+    if (!rawDoc.toObject) rawDoc.toObject = function() { return { ...this }; };
+    if (!rawDoc.toJSON) rawDoc.toJSON = function() { return { ...this }; };
+
+    return rawDoc;
+}
+
+function createModelFallback(modelName, collectionKey) {
+    return {
+        findOne(filter = {}) {
+            const pdb = loadPortalDb();
+            if (collectionKey === 'settings') {
+                if (!pdb.settings || Object.keys(pdb.settings).length === 0) {
+                    pdb.settings = {
+                        boardTitle: 'BBCC SKILL HUB',
+                        tagline: 'Empowering Educational Excellence & Certified Digital Learning',
+                        boardLogo: '/data/branding/logo.png',
+                        newsMarquee: '📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live'
+                    };
+                }
+                return new MockQuery(wrapDoc(pdb.settings, 'settings'));
+            }
+            if (collectionKey === 'studyMaterials') {
+                if (!pdb.studyMaterials || typeof pdb.studyMaterials !== 'object' || Array.isArray(pdb.studyMaterials)) {
+                    pdb.studyMaterials = { notes: Array.isArray(pdb.studyMaterials) ? pdb.studyMaterials : [], videos: [] };
+                }
+                if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
+                if (!pdb.studyMaterials.videos) pdb.studyMaterials.videos = [];
+                return new MockQuery(wrapDoc(pdb.studyMaterials, 'studyMaterials'));
+            }
+
+            const arr = pdb[collectionKey] || [];
+            let found = arr.find(item => matchItem(item, filter));
+
+            // Backward compatibility for TeacherAccount: search centers if not found
+            if (!found && collectionKey === 'teachers') {
+                const centers = pdb.centers || [];
+                for (const c of centers) {
+                    if (Array.isArray(c.teachers)) {
+                        const t = c.teachers.find(tch => matchItem(tch, filter));
+                        if (t) {
+                            found = {
+                                ...t,
+                                centerId: c._id,
+                                centerName: c.centerName,
+                                isActive: t.isActive !== false
+                            };
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return new MockQuery(found ? wrapDoc(found, collectionKey) : null);
+        },
+        findById(id) {
+            if (!id) return new MockQuery(null);
+            const sId = id.toString();
+            return this.findOne({ _id: sId });
+        },
+        find(filter = {}) {
+            const pdb = loadPortalDb();
+            const arr = pdb[collectionKey] || [];
+            const results = arr.filter(item => matchItem(item, filter)).map(item => wrapDoc(item, collectionKey));
+            return new MockQuery(results);
+        },
+        async countDocuments(filter = {}) {
+            const pdb = loadPortalDb();
+            const arr = pdb[collectionKey] || [];
+            if (!filter || Object.keys(filter).length === 0) return arr.length;
+            return arr.filter(item => matchItem(item, filter)).length;
+        },
+        async create(data) {
+            const pdb = loadPortalDb();
+            if (collectionKey === 'settings') {
+                pdb.settings = { ...data };
+                await savePortalDb(pdb);
+                return wrapDoc(pdb.settings, 'settings');
+            }
+            if (collectionKey === 'studyMaterials') {
+                pdb.studyMaterials = { notes: [], videos: [], ...data };
+                await savePortalDb(pdb);
+                return wrapDoc(pdb.studyMaterials, 'studyMaterials');
+            }
+            if (!pdb[collectionKey]) pdb[collectionKey] = [];
+            const doc = {
+                _id: new mongoose.Types.ObjectId().toString(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                ...data
+            };
+            if (doc.teachers) doc.teachers = makeSubdocArray(doc.teachers);
+            if (doc.courses) doc.courses = makeSubdocArray(doc.courses);
+            if (doc.materials) doc.materials = makeSubdocArray(doc.materials);
+
+            pdb[collectionKey].push(doc);
+            await savePortalDb(pdb);
+            return wrapDoc(doc, collectionKey);
+        },
+        async findByIdAndUpdate(id, update = {}, options = {}) {
+            const doc = await this.findById(id);
+            if (!doc) return null;
+            if (update.$set) Object.assign(doc, update.$set);
+            if (update.$inc) {
+                for (const k of Object.keys(update.$inc)) {
+                    doc[k] = (Number(doc[k]) || 0) + update.$inc[k];
+                }
+            }
+            for (const k of Object.keys(update)) {
+                if (!k.startsWith('$')) doc[k] = update[k];
+            }
+            await doc.save();
+            return doc;
+        },
+        async findOneAndUpdate(filter, update = {}, options = {}) {
+            let doc = await this.findOne(filter);
+            if (!doc && options.upsert) {
+                const initData = { ...filter };
+                if (update.$set) Object.assign(initData, update.$set);
+                for (const k of Object.keys(update)) {
+                    if (!k.startsWith('$')) initData[k] = update[k];
+                }
+                return this.create(initData);
+            }
+            if (!doc) return null;
+            if (update.$set) Object.assign(doc, update.$set);
+            for (const k of Object.keys(update)) {
+                if (!k.startsWith('$')) doc[k] = update[k];
+            }
+            await doc.save();
+            return doc;
+        },
+        async findByIdAndDelete(id) {
+            const pdb = loadPortalDb();
+            const sId = id ? id.toString() : '';
+            const idx = (pdb[collectionKey] || []).findIndex(item => item._id && item._id.toString() === sId);
+            if (idx !== -1) {
+                const removed = pdb[collectionKey].splice(idx, 1)[0];
+                await savePortalDb(pdb);
+                return removed;
+            }
+            return null;
+        },
+        async findOneAndDelete(filter) {
+            const pdb = loadPortalDb();
+            const idx = (pdb[collectionKey] || []).findIndex(item => matchItem(item, filter));
+            if (idx !== -1) {
+                const removed = pdb[collectionKey].splice(idx, 1)[0];
+                await savePortalDb(pdb);
+                return removed;
+            }
+            return null;
+        },
+        async deleteMany(filter) {
+            const pdb = loadPortalDb();
+            const before = (pdb[collectionKey] || []).length;
+            pdb[collectionKey] = (pdb[collectionKey] || []).filter(item => !matchItem(item, filter));
+            const deletedCount = before - pdb[collectionKey].length;
+            await savePortalDb(pdb);
+            return { acknowledged: true, deletedCount };
+        },
+        async deleteOne(filter) {
+            return this.findOneAndDelete(filter);
+        },
+        async updateOne(filter, update = {}, options = {}) {
+            return this.findOneAndUpdate(filter, update, options);
+        },
+        async updateMany(filter, update = {}) {
+            const pdb = loadPortalDb();
+            const arr = pdb[collectionKey] || [];
+            let modifiedCount = 0;
+            for (const item of arr) {
+                if (matchItem(item, filter)) {
+                    if (update.$set) Object.assign(item, update.$set);
+                    for (const k of Object.keys(update)) {
+                        if (!k.startsWith('$')) item[k] = update[k];
+                    }
+                    modifiedCount++;
+                }
+            }
+            if (modifiedCount > 0) await savePortalDb(pdb);
+            return { acknowledged: true, modifiedCount };
+        }
+    };
+}
+
+function wrapModelWithPortalDbFallback(realModel, collectionKey) {
+    const fallback = createModelFallback(realModel.modelName, collectionKey);
+
+    return new Proxy(realModel, {
+        get(target, prop, receiver) {
+            if (['findOne', 'findById', 'find', 'countDocuments', 'create', 'findByIdAndUpdate', 'findOneAndUpdate', 'findByIdAndDelete', 'findOneAndDelete', 'deleteMany', 'deleteOne', 'updateOne', 'updateMany'].includes(prop)) {
+                return function(...args) {
+                    if (isMongoConnected) {
+                        try {
+                            const res = target[prop](...args);
+                            if (res && typeof res.catch === 'function') {
+                                return res.catch(err => {
+                                    if (err.message && (err.message.includes('before initial connection') || err.message.includes('buffering timed out') || err.message.includes('topology was destroyed') || err.message.includes('ECONNREFUSED'))) {
+                                        return fallback[prop](...args);
+                                    }
+                                    throw err;
+                                });
+                            }
+                            return res;
+                        } catch (err) {
+                            if (err.message && (err.message.includes('before initial connection') || err.message.includes('buffering timed out') || err.message.includes('topology was destroyed') || err.message.includes('ECONNREFUSED'))) {
+                                return fallback[prop](...args);
+                            }
+                            throw err;
+                        }
+                    } else {
+                        return fallback[prop](...args);
+                    }
+                };
+            }
+            const orig = Reflect.get(target, prop, receiver);
+            return typeof orig === 'function' ? orig.bind(target) : orig;
+        },
+        construct(target, args) {
+            if (isMongoConnected) {
+                try {
+                    return Reflect.construct(target, args);
+                } catch (e) {}
+            }
+            const doc = { ...(args[0] || {}) };
+            return wrapDoc(doc, collectionKey);
+        }
+    });
+}
+
+// Compile Models with Resilient PortalDb Fallback Proxy
+const Admin = wrapModelWithPortalDbFallback(mongoose.model('Admin', AdminSchema), 'admins');
+const TuitionCenter = wrapModelWithPortalDbFallback(mongoose.model('TuitionCenter', CenterSchema), 'centers');
+const StudyMaterial = wrapModelWithPortalDbFallback(mongoose.model('StudyMaterial', StudyMaterialSchema), 'studyMaterials');
+const Student = wrapModelWithPortalDbFallback(mongoose.model('Student', StudentSchema), 'students');
+const AffiliationApplication = wrapModelWithPortalDbFallback(mongoose.model('AffiliationApplication', AffiliationApplicationSchema), 'affiliationApplications');
+const AdmissionInquiry = wrapModelWithPortalDbFallback(mongoose.model('AdmissionInquiry', AdmissionInquirySchema), 'admissionInquiries');
+const PaymentTransaction = wrapModelWithPortalDbFallback(mongoose.model('PaymentTransaction', PaymentTransactionSchema), 'paymentTransactions');
+const Settings = wrapModelWithPortalDbFallback(mongoose.model('Settings', SettingsSchema), 'settings');
+const WithdrawalRequest = wrapModelWithPortalDbFallback(mongoose.model('WithdrawalRequest', WithdrawalRequestSchema), 'withdrawals');
+const SupportTicket = wrapModelWithPortalDbFallback(mongoose.model('SupportTicket', SupportTicketSchema), 'supportTickets');
+const TeacherAccount = wrapModelWithPortalDbFallback(mongoose.model('TeacherAccount', TeacherAccountSchema), 'teachers');
+const LiveClassSession = wrapModelWithPortalDbFallback(mongoose.model('LiveClassSession', LiveClassSessionSchema), 'liveSessions');
 
 // ============================================================
 // 2. HELPER UTILITIES & AUTH MIDDLEWARES
@@ -1214,9 +1645,9 @@ async function initSystem() {
     });
 
     try {
+        const pdb = loadPortalDb();
         if (!isMongoConnected) {
             console.log('📁 Operating on Local/GitHub Persistent Data Engine.');
-            return;
         }
 
         // Ensure Default Admin
