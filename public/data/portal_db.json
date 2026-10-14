@@ -1,1 +1,17 @@
-
+{
+  "centers": [],
+  "courses": [],
+  "studyMaterials": {
+    "notes": []
+  },
+  "settings": {},
+  "admins": [],
+  "bharti_auto_push_log": {
+    "2026-10-14_afternoon": {
+      "dispatchedAt": "2026-10-14T09:15:49.766Z",
+      "slot": "afternoon",
+      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
+      "body": "दोपहर का रिविजन: क्या आपने आज का रिविजन पूरा किया? क्लास 9वीं, 10वीं व 12वीं के फॉर्मूला शीट्स ई-लाइब्रेरी से पढ़ें। 📚"
+    }
+  }
+}
