@@ -2095,6 +2095,32 @@
             if (tId === 'central-live') initAdminCentralLive();
         }
 
+        // Universal Admin Toast Notification
+        function showToast(msg, icon = 'check-circle', color = '#10b981') {
+            try {
+                let toast = document.getElementById('adminConsoleToast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'adminConsoleToast';
+                    toast.style.cssText = 'position:fixed; bottom:28px; right:28px; z-index:999999; display:none; align-items:center; gap:12px; background:rgba(15,23,42,0.95); backdrop-filter:blur(10px); color:#f8fafc; border:1px solid #10b981; padding:12px 22px; border-radius:12px; box-shadow:0 12px 35px rgba(0,0,0,0.6); font-size:13.5px; font-weight:600; pointer-events:none; transition:all 0.3s cubic-bezier(0.16,1,0.3,1);';
+                    document.body.appendChild(toast);
+                }
+                toast.style.borderColor = color;
+                toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color}; font-size:17px;"></i> <span>${msg}</span>`;
+                toast.style.display = 'flex';
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+                if (toast._timer) clearTimeout(toast._timer);
+                toast._timer = setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    setTimeout(() => { toast.style.display = 'none'; }, 300);
+                }, 4000);
+            } catch(e) {
+                console.log('[Toast Notice]', msg);
+            }
+        }
+
         // ============================================
         // CENTRAL LIVE STUDIO & PROGRAMS BROADCAST ENGINE
         // ============================================
@@ -2257,12 +2283,12 @@
                     startAdminLiveChatMonitor();
                     showToast('🌟 Broadcast is LIVE across platform & website homepage!');
                 } else {
-                    alert(data.message || 'Failed to start live broadcast');
+                    showToast(data.message || 'Failed to start live broadcast', 'triangle-exclamation', '#ef4444');
                 }
             } catch(err) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-tower-broadcast"></i> GO LIVE ACROSS PLATFORM';
-                alert('Error starting live program: ' + err.message);
+                showToast('Notice: ' + err.message, 'triangle-exclamation', '#ef4444');
             }
         }
 
@@ -2288,8 +2314,10 @@
                 document.getElementById('btnAdminEndBroadcast').style.display = 'none';
                 document.getElementById('adminSpectatorCountBadge').style.display = 'none';
                 showToast('Central broadcast concluded and archived successfully.');
+                loadAdminAllRecordings();
+                loadAdminLiveMonitorDeck();
             } catch(e) {
-                alert('Error ending live: ' + e.message);
+                showToast('Notice: ' + e.message, 'circle-info', '#f59e0b');
             }
         }
 

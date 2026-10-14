@@ -6858,19 +6858,34 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
 // END Central Admin Live Class / Special Program
 app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
     try {
-        const { classId, recordedVideoUrl, youtubeVideoId } = req.body;
+        const { classId, recordedVideoUrl, youtubeVideoId, youtubeWatchUrl, youtubeLiveUrl } = req.body;
         if (!classId) return res.status(400).json({ success: false, message: 'Class ID required' });
 
         const session = await LiveClassSession.findOne({ sessionId: classId });
         const room = activeLiveRooms.get(classId);
 
-        let finalVideoUrl = recordedVideoUrl || '';
-        let finalYoutubeId = youtubeVideoId || '';
+        let finalVideoUrl = (recordedVideoUrl || '').trim();
+        let finalYoutubeId = (youtubeVideoId || '').trim();
+        let isArchivedToYoutube = false;
+
+        const candidateYt = (youtubeWatchUrl || youtubeLiveUrl || finalVideoUrl || (session ? (session.youtubeWatchUrl || session.youtubeLiveUrl) : '') || (room ? room.youtubeLiveUrl : '') || '').trim();
+        const ytMatch = candidateYt.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
+        if (ytMatch) {
+            finalYoutubeId = ytMatch[1];
+            finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
+            isArchivedToYoutube = true;
+        } else if (candidateYt) {
+            finalVideoUrl = candidateYt;
+            isArchivedToYoutube = true;
+        }
+
         if (session) {
             session.status = 'ended';
             session.endedAt = new Date();
             if (finalVideoUrl) session.recordingUrl = finalVideoUrl;
             if (finalYoutubeId) session.youtubeVideoId = finalYoutubeId;
+            session.youtubeWatchUrl = finalVideoUrl;
+            session.isArchivedToYoutube = isArchivedToYoutube;
             if (room && room.chat) session.messages = room.chat;
             await session.save();
         }
@@ -6887,7 +6902,7 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
         }
 
         clearCache();
-        res.json({ success: true, message: 'Central live program concluded successfully.' });
+        res.json({ success: true, message: 'Central live program concluded successfully.', recordingUrl: finalVideoUrl });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6896,37 +6911,26 @@ app.post('/api/admin/live/end', verifySuperAdmin, async (req, res) => {
 // END Live Class Session & Archive to YouTube / Vault
 app.post('/api/live/end', verifyTeacher, async (req, res) => {
     try {
-        const { classId, recordedVideoUrl, youtubeVideoId, youtubeLiveUrl } = req.body;
+        const { classId, recordedVideoUrl, youtubeVideoId, youtubeLiveUrl, youtubeWatchUrl } = req.body;
         if (!classId) return res.status(400).json({ success: false, message: 'Class ID required' });
 
         const session = await LiveClassSession.findOne({ sessionId: classId });
         const room = activeLiveRooms.get(classId);
 
-        let finalVideoUrl = recordedVideoUrl || '';
-        let finalYoutubeId = youtubeVideoId || '';
+        let finalVideoUrl = (recordedVideoUrl || '').trim();
+        let finalYoutubeId = (youtubeVideoId || '').trim();
         let isArchivedToYoutube = false;
 
-        // If teacher passed a real YouTube Live URL / video link
-        const candidateYt = (youtubeLiveUrl || finalVideoUrl || '').trim();
+        // If teacher passed or session had a real YouTube Live URL / video link
+        const candidateYt = (youtubeWatchUrl || youtubeLiveUrl || finalVideoUrl || (session ? (session.youtubeWatchUrl || session.youtubeLiveUrl) : '') || (room ? room.youtubeLiveUrl : '') || '').trim();
         const ytMatch = candidateYt.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/))([a-zA-Z0-9_-]{11})/);
         if (ytMatch) {
             finalYoutubeId = ytMatch[1];
             finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
             isArchivedToYoutube = true;
-        }
-
-        // Fetch YouTube Global Config
-        if (!isArchivedToYoutube) {
-            const settings = await Settings.findOne();
-            if (settings && (settings.youtubeApiKey || settings.youtubeChannelId)) {
-                isArchivedToYoutube = true;
-                if (!finalYoutubeId) {
-                    finalYoutubeId = 'yt_bbcc_' + classId.toLowerCase().slice(-8);
-                }
-                if (!finalVideoUrl) {
-                    finalVideoUrl = `https://www.youtube.com/watch?v=${finalYoutubeId}`;
-                }
-            }
+        } else if (candidateYt) {
+            finalVideoUrl = candidateYt;
+            isArchivedToYoutube = true;
         }
 
         if (session) {
@@ -7035,14 +7039,25 @@ app.get('/api/live/recordings', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         const { centerId, courseId, teacherId } = req.query;
-        const query = { status: { $in: ['ended', 'archived'] } };
-        if (centerId) query.centerId = centerId;
-        if (courseId) query.courseId = courseId;
+        let query = { status: { $in: ['ended', 'archived'] } };
         if (teacherId) {
             query.$or = [{ teacherId: teacherId }, { teacherName: teacherId }];
+        } else if (centerId) {
+            query.$or = [
+                { centerId: centerId },
+                { isCentralAdmin: true },
+                { centerId: '' },
+                { centerId: 'all' }
+            ];
         }
+        if (courseId) query.courseId = courseId;
 
-        const sessions = await LiveClassSession.find(query).sort({ endedAt: -1, createdAt: -1 }).limit(60).lean();
+        const rawSessions = await LiveClassSession.find(query).sort({ endedAt: -1, createdAt: -1 }).limit(60).lean();
+        const sessions = rawSessions.map(s => ({
+            ...s,
+            videoUrl: s.recordingUrl || s.youtubeWatchUrl || s.youtubeLiveUrl || s.videoUrl || '',
+            youtubeWatchUrl: s.youtubeWatchUrl || s.recordingUrl || s.youtubeLiveUrl || ''
+        }));
 
         // Also fetch from TuitionCenter courses.recordedLectures
         let centerRecordings = [];
