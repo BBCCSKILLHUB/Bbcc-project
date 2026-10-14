@@ -87,6 +87,29 @@
       "courses": [],
       "materials": [],
       "promotionalBanners": []
+    },
+    {
+      "_id": "6acfa409b4614ef193929384",
+      "createdAt": "2026-10-14T15:47:22.034Z",
+      "updatedAt": "2026-10-14T15:47:22.034Z",
+      "centerName": "PTCC + BBCC",
+      "username": "jks9971",
+      "password": "$2a$10$LfgY4N/Wuk2KlnkX/D3aUezyJ1dOeuTDOadYngXZ8E3Q3lGMh1taG",
+      "directorName": "Jagannath sir",
+      "address": "Chakdah Chowk Near Railway station  Madhubani Bihar 847211",
+      "contactNumber": "9971095964",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-841826",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T15:47:21.827Z",
+      "walletBalance": 0,
+      "dueAmount": 0,
+      "isBlocked": false,
+      "teachers": [],
+      "courses": [],
+      "materials": []
     }
   ],
   "studyMaterials": {
