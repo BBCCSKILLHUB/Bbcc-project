@@ -4214,7 +4214,7 @@
             }
             grid.innerHTML = items.map(img => `
                 <div class="gallery-card">
-                    <img src="${img.image}" alt="${img.title || 'Campus Photo'}" onerror="this.onerror=null; this.src='/data/photos/bbcc_campus.png';">
+                    <img src="${img.image}" alt="${img.title || 'Campus Photo'}" onerror="this.onerror=null; this.parentElement.style.display='none';">
                     <div class="gallery-card-caption">
                         <i class="fas fa-camera-retro" style="color:var(--aurora-gold); margin-right:6px;"></i> ${img.title || 'Campus Event'}
                     </div>
