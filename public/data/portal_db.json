@@ -52,7 +52,31 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "6acfaf300dc113666ab57e45",
+      "createdAt": "2026-10-14T16:34:56.846Z",
+      "updatedAt": "2026-10-14T16:34:56.846Z",
+      "centerName": "Audit Excellence Academy",
+      "username": "audit-center-6718",
+      "password": "$2a$10$RbmvgpxCKDUpMuxnyRkLFuX0aUhNq1etQHLTCitox.7PZmI2iEYHq",
+      "directorName": "Er. Rajesh Kumar",
+      "address": "Patna, Bihar",
+      "contactNumber": "9876543210",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 500,
+      "affiliationCertificateId": "BBCC-AFF-696842",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T16:34:56.842Z",
+      "walletBalance": 0,
+      "dueAmount": 0,
+      "isBlocked": false,
+      "teachers": [],
+      "courses": [],
+      "materials": []
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": [],
