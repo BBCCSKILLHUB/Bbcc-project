@@ -1547,15 +1547,27 @@
                             </form>
 
                             <!-- Live Doubts & Audience Questions Box -->
-                            <div style="background:#030712; border:1px solid rgba(251,191,36,0.25); border-radius:14px; padding:16px; flex:1; display:flex; flex-direction:column; max-height:280px;">
+                            <div style="background:#030712; border:1px solid rgba(251,191,36,0.25); border-radius:14px; padding:16px; flex:1; display:flex; flex-direction:column; max-height:340px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                    <h4 style="font-size:13px; font-weight:700; color:#fff; margin:0;"><i class="fas fa-comments" style="color:var(--cyan);"></i> Audience Doubts Desk</h4>
-                                    <span style="font-size:10.5px; color:var(--admin-gold);"><i class="fas fa-bolt"></i> Live Feed</span>
+                                    <h4 style="font-size:13px; font-weight:700; color:#fff; margin:0;"><i class="fas fa-comments" style="color:var(--cyan);"></i> Audience Doubts & Live Chat</h4>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <span style="font-size:10.5px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:2px 8px; border-radius:12px; font-weight:700;">
+                                            <i class="fas fa-users"></i> <span id="adminLiveAudienceHeaderCount">0</span> Live
+                                        </span>
+                                        <span style="font-size:10.5px; color:var(--admin-gold);"><i class="fas fa-bolt"></i> Live Feed</span>
+                                    </div>
                                 </div>
-                                <div id="adminLiveChatBox" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; font-size:12px; padding-right:4px;">
+                                <div id="adminLiveChatBox" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; font-size:12px; padding-right:4px; min-height:160px; max-height:210px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:10px;">
                                     <div style="text-align:center; color:#64748b; padding:20px; font-size:12px;">
                                         Live questions asked by students during the broadcast will stream here in real-time.
                                     </div>
+                                </div>
+                                <!-- Live Chat Input for Admin -->
+                                <div style="display:flex; gap:8px;">
+                                    <input type="text" id="adminLiveChatInput" placeholder="Type announcement or reply to students..." class="console-input" style="font-size:12px; padding:7px 12px; flex:1; background:rgba(255,255,255,0.04);" onkeydown="if(event.key==='Enter') sendAdminLiveChatMessage()">
+                                    <button type="button" onclick="sendAdminLiveChatMessage()" class="btn-aurora btn-gold" style="padding:7px 14px; font-size:12px; white-space:nowrap;">
+                                        <i class="fas fa-paper-plane"></i> Send
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2148,6 +2160,8 @@
         let adminChatPollInterval = null;
         let adminFrameRelayInterval = null;
         let adminIsScreenSharing = false;
+        let adminMediaRecorder = null;
+        let adminRecordedChunks = [];
 
         async function initAdminCentralLive() {
             try {
@@ -2297,6 +2311,23 @@
                     document.getElementById('btnAdminEndBroadcast').style.display = 'inline-flex';
                     document.getElementById('adminSpectatorCountBadge').style.display = 'block';
 
+                    // Start Local MediaRecorder for crystal clear lecture vault recording
+                    if (window.MediaRecorder && adminLocalStream) {
+                        try {
+                            adminRecordedChunks = [];
+                            let mime = 'video/webm;codecs=vp9,opus';
+                            if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8,opus';
+                            if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+                            adminMediaRecorder = new MediaRecorder(adminLocalStream, { mimeType: mime });
+                            adminMediaRecorder.ondataavailable = (e) => {
+                                if (e.data && e.data.size > 0) adminRecordedChunks.push(e.data);
+                            };
+                            adminMediaRecorder.start(2000);
+                        } catch(rErr) {
+                            console.warn('Admin MediaRecorder notice:', rErr);
+                        }
+                    }
+
                     startAdminFrameRelay();
                     startAdminLiveChatMonitor();
                     showToast('🌟 Broadcast is LIVE across platform & website homepage!');
@@ -2312,18 +2343,58 @@
 
         async function handleAdminEndLive() {
             if (!confirm('Are you sure you want to conclude this Central Live Program?')) return;
+            const concludingClassId = adminActiveLiveClassId;
             try {
+                if (adminMediaRecorder && adminMediaRecorder.state !== 'inactive') {
+                    adminMediaRecorder.stop();
+                }
+
+                let recordedVideoUrl = '';
+                if (adminRecordedChunks.length > 0) {
+                    try {
+                        showToast('Archiving lecture video to server vault...', 'cloud-arrow-up', '#38bdf8');
+                        const blob = new Blob(adminRecordedChunks, { type: 'video/webm' });
+                        const base64Data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+
+                        const upRes = await fetch('/api/live/upload-recording', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                classId: concludingClassId,
+                                videoBlobBase64: base64Data,
+                                title: document.getElementById('adminLiveTitle').value.trim() || 'Central Program Lecture',
+                                teacherName: document.getElementById('adminLiveHost').value.trim() || 'BBCC Central Directorate'
+                            })
+                        });
+                        const upData = await upRes.json();
+                        if (upData.success && upData.videoUrl) {
+                            recordedVideoUrl = upData.videoUrl;
+                        }
+                    } catch(upErr) {
+                        console.warn('Admin recording upload notice:', upErr);
+                    }
+                }
+
                 const res = await fetch('/api/admin/live/end', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ classId: adminActiveLiveClassId })
+                    body: JSON.stringify({ classId: concludingClassId, recordedVideoUrl })
                 });
                 const data = await res.json();
                 adminIsLiveBroadcasting = false;
                 adminActiveLiveClassId = '';
+                adminRecordedChunks = [];
+                adminMediaRecorder = null;
                 if (adminChatPollInterval) clearInterval(adminChatPollInterval);
                 if (adminFrameRelayInterval) clearInterval(adminFrameRelayInterval);
 
@@ -2370,21 +2441,89 @@
                 try {
                     const res = await fetch(`/api/live/chat/${adminActiveLiveClassId}?_t=` + Date.now());
                     const data = await res.json();
-                    if (data.success && data.chat) {
-                        const box = document.getElementById('adminLiveChatBox');
-                        box.innerHTML = data.chat.map(m => `
-                            <div style="background:rgba(255,255,255,0.05); border-left:3px solid #38bdf8; padding:6px 10px; border-radius:6px;">
-                                <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#94a3b8; margin-bottom:2px;">
-                                    <strong style="color:#38bdf8;">${m.sender}</strong>
-                                    <span>${new Date(m.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>
-                                </div>
-                                <div style="color:#ffffff;">${m.text}</div>
-                            </div>
-                        `).join('');
-                        box.scrollTop = box.scrollHeight;
+                    if (data.success) {
+                        if (data.chat) {
+                            const box = document.getElementById('adminLiveChatBox');
+                            if (data.chat.length === 0) {
+                                box.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px; font-size:12px;">Live questions asked by students during the broadcast will stream here in real-time.</div>';
+                            } else {
+                                box.innerHTML = data.chat.map(m => {
+                                    const isAdmin = m.role === 'admin' || (m.sender && m.sender.includes('Admin'));
+                                    const borderCol = isAdmin ? 'var(--admin-gold)' : '#38bdf8';
+                                    const senderCol = isAdmin ? 'var(--admin-gold)' : '#38bdf8';
+                                    return `
+                                        <div style="background:rgba(255,255,255,0.05); border-left:3px solid ${borderCol}; padding:6px 10px; border-radius:6px;">
+                                            <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#94a3b8; margin-bottom:2px;">
+                                                <strong style="color:${senderCol};"><i class="${isAdmin ? 'fas fa-shield-alt' : 'fas fa-user-graduate'}"></i> ${m.sender}</strong>
+                                                <span>${new Date(m.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>
+                                            </div>
+                                            <div style="color:#ffffff;">${m.text}</div>
+                                        </div>
+                                    `;
+                                }).join('');
+                                box.scrollTop = box.scrollHeight;
+                            }
+                        }
+
+                        // Update audience count in real-time
+                        const count = data.activeStudentsCount || 0;
+                        const specEl = document.getElementById('adminLiveSpectatorText');
+                        if (specEl) specEl.textContent = count + (count === 1 ? ' Student Watching' : ' Students Watching');
+                        const headEl = document.getElementById('adminLiveAudienceHeaderCount');
+                        if (headEl) headEl.textContent = count;
                     }
                 } catch(e) {}
             }, 3000);
+        }
+
+        async function sendAdminLiveChatMessage() {
+            const input = document.getElementById('adminLiveChatInput');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+            if (!adminActiveLiveClassId) {
+                showToast('Please start a live broadcast first to send messages.', 'triangle-exclamation', '#f59e0b');
+                return;
+            }
+
+            try {
+                input.value = '';
+                const res = await fetch('/api/live/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        classId: adminActiveLiveClassId,
+                        senderName: 'BBCC Directorate (Admin)',
+                        role: 'admin',
+                        text
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const box = document.getElementById('adminLiveChatBox');
+                    const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+                    const msgHtml = `
+                        <div style="background:rgba(255,255,255,0.05); border-left:3px solid var(--admin-gold); padding:6px 10px; border-radius:6px;">
+                            <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#94a3b8; margin-bottom:2px;">
+                                <strong style="color:var(--admin-gold);"><i class="fas fa-shield-alt"></i> BBCC Directorate (Admin)</strong>
+                                <span>${timeStr}</span>
+                            </div>
+                            <div style="color:#ffffff;">${text}</div>
+                        </div>
+                    `;
+                    if (box.innerHTML.includes('Live questions asked by students')) {
+                        box.innerHTML = msgHtml;
+                    } else {
+                        box.innerHTML += msgHtml;
+                    }
+                    box.scrollTop = box.scrollHeight;
+                }
+            } catch(e) {
+                console.warn('Chat send error:', e.message);
+            }
         }
 
         // ============================================
@@ -2625,10 +2764,13 @@
                                     <i class="fas fa-play"></i> Play
                                 </button>
                                 ${r.isLocalFile && r.videoUrl ? `
-                                    <a href="${r.videoUrl}" download class="btn-aurora" style="background:rgba(255,255,255,0.06); padding:4px 8px; font-size:11px; color:#38bdf8;">
+                                    <a href="${r.videoUrl}" download class="btn-aurora" style="background:rgba(255,255,255,0.06); padding:4px 8px; font-size:11px; color:#38bdf8;" title="Download Video">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 ` : ''}
+                                <button onclick="deleteAdminRecording('${r.sessionId || ''}', '${r.centerId || ''}', '${r.courseId || ''}', '${r.lectureId || r._id || ''}', '${encodeURIComponent(r.videoUrl || '')}', '${encodeURIComponent(r.title || '')}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 8px; font-size:11px;" title="Delete Lecture">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -2698,6 +2840,34 @@
                     iframe.style.display = 'block';
                 }
                 modal.style.display = 'flex';
+            }
+        }
+
+        async function deleteAdminRecording(sessionId, centerId, courseId, lectureId, videoUrlEncoded, titleEncoded) {
+            const title = decodeURIComponent(titleEncoded || 'this lecture');
+            if (!confirm(`Are you sure you want to permanently delete "${title}" from the recorded lectures vault? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const videoUrl = decodeURIComponent(videoUrlEncoded || '');
+                const res = await fetch('/api/admin/recording/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ sessionId, centerId, courseId, lectureId, videoUrl })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Lecture permanently deleted from vault.');
+                    loadAdminAllRecordings();
+                } else {
+                    showToast(data.message || 'Failed to delete lecture', 'triangle-exclamation', '#ef4444');
+                }
+            } catch(e) {
+                showToast('Error: ' + e.message, 'triangle-exclamation', '#ef4444');
             }
         }
 

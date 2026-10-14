@@ -7340,16 +7340,24 @@ app.post('/api/live/chat', async (req, res) => {
     }
 });
 
-// Get Live Classroom Chat Messages
+// Get Live Classroom Chat Messages & Active Audience Count
 app.get('/api/live/chat/:classId', async (req, res) => {
     try {
         const { classId } = req.params;
         const room = activeLiveRooms.get(classId);
         if (room) {
-            return res.json({ success: true, chat: room.chat || [] });
+            return res.json({
+                success: true,
+                chat: room.chat || [],
+                activeStudentsCount: (room.students ? room.students.size : 0)
+            });
         }
         const session = await LiveClassSession.findOne({ sessionId: classId });
-        res.json({ success: true, chat: session ? (session.messages || []) : [] });
+        res.json({
+            success: true,
+            chat: session ? (session.messages || []) : [],
+            activeStudentsCount: session ? (session.activeStudentsCount || 0) : 0
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -7429,6 +7437,10 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
             return {
                 _id: s._id,
                 sessionId: s.sessionId,
+                centerId: s.centerId || '',
+                courseId: s.courseId || '',
+                lectureId: '',
+                sourceType: 'session',
                 title: s.title || 'Live Interactive Class',
                 teacherName: s.teacherName || 'Faculty',
                 coachingName: centerTitle,
@@ -7455,6 +7467,10 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
                         centerRecordings.push({
                             _id: rl._id,
                             sessionId: 'REC_' + (rl._id ? rl._id.toString() : Date.now()),
+                            centerId: c._id ? c._id.toString() : '',
+                            courseId: crs._id ? crs._id.toString() : '',
+                            lectureId: rl._id ? rl._id.toString() : '',
+                            sourceType: 'center_course',
                             title: rl.title,
                             teacherName: rl.teacherName || 'Faculty',
                             coachingName: c.centerName,
@@ -7482,6 +7498,74 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
         });
 
         res.json({ success: true, count: unique.length, recordings: unique });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Super Admin Delete Recorded Lecture from Vault
+app.post('/api/admin/recording/delete', verifySuperAdmin, async (req, res) => {
+    try {
+        const { sessionId, centerId, courseId, lectureId, videoUrl } = req.body;
+        if (!sessionId && !lectureId && !videoUrl) {
+            return res.status(400).json({ success: false, message: 'Lecture identifier required to delete.' });
+        }
+
+        let deleted = false;
+
+        // 1. If it's a LiveClassSession
+        if (sessionId && !sessionId.startsWith('REC_')) {
+            const delSession = await LiveClassSession.findOneAndDelete({ sessionId });
+            if (delSession) deleted = true;
+        }
+
+        // 2. If it's a Coaching Center Course Recorded Lecture
+        if (centerId && courseId && lectureId) {
+            try {
+                const center = await TuitionCenter.findById(centerId);
+                if (center && center.courses) {
+                    const crs = center.courses.id(courseId);
+                    if (crs && crs.recordedLectures) {
+                        crs.recordedLectures = crs.recordedLectures.filter(l => l._id && l._id.toString() !== lectureId);
+                        await center.save();
+                        deleted = true;
+                    }
+                }
+            } catch (cErr) {}
+        } else if (lectureId) {
+            try {
+                const centers = await TuitionCenter.find({ 'courses.recordedLectures._id': lectureId });
+                for (const center of centers) {
+                    let mod = false;
+                    for (const crs of (center.courses || [])) {
+                        if (crs.recordedLectures) {
+                            const initLen = crs.recordedLectures.length;
+                            crs.recordedLectures = crs.recordedLectures.filter(l => l._id && l._id.toString() !== lectureId);
+                            if (crs.recordedLectures.length !== initLen) mod = true;
+                        }
+                    }
+                    if (mod) {
+                        await center.save();
+                        deleted = true;
+                    }
+                }
+            } catch (lErr) {}
+        }
+
+        // 3. If local file exists, safely remove from disk
+        if (videoUrl && typeof videoUrl === 'string' && videoUrl.includes('/data/recordings/')) {
+            try {
+                const fName = path.basename(videoUrl);
+                const fPath = path.join(__dirname, 'public', 'data', 'recordings', fName);
+                if (fs.existsSync(fPath)) {
+                    fs.unlinkSync(fPath);
+                    deleted = true;
+                }
+            } catch (fErr) {}
+        }
+
+        clearCache();
+        res.json({ success: true, message: 'Recorded lecture deleted successfully.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

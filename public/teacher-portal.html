@@ -1529,17 +1529,26 @@
                     statusText.textContent = 'Uploading high-definition recorded lecture to server vault...';
                     try {
                         const blob = new Blob(teacherRecordedChunks, { type: 'video/webm' });
-                        const formData = new FormData();
-                        formData.append('video', blob, `${currentClassId}.webm`);
-                        formData.append('classId', currentClassId);
-                        formData.append('title', document.getElementById('liveClassTitleInput').value.trim() || 'Recorded Lecture');
-                        formData.append('courseId', document.getElementById('selectCourseBatch').value || '');
-                        formData.append('subject', currentTeacher ? currentTeacher.subject : '');
+                        const base64Data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
 
                         const upRes = await fetch('/api/live/upload-recording', {
                             method: 'POST',
-                            headers: { 'Authorization': `Bearer ${teacherToken}` },
-                            body: formData
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${teacherToken}`
+                            },
+                            body: JSON.stringify({
+                                classId: currentClassId,
+                                videoBlobBase64: base64Data,
+                                title: document.getElementById('liveClassTitleInput').value.trim() || 'Recorded Lecture',
+                                courseId: document.getElementById('selectCourseBatch').value || '',
+                                subject: currentTeacher ? currentTeacher.subject : '',
+                                teacherName: currentTeacher ? currentTeacher.name : ''
+                            })
                         });
                         const upData = await upRes.json();
                         if (upData.success && upData.videoUrl) {
