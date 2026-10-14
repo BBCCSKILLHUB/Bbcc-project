@@ -795,10 +795,18 @@
                             <input type="text" id="liveClassTitleInput" placeholder="e.g. Chapter 4: Electric Current & Ohm's Law (Board Special)" class="input-control" style="padding-left:14px;">
                         </div>
                         <div>
-                            <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">
-                                <i class="fab fa-youtube" style="color:#ef4444;"></i> Optional: YouTube Live Broadcast Link
-                            </label>
-                            <input type="text" id="liveYoutubeUrlInput" placeholder="https://youtube.com/live/... (or leave empty for browser studio)" class="input-control" style="padding-left:14px; font-family:monospace;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">
+                                    <i class="fab fa-youtube" style="color:#ef4444;"></i> YouTube Live (Auto-Linked)
+                                </label>
+                                <span style="font-size:10.5px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:2px 8px; border-radius:12px; font-weight:700;">
+                                    <i class="fas fa-bolt"></i> Auto API Sync Active
+                                </span>
+                            </div>
+                            <input type="text" id="liveYoutubeUrlInput" placeholder="⚡ Auto-linked with YouTube API (leave blank for automatic live)" class="input-control" style="padding-left:14px; font-family:monospace; background:rgba(255,255,255,0.03);">
+                            <small style="font-size:11px; color:#94a3b8; display:block; margin-top:4px;">
+                                <i class="fas fa-circle-check" style="color:#10b981;"></i> <b>लिंक कॉपी करने की आवश्यकता नहीं है!</b> सीधे स्टार्ट दबाएं, सिस्टम स्वचालित रूप से यूट्यूब API से लिंक कर देता है।
+                            </small>
                         </div>
                     </div>
                 </div>

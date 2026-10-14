@@ -6598,6 +6598,98 @@ app.get('/api/teacher/centers-courses', verifyTeacher, async (req, res) => {
     }
 });
 
+// Universal Auto YouTube Live Linker (uses configured YouTube Data API Key, OAuth, or Channel ID)
+async function resolveAutoYouTubeLive(customUrl, title = '') {
+    let finalUrl = (customUrl || '').trim();
+    if (finalUrl) return finalUrl;
+
+    try {
+        const settings = await Settings.findOne();
+        const apiKey = (settings?.youtubeApiKey || DEFAULT_YT_KEY || '').trim();
+        const channelId = (settings?.youtubeChannelId || '').trim();
+        const clientId = (settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
+        const clientSecret = (settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
+        const refreshToken = (settings?.youtubeRefreshToken || '').trim();
+
+        // Method 1: If OAuth Refresh Token exists, auto-create a Live Broadcast via YouTube API!
+        if (refreshToken && clientId && clientSecret) {
+            try {
+                const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        refresh_token: refreshToken,
+                        grant_type: 'refresh_token'
+                    })
+                });
+                const tokenData = await tokenRes.json();
+                if (tokenData.access_token) {
+                    const broadcastRes = await fetch('https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status,contentDetails', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${tokenData.access_token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            snippet: {
+                                title: (title || 'BBCC SKILL HUB Live Program').slice(0, 100),
+                                scheduledStartTime: new Date().toISOString()
+                            },
+                            status: {
+                                privacyStatus: settings?.youtubePrivacyStatus || 'public'
+                            },
+                            contentDetails: {
+                                enableAutoStart: true,
+                                enableAutoStop: true
+                            }
+                        })
+                    });
+                    const bData = await broadcastRes.json();
+                    if (bData && bData.id) {
+                        console.log('[YouTube API] Auto-created live broadcast:', bData.id);
+                        return `https://www.youtube.com/watch?v=${bData.id}`;
+                    }
+                }
+            } catch (oauthErr) {
+                console.warn('[YouTube API] Auto-broadcast OAuth notice:', oauthErr.message);
+            }
+        }
+
+        // Method 2: If channelId & apiKey exist, query YouTube Data API for currently active live stream on channel!
+        if (channelId && apiKey) {
+            try {
+                const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(channelId)}&eventType=live&type=video&key=${encodeURIComponent(apiKey)}`;
+                const searchRes = await fetch(searchUrl);
+                const sData = await searchRes.json();
+                if (sData.items && sData.items.length > 0 && sData.items[0].id?.videoId) {
+                    console.log('[YouTube API] Auto-detected active channel live stream:', sData.items[0].id.videoId);
+                    return `https://www.youtube.com/watch?v=${sData.items[0].id.videoId}`;
+                }
+            } catch (sErr) {}
+
+            return `https://www.youtube.com/channel/${channelId}/live`;
+        }
+
+        // Method 3: If apiKey exists, search active live stream on YouTube under BBCC keyword!
+        if (apiKey) {
+            try {
+                const qSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=BBCC+SKILL+HUB&eventType=live&type=video&maxResults=1&key=${encodeURIComponent(apiKey)}`;
+                const qRes = await fetch(qSearchUrl);
+                const qData = await qRes.json();
+                if (qData.items && qData.items.length > 0 && qData.items[0].id?.videoId) {
+                    return `https://www.youtube.com/watch?v=${qData.items[0].id.videoId}`;
+                }
+            } catch (qErr) {}
+        }
+    } catch (e) {
+        console.warn('resolveAutoYouTubeLive notice:', e.message);
+    }
+
+    return '';
+}
+
 // START Live Class Session (Teacher Studio)
 app.post('/api/live/start', verifyTeacher, async (req, res) => {
     try {
@@ -6621,6 +6713,9 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             }
         }
 
+        // Automatically resolve YouTube Live using configured API keys / channel
+        const autoYtUrl = await resolveAutoYouTubeLive(req.body.youtubeLiveUrl, title.trim());
+
         const session = await LiveClassSession.create({
             sessionId: classId,
             teacherId: req.teacher.teacherId || req.teacher.id,
@@ -6632,6 +6727,8 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             subject: subject || req.teacher.subject || 'All Subjects',
             title: title.trim(),
             status: 'live',
+            youtubeLiveUrl: autoYtUrl,
+            youtubeWatchUrl: autoYtUrl,
             startedAt: new Date(),
             activeStudentsCount: 0
         });
@@ -6650,7 +6747,8 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             title: title.trim(),
             status: 'live',
             isCentralAdmin: false,
-            youtubeLiveUrl: (req.body.youtubeLiveUrl || '').trim(),
+            youtubeLiveUrl: autoYtUrl,
+            autoYoutubeLinked: Boolean(autoYtUrl),
             teacherSignal: null,
             latestFrame: null,
             lastFrameTime: 0,
@@ -6672,7 +6770,9 @@ app.post('/api/live/start', verifyTeacher, async (req, res) => {
             teacherName: session.teacherName,
             courseName: session.courseName,
             centerName: session.centerName,
-            message: 'Classroom broadcast is now LIVE!'
+            youtubeLiveUrl: autoYtUrl,
+            autoYoutubeLinked: Boolean(autoYtUrl),
+            message: autoYtUrl ? 'Classroom broadcast is now LIVE & auto-linked with YouTube!' : 'Classroom broadcast is now LIVE!'
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6691,6 +6791,9 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
         const finalHost = (hostName && hostName.trim()) ? hostName.trim() : 'BBCC Central Directorate';
         const finalSubject = (subject && subject.trim()) ? subject.trim() : 'Central Special Program';
 
+        // Automatically resolve YouTube Live using configured API keys / channel
+        const autoYtUrl = await resolveAutoYouTubeLive(youtubeLiveUrl, title.trim());
+
         const session = await LiveClassSession.create({
             sessionId: classId,
             teacherId: 'ADMIN_DIRECTORATE',
@@ -6703,7 +6806,8 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
             title: title.trim(),
             status: 'live',
             isCentralAdmin: true,
-            youtubeLiveUrl: (youtubeLiveUrl || '').trim(),
+            youtubeLiveUrl: autoYtUrl,
+            youtubeWatchUrl: autoYtUrl,
             startedAt: new Date(),
             activeStudentsCount: 0
         });
@@ -6721,7 +6825,8 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
             title: title.trim(),
             status: 'live',
             isCentralAdmin: true,
-            youtubeLiveUrl: (youtubeLiveUrl || '').trim(),
+            youtubeLiveUrl: autoYtUrl,
+            autoYoutubeLinked: Boolean(autoYtUrl),
             teacherSignal: null,
             latestFrame: null,
             lastFrameTime: 0,
@@ -6741,7 +6846,9 @@ app.post('/api/admin/live/start', verifySuperAdmin, async (req, res) => {
             classId,
             title: session.title,
             hostName: session.teacherName,
-            message: 'Central Live Program broadcast is now LIVE across the platform!'
+            youtubeLiveUrl: autoYtUrl,
+            autoYoutubeLinked: Boolean(autoYtUrl),
+            message: autoYtUrl ? 'Central Live Program broadcast is LIVE & auto-linked with YouTube!' : 'Central Live Program broadcast is now LIVE across the platform!'
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
