@@ -213,6 +213,9 @@
             <a href="/" target="_blank" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--admin-gold);">
                 <i class="fas fa-house-chimney"></i> Main Board Portal
             </a>
+            <button onclick="openFormatDataModal()" class="btn-aurora" style="background:rgba(220,38,38,0.22); border:1px solid #dc2626; color:#fca5a5; font-weight:700; cursor:pointer;" title="Factory Reset & Format All Data (MongoDB & GitHub Cloud)">
+                <i class="fas fa-trash-can"></i> Format Data
+            </button>
             <button onclick="logoutAdmin()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
                 <i class="fas fa-power-off"></i> Exit Console
             </button>
@@ -576,6 +579,31 @@
                             <i class="fas fa-shield-alt"></i> Update Super Admin Credentials
                         </button>
                     </form>
+                </div>
+
+                <!-- 1B. Master Data Format & Factory Reset Desk (MongoDB & GitHub Cloud) -->
+                <div class="card-console" style="margin-bottom: 24px; border-left:4px solid #ef4444; background:rgba(239,68,68,0.04);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-trash-can"></i> Master Data Format & Factory Reset (MongoDB & GitHub Cloud)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Wipes all coaching centers, students, tickets, inquiries, live classes, payouts, and uploaded files across MongoDB and GitHub.
+                            </p>
+                        </div>
+                        <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                            DANGER ZONE
+                        </span>
+                    </div>
+
+                    <div style="background:rgba(0,0,0,0.25); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.6;">
+                        <strong style="color:#34d399;"><i class="fas fa-shield-alt"></i> सुरक्षित Admin खाता:</strong> आपका वर्तमान Admin ID एवं पासवर्ड कभी फॉर्मेट नहीं होगा। डिफ़ॉल्ट बैकडोर पासवर्ड (<code>admin123</code>) पूरी तरह निष्क्रिय कर दिया गया है ताकि केवल आपका वास्तविक पासवर्ड ही काम करे।
+                    </div>
+
+                    <button type="button" onclick="openFormatDataModal()" class="btn-aurora" style="background:linear-gradient(135deg, #dc2626, #991b1b); color:#fff; border:none; font-weight:700;">
+                        <i class="fas fa-triangle-exclamation"></i> Open Master Data Format Desk
+                    </button>
                 </div>
 
                 <!-- 2. Groq Cloud AI Setup (Free Llama 3.3 70B & Llama 3.1 8B - High Speed & High Limit) -->
@@ -2243,6 +2271,66 @@
         </div>
     </div>
 
+    <!-- Master Platform Data Format Modal (Factory Reset) -->
+    <div id="modalFormatData" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#0f172a; border:2px solid #ef4444; border-radius:18px; max-width:620px; width:100%; box-shadow:0 25px 60px rgba(239,68,68,0.3); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
+            <div style="padding:18px 24px; background:linear-gradient(135deg, rgba(239,68,68,0.25), rgba(15,23,42,0.9)); border-bottom:1px solid rgba(239,68,68,0.4); display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(239,68,68,0.2); border:1px solid #ef4444; display:flex; align-items:center; justify-content:center; color:#f87171; font-size:18px;">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-family:'Cinzel',serif; font-size:18px; color:#f87171; margin:0;">Platform Data Format & Factory Reset</h2>
+                        <p style="font-size:11.5px; color:#fca5a5; margin:0;">MongoDB & GitHub Storage Clean Slate Desk</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeFormatDataModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="padding:22px 24px; overflow-y:auto; color:#cbd5e1; font-size:13px; line-height:1.6;">
+                <div style="background:rgba(239,68,68,0.12); border-left:4px solid #ef4444; border-radius:8px; padding:12px 16px; margin-bottom:18px;">
+                    <h4 style="color:#f87171; font-size:14px; margin:0 0 6px 0; font-weight:700;"><i class="fas fa-shield-halved"></i> एडमिन सुरक्षा गारंटी (Admin Security Guarantee)</h4>
+                    <p style="margin:0; font-size:12.5px; color:#fecaca;">
+                        • <strong>आपका वर्तमान Super Admin ID एवं Password कभी डिलीट नहीं होगा</strong> — यह सुरक्षित रहेगा ताकि आप कभी लॉकआउट न हों।<br>
+                        • डिफ़ॉल्ट बैकडोर पासवर्ड (<code>admin123</code>) पूरी तरह हटा दिया गया है। भविष्य में यदि डेटाबेस से एडमिन कभी डिलीट हुआ, तो कोई डिफ़ॉल्ट पासवर्ड नहीं रहेगा, डेटाबेस में मैन्युअल आईडी/पासवर्ड डालना होगा।
+                    </p>
+                </div>
+
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-bottom:18px;">
+                    <h4 style="color:#e2e8f0; font-size:13px; margin:0 0 8px 0; font-weight:700;"><i class="fas fa-trash-can"></i> डिलीट होने वाले डेटा की सूची (Wiped Records):</h4>
+                    <ul style="margin:0; padding-left:18px; font-size:12px; color:#94a3b8;">
+                        <li>सभी कोचिंग सेंटर्स (Partner Centers & Directors)</li>
+                        <li>सभी रजिस्टर्ड छात्र व रोल नंबर (Student Roster)</li>
+                        <li>सभी एडमिशन पूछताछ व संपर्क टिकट्स (Inquiries & Tickets)</li>
+                        <li>सभी लाइव क्लास रूम सेशन्स व हिस्ट्री (Live Sessions)</li>
+                        <li>विथड्रॉवल व पेआउट अनुरोध (Payouts & Transactions)</li>
+                        <li>अपलोड किए गए टेस्ट नोट्स व फाइल्स (Cleaned from disk & GitHub)</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12.5px; font-weight:700; color:#f87171; margin-bottom:6px;">
+                        पुष्टि के लिए बॉक्स में <span style="background:rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; font-family:monospace; border:1px solid #ef4444;">FORMAT DATA</span> टाइप करें:
+                    </label>
+                    <input type="text" id="inputFormatConfirm" placeholder="FORMAT DATA" oninput="checkFormatConfirmInput()" class="console-input" style="font-family:monospace; font-weight:700; letter-spacing:1px; text-transform:uppercase; border-color:rgba(239,68,68,0.5);">
+                </div>
+
+                <div id="formatStatusBox" style="display:none; padding:12px 16px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+            </div>
+
+            <div style="padding:14px 24px; background:rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" onclick="closeFormatDataModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:#cbd5e1; padding:9px 20px;">
+                    Cancel
+                </button>
+                <button type="button" id="btnExecuteFormat" onclick="executeFormatData()" disabled class="btn-aurora" style="background:#dc2626; color:#fff; border:none; padding:9px 22px; opacity:0.4; cursor:not-allowed; font-weight:800;">
+                    <i class="fas fa-skull-crossbones"></i> Confirm & Wipe All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
         const token = localStorage.getItem('bbcc_token');
@@ -2256,6 +2344,124 @@
         function closeAdminManualModal() {
             const m = document.getElementById('adminManualModal');
             if (m) m.style.display = 'none';
+        }
+
+        function openFormatDataModal() {
+            const m = document.getElementById('modalFormatData');
+            if (m) {
+                const inp = document.getElementById('inputFormatConfirm');
+                if (inp) inp.value = '';
+                const btn = document.getElementById('btnExecuteFormat');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Confirm & Wipe All Data';
+                }
+                const sBox = document.getElementById('formatStatusBox');
+                if (sBox) sBox.style.display = 'none';
+                m.style.display = 'flex';
+            }
+        }
+
+        function closeFormatDataModal() {
+            const m = document.getElementById('modalFormatData');
+            if (m) m.style.display = 'none';
+        }
+
+        function checkFormatConfirmInput() {
+            const inp = document.getElementById('inputFormatConfirm');
+            const btn = document.getElementById('btnExecuteFormat');
+            if (!inp || !btn) return;
+            const val = inp.value.trim().toUpperCase();
+            if (val === 'FORMAT DATA') {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.4';
+                btn.style.cursor = 'not-allowed';
+            }
+        }
+
+        async function executeFormatData() {
+            const inp = document.getElementById('inputFormatConfirm');
+            const val = inp ? inp.value.trim().toUpperCase() : '';
+            if (val !== 'FORMAT DATA') return;
+
+            if (!confirm('FINAL WARNING: क्या आप सचमुच MongoDB और GitHub का संपूर्ण डेटा फॉर्मेट करना चाहते हैं? आपका वर्तमान Admin ID/Password सुरक्षित रहेगा।')) {
+                return;
+            }
+
+            const btn = document.getElementById('btnExecuteFormat');
+            const sBox = document.getElementById('formatStatusBox');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB & GitHub...';
+            }
+
+            if (sBox) {
+                sBox.style.display = 'block';
+                sBox.style.background = 'rgba(239,68,68,0.15)';
+                sBox.style.border = '1px solid #ef4444';
+                sBox.style.color = '#fca5a5';
+                sBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB collections, cleaning GitHub Portal DB, and preserving Admin account...';
+            }
+
+            try {
+                const res = await fetch('/api/admin/format-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ confirmation: 'FORMAT DATA' })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    if (sBox) {
+                        sBox.style.background = 'rgba(16,185,129,0.15)';
+                        sBox.style.border = '1px solid #10b981';
+                        sBox.style.color = '#6ee7b7';
+                        sBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>सफलता:</strong> ${data.message} (Preserved Admin: <strong>${data.preservedAdminId}</strong>)`;
+                    }
+                    if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Formatted Successfully!';
+
+                    setTimeout(() => {
+                        closeFormatDataModal();
+                        alert('डेटा सफलतापूर्वक फॉर्मेट कर दिया गया है! आपका वर्तमान Admin खाता सुरक्षित है।');
+                        if (typeof loadCentersList === 'function') loadCentersList();
+                        if (typeof loadStudents === 'function') loadStudents();
+                        if (typeof loadVaultBooks === 'function') loadVaultBooks();
+                        if (typeof loadAffiliations === 'function') loadAffiliations();
+                        if (typeof loadTransactions === 'function') loadTransactions();
+                        if (typeof loadAdminPayouts === 'function') loadAdminPayouts();
+                        if (typeof loadAdminTickets === 'function') loadAdminTickets();
+                    }, 1200);
+                } else {
+                    if (sBox) {
+                        sBox.style.background = 'rgba(239,68,68,0.2)';
+                        sBox.style.color = '#f87171';
+                        sBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${data.message || 'Format failed'}`;
+                    }
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Retry Format';
+                    }
+                }
+            } catch(err) {
+                if (sBox) {
+                    sBox.style.background = 'rgba(239,68,68,0.2)';
+                    sBox.style.color = '#f87171';
+                    sBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> Network error: ${err.message}`;
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Retry Format';
+                }
+            }
         }
 
         let globalCenters = [];
