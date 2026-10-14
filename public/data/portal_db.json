@@ -143,7 +143,28 @@
   "students": [],
   "withdrawals": [],
   "paymentTransactions": [],
-  "push_subscriptions": [],
+  "push_subscriptions": [
+    {
+      "deviceId": "dev_ee9b30f9",
+      "deviceName": "Student Device (Android 10 (Chrome))",
+      "deviceInfo": {
+        "os": "Android 10",
+        "browser": "Chrome",
+        "modelHint": "",
+        "label": "Android 10 (Chrome)"
+      },
+      "endpoint": "https://fcm.googleapis.com/fcm/send/fX17ovQi5aU:APA91bEdVWaB_gCQ69pjU2WJsb37II9zupgsikEAKgmMMTPVn2FNW4a4Y22OHWA1mXqsVK4wsELdrfUs8-tOUVrPWMLl1UojF3fMAenJrMmycxWzBzbN7NXhAVG9y5NtemKtxXu3Kl0N",
+      "expirationTime": null,
+      "keys": {
+        "p256dh": "BBM0vEZC_vtnU_ZqyqYygl6-teqMWvLik98Al6nA9oHE3q2nGRgI5XDA2W0MlmoH89nPtdEfLNwRM78iZKj1a-s",
+        "auth": "LlnG2xkSDcXRGvSE2tYEZA"
+      },
+      "centerId": "all",
+      "subscribedAt": "2026-10-14T00:23:16.456Z",
+      "lastActive": "2026-10-14T00:23:16.456Z",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36"
+    }
+  ],
   "push_history": [],
   "bharti_auto_push_log": {},
   "teachers": [],
