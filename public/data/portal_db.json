@@ -163,6 +163,26 @@
       "subscribedAt": "2026-10-14T00:23:16.456Z",
       "lastActive": "2026-10-14T00:23:16.456Z",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36"
+    },
+    {
+      "deviceId": "dev_84e16e7f",
+      "deviceName": "Student Device (Android 10 (Chrome))",
+      "deviceInfo": {
+        "os": "Android 10",
+        "browser": "Chrome",
+        "modelHint": "",
+        "label": "Android 10 (Chrome)"
+      },
+      "endpoint": "https://fcm.googleapis.com/fcm/send/d8VJilgi1-c:APA91bFQfsTgHw_jvO5ghWcytQ95hGUaw8VLm2oZ4zTACB5sYgZLaknwyu3QnPvcGD81ovwq4Dpk2ayBJXVdnzE2Vkwn6Q7aC9rmcDaSH_tKvZFtg2CAFQwBwnLEDiem36D4AgdFcN3t",
+      "expirationTime": null,
+      "keys": {
+        "p256dh": "BATzi_waulLj6jJpB0vEOhz3KEQJqa7nFuJT8VnKHPL6iqorDu52_tFNenorV7PYu3hQDEq-hIlRNFkaBYR_m5E",
+        "auth": "wH9sfzzTnID_kV8vYI0qEw"
+      },
+      "centerId": "all",
+      "subscribedAt": "2026-10-14T00:24:39.744Z",
+      "lastActive": "2026-10-14T00:24:39.744Z",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36"
     }
   ],
   "push_history": [],
