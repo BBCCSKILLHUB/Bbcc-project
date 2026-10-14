@@ -1090,7 +1090,7 @@
                                     <th>Date</th>
                                 </tr>
                             </thead>
-                            <tbody id="affsTbody">
+                            <tbody id="affTbody">
                                 <tr><td colspan="5" style="text-align:center; padding:20px;">Loading affiliations...</td></tr>
                             </tbody>
                         </table>
@@ -5595,63 +5595,70 @@
 
         async function loadAffiliations() {
             try {
-                const res = await fetch('/api/admin/affiliations', {
+                const res = await fetch('/api/admin/affiliations?_t=' + Date.now(), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
-                const tbody = document.getElementById('affTbody');
+                const tbody = document.getElementById('affTbody') || document.getElementById('affsTbody');
+                if (!tbody) return;
                 if (data.success && data.data) {
                     if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No applications yet.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No affiliation applications recorded yet.</td></tr>';
                         return;
                     }
                     tbody.innerHTML = data.data.map(a => `
                         <tr>
-                            <td><strong>${a.centerName}</strong></td>
-                            <td>${a.directorName}</td>
-                            <td><a href="tel:${a.contactNumber}" style="color:var(--admin-gold); text-decoration:none;">${a.contactNumber}</a></td>
-                            <td>${a.address}</td>
-                            <td>${new Date(a.appliedAt).toLocaleDateString()}</td>
+                            <td><strong>${a.centerName || '-'}</strong></td>
+                            <td>${a.directorName || '-'}</td>
+                            <td><a href="tel:${a.contactNumber || ''}" style="color:var(--admin-gold); text-decoration:none;">${a.contactNumber || '-'}</a></td>
+                            <td>${a.address || a.district || '-'}</td>
+                            <td>${a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : '-'}</td>
                         </tr>
                     `).join('');
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('Affiliations load error:', e);
+            }
         }
 
         async function loadTransactions() {
             try {
-                const res = await fetch('/api/admin/transactions', {
+                const res = await fetch('/api/admin/transactions?_t=' + Date.now(), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
                 const tbody = document.getElementById('txnsTbody');
+                if (!tbody) return;
                 if (data.success && data.data) {
                     if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No transactions recorded.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">No payment transactions recorded yet.</td></tr>';
                         return;
                     }
                     tbody.innerHTML = data.data.map(x => {
                         const total = Number(x.amount) || 0;
                         const cShare = x.centerShare !== undefined && x.centerShare > 0 ? x.centerShare : Math.round(total * 0.80);
                         const pCut = x.platformCut !== undefined && x.platformCut > 0 ? x.platformCut : (total - cShare);
+                        const statusColor = x.status === 'paid' ? '#10b981' : (x.status === 'failed' ? '#ef4444' : '#f59e0b');
                         return `
                         <tr>
-                            <td><code>${x.orderId}</code></td>
-                            <td>${x.purpose}</td>
+                            <td><code>${x.orderId || '-'}</code></td>
+                            <td>${x.purpose || '-'}</td>
                             <td><strong style="color:var(--admin-gold);">₹${total}</strong></td>
                             <td><span style="color:#10b981; font-weight:700;">₹${cShare}</span></td>
                             <td><span style="color:#38bdf8; font-weight:700;">₹${pCut}</span></td>
                             <td>${x.payerName || x.centerName || '-'}</td>
                             <td>
-                                <span style="color:${x.status === 'paid' ? '#10b981' : (x.status === 'failed' ? '#ef4444' : '#f59e0b')}; font-weight:700;">
-                                    ${x.status.toUpperCase()}
+                                <span style="color:${statusColor}; font-weight:700;">
+                                    ${(x.status || 'PAID').toUpperCase()}
                                 </span>
                             </td>
-                            <td>${new Date(x.createdAt).toLocaleDateString()}</td>
+                            <td>${x.createdAt ? new Date(x.createdAt).toLocaleDateString() : '-'}</td>
                         </tr>
                     `;}).join('');
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('Transactions load error:', e);
+            }
         }
 
         function logoutAdmin() {
