@@ -50,7 +50,8 @@
     "youtubeRefreshToken": "",
     "youtubeChannelId": "UCuDH2n6UuTPUTOk-URz9qMA",
     "youtubePrivacyStatus": "unlisted",
-    "youtubeAutoUpload": true
+    "youtubeAutoUpload": true,
+    "_id": "6acf4258653f7d80df426d17"
   },
   "admins": [
     {
@@ -77,7 +78,8 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 42
+        "downloadCount": 42,
+        "hasFile": true
       },
       {
         "_id": "6acbd740a72281dff07bdff5",
@@ -93,7 +95,8 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 29
+        "downloadCount": 29,
+        "hasFile": true
       },
       {
         "_id": "6acbd910a72281dff07be02d",
@@ -109,7 +112,8 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 35
+        "downloadCount": 35,
+        "hasFile": true
       },
       {
         "_id": "note_univ_001",
@@ -124,7 +128,8 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 310
+        "downloadCount": 310,
+        "hasFile": true
       },
       {
         "_id": "note_univ_002",
@@ -139,10 +144,12 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 204
+        "downloadCount": 204,
+        "hasFile": true
       }
     ],
-    "videos": []
+    "videos": [],
+    "_id": "6acf4258653f7d80df426d16"
   },
   "students": [],
   "withdrawals": [],
