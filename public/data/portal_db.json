@@ -85,6 +85,29 @@
   "studyMaterials": {
     "notes": [
       {
+        "_id": "6acfc470e1e2cef89c72d7e0",
+        "title": "Class 9th History",
+        "subject": "History",
+        "classLevel": "9th",
+        "description": "",
+        "fileType": "pdf",
+        "thumbnail": "/data/branding/Class_9th_History_1792001136167_2aae6a.png",
+        "file": "/data/materials/Class_9th_History_1792001136063_4c09f4.pdf",
+        "pdf": "/data/materials/Class_9th_History_1792001136063_4c09f4.pdf",
+        "fileName": "CLASS 9th NOTES BOOK .pdf",
+        "price": 29,
+        "pdfMrp": 99,
+        "physicalPrice": 59,
+        "physicalMrp": 199,
+        "pickupAddress": "",
+        "directorContact": "",
+        "targetCenterId": "all",
+        "targetCenterName": "Universal / All Coaching Centers",
+        "isRawData": true,
+        "storageMode": "github_data",
+        "createdAt": "2026-10-14T18:05:36.269Z"
+      },
+      {
         "_id": "6acfc05570afef58e8b6e570",
         "title": "Class 9th History",
         "subject": "History",
