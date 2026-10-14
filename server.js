@@ -5760,7 +5760,24 @@ app.post('/api/auth/login', async (req, res) => {
 // 7.1 Get My Center Profile & Dues Status
 app.get('/api/director/profile', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId, { password: 0 });
+        const centerId = req.center.centerId ? req.center.centerId.toString() : '';
+        let center = null;
+        if (isMongoConnected) {
+            try {
+                center = await TuitionCenter.findById(centerId, { password: 0 });
+            } catch(e) {}
+        }
+        if (!center) {
+            const pdb = loadPortalDb();
+            const found = (pdb.centers || []).find(c =>
+                (c._id && c._id.toString() === centerId) ||
+                (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase())
+            );
+            if (found) {
+                center = JSON.parse(JSON.stringify(found));
+                delete center.password;
+            }
+        }
         if (!center) return res.status(404).json({ success: false, message: 'Center profile not found' });
         res.json({ success: true, data: center });
     } catch (err) {
