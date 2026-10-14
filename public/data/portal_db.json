@@ -274,6 +274,21 @@
       "status": "CALLBACK_SCHEDULED",
       "scheduledCallback": "Within 15-30 Minutes",
       "assignedOfficer": "Senior Academic Counselor"
+    },
+    {
+      "_id": "6acf92aeba0ed9c10070e77f",
+      "createdAt": "2026-10-14T14:33:18.402Z",
+      "updatedAt": "2026-10-14T14:33:18.402Z",
+      "ticketId": "TKT-BBCC-194936",
+      "studentName": "Student / Parent",
+      "phone": "9876543210",
+      "centerId": "central",
+      "centerName": "BBCC Central Directorate",
+      "category": "Academic Counseling & Callback",
+      "issueSummary": "Requested callback from counselor or center director",
+      "status": "CALLBACK_SCHEDULED",
+      "scheduledCallback": "Within 15-30 Minutes",
+      "assignedOfficer": "Senior Academic Counselor"
     }
   ],
   "affiliationApplications": []
