@@ -2678,6 +2678,9 @@
             <i class="fas fa-certificate"></i> BBCC SKILL HUB — Digital Skill & Coaching Institute Platform
         </div>
         <div class="topbar-actions">
+            <button onclick="openVisitorManualModal()" class="topbar-link" style="background:none; border:none; color:var(--aurora-gold); font-weight:700; cursor:pointer;" title="Open Platform User Manual & Guide">
+                <i class="fas fa-book-open"></i> User Manual & Guide
+            </button>
             <a href="/classroom" class="topbar-link" style="color:var(--aurora-cyan); font-weight:700;">
                 <i class="fas fa-desktop"></i> Student Classroom Login
             </a>
@@ -2731,6 +2734,9 @@
             <a href="/about" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-circle-info"></i> About
             </a>
+            <button onclick="openVisitorManualModal()" class="btn-aurora btn-aurora-outline" style="border-color:rgba(251, 191, 36, 0.4); color:var(--aurora-gold); cursor:pointer;">
+                <i class="fas fa-book-open"></i> User Manual
+            </button>
             <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold">
                 <i class="fas fa-user-plus"></i> Direct Admission
             </button>
@@ -2774,6 +2780,9 @@
             </a>
             <a href="/classroom" class="drawer-nav-link highlight-cyan">
                 <i class="fas fa-desktop" style="color:var(--aurora-cyan);"></i> Student Classroom Portal
+            </a>
+            <a href="javascript:void(0)" onclick="toggleMobileDrawer(false); openVisitorManualModal();" class="drawer-nav-link highlight-gold">
+                <i class="fas fa-book-open" style="color:var(--aurora-gold);"></i> 📖 Platform User Manual & Guide
             </a>
             <a href="javascript:void(0)" onclick="toggleMobileDrawer(false); openSelfRegistrationModal();" class="drawer-nav-link highlight-emerald">
                 <i class="fas fa-school" style="color:#34d399;"></i> Register Coaching Center
@@ -3869,8 +3878,173 @@
         </div>
     </footer>
 
+    <!-- ============================================================
+         PUBLIC VISITOR USER MANUAL & GUIDE MODAL
+         ============================================================ -->
+    <div id="visitorManualModal" style="display:none; position:fixed; inset:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(14px); z-index:10005; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:linear-gradient(145deg, #0f172a 0%, #060a14 100%); border:2px solid var(--aurora-gold); border-radius:24px; max-width:860px; width:100%; max-height:90vh; overflow-y:auto; padding:28px; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:2px solid rgba(251,191,36,0.3); padding-bottom:16px;">
+                <div>
+                    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--aurora-gold); font-weight:800; margin-bottom:4px;">
+                        <i class="fas fa-compass"></i> Official Platform Guide & Navigation SOP
+                    </div>
+                    <h2 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin:0; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-book-open" style="color:var(--aurora-gold);"></i> BBCC Platform User Manual & Visitor Guide
+                    </h2>
+                    <p style="font-size:12.5px; color:#94a3b8; margin:4px 0 0 0;">
+                        सार्वजनिक उपयोगकर्ता एवं आगंतुक मार्गदर्शिका (Complete Guide for Students, Parents & Visitors).
+                    </p>
+                </div>
+                <button type="button" onclick="closeVisitorManualModal()" style="background:none; border:none; color:#cbd5e1; font-size:24px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+            </div>
+
+            <!-- Quick Action Links Bar -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:12px 16px; align-items:center; justify-content:space-between;">
+                <span style="font-size:12px; color:#cbd5e1; font-weight:700;">
+                    <i class="fas fa-file-circle-check" style="color:#10b981;"></i> Complete 813-Line Official Platform Manual:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fbbf24; text-decoration:none;">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </a>
+                    <a href="/user-manual.html" target="_blank" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#7dd3fc; text-decoration:none;">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Open Web Manual
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn-aurora" style="padding:6px 14px; font-size:12px; background:rgba(255,255,255,0.06); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); cursor:pointer;">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- SOP Section 1: Certified Centers Discovery -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#38bdf8; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-school"></i> 1. Certified Coaching Institutes Discovery (प्रमाणित केंद्र खोजें)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(56,189,248,0.15); color:#7dd3fc; padding:2px 8px; border-radius:10px; font-weight:700;">Partner Centers</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    मुख्य पृष्ठ पर भारत भर के प्रमाणित कोचिंग सेंटरों की सूची, उनके निदेशक का नाम, केंद्र का पता, कैंपस की फोटो और स्थानीय एडमिशन फीस देखें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #38bdf8; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • नेविगेशन बार में <strong>"Partner Institutes"</strong> पर क्लिक करें।<br>
+                    • किसी भी सेंटर के कार्ड पर <strong>"View Institute"</strong> दबाकर उस संस्थान की विशिष्ट वेबसाइट देखें जहाँ उनके सभी बैच, टाइमिंग और शिक्षक प्रदर्शित होते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 2: Student Roll Number Verification -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#22c55e; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-id-card"></i> 2. Central Student Verification Desk (रोल नंबर सत्यापन)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(34,197,94,0.15); color:#86efac; padding:2px 8px; border-radius:10px; font-weight:700;">100% Authentic</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    अभिभावक और नियोक्ता किसी भी छात्र के केंद्रीय रोल नंबर (जैसे BBCC-2026-...) से उनका वास्तविक नामांकन, कोर्स, ग्रेड और प्रमाण-पत्र सत्यापित कर सकते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #22c55e; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • होमपेज पर <strong>"Student Verification Desk"</strong> में जाएं।<br>
+                    • छात्र का रोल नंबर दर्ज करें और <strong>"Verify Record"</strong> पर क्लिक करें। आधिकारिक सत्यापित स्थिति स्क्रीन पर प्रदर्शित होगी।
+                </div>
+            </div>
+
+            <!-- SOP Section 3: Digital E-Library & Demo Notes -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#f59e0b; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-book-bookmark"></i> 3. Digital E-Library & Printed Book Delivery (ई-लॉकर व पुस्तकें)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(245,158,11,0.15); color:#fcd34d; padding:2px 8px; border-radius:10px; font-weight:700;">Study Vault</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    कक्षा 1 से 12वीं तक (BSEB, CBSE, NCERT) और व्यावसायिक कंप्यूटर डिप्लोमा (ADCA, DCA, Tally Prime) के सभी प्रामाणिक नोट्स व मॉडल पेपर्स उपलब्ध हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • <strong>"E-Locker (किताबें)"</strong> सेक्शन में पुस्तक के कवर पर क्लिक करें।<br>
+                    • आप डिजिटल PDF डाउनलोड कर सकते हैं या डाक द्वारा अपने घर के पते पर छपी हुई हार्ड-कॉपी पुस्तक मंगा सकते हैं।
+                </div>
+            </div>
+
+            <!-- SOP Section 4: Direct Online Admission -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#10b981; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-user-plus"></i> 4. Direct Online Admission (सीधा ऑनलाइन नामांकन)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(16,185,129,0.15); color:#6ee7b7; padding:2px 8px; border-radius:10px; font-weight:700;">100% Digital</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    घर बैठे अपनी पसंद की कोचिंग और कोर्स में पारदर्शी ऑनलाइन एडमिशन लें।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • होमपेज पर सुनहरे रंग के <strong>"Direct Admission"</strong> बटन पर क्लिक करें।<br>
+                    • अपना पसंदीदा केंद्र, कोर्स और लर्निंग मोड (ऑनलाइन या क्लासरूम) चुनें।<br>
+                    • ऑनलाइन एडमिशन फ़ीस (मात्र ₹200) सुरक्षित गेटवे से अदा करें। तुरंत डिजिटल WhatsApp रसीद और रोल नंबर प्राप्त होगा।
+                </div>
+            </div>
+
+            <!-- SOP Section 5: Institute Self-Registration -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#a855f7; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-building-circle-check"></i> 5. Register / Affiliate Your Coaching Center (अपनी कोचिंग जोड़ें)
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(168,85,247,0.15); color:#d8b4fe; padding:2px 8px; border-radius:10px; font-weight:700;">For Directors</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    यदि आप किसी कोचिंग संस्थान के संचालक हैं, तो आप ऑनलाइन संबद्धता का आवेदन कर सकते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #a855f7; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
+                    • टॉपबार में <strong>"Register Institute Online"</strong> पर क्लिक करें।<br>
+                    • कोचिंग का नाम, पता, संपर्क नंबर और संचालक का नाम दर्ज कर सबमिट करें। केंद्रीय एडमिन द्वारा तुरंत सत्यापन पूरा कर डायरेक्टर पोर्टल एक्सेस प्रदान किया जाता है।
+                </div>
+            </div>
+
+            <!-- SOP Section 6: Bharti AI 24/7 Academic Counseling -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="font-size:15px; color:#ec4899; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-headset"></i> 6. Bharti AI — 24/7 Chief Academic Counseling Desk
+                    </h3>
+                    <span style="font-size:10.5px; background:rgba(236,72,153,0.15); color:#f472b6; padding:2px 8px; border-radius:10px; font-weight:700;">24/7 Free Support</span>
+                </div>
+                <p style="font-size:12.5px; color:#cbd5e1; line-height:1.6; margin:0 0 10px 0;">
+                    दाएं कोने में स्थित <strong>"भारती AI"</strong> बटन पर क्लिक करके आप कभी भी हिंदी, अंग्रेजी, भोजपुरी या हिंग्लिश में कोई भी सवाल पूछ सकते हैं।
+                </p>
+                <div style="background:rgba(0,0,0,0.3); border-left:3px solid #ec4899; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
+                    <strong style="color:#ffffff;">सुविधाएं:</strong><br>
+                    • पाठ्यक्रम, फीस, छात्रवृत्ति, ई-लाइब्रेरी नोट्स, टिकट स्टेटस व पेमेंट वेरिफिकेशन की रीयल-टाइम जानकारी।<br>
+                    • यदि आपको फ़ोन पर बात करनी हो तो अपना 10-अंकों का नंबर दर्ज करें; हमारे वरिष्ठ काउंसलिंग अधिकारी 15-30 मिनट में आपको सीधे कॉल करेंगे।
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid rgba(251,191,36,0.3); padding-top:16px;">
+                <button type="button" onclick="closeVisitorManualModal()" class="btn-aurora btn-aurora-gold" style="padding:9px 24px;">
+                    <i class="fas fa-check"></i> Close Manual
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Client Script -->
     <script>
+        function openVisitorManualModal() {
+            const m = document.getElementById('visitorManualModal');
+            if (m) m.style.display = 'flex';
+        }
+
+        function closeVisitorManualModal() {
+            const m = document.getElementById('visitorManualModal');
+            if (m) m.style.display = 'none';
+        }
+
         let publicConfig = {};
         let allBooks = [];
         let allCenters = [];
@@ -5913,6 +6087,7 @@
                 askName: 'बहुत बढ़िया! कृपया अपना **शुभ नाम** बताइए:',
                 welcome: (name) => `स्वागत है **${name} जी**! 🙏 मैं **भारती** हूँ — BBCC SKILL HUB की Chief Academic Counselor। अब आप निःसंकोच कोई भी सवाल पूछ सकते हैं — जैसे कोर्स, फीस, सिलेबस, किताबें, टिकट स्टेटस या पेमेंट ट्रैकिंग।`,
                 chips: [
+                    '📖 प्लेटफ़ॉर्म यूज़र मैनुअल (SOP)',
                     'Class 10th नोट्स PDF डाउनलोड',
                     'मेरा टिकट स्टेटस चेक करें',
                     'पेमेंट ट्रैक करें',
@@ -5927,6 +6102,7 @@
                 askName: 'Great! Please enter your **full name**:',
                 welcome: (name) => `Welcome, **${name}**! 🙏 I am **Bharti** — Chief Academic Counselor at BBCC SKILL HUB. Feel free to ask anything about courses, fees, syllabus, books, ticket tracking, or payment verification!`,
                 chips: [
+                    '📖 Platform User Manual & SOP',
                     'Download Class 10th Notes PDF',
                     'Check My Ticket Status',
                     'Track Payment Record',
@@ -5941,6 +6117,7 @@
                 askName: 'बहुत नीक! राउर **शुभ नाम** का ह? बताईं:',
                 welcome: (name) => `स्वागत बा **${name} जी**! 🙏 हम **भारती** हईं — BBCC SKILL HUB के Chief Academic Counselor। अब रउआ जे भी पूछे के मन होखे — कोर्स, फीस, सिलेबस, किताब, टिकट स्टेटस चाहे पेमेंट — खुल के पूछीं!`,
                 chips: [
+                    '📖 यूज़र मैनुअल गाइड',
                     '10वीं के नोट्स PDF डाउनलोड',
                     'हमार टिकट स्टेटस बतावल जाव',
                     'पेमेंट ट्रैक करीं',
@@ -5955,6 +6132,7 @@
                 askName: 'Awesome! Please apna **good name** batayein:',
                 welcome: (name) => `Welcome **${name} ji**! 🙏 Main **Bharti** hoon — BBCC SKILL HUB ki Chief Academic Counselor. Ab aap bina kisi jhijhak ke koi bhi sawal poochh sakte hain — jaise course, fees, syllabus, books, ticket status ya payment!`,
                 chips: [
+                    '📖 Platform User Manual Guide',
                     'Class 10th Notes PDF Download',
                     'Mera Ticket Status Check Karo',
                     'Payment Track Karo',
