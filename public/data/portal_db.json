@@ -113,7 +113,8 @@
         "targetCenterName": "Universal / All Coaching Centers",
         "isRawData": false,
         "storageMode": "github_data",
-        "createdAt": "2026-10-14T18:07:46.796Z"
+        "createdAt": "2026-10-14T18:07:46.796Z",
+        "hasFile": true
       },
       {
         "_id": "6acfc470e1e2cef89c72d7e0",
@@ -136,7 +137,8 @@
         "targetCenterName": "Universal / All Coaching Centers",
         "isRawData": true,
         "storageMode": "github_data",
-        "createdAt": "2026-10-14T18:05:36.269Z"
+        "createdAt": "2026-10-14T18:05:36.269Z",
+        "hasFile": true
       }
     ],
     "videos": [],
