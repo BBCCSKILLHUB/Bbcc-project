@@ -55,8 +55,8 @@
   },
   "admins": [
     {
-      "adminId": "Santosh@7543",
-      "password": "$2a$10$eSy9hqmy7K/lTmlai2cz4OsL/1LMgaYg5pttlcYSbouHuPp7q7Xla",
+      "adminId": "admin",
+      "password": "$2a$10$o0CsLvC6ifIKO/dI2c94Q.lIJPprxN5a4lrc9dnt7CHgBSQLLQuky",
       "name": "BBCC Central Directorate",
       "role": "superadmin"
     }
@@ -64,7 +64,8 @@
   "centers": [],
   "studyMaterials": {
     "notes": [],
-    "videos": []
+    "videos": [],
+    "_id": "6acf594684851cbb199e316e"
   },
   "students": [],
   "withdrawals": [],
@@ -73,10 +74,10 @@
   "push_history": [],
   "bharti_auto_push_log": {
     "2026-10-14_afternoon": {
-      "dispatchedAt": "2026-10-14T10:17:21.627Z",
+      "dispatchedAt": "2026-10-14T10:07:15.914Z",
       "slot": "afternoon",
       "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
-      "body": "दैनिक सामान्य ज्ञान: 'शिक्षा वह सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।' 🧠"
+      "body": "कैरियर अलर्ट: CTET, STET, BPSC TRE एवं बोर्ड परीक्षाओं की तैयारी के लिए टेस्ट सीरीज और नोट्स डाउनलोड करें! ⚡"
     }
   },
   "teachers": [],
