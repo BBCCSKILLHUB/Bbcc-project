@@ -1786,9 +1786,7 @@ async function initSystem() {
             if (pdb.settings && pdb.settings.founderProfile) {
                 settingsDoc.founderProfile = pdb.settings.founderProfile;
             }
-            if (pdb.settings && pdb.settings.gallery && pdb.settings.gallery.length > 0) {
-                settingsDoc.gallery = pdb.settings.gallery;
-            }
+            settingsDoc.gallery = (pdb.settings && Array.isArray(pdb.settings.gallery)) ? pdb.settings.gallery : [];
             if ((!settingsDoc.banners || settingsDoc.banners.length === 0) && pdb.settings && pdb.settings.banners) {
                 settingsDoc.banners = pdb.settings.banners;
             }
@@ -2996,55 +2994,37 @@ app.get('/api/public/books', async (req, res) => {
             };
         };
 
-        const sanitizedNotes = (sm.notes || []).map(n => buildBookItem(n));
+        // 1. Gather all notes from both MongoDB and portal_db.json dual storage
+        const allNotesList = [];
+        const seenNoteIds = new Set();
+        const seenNoteTitles = new Set();
 
-        // Also merge materials uploaded directly to TuitionCenter repositories
-        try {
-            const centersWithMaterials = await TuitionCenter.find({ 'materials.0': { $exists: true } }, { centerName: 1, address: 1, contactNumber: 1, whatsappNumber: 1, directorName: 1, materials: 1 }).lean();
-            for (const c of centersWithMaterials) {
-                if (!c.materials) continue;
-                for (const m of c.materials) {
-                    const midStr = m._id ? m._id.toString() : '';
-                    const mTitleLower = (m.title || '').trim().toLowerCase();
-                    if (midStr && !existingNoteIds.has(midStr) && !existingTitles.has(mTitleLower)) {
-                        existingNoteIds.add(midStr);
-                        existingTitles.add(mTitleLower);
-                        sanitizedNotes.push(buildBookItem({
-                            _id: m._id,
-                            title: m.title,
-                            subject: c.centerName,
-                            classLevel: 'All Classes',
-                            description: m.description || '',
-                            fileType: m.fileType || 'pdf',
-                            thumbnail: m.thumbnail || '',
-                            price: m.price || 0,
-                            originalPrice: m.price || 0,
-                            pdfMrp: m.pdfMrp || 0,
-                            physicalPrice: m.physicalPrice || 0,
-                            physicalMrp: m.physicalMrp || 0,
-                            pickupAddress: m.pickupAddress || '',
-                            directorContact: m.directorContact || '',
-                            targetCenterId: c._id.toString(),
-                            targetCenterName: c.centerName,
-                            isRawData: m.isRawData || false,
-                            pdf: m.pdf || m.file || m.link,
-                            file: m.file || m.pdf || m.link,
-                            downloadCount: m.downloadCount || 0,
-                            createdAt: m.createdAt || new Date()
-                        }, c));
-                    }
-                }
-            }
-        } catch (cErr) {}
+        const addNoteUnique = (n) => {
+            if (!n || !n.title) return;
+            const nid = n._id ? n._id.toString() : '';
+            const nTitle = (n.title || '').trim().toLowerCase();
+            if (nid && seenNoteIds.has(nid)) return;
+            if (seenNoteTitles.has(nTitle)) return;
+            if (nid) seenNoteIds.add(nid);
+            seenNoteTitles.add(nTitle);
+            allNotesList.push(n);
+        };
 
-        if (sanitizedNotes.length === 0) {
-            const pdb = loadPortalDb();
-            if (pdb.studyMaterials && pdb.studyMaterials.notes) {
-                pdb.studyMaterials.notes.forEach(pn => {
-                    sanitizedNotes.push(buildBookItem(pn));
-                });
-            }
+        (sm.notes || []).forEach(addNoteUnique);
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            pdb.studyMaterials.notes.forEach(addNoteUnique);
         }
+
+        // 2. TARGET CENTER SCOPE ENFORCEMENT:
+        // Strictly filter: on the public BBCC Homepage E-Library, ONLY universal / all notes appear!
+        // Center-specific notes belong strictly to that specific coaching center's dashboard.
+        const universalNotes = allNotesList.filter(n => {
+            const tId = (n.targetCenterId || 'all').toString().trim().toLowerCase();
+            return tId === 'all' || tId === '' || tId === 'universal';
+        });
+
+        const sanitizedNotes = universalNotes.map(n => buildBookItem(n));
 
         const resultData = {
             notes: sanitizedNotes,
@@ -5801,20 +5781,49 @@ app.get('/api/director/profile', verifyDirector, async (req, res) => {
 // 7.2 Update Center Profile & Custom Header/Footer/Contacts
 app.put('/api/director/profile', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId.toString();
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId);
+
+        if (!center && !pdbCenter) {
+            return res.status(404).json({ success: false, message: 'Center not found' });
+        }
 
         const allowed = [
             'contactNumber', 'whatsappNumber', 'email', 'address', 'description',
             'encryptedCallLink', 'clogo', 'directorPhoto', 'fromClass', 'toClass',
             'headerNotice', 'footerText', 'socials', 'bankDetails', 'admissionFee', 'themeColor'
         ];
+
         allowed.forEach(k => {
-            if (req.body[k] !== undefined) center[k] = req.body[k];
+            if (req.body[k] !== undefined) {
+                let val = req.body[k];
+                if (k === 'admissionFee') val = Math.max(0, Number(val) || 0);
+                if (center) center[k] = val;
+                if (pdbCenter) pdbCenter[k] = val;
+            }
         });
 
-        await center.save();
-        res.json({ success: true, message: 'Institute profile updated successfully!', data: center });
+        if (pdbCenter) {
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try { await center.save(); } catch(e) {}
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('centers_updated', {
+            action: 'center_profile_updated',
+            centerId: centerId
+        });
+
+        res.json({ success: true, message: 'Institute profile updated successfully!', data: pdbCenter || center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6782,7 +6791,24 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
 // 7.6 Center Study Notes & Raw Curriculum Materials (with 80/20 Marketplace MRP)
 app.post('/api/director/materials', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
+        const centerId = req.center.centerId.toString();
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId);
+
+        if (!center && !pdbCenter) {
+            return res.status(404).json({ success: false, message: 'Center not found' });
+        }
+
+        const centerName = center ? center.centerName : (pdbCenter ? pdbCenter.centerName : 'Coaching Center');
+        const directorName = center ? center.directorName : (pdbCenter ? pdbCenter.directorName : 'Director');
+        const centerAddress = center ? center.address : (pdbCenter ? pdbCenter.address : '');
+        const centerPhone = center ? (center.whatsappNumber || center.contactNumber) : (pdbCenter ? (pdbCenter.whatsappNumber || pdbCenter.contactNumber) : '');
+
         const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, fileType, pdf, file, link, isRawData, storageMode, thumbnail } = req.body;
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
 
@@ -6790,13 +6816,15 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
         const pMrp = Number(pdfMrp) || (itemPrice > 0 ? Math.round(itemPrice * 2.5 + 49) : 199);
         const physPrice = Number(physicalPrice) || (itemPrice > 0 ? Math.max(99, Math.round(itemPrice * 1.8 + 50)) : 149);
         const physMrp = Number(physicalMrp) || Math.round(physPrice * 2.2 + 50);
-        const effectivePickupAddress = (pickupAddress && pickupAddress.trim()) ? pickupAddress.trim() : (center.address || '');
+        const effectivePickupAddress = (pickupAddress && pickupAddress.trim()) ? pickupAddress.trim() : (centerAddress || '');
 
         const mode = storageMode === 'important' ? 'important' : 'normal';
         const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, title.trim());
         const thumbAsset = thumbnail ? saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', title.trim()) : null;
 
-        center.materials.push({
+        const matId = new mongoose.Types.ObjectId().toString();
+        const newMat = {
+            _id: matId,
             title: title.trim(),
             description: description || '',
             price: itemPrice,
@@ -6810,42 +6838,47 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
             file: fileAsset.fileUrl,
             link: link || '',
             isRawData: Boolean(fileAsset.isRawData || isRawData),
-            storageMode: fileAsset.storageUsed
-        });
+            storageMode: fileAsset.storageUsed,
+            createdAt: new Date()
+        };
 
-        await center.save();
-
-        // Sync with Central Study Material Vault for student discovery
-        try {
-            let sm = await StudyMaterial.findOne();
-            if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
-            sm.notes.push({
-                title: title.trim(),
-                subject: center.centerName,
+        if (pdbCenter) {
+            if (!pdbCenter.materials) pdbCenter.materials = [];
+            pdbCenter.materials.push(newMat);
+            if (!pdb.studyMaterials) pdb.studyMaterials = { notes: [], videos: [] };
+            if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
+            pdb.studyMaterials.notes.unshift({
+                ...newMat,
+                subject: centerName,
                 classLevel: 'All Classes',
-                description: description || '',
-                fileType: fileType || 'pdf',
-                thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
-                pdf: fileAsset.fileUrl,
-                file: fileAsset.fileUrl,
-                price: itemPrice,
-                pdfMrp: pMrp,
-                physicalPrice: physPrice,
-                physicalMrp: physMrp,
-                pickupAddress: effectivePickupAddress,
-                directorContact: `${center.directorName || 'Director'} (${center.whatsappNumber || center.contactNumber || ''})`,
-                targetCenterId: center._id.toString(),
-                targetCenterName: center.centerName,
-                isRawData: Boolean(fileAsset.isRawData || isRawData),
-                storageMode: fileAsset.storageUsed,
-                createdAt: new Date()
+                directorContact: `${directorName} (${centerPhone})`,
+                targetCenterId: centerId,
+                targetCenterName: centerName
             });
-            await sm.save();
-        } catch (smErr) {
-            console.error('Study material sync notice:', smErr.message);
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try {
+                center.materials.push(newMat);
+                await center.save();
+
+                let sm = await StudyMaterial.findOne();
+                if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
+                sm.notes.push({
+                    ...newMat,
+                    subject: centerName,
+                    classLevel: 'All Classes',
+                    directorContact: `${directorName} (${centerPhone})`,
+                    targetCenterId: centerId,
+                    targetCenterName: centerName
+                });
+                await sm.save();
+            } catch(e) {}
         }
 
         clearCache();
+        broadcastRealtimeEvent('books_updated');
         res.json({
             success: true,
             message: fileAsset.storageUsed === 'github_fallback'
@@ -6853,7 +6886,7 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 : (fileAsset.storageUsed === 'mongodb'
                     ? 'Study material saved to MongoDB Vault!'
                     : 'Study material uploaded successfully to GitHub public/data!'),
-            data: center.materials,
+            data: (pdbCenter ? pdbCenter.materials : center.materials),
             storageUsed: fileAsset.storageUsed
         });
     } catch (err) {
@@ -6864,61 +6897,85 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
 // Update Study Note by Director
 app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId.toString();
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId);
 
-        const mat = center.materials.id(req.params.mid) || center.materials.find(m => m._id.toString() === req.params.mid);
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const matId = req.params.mid;
+        let mat = null;
+        if (pdbCenter && pdbCenter.materials) {
+            mat = pdbCenter.materials.find(m => m._id && m._id.toString() === matId);
+        }
+        if (!mat && center && center.materials) {
+            mat = center.materials.id(matId) || center.materials.find(m => m._id.toString() === matId);
+        }
         if (!mat) return res.status(404).json({ success: false, message: 'Material not found' });
 
         const oldTitle = mat.title;
         const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, pdf, file, fileType, storageMode, thumbnail } = req.body;
-        if (title) mat.title = title.trim();
-        if (description !== undefined) mat.description = description.trim();
-        if (price !== undefined) mat.price = Math.max(0, Number(price) || 0);
-        if (pdfMrp !== undefined) mat.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
-        if (physicalPrice !== undefined) mat.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
-        if (physicalMrp !== undefined) mat.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
-        if (pickupAddress !== undefined) mat.pickupAddress = pickupAddress.trim();
+        
+        const updateMatFields = (target) => {
+            if (title) target.title = title.trim();
+            if (description !== undefined) target.description = description.trim();
+            if (price !== undefined) target.price = Math.max(0, Number(price) || 0);
+            if (pdfMrp !== undefined) target.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
+            if (physicalPrice !== undefined) target.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
+            if (physicalMrp !== undefined) target.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
+            if (pickupAddress !== undefined) target.pickupAddress = pickupAddress.trim();
 
-        if (thumbnail !== undefined && thumbnail !== '') {
-            const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || oldTitle).trim());
-            mat.thumbnail = thumbAsset.fileUrl || thumbnail;
-        }
-
-        if (pdf || file) {
-            const mode = storageMode === 'important' ? 'important' : 'normal';
-            const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, (title || oldTitle).trim());
-            if (fileAsset.fileUrl) {
-                mat.pdf = fileAsset.fileUrl;
-                mat.file = fileAsset.fileUrl;
-                mat.isRawData = Boolean(fileAsset.isRawData);
-                mat.storageMode = fileAsset.storageUsed;
+            if (thumbnail !== undefined && thumbnail !== '') {
+                const thumbAsset = saveAssetFile(thumbnail, 'branding', 'jpg', 'normal', (title || oldTitle).trim());
+                target.thumbnail = thumbAsset.fileUrl || thumbnail;
             }
-        }
 
-        await center.save();
-
-        // Also update in StudyMaterial if present
-        try {
-            const sm = await StudyMaterial.findOne();
-            if (sm && sm.notes) {
-                const sn = sm.notes.find(n => n._id.toString() === req.params.mid || (oldTitle && n.title === oldTitle));
-                if (sn) {
-                    if (title) sn.title = title.trim();
-                    if (description !== undefined) sn.description = description.trim();
-                    if (price !== undefined) sn.price = mat.price;
-                    if (pdfMrp !== undefined) sn.pdfMrp = mat.pdfMrp;
-                    if (physicalPrice !== undefined) sn.physicalPrice = mat.physicalPrice;
-                    if (physicalMrp !== undefined) sn.physicalMrp = mat.physicalMrp;
-                    if (pickupAddress !== undefined) sn.pickupAddress = mat.pickupAddress;
-                    if (mat.thumbnail) sn.thumbnail = mat.thumbnail;
-                    if (mat.pdf) sn.pdf = mat.pdf;
-                    await sm.save();
+            if (pdf || file) {
+                const mode = storageMode === 'important' ? 'important' : 'normal';
+                const fileAsset = saveAssetFile(pdf || file, 'materials', fileType || 'pdf', mode, (title || oldTitle).trim());
+                if (fileAsset.fileUrl) {
+                    target.pdf = fileAsset.fileUrl;
+                    target.file = fileAsset.fileUrl;
+                    target.isRawData = Boolean(fileAsset.isRawData);
+                    target.storageMode = fileAsset.storageUsed;
                 }
             }
-        } catch(e) {}
+        };
+
+        if (pdbCenter && pdbCenter.materials) {
+            const pMat = pdbCenter.materials.find(m => m._id && m._id.toString() === matId);
+            if (pMat) updateMatFields(pMat);
+            if (pdb.studyMaterials && pdb.studyMaterials.notes) {
+                const sn = pdb.studyMaterials.notes.find(n => (n._id && n._id.toString() === matId) || (oldTitle && n.title === oldTitle));
+                if (sn) updateMatFields(sn);
+            }
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try {
+                const cMat = center.materials.id(matId) || center.materials.find(m => m._id.toString() === matId);
+                if (cMat) updateMatFields(cMat);
+                await center.save();
+
+                const sm = await StudyMaterial.findOne();
+                if (sm && sm.notes) {
+                    const sn = sm.notes.find(n => n._id.toString() === matId || (oldTitle && n.title === oldTitle));
+                    if (sn) {
+                        updateMatFields(sn);
+                        await sm.save();
+                    }
+                }
+            } catch(e) {}
+        }
 
         clearCache();
+        broadcastRealtimeEvent('books_updated');
         res.json({ success: true, message: 'Study material updated successfully', data: mat });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6927,28 +6984,50 @@ app.put('/api/director/materials/:mid', verifyDirector, async (req, res) => {
 
 app.delete('/api/director/materials/:mid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId.toString();
+        const matId = req.params.mid;
 
-        const targetMat = center.materials.find(m => m._id.toString() === req.params.mid);
-        const oldTitle = targetMat ? targetMat.title : '';
-
-        center.materials = center.materials.filter(m => m._id.toString() !== req.params.mid);
-        await center.save();
-
-        // Also remove from Central Study Material repository
-        try {
-            const sm = await StudyMaterial.findOne();
-            if (sm && sm.notes) {
-                sm.notes = sm.notes.filter(n => 
-                    !(n.targetCenterId && n.targetCenterId.toString() === req.center.centerId.toString() && 
-                      (n._id.toString() === req.params.mid || (oldTitle && n.title === oldTitle)))
-                );
-                await sm.save();
+        const pdb = loadPortalDb();
+        let oldTitle = '';
+        if (pdb.centers) {
+            const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId);
+            if (pdbCenter && pdbCenter.materials) {
+                const tMat = pdbCenter.materials.find(m => m._id && m._id.toString() === matId);
+                if (tMat) oldTitle = tMat.title;
+                pdbCenter.materials = pdbCenter.materials.filter(m => m._id && m._id.toString() !== matId);
             }
-        } catch(e) {}
+            if (pdb.studyMaterials && pdb.studyMaterials.notes) {
+                pdb.studyMaterials.notes = pdb.studyMaterials.notes.filter(n => 
+                    !(n.targetCenterId && n.targetCenterId.toString() === centerId && 
+                      ((n._id && n._id.toString() === matId) || (oldTitle && n.title === oldTitle)))
+                );
+            }
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try {
+                const center = await TuitionCenter.findById(centerId);
+                if (center) {
+                    const targetMat = center.materials.find(m => m._id.toString() === matId);
+                    if (targetMat && !oldTitle) oldTitle = targetMat.title;
+                    center.materials = center.materials.filter(m => m._id.toString() !== matId);
+                    await center.save();
+                }
+
+                const sm = await StudyMaterial.findOne();
+                if (sm && sm.notes) {
+                    sm.notes = sm.notes.filter(n => 
+                        !(n.targetCenterId && n.targetCenterId.toString() === centerId && 
+                          (n._id.toString() === matId || (oldTitle && n.title === oldTitle)))
+                    );
+                    await sm.save();
+                }
+            } catch(e) {}
+        }
 
         clearCache();
+        broadcastRealtimeEvent('books_updated');
         res.json({ success: true, message: 'Study material deleted successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6993,16 +7072,50 @@ app.get('/api/director/affiliation-certificate', verifyDirector, async (req, res
 // 7.9 Get Official Central Board Raw Data & Syllabus Assigned to this Center
 app.get('/api/director/raw-materials', verifyDirector, async (req, res) => {
     try {
-        const sm = await StudyMaterial.findOne();
-        if (!sm || !sm.notes) return res.json({ success: true, data: [] });
+        let notes = [];
+        if (isMongoConnected) {
+            try {
+                const sm = await StudyMaterial.findOne().lean();
+                if (sm && sm.notes) notes = sm.notes;
+            } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            const existingIds = new Set(notes.map(n => n._id ? n._id.toString() : ''));
+            pdb.studyMaterials.notes.forEach(pn => {
+                const pid = pn._id ? pn._id.toString() : '';
+                if (!pid || !existingIds.has(pid)) {
+                    notes.push(pn);
+                }
+            });
+        }
 
-        const centerId = req.center.centerId.toString();
-        // Return notes targeted to 'all' or this specific center
-        const targeted = sm.notes.filter(n => 
-            !n.targetCenterId || 
-            n.targetCenterId === 'all' || 
-            n.targetCenterId === centerId
-        ).map(n => ({
+        const centerId = (req.center.centerId || '').toString();
+        const centerUsername = (req.center.username || '').toLowerCase();
+
+        // Also check if center has its own materials in pdb.centers
+        if (pdb.centers) {
+            const thisCenter = pdb.centers.find(c => 
+                (c._id && c._id.toString() === centerId) || 
+                (c.username && c.username.toLowerCase() === centerUsername)
+            );
+            if (thisCenter && Array.isArray(thisCenter.materials)) {
+                const existingIds = new Set(notes.map(n => n._id ? n._id.toString() : ''));
+                thisCenter.materials.forEach(cm => {
+                    const cid = cm._id ? cm._id.toString() : '';
+                    if (!cid || !existingIds.has(cid)) {
+                        notes.push({ ...cm, targetCenterId: centerId });
+                    }
+                });
+            }
+        }
+
+        // Return notes targeted to 'all' or this specific center (matching ID or username)
+        const targeted = notes.filter(n => {
+            if (!n.targetCenterId || n.targetCenterId === 'all' || n.targetCenterId === 'universal' || n.targetCenterId === '') return true;
+            const tId = String(n.targetCenterId).toLowerCase();
+            return tId === centerId.toLowerCase() || (centerUsername && tId === centerUsername);
+        }).map(n => ({
             _id: n._id,
             title: n.title,
             subject: n.subject,
@@ -8904,10 +9017,62 @@ app.post('/api/admin/centers', verifySuperAdmin, async (req, res) => {
         } else {
             pdb.centers.push(centerObj);
         }
+
+        // Record in Affiliations list so it shows in Admin Console Tab 4: "AFFILIATIONS & LICENSES"
+        if (!pdb.affiliationApplications) pdb.affiliationApplications = [];
+        const affDoc = {
+            _id: new mongoose.Types.ObjectId().toString(),
+            centerName: centerName.trim(),
+            directorName: directorName.trim(),
+            contactNumber: (contactNumber || '').trim(),
+            email: '',
+            address: (address || '').trim(),
+            username: cleanUser,
+            fromClass: fromClass || 'Class 6th',
+            toClass: toClass || 'Class 12th',
+            appliedAt: new Date(),
+            status: 'approved',
+            feePaid: 0
+        };
+        pdb.affiliationApplications.unshift(affDoc);
+
+        // Record in Payment Transactions ledger so it shows in Admin Console Tab 5: "TRANSACTIONS"
+        if (!pdb.paymentTransactions) pdb.paymentTransactions = [];
+        pdb.paymentTransactions.unshift({
+            _id: new mongoose.Types.ObjectId().toString(),
+            orderId: 'ADM_GRANT_' + Date.now(),
+            paymentId: 'ADMIN_DIRECT_LICENSE',
+            amount: 0,
+            centerShare: 0,
+            platformCut: 0,
+            purpose: 'Admin Direct Institute Affiliation & License Grant',
+            status: 'paid',
+            payerName: centerName.trim(),
+            payerContact: (contactNumber || '').trim(),
+            centerName: centerName.trim(),
+            username: cleanUser,
+            createdAt: new Date()
+        });
+
         await savePortalDb(pdb);
+
+        if (isMongoConnected) {
+            try {
+                await AffiliationApplication.create({
+                    centerName: centerName.trim(),
+                    directorName: directorName.trim(),
+                    contactNumber: (contactNumber || '').trim(),
+                    email: '',
+                    address: (address || '').trim(),
+                    status: 'approved',
+                    appliedAt: new Date()
+                });
+            } catch(e) {}
+        }
 
         // Immediate cache invalidation so the new center shows instantly everywhere
         clearCache();
+        broadcastRealtimeEvent('centers_updated');
 
         console.log(`✅ [PARTNER CENTER REGISTERED] Name: "${centerName.trim()}" | Username: "${cleanUser}"`);
 
@@ -8925,8 +9090,18 @@ app.post('/api/admin/centers', verifySuperAdmin, async (req, res) => {
 // 8.2 MASTER CENTER EDITOR: Super Admin Full Edit Access to ANY Coaching Center Data
 app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.params.id);
-        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        const centerId = req.params.id;
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId.toString());
+
+        if (!center && !pdbCenter) {
+            return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        }
 
         const {
             centerName,
@@ -8946,49 +9121,81 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
             clogo,
             directorPhoto,
             dueAmount,
+            admissionFee,
             isBlocked,
             blockReason,
             socials
         } = req.body;
 
-        if (centerName !== undefined) center.centerName = centerName.trim();
-        if (directorName !== undefined) center.directorName = directorName.trim();
-        if (contactNumber !== undefined) center.contactNumber = contactNumber.trim();
-        if (whatsappNumber !== undefined) center.whatsappNumber = whatsappNumber.trim();
-        if (email !== undefined) center.email = email.trim();
-        if (address !== undefined) center.address = address.trim();
-        if (fromClass !== undefined) center.fromClass = fromClass;
-        if (toClass !== undefined) center.toClass = toClass;
-        if (encryptedCallLink !== undefined) center.encryptedCallLink = encryptedCallLink.trim();
-        if (description !== undefined) center.description = description;
-        if (headerNotice !== undefined) center.headerNotice = headerNotice;
-        if (footerText !== undefined) center.footerText = footerText;
-        if (clogo !== undefined) center.clogo = clogo;
-        if (directorPhoto !== undefined) center.directorPhoto = directorPhoto;
-        if (dueAmount !== undefined) center.dueAmount = Number(dueAmount) || 0;
-        if (req.body.admissionFee !== undefined) center.admissionFee = Math.max(0, Number(req.body.admissionFee) || 0);
-        if (isBlocked !== undefined) center.isBlocked = Boolean(isBlocked);
-        if (blockReason !== undefined) center.blockReason = blockReason;
-        if (socials !== undefined) center.socials = { ...center.socials, ...socials };
+        const applyField = (k, v) => {
+            if (v !== undefined) {
+                if (center) center[k] = v;
+                if (pdbCenter) pdbCenter[k] = v;
+            }
+        };
+
+        if (centerName !== undefined) applyField('centerName', centerName.trim());
+        if (directorName !== undefined) applyField('directorName', directorName.trim());
+        if (contactNumber !== undefined) applyField('contactNumber', contactNumber.trim());
+        if (whatsappNumber !== undefined) applyField('whatsappNumber', whatsappNumber.trim());
+        if (email !== undefined) applyField('email', email.trim());
+        if (address !== undefined) applyField('address', address.trim());
+        if (fromClass !== undefined) applyField('fromClass', fromClass);
+        if (toClass !== undefined) applyField('toClass', toClass);
+        if (encryptedCallLink !== undefined) applyField('encryptedCallLink', encryptedCallLink.trim());
+        if (description !== undefined) applyField('description', description);
+        if (headerNotice !== undefined) applyField('headerNotice', headerNotice);
+        if (footerText !== undefined) applyField('footerText', footerText);
+        if (clogo !== undefined) applyField('clogo', clogo);
+        if (directorPhoto !== undefined) applyField('directorPhoto', directorPhoto);
+        if (dueAmount !== undefined) applyField('dueAmount', Number(dueAmount) || 0);
+        if (admissionFee !== undefined || req.body.admissionFee !== undefined) {
+            applyField('admissionFee', Math.max(0, Number(admissionFee !== undefined ? admissionFee : req.body.admissionFee) || 0));
+        }
+        if (isBlocked !== undefined) applyField('isBlocked', Boolean(isBlocked));
+        if (blockReason !== undefined) applyField('blockReason', blockReason);
+        if (socials !== undefined) {
+            if (center) center.socials = { ...center.socials, ...socials };
+            if (pdbCenter) pdbCenter.socials = { ...(pdbCenter.socials || {}), ...socials };
+        }
 
         // Username update check
-        if (username && username.trim().toLowerCase() !== center.username) {
+        const currentUsername = (pdbCenter ? pdbCenter.username : center.username);
+        if (username && username.trim().toLowerCase() !== currentUsername) {
             const checkUser = username.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
-            const exists = await TuitionCenter.findOne({ username: checkUser, _id: { $ne: center._id } });
+            let exists = null;
+            if (isMongoConnected) {
+                try { exists = await TuitionCenter.findOne({ username: checkUser, _id: { $ne: centerId } }); } catch(e) {}
+            }
+            if (!exists) {
+                exists = pdb.centers.find(c => c._id.toString() !== centerId.toString() && (c.username || '').toLowerCase() === checkUser);
+            }
             if (exists) {
                 return res.status(400).json({ success: false, message: 'New username already taken by another center' });
             }
-            center.username = checkUser;
+            applyField('username', checkUser);
         }
 
         // Optional Password reset
         if (password && password.trim()) {
-            center.password = await bcrypt.hash(password.trim(), 10);
+            const hashed = await bcrypt.hash(password.trim(), 10);
+            applyField('password', hashed);
         }
 
-        await center.save();
+        if (pdbCenter) {
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try { await center.save(); } catch(e) {}
+        }
+
         clearCache();
-        res.json({ success: true, message: 'Coaching center profile updated by Super Admin!', data: center });
+        broadcastRealtimeEvent('centers_updated', {
+            action: 'center_updated_by_admin',
+            centerId: centerId
+        });
+        res.json({ success: true, message: 'Coaching center profile updated by Super Admin!', data: pdbCenter || center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -8999,11 +9206,23 @@ app.delete('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
     try {
         await TuitionCenter.findByIdAndDelete(req.params.id);
         const pdb = loadPortalDb();
+        let centerUsername = '';
         if (pdb.centers) {
+            const foundC = pdb.centers.find(c => c._id && c._id.toString() === req.params.id.toString());
+            if (foundC) centerUsername = foundC.username;
             pdb.centers = pdb.centers.filter(c => c._id && c._id.toString() !== req.params.id.toString());
-            await savePortalDb(pdb);
         }
+        if (centerUsername) {
+            if (pdb.affiliationApplications) {
+                pdb.affiliationApplications = pdb.affiliationApplications.filter(a => a.username !== centerUsername);
+            }
+            if (pdb.paymentTransactions) {
+                pdb.paymentTransactions = pdb.paymentTransactions.filter(t => t.username !== centerUsername);
+            }
+        }
+        await savePortalDb(pdb);
         clearCache();
+        broadcastRealtimeEvent('centers_updated', { action: 'center_deleted', centerId: req.params.id });
         res.json({ success: true, message: 'Coaching center removed from system' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9013,18 +9232,45 @@ app.delete('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
 // 8.4 Center Block / Unblock / Set Dues
 app.post('/api/admin/centers/:id/block', verifySuperAdmin, async (req, res) => {
     try {
+        const centerId = req.params.id;
         const { isBlocked, blockReason, dueAmount, paymentQr } = req.body;
-        const center = await TuitionCenter.findById(req.params.id);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => c._id && c._id.toString() === centerId.toString());
 
-        center.isBlocked = Boolean(isBlocked);
-        if (blockReason !== undefined) center.blockReason = blockReason;
-        if (dueAmount !== undefined) center.dueAmount = Number(dueAmount) || 0;
-        if (paymentQr !== undefined) center.paymentQr = paymentQr;
+        if (!center && !pdbCenter) {
+            return res.status(404).json({ success: false, message: 'Center not found' });
+        }
 
-        await center.save();
+        if (pdbCenter) {
+            pdbCenter.isBlocked = Boolean(isBlocked);
+            if (blockReason !== undefined) pdbCenter.blockReason = blockReason;
+            if (dueAmount !== undefined) pdbCenter.dueAmount = Number(dueAmount) || 0;
+            if (paymentQr !== undefined) pdbCenter.paymentQr = paymentQr;
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try {
+                center.isBlocked = Boolean(isBlocked);
+                if (blockReason !== undefined) center.blockReason = blockReason;
+                if (dueAmount !== undefined) center.dueAmount = Number(dueAmount) || 0;
+                if (paymentQr !== undefined) center.paymentQr = paymentQr;
+                await center.save();
+            } catch(e) {}
+        }
+
         clearCache();
-        res.json({ success: true, message: `Center ${center.isBlocked ? 'suspended' : 'activated'} successfully!`, data: center });
+        broadcastRealtimeEvent('centers_updated', {
+            action: 'center_status_changed',
+            centerId: centerId,
+            isBlocked: Boolean(isBlocked)
+        });
+        res.json({ success: true, message: `Center ${Boolean(isBlocked) ? 'suspended' : 'activated'} successfully!`, data: pdbCenter || center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -9033,8 +9279,24 @@ app.post('/api/admin/centers/:id/block', verifySuperAdmin, async (req, res) => {
 // 8.5 Central E-Library: Get All Books with Full Admin Control
 app.get('/api/admin/books', verifySuperAdmin, async (req, res) => {
     try {
-        const sm = await StudyMaterial.findOne();
-        res.json({ success: true, data: sm ? sm.notes : [] });
+        let notes = [];
+        if (isMongoConnected) {
+            try {
+                const sm = await StudyMaterial.findOne().lean();
+                if (sm && sm.notes) notes = sm.notes;
+            } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            const existingIds = new Set(notes.map(n => n._id ? n._id.toString() : ''));
+            pdb.studyMaterials.notes.forEach(pn => {
+                const pid = pn._id ? pn._id.toString() : '';
+                if (!pid || !existingIds.has(pid)) {
+                    notes.push(pn);
+                }
+            });
+        }
+        res.json({ success: true, data: notes });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -9066,9 +9328,6 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
 
         if (!title) return res.status(400).json({ success: false, message: 'Document title is required' });
 
-        let sm = await StudyMaterial.findOne();
-        if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
-
         const safeExt = (fileType || 'pdf').toLowerCase();
         const mode = storageMode === 'important' ? 'important' : 'normal';
         const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, title.trim());
@@ -9079,7 +9338,8 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         const physPrice = Number(physicalPrice) || (pPrice > 0 ? Math.max(99, Math.round(pPrice * 1.8 + 50)) : 149);
         const physMrp = Number(physicalMrp) || Math.round(physPrice * 2.2 + 50);
 
-        sm.notes.push({
+        const newNote = {
+            _id: new mongoose.Types.ObjectId().toString(),
             title: title.trim(),
             subject: subject || 'General',
             classLevel: classLevel || 'All Classes',
@@ -9098,11 +9358,29 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             targetCenterId: targetCenterId || 'all',
             targetCenterName: targetCenterName || 'All Centers (Universal)',
             isRawData: Boolean(fileAsset.isRawData || isRawData),
-            storageMode: fileAsset.storageUsed
-        });
+            storageMode: fileAsset.storageUsed,
+            createdAt: new Date()
+        };
 
-        await sm.save();
+        // Dual-persist to portal_db.json
+        const pdb = loadPortalDb();
+        if (!pdb.studyMaterials) pdb.studyMaterials = { notes: [], videos: [] };
+        if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
+        pdb.studyMaterials.notes.unshift(newNote);
+        await savePortalDb(pdb);
+
+        // Dual-persist to MongoDB
+        if (isMongoConnected) {
+            try {
+                let sm = await StudyMaterial.findOne();
+                if (!sm) sm = await StudyMaterial.create({ notes: [], videos: [] });
+                sm.notes.unshift(newNote);
+                await sm.save();
+            } catch(e) {}
+        }
+
         clearCache();
+        broadcastRealtimeEvent('books_updated');
         res.json({
             success: true,
             message: fileAsset.storageUsed === 'github_fallback'
@@ -9110,7 +9388,8 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
                 : (fileAsset.storageUsed === 'mongodb'
                     ? 'Document saved to MongoDB Vault!'
                     : 'Document added to Central E-Library on GitHub public/data!'),
-            storageUsed: fileAsset.storageUsed
+            storageUsed: fileAsset.storageUsed,
+            data: newNote
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9120,11 +9399,26 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
 // 8.7 Central E-Library: MASTER DOCUMENT EDITOR (Edit Any Document)
 app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
     try {
-        const sm = await StudyMaterial.findOne();
-        if (!sm || !sm.notes) return res.status(404).json({ success: false, message: 'Repository empty' });
+        const noteId = req.params.id;
+        const pdb = loadPortalDb();
+        if (!pdb.studyMaterials) pdb.studyMaterials = { notes: [], videos: [] };
+        if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
+        const pdbNote = pdb.studyMaterials.notes.find(n => n._id && n._id.toString() === noteId.toString());
 
-        const note = sm.notes.id(req.params.id) || sm.notes.find(n => n._id.toString() === req.params.id);
-        if (!note) return res.status(404).json({ success: false, message: 'Document not found' });
+        let mongoNote = null;
+        let sm = null;
+        if (isMongoConnected) {
+            try {
+                sm = await StudyMaterial.findOne();
+                if (sm && sm.notes) {
+                    mongoNote = sm.notes.id(noteId) || sm.notes.find(n => n._id && n._id.toString() === noteId.toString());
+                }
+            } catch(e) {}
+        }
+
+        if (!pdbNote && !mongoNote) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
+        }
 
         const {
             title,
@@ -9147,40 +9441,46 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
             storageMode
         } = req.body;
 
-        const safeExt = fileType ? fileType.toLowerCase() : (note.fileType || 'pdf').toLowerCase();
-        if (title !== undefined) note.title = title.trim();
-        if (subject !== undefined) note.subject = subject.trim();
-        if (classLevel !== undefined) note.classLevel = classLevel.trim();
-        if (description !== undefined) note.description = description;
-        if (fileType !== undefined) note.fileType = safeExt;
-        if (thumbnail && thumbnail.startsWith('data:image')) {
-            note.thumbnail = thumbnail;
-        } else if (thumbnail && thumbnail.trim() && thumbnail !== 'undefined' && thumbnail !== 'null') {
-            note.thumbnail = thumbnail.trim();
-        }
-        if (file !== undefined && file !== '') {
-            const mode = storageMode === 'important' ? 'important' : 'normal';
-            const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, (title || note.title).trim());
-            note.file = fileAsset.fileUrl || file;
-            note.pdf = fileAsset.fileUrl || file;
-            note.isRawData = Boolean(fileAsset.isRawData);
-            note.storageMode = fileAsset.storageUsed;
-        }
-        if (fileName !== undefined) note.fileName = fileName;
-        if (price !== undefined) note.price = Math.max(0, Number(price) || 0);
-        if (pdfMrp !== undefined) note.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
-        if (physicalPrice !== undefined) note.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
-        if (physicalMrp !== undefined) note.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
-        if (pickupAddress !== undefined) note.pickupAddress = pickupAddress.trim();
-        if (directorContact !== undefined) note.directorContact = directorContact.trim();
-        if (targetCenterId !== undefined) note.targetCenterId = targetCenterId;
-        if (targetCenterName !== undefined) note.targetCenterName = targetCenterName;
-        if (isRawData !== undefined) note.isRawData = Boolean(isRawData);
+        const updateTarget = (target) => {
+            const safeExt = fileType ? fileType.toLowerCase() : (target.fileType || 'pdf').toLowerCase();
+            if (title !== undefined) target.title = title.trim();
+            if (subject !== undefined) target.subject = subject.trim();
+            if (classLevel !== undefined) target.classLevel = classLevel.trim();
+            if (description !== undefined) target.description = description;
+            if (fileType !== undefined) target.fileType = safeExt;
+            if (thumbnail !== undefined && thumbnail) target.thumbnail = thumbnail;
+            if (file !== undefined && file !== '') {
+                const mode = storageMode === 'important' ? 'important' : 'normal';
+                const fileAsset = saveAssetFile(file, 'materials', safeExt, mode, (title || target.title).trim());
+                target.file = fileAsset.fileUrl || file;
+                target.pdf = fileAsset.fileUrl || file;
+                target.isRawData = Boolean(fileAsset.isRawData);
+                target.storageMode = fileAsset.storageUsed;
+            }
+            if (fileName !== undefined) target.fileName = fileName;
+            if (price !== undefined) target.price = Math.max(0, Number(price) || 0);
+            if (pdfMrp !== undefined) target.pdfMrp = Math.max(0, Number(pdfMrp) || 0);
+            if (physicalPrice !== undefined) target.physicalPrice = Math.max(0, Number(physicalPrice) || 0);
+            if (physicalMrp !== undefined) target.physicalMrp = Math.max(0, Number(physicalMrp) || 0);
+            if (pickupAddress !== undefined) target.pickupAddress = pickupAddress.trim();
+            if (directorContact !== undefined) target.directorContact = directorContact.trim();
+            if (targetCenterId !== undefined) target.targetCenterId = targetCenterId;
+            if (targetCenterName !== undefined) target.targetCenterName = targetCenterName;
+            if (isRawData !== undefined) target.isRawData = Boolean(isRawData);
+        };
 
-        sm.markModified('notes');
-        await sm.save();
+        if (pdbNote) updateTarget(pdbNote);
+        if (mongoNote) updateTarget(mongoNote);
+
+        await savePortalDb(pdb);
+        if (sm) {
+            sm.markModified('notes');
+            await sm.save();
+        }
+
         clearCache();
-        res.json({ success: true, message: 'Document updated successfully!', data: note });
+        broadcastRealtimeEvent('books_updated');
+        res.json({ success: true, message: 'Document updated successfully!', data: pdbNote || mongoNote });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -9189,11 +9489,25 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
 // 8.8 Delete E-Library Book Note
 app.delete('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
     try {
-        const sm = await StudyMaterial.findOne();
-        if (!sm) return res.status(404).json({ success: false, message: 'Vault empty' });
-        sm.notes = sm.notes.filter(n => n._id.toString() !== req.params.id);
-        await sm.save();
+        const noteId = req.params.id;
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && pdb.studyMaterials.notes) {
+            pdb.studyMaterials.notes = pdb.studyMaterials.notes.filter(n => (n._id ? n._id.toString() : '') !== noteId.toString());
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try {
+                const sm = await StudyMaterial.findOne();
+                if (sm && sm.notes) {
+                    sm.notes = sm.notes.filter(n => n._id.toString() !== noteId.toString());
+                    await sm.save();
+                }
+            } catch(e) {}
+        }
+
         clearCache();
+        broadcastRealtimeEvent('books_updated');
         res.json({ success: true, message: 'Document removed from E-Library' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9642,7 +9956,16 @@ app.get('/api/admin/test-razorpay', verifySuperAdmin, async (req, res) => {
 // 8.11 Affiliation Applications Desk
 app.get('/api/admin/affiliations', verifySuperAdmin, async (req, res) => {
     try {
-        const list = await AffiliationApplication.find().sort({ appliedAt: -1 });
+        let list = [];
+        if (isMongoConnected) {
+            try {
+                list = await AffiliationApplication.find().sort({ appliedAt: -1 }).lean();
+            } catch(e) {}
+        }
+        if (!list || list.length === 0) {
+            const pdb = loadPortalDb();
+            list = pdb.affiliationApplications || [];
+        }
         res.json({ success: true, data: list });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9652,7 +9975,16 @@ app.get('/api/admin/affiliations', verifySuperAdmin, async (req, res) => {
 // 8.12 Payment Transactions Ledger
 app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
     try {
-        const txns = await PaymentTransaction.find().sort({ createdAt: -1 });
+        let txns = [];
+        if (isMongoConnected) {
+            try {
+                txns = await PaymentTransaction.find().sort({ createdAt: -1 }).lean();
+            } catch(e) {}
+        }
+        if (!txns || txns.length === 0) {
+            const pdb = loadPortalDb();
+            txns = pdb.paymentTransactions || [];
+        }
         res.json({ success: true, data: txns });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9768,24 +10100,40 @@ app.post('/api/admin/gallery', verifySuperAdmin, async (req, res) => {
     try {
         const { image, title, storageMode } = req.body;
         if (!image) return res.status(400).json({ success: false, message: 'Image required' });
-        let settings = await Settings.findOne();
-        if (!settings) settings = await Settings.create({});
         
         const mode = storageMode === 'important' ? 'important' : 'normal';
         const imgAsset = saveAssetFile(image, 'photos', 'jpg', mode, (title || 'Campus Highlight').trim());
-        
-        settings.gallery.push({
+        const photoItem = {
+            _id: new mongoose.Types.ObjectId().toString(),
             image: imgAsset.fileUrl || image,
             title: title || 'Campus Highlight',
-            storageMode: imgAsset.storageUsed
-        });
-        await settings.save();
+            storageMode: imgAsset.storageUsed,
+            uploadedAt: new Date()
+        };
+
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+        if (!pdb.settings.gallery) pdb.settings.gallery = [];
+        pdb.settings.gallery.push(photoItem);
+        await savePortalDb(pdb);
+
+        if (isMongoConnected) {
+            try {
+                let settings = await Settings.findOne();
+                if (!settings) settings = await Settings.create({});
+                settings.gallery.push(photoItem);
+                await settings.save();
+            } catch(e) {}
+        }
+
         clearCache('public_config');
+        clearCache();
+        broadcastRealtimeEvent('config_updated');
         res.json({
             success: true,
             message: `Photo added to Board Gallery! (Stored via: ${imgAsset.storageUsed})`,
             storageMode: imgAsset.storageUsed,
-            data: settings.gallery
+            data: pdb.settings.gallery
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -9794,10 +10142,26 @@ app.post('/api/admin/gallery', verifySuperAdmin, async (req, res) => {
 
 app.delete('/api/admin/gallery/:gid', verifySuperAdmin, async (req, res) => {
     try {
-        let settings = await Settings.findOne();
-        if (!settings) return res.status(404).json({ success: false, message: 'Settings not found' });
-        settings.gallery = settings.gallery.filter(g => g._id.toString() !== req.params.gid);
-        await settings.save();
+        const gid = req.params.gid;
+        const pdb = loadPortalDb();
+        if (pdb.settings && pdb.settings.gallery) {
+            pdb.settings.gallery = pdb.settings.gallery.filter(g => (g._id ? g._id.toString() : '') !== gid);
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try {
+                let settings = await Settings.findOne();
+                if (settings && settings.gallery) {
+                    settings.gallery = settings.gallery.filter(g => g._id.toString() !== gid);
+                    await settings.save();
+                }
+            } catch(e) {}
+        }
+
+        clearCache('public_config');
+        clearCache();
+        broadcastRealtimeEvent('config_updated');
         res.json({ success: true, message: 'Photo removed from Gallery' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
