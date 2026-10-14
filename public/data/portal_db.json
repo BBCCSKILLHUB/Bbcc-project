@@ -156,6 +156,42 @@
         }
       ],
       "promotionalBanners": []
+    },
+    {
+      "_id": "6acf4369e38e18f519344d8d",
+      "createdAt": "2026-10-14T08:55:05.765Z",
+      "updatedAt": "2026-10-14T08:55:05.765Z",
+      "centerName": "Bal Bharti Model Coaching Institute",
+      "username": "audit_center_5662",
+      "password": "$2a$10$ImTnvNxcuAOmWRWmIt61T.K6zB2TpxHUQNr/OoxEry/GtIs50DqtG",
+      "directorName": "Dr. R. K. Sharma",
+      "address": "BBCC Knowledge Park, Sector 4, Patna",
+      "contactNumber": "9876543210",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-105763",
+      "affiliationPaid": true,
+      "teachers": [
+        {
+          "teacherId": "TCH-05883",
+          "password": "teacherPass123",
+          "name": "Prof. Alok Verma",
+          "subject": "Mathematics & Quantum Mechanics",
+          "class": "All",
+          "qualification": "M.Sc., Ph.D. Mathematics",
+          "photo": "",
+          "phone": "9155011166",
+          "experience": "8+ Years Senior Faculty",
+          "bio": "",
+          "isActive": true,
+          "_id": "6acf4369e38e18f519344d8e",
+          "createdAt": "2026-10-14T08:55:05.980Z"
+        }
+      ],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": []
     }
   ],
   "studyMaterials": {
@@ -485,6 +521,30 @@
           "time": "2026-10-14T08:53:41.131Z"
         }
       ]
+    },
+    {
+      "_id": "6acf4369e38e18f519344d8c",
+      "createdAt": "2026-10-14T08:55:05.604Z",
+      "updatedAt": "2026-10-14T08:55:05.604Z",
+      "sessionId": "ADMIN_LIVE_1791968101876_4acb3c",
+      "teacherId": "ADMIN_DIRECTORATE",
+      "teacherName": "Director General BBCC",
+      "centerId": "",
+      "centerName": "BBCC SKILL HUB Central Directorate",
+      "courseId": "",
+      "courseName": "Central Masterclass & Special Program",
+      "subject": "Quality & Governance",
+      "title": "Audit Test Central Directorate Masterclass",
+      "status": "ended",
+      "isCentralAdmin": true,
+      "youtubeLiveUrl": "https://www.youtube.com/watch?v=845B4Wl1e70",
+      "youtubeWatchUrl": "https://www.youtube.com/watch?v=845B4Wl1e70",
+      "startedAt": "2026-10-14T08:55:05.599Z",
+      "activeStudentsCount": 0,
+      "endedAt": "2026-10-14T08:55:05.635Z",
+      "isArchivedToYoutube": true,
+      "recordingUrl": "https://www.youtube.com/watch?v=845B4Wl1e70",
+      "youtubeVideoId": "845B4Wl1e70"
     }
   ],
   "admissionInquiries": [
