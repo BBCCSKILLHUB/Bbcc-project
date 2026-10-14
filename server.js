@@ -142,10 +142,14 @@ async function syncFileToGitHub(relPath, base64Content, commitMessage = 'upload:
     }
 }
 
-// Unified Asset Storage Function:
-// - 'normal' (Default): Saves into public/data/${subDir}/${filename} AND syncs to GitHub repository
-// - 'important': Saves directly in MongoDB document IF size <= 2.5MB;
-//   If size > 2.5MB (exceeds safe limit): Automatically routes to GitHub public/data to protect MongoDB from crashing!
+// ============================================================
+// STRICT ASSET STORAGE POLICY:
+// - ALL media, photos, PDFs, banners, thumbnails, KYC documents,
+//   and recordings are ALWAYS stored in GitHub's public/data folder.
+// - MongoDB is strictly reserved for lightweight operational data:
+//   IDs, usernames, hashed passwords, API keys, and URL path strings.
+// - MongoDB is 100% FREE of Base64 strings and media bloat!
+// ============================================================
 function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf', storageMode = 'normal', title = '') {
     if (!dataUriOrBase64 || typeof dataUriOrBase64 !== 'string') {
         return { fileUrl: '', storageUsed: 'none', isRawData: false };
@@ -169,39 +173,12 @@ function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf'
         else if (mimeType.includes('png')) ext = 'png';
         else if (mimeType.includes('webp')) ext = 'webp';
         else if (mimeType.includes('word') || mimeType.includes('officedocument')) ext = 'docx';
-    } else if (dataUriOrBase64.length < 300) {
+    } else if (dataUriOrBase64.length < 300 && !dataUriOrBase64.includes(';base64,')) {
         return { fileUrl: dataUriOrBase64, storageUsed: 'text', isRawData: false };
     }
 
     const approxByteSize = Math.round(base64Data.length * 0.75);
-    const SAFE_MONGO_LIMIT = 2.5 * 1024 * 1024; // 2.5MB safe limit to keep MongoDB fast and avoid 16MB document cap
 
-    const isImageSubdir = ['branding', 'teachers', 'students', 'covers', 'thumbnails', 'kyc'].includes(subDir);
-    // User requirement: Videos on YouTube, all PDFs and photos in GitHub repo/filesystem ('/data/...'), NOT bloated in MongoDB
-    const isImportant = (storageMode === 'important') && (approxByteSize < 100 * 1024);
-    const exceedsLimit = approxByteSize > SAFE_MONGO_LIMIT;
-
-    // CASE 1: Explicit Important mode strictly under 100KB safe threshold -> Store in MongoDB
-    if (isImportant && !exceedsLimit) {
-        try {
-            const targetDir = path.join(__dirname, 'public', 'data', subDir);
-            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-            const safeBaseName = title ? title.slice(0, 30).replace(/[^a-zA-Z0-9_-]/g, '_') : subDir;
-            const filename = `${safeBaseName}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
-            const filePath = path.join(targetDir, filename);
-            fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
-        } catch (ignore) {}
-
-        return {
-            fileUrl: dataUriOrBase64,
-            storageUsed: 'mongodb',
-            isRawData: true,
-            sizeBytes: approxByteSize
-        };
-    }
-
-    // CASE 2: Normal mode (Default) OR Important mode that exceeds safe MongoDB limit
-    // -> Save to GitHub public/data folder on server disk AND push to GitHub repository!
     try {
         const targetDir = path.join(__dirname, 'public', 'data', subDir);
         if (!fs.existsSync(targetDir)) {
@@ -215,19 +192,32 @@ function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf'
         const publicUrl = `/data/${subDir}/${filename}`;
         const relGitHubPath = `public/data/${subDir}/${filename}`;
 
-        // Asynchronously push to GitHub repository
-        syncFileToGitHub(relGitHubPath, base64Data, `upload: save ${subDir} asset (${title || filename}) to GitHub public/data`).catch(() => {});
+        // Asynchronously push asset file to GitHub repository
+        syncFileToGitHub(relGitHubPath, base64Data, `upload: save ${subDir} asset (${title || filename}) to GitHub public/data`).catch((err) => {
+            console.warn(`[GitHub Asset Sync Notice] ${relGitHubPath}:`, err.message);
+        });
+
+        console.log(`📦 [ASSET SAVED TO GITHUB DATA] Path: ${publicUrl} (${Math.round(approxByteSize/1024)} KB) -> MongoDB kept clean!`);
 
         return {
             fileUrl: publicUrl,
-            storageUsed: exceedsLimit && isImportant ? 'github_fallback' : 'github_data',
+            storageUsed: 'github_data',
             isRawData: false,
             sizeBytes: approxByteSize,
             filename: filename
         };
     } catch (e) {
-        console.error('saveAssetFile error:', e.message);
-        return { fileUrl: dataUriOrBase64, storageUsed: 'mongodb_fallback', isRawData: true };
+        console.error('saveAssetFile disk write error:', e.message);
+        // Even on error, write to temporary uploads folder rather than polluting MongoDB with raw base64
+        try {
+            const fallbackDir = path.join(__dirname, 'public', 'uploads', subDir);
+            if (!fs.existsSync(fallbackDir)) fs.mkdirSync(fallbackDir, { recursive: true });
+            const filename = `fallback_${Date.now()}.${ext}`;
+            fs.writeFileSync(path.join(fallbackDir, filename), Buffer.from(base64Data, 'base64'));
+            return { fileUrl: `/uploads/${subDir}/${filename}`, storageUsed: 'local_upload', isRawData: false };
+        } catch(fallbackErr) {
+            return { fileUrl: '', storageUsed: 'error', isRawData: false };
+        }
     }
 }
 
