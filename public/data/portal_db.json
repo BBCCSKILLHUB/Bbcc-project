@@ -260,6 +260,29 @@
       "affiliationPaid": true,
       "isBlocked": false,
       "dueAmount": 0
+    },
+    {
+      "_id": "6acf9796d29ee87412a4f61b",
+      "createdAt": "2026-10-14T14:54:14.865Z",
+      "updatedAt": "2026-10-14T14:54:14.865Z",
+      "centerName": "Test Live Center",
+      "username": "test-live-user",
+      "password": "$2a$10$S/TlZhJHae1GUkI/Jpsi4uZJbAwZxyQ1XcCoW2ywztnEwxiYlnTQm",
+      "directorName": "Director Live",
+      "address": "Patna",
+      "contactNumber": "9876543210",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-654626",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T14:54:14.626Z",
+      "walletBalance": 0,
+      "dueAmount": 0,
+      "isBlocked": false,
+      "teachers": [],
+      "courses": [],
+      "materials": []
     }
   ],
   "studyMaterials": {
