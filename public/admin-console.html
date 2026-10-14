@@ -2576,41 +2576,53 @@
                 return;
             }
 
-            tbody.innerHTML = list.map(r => `
-                <tr>
-                    <td><strong style="color:#ffffff;">${r.coachingName}</strong></td>
-                    <td>
-                        <strong style="color:#38bdf8;">${r.courseName}</strong>
-                    </td>
-                    <td><strong style="color:var(--admin-gold);">${r.title}</strong></td>
-                    <td><span style="color:#cbd5e1;">${r.teacherName}</span></td>
-                    <td><span style="font-size:12px; color:#94a3b8;">${new Date(r.date).toLocaleDateString([], { day:'numeric', month:'short', year:'numeric' })}</span></td>
-                    <td>
-                        <span style="font-size:11.5px; color:#cbd5e1;">
-                            ${r.isLocalFile ? '<i class="fas fa-file-video" style="color:#10b981;"></i> High-Res Server File' : '<i class="fab fa-youtube" style="color:#ef4444;"></i> YouTube Video'}
-                        </span>
-                    </td>
-                    <td>
-                        <div style="display:flex; gap:6px;">
-                            <button onclick="playAdminRecording('${encodeURIComponent(r.videoUrl)}', '${encodeURIComponent(r.title)}', '${encodeURIComponent(r.coachingName)}', '${encodeURIComponent(r.teacherName)}', ${r.isLocalFile})" class="btn-aurora btn-gold" style="padding:4px 10px; font-size:11px;">
-                                <i class="fas fa-play"></i> Play
-                            </button>
-                            ${r.isLocalFile ? `
-                                <a href="${r.videoUrl}" download class="btn-aurora" style="background:rgba(255,255,255,0.06); padding:4px 8px; font-size:11px; color:#38bdf8;">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            ` : ''}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = list.map(r => {
+                const cName = r.coachingName || r.centerName || 'BBCC Central Directorate';
+                const tName = r.teacherName || 'Faculty';
+                const crsName = r.courseName || 'Special Program';
+                const dObj = (r.date || r.recordedAt) ? new Date(r.date || r.recordedAt) : new Date();
+                const dateStr = dObj.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+                const timeStr = dObj.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+
+                return `
+                    <tr>
+                        <td><strong style="color:#ffffff;">${cName}</strong></td>
+                        <td>
+                            <strong style="color:#38bdf8;">${crsName}</strong>
+                        </td>
+                        <td><strong style="color:var(--admin-gold);">${r.title || 'Untitled Lecture'}</strong></td>
+                        <td><span style="color:#cbd5e1;">${tName}</span></td>
+                        <td>
+                            <div style="font-size:12px; color:#f8fafc; font-weight:700;"><i class="far fa-calendar-alt" style="color:var(--admin-gold); margin-right:4px;"></i>${dateStr}</div>
+                            <div style="font-size:11px; color:#38bdf8; margin-top:2px;"><i class="far fa-clock" style="margin-right:4px;"></i>${timeStr}</div>
+                        </td>
+                        <td>
+                            <span style="font-size:11.5px; color:#cbd5e1;">
+                                ${r.isLocalFile ? '<i class="fas fa-file-video" style="color:#10b981;"></i> Server File' : (r.videoUrl ? '<i class="fab fa-youtube" style="color:#ef4444;"></i> YouTube Stream' : '<i class="fas fa-clock" style="color:#94a3b8;"></i> Live Session')}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="playAdminRecording('${encodeURIComponent(r.videoUrl || '')}', '${encodeURIComponent(r.title || '')}', '${encodeURIComponent(cName)}', '${encodeURIComponent(tName)}', ${Boolean(r.isLocalFile)})" class="btn-aurora btn-gold" style="padding:4px 10px; font-size:11px;">
+                                    <i class="fas fa-play"></i> Play
+                                </button>
+                                ${r.isLocalFile && r.videoUrl ? `
+                                    <a href="${r.videoUrl}" download class="btn-aurora" style="background:rgba(255,255,255,0.06); padding:4px 8px; font-size:11px; color:#38bdf8;">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function playAdminRecording(videoUrlEncoded, titleEncoded, coachEncoded, teacherEncoded, isLocal) {
-            const videoUrl = decodeURIComponent(videoUrlEncoded);
-            const title = decodeURIComponent(titleEncoded);
-            const coachingName = decodeURIComponent(coachEncoded);
-            const teacherName = decodeURIComponent(teacherEncoded);
+            const videoUrl = decodeURIComponent(videoUrlEncoded || '').trim();
+            const title = decodeURIComponent(titleEncoded || 'Recorded Lecture');
+            const coachingName = decodeURIComponent(coachEncoded || 'BBCC Central Directorate');
+            const teacherName = decodeURIComponent(teacherEncoded || 'Faculty');
 
             const modal = document.getElementById('watchStreamModal');
             document.getElementById('wsmTitle').textContent = title;
@@ -2618,7 +2630,7 @@
             document.getElementById('wsmMetaInfo').innerHTML = isLocal ? 'Source: <strong>High-Definition Server Recording</strong>' : 'Source: <strong>YouTube Stream</strong>';
 
             const dBtn = document.getElementById('wsmDownloadBtn');
-            if (isLocal) {
+            if (isLocal && videoUrl) {
                 dBtn.href = videoUrl;
                 dBtn.style.display = 'inline-flex';
             } else {
@@ -2632,8 +2644,25 @@
 
             video.style.display = 'none';
             iframe.style.display = 'none';
+            iframe.src = 'about:blank';
             frameBox.style.display = 'none';
             placeholder.style.display = 'none';
+
+            // If no video URL was captured for this session
+            if (!videoUrl || videoUrl === '/' || videoUrl === 'undefined') {
+                placeholder.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:#cbd5e1;">
+                        <i class="fas fa-video-slash" style="font-size:44px; color:#ef4444; margin-bottom:12px; display:block;"></i>
+                        <strong style="font-size:15px; color:#ffffff;">No Video Stream Recorded</strong>
+                        <p style="font-size:12px; color:#94a3b8; margin-top:6px; max-width:400px; margin-left:auto; margin-right:auto;">
+                            इस लाइव सेशन के दौरान कोई YouTube या सर्वर वीडियो रिकॉर्डिंग सेव नहीं हुई थी।
+                        </p>
+                    </div>
+                `;
+                placeholder.style.display = 'block';
+                modal.style.display = 'flex';
+                return;
+            }
 
             if (isLocal || videoUrl.endsWith('.mp4') || videoUrl.endsWith('.webm')) {
                 video.src = videoUrl;
@@ -2645,10 +2674,11 @@
                 const ytId = ytMatch ? ytMatch[1] : '';
                 if (ytId) {
                     iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1`;
+                    iframe.style.display = 'block';
                 } else {
                     iframe.src = videoUrl;
+                    iframe.style.display = 'block';
                 }
-                iframe.style.display = 'block';
                 modal.style.display = 'flex';
             }
         }

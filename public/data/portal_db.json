@@ -145,14 +145,7 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {
-    "2026-10-14_morning": {
-      "dispatchedAt": "2026-10-14T05:08:33.922Z",
-      "slot": "morning",
-      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
-      "body": "BBCC दैनिक अध्ययन लक्ष्य: 10वीं व 12वीं बोर्ड परीक्षाओं के स्पेशल नोट्स और मॉडल पेपर्स ई-लाइब्रेरी में उपलब्ध हैं। 📖"
-    }
-  },
+  "bharti_auto_push_log": {},
   "teachers": [],
   "liveSessions": []
 }

@@ -6668,20 +6668,8 @@ async function resolveAutoYouTubeLive(customUrl, title = '') {
                     return `https://www.youtube.com/watch?v=${sData.items[0].id.videoId}`;
                 }
             } catch (sErr) {}
-
-            return `https://www.youtube.com/channel/${channelId}/live`;
-        }
-
-        // Method 3: If apiKey exists, search active live stream on YouTube under BBCC keyword!
-        if (apiKey) {
-            try {
-                const qSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=BBCC+SKILL+HUB&eventType=live&type=video&maxResults=1&key=${encodeURIComponent(apiKey)}`;
-                const qRes = await fetch(qSearchUrl);
-                const qData = await qRes.json();
-                if (qData.items && qData.items.length > 0 && qData.items[0].id?.videoId) {
-                    return `https://www.youtube.com/watch?v=${qData.items[0].id.videoId}`;
-                }
-            } catch (qErr) {}
+            // If no active live stream currently broadcasting on channel, return empty so in-portal camera is used
+            return '';
         }
     } catch (e) {
         console.warn('resolveAutoYouTubeLive notice:', e.message);
@@ -7336,7 +7324,29 @@ app.get('/api/admin/live-monitor', verifySuperAdmin, async (req, res) => {
 // Super Admin All Centers Uploaded Lectures & Recorded Vault
 app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
     try {
-        const liveSessions = await LiveClassSession.find({ status: { $in: ['ended', 'archived'] } }).sort({ endedAt: -1, createdAt: -1 }).limit(100).lean();
+        const rawLiveSessions = await LiveClassSession.find({ status: { $in: ['ended', 'archived'] } }).sort({ endedAt: -1, createdAt: -1 }).limit(100).lean();
+
+        const liveSessions = rawLiveSessions.map(s => {
+            const dateVal = s.endedAt || s.startedAt || s.createdAt || new Date();
+            const vUrl = (s.recordingUrl || s.youtubeWatchUrl || s.youtubeLiveUrl || s.videoUrl || '').trim();
+            const isLocal = Boolean(vUrl && (vUrl.endsWith('.mp4') || vUrl.endsWith('.webm') || vUrl.includes('/data/recordings/')));
+            const centerTitle = s.centerName || (s.isCentralAdmin ? 'BBCC Central Directorate' : 'Universal Partner Center');
+            return {
+                _id: s._id,
+                sessionId: s.sessionId,
+                title: s.title || 'Live Interactive Class',
+                teacherName: s.teacherName || 'Faculty',
+                coachingName: centerTitle,
+                centerName: centerTitle,
+                courseName: s.courseName || s.subject || 'Masterclass & Special Program',
+                videoUrl: vUrl,
+                youtubeVideoId: s.youtubeVideoId || '',
+                youtubeWatchUrl: s.youtubeWatchUrl || vUrl,
+                date: dateVal,
+                recordedAt: dateVal,
+                isLocalFile: isLocal
+            };
+        });
 
         let centerRecordings = [];
         try {
@@ -7344,17 +7354,23 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
             centers.forEach(c => {
                 (c.courses || []).forEach(crs => {
                     (crs.recordedLectures || []).forEach(rl => {
+                        const dateVal = rl.recordedAt || rl.createdAt || new Date();
+                        const vUrl = (rl.videoUrl || '').trim();
+                        const isLocal = Boolean(vUrl && (vUrl.endsWith('.mp4') || vUrl.endsWith('.webm') || vUrl.includes('/data/recordings/')));
                         centerRecordings.push({
                             _id: rl._id,
                             sessionId: 'REC_' + (rl._id ? rl._id.toString() : Date.now()),
                             title: rl.title,
                             teacherName: rl.teacherName || 'Faculty',
+                            coachingName: c.centerName,
                             centerName: c.centerName,
                             courseName: crs.courseName,
-                            videoUrl: rl.videoUrl,
-                            youtubeVideoId: rl.youtubeVideoId,
-                            youtubeWatchUrl: rl.videoUrl,
-                            recordedAt: rl.recordedAt || rl.createdAt
+                            videoUrl: vUrl,
+                            youtubeVideoId: rl.youtubeVideoId || '',
+                            youtubeWatchUrl: vUrl,
+                            date: dateVal,
+                            recordedAt: dateVal,
+                            isLocalFile: isLocal
                         });
                     });
                 });
