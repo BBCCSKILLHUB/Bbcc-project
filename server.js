@@ -1650,16 +1650,10 @@ async function initSystem() {
             console.log('📁 Operating on Local/GitHub Persistent Data Engine.');
         }
 
-        // Ensure Default Admin
+        // Super Admin verification (No automatic default admin backdoor)
         const adminCount = await Admin.countDocuments();
         if (adminCount === 0) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
-            await Admin.create({
-                adminId: 'admin',
-                password: hashedPassword,
-                name: 'BBCC Central Directorate'
-            });
-            console.log('✅ Initialized Default Super Admin: admin / admin123');
+            console.warn('⚠️ No Super Admin found in database. Admin credentials must be configured manually.');
         }
 
         // Ensure Settings document
@@ -5504,7 +5498,8 @@ app.post('/api/auth/login', async (req, res) => {
         // If matched as Super Admin, verify password
         if (adminFound) {
             const adminMatch = await bcrypt.compare(password, adminFound.password);
-            if (adminMatch || password === 'admin123') {
+            // Strict password verification - no hardcoded admin123 backdoor
+            if (adminMatch) {
                 if (isMongoConnected && adminFound.save) {
                     adminFound.lastLogin = new Date();
                     await adminFound.save().catch(() => {});
@@ -9212,6 +9207,145 @@ app.put('/api/admin/credentials', verifySuperAdmin, async (req, res) => {
         res.json({ success: true, message: 'Super Admin credentials changed successfully! Please log in with new credentials.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.9C Super Admin Format Platform Data / Factory Reset (MongoDB & GitHub Cloud)
+app.post('/api/admin/format-data', verifySuperAdmin, async (req, res) => {
+    try {
+        const { confirmation } = req.body;
+        if (!confirmation || confirmation.trim().toUpperCase() !== 'FORMAT DATA') {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid confirmation phrase. Please type "FORMAT DATA" to confirm factory reset.'
+            });
+        }
+
+        console.log('🚨 [FORMAT PLATFORM DATA] Initiated by Super Admin:', req.admin.adminId || req.admin.id);
+
+        // 1. Fetch & strictly preserve currently active Super Admin record
+        let activeAdmin = null;
+        if (isMongoConnected) {
+            try {
+                if (req.admin.id && mongoose.Types.ObjectId.isValid(req.admin.id)) {
+                    activeAdmin = await Admin.findById(req.admin.id);
+                }
+                if (!activeAdmin && req.admin.adminId) {
+                    activeAdmin = await Admin.findOne({ adminId: req.admin.adminId });
+                }
+            } catch (e) {}
+        }
+
+        const pdb = loadPortalDb();
+        if (!activeAdmin) {
+            activeAdmin = (pdb.admins || []).find(a => 
+                (req.admin.adminId && a.adminId && a.adminId.toLowerCase() === req.admin.adminId.toLowerCase()) ||
+                (req.admin.id && a._id && a._id.toString() === req.admin.id) ||
+                a.role === 'superadmin'
+            ) || (pdb.admins || [])[0];
+        }
+
+        if (!activeAdmin || !activeAdmin.password) {
+            return res.status(500).json({
+                success: false,
+                message: 'Active admin credentials could not be verified for preservation. Aborting reset to prevent lockout.'
+            });
+        }
+
+        const preservedAdmin = {
+            adminId: activeAdmin.adminId || 'admin',
+            password: activeAdmin.password,
+            name: activeAdmin.name || 'BBCC Central Directorate',
+            role: 'superadmin'
+        };
+
+        // 2. Wipe MongoDB Collections (if connected)
+        if (isMongoConnected) {
+            try {
+                await TuitionCenter.deleteMany({});
+                await Student.deleteMany({});
+                await WithdrawalRequest.deleteMany({});
+                await PaymentTransaction.deleteMany({});
+                await SupportTicket.deleteMany({});
+                await TeacherAccount.deleteMany({});
+                await LiveClassSession.deleteMany({});
+                await AdmissionInquiry.deleteMany({});
+                await AffiliationApplication.deleteMany({});
+                await StudyMaterial.deleteMany({});
+
+                // Preserve ONLY active admin in MongoDB Admin collection
+                await Admin.deleteMany({ adminId: { $ne: preservedAdmin.adminId } });
+                const existingInMongo = await Admin.findOne({ adminId: preservedAdmin.adminId });
+                if (!existingInMongo) {
+                    await Admin.create(preservedAdmin);
+                } else {
+                    existingInMongo.password = preservedAdmin.password;
+                    await existingInMongo.save();
+                }
+            } catch (mongoErr) {
+                console.warn('MongoDB partial format notice:', mongoErr.message);
+            }
+        }
+
+        // 3. Reset Local Portal DB (portal_db.json)
+        pdb.admins = [preservedAdmin];
+        pdb.centers = [];
+        pdb.students = [];
+        pdb.studyMaterials = { notes: [], videos: [] };
+        pdb.withdrawals = [];
+        pdb.paymentTransactions = [];
+        pdb.push_subscriptions = [];
+        pdb.push_history = [];
+        pdb.bharti_auto_push_log = {};
+        pdb.teachers = [];
+        pdb.liveSessions = [];
+        pdb.admissionInquiries = [];
+        pdb.supportTickets = [];
+        pdb.affiliationApplications = [];
+
+        // Save locally and sync to GitHub
+        await savePortalDb(pdb);
+
+        // 4. Clean up uploaded non-system material files from local disk
+        const dirsToClean = [
+            path.join(__dirname, 'public', 'uploads', 'materials'),
+            path.join(__dirname, 'public', 'uploads', 'notes'),
+            path.join(__dirname, 'public', 'uploads', 'thumbnails'),
+            path.join(__dirname, 'public', 'data', 'materials')
+        ];
+
+        for (const dir of dirsToClean) {
+            if (fs.existsSync(dir)) {
+                try {
+                    const files = fs.readdirSync(dir);
+                    for (const file of files) {
+                        const fullPath = path.join(dir, file);
+                        if (fs.statSync(fullPath).isFile()) {
+                            fs.unlinkSync(fullPath);
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // 5. Directly sync formatted portal_db.json to GitHub repository
+        try {
+            const jsonStr = JSON.stringify(pdb, null, 2);
+            await syncFileToGitHub('public/data/portal_db.json', Buffer.from(jsonStr).toString('base64'), 'feat: format all platform data across MongoDB and GitHub while preserving active admin credentials');
+        } catch (ghErr) {
+            console.warn('GitHub direct sync notice:', ghErr.message);
+        }
+
+        console.log('✅ [FORMAT COMPLETED] MongoDB and GitHub platform data wiped cleanly. Preserved Admin:', preservedAdmin.adminId);
+
+        res.json({
+            success: true,
+            message: 'All platform data formatted successfully across MongoDB and GitHub. Your Super Admin account has been safely preserved!',
+            preservedAdminId: preservedAdmin.adminId
+        });
+    } catch (err) {
+        console.error('Format data error:', err);
+        res.status(500).json({ success: false, message: 'Format failed: ' + err.message });
     }
 });
 
