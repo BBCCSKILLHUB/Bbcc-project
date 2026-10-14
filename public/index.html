@@ -4489,7 +4489,18 @@
         function renderCenters(centers) {
             const grid = document.getElementById('institutesGrid');
             if (!centers || centers.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">Partner institutes will be registered soon.</div>';
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:35px 20px; background:var(--cosmic-card); border-radius:18px; border:1px dashed rgba(251,191,36,0.3);">
+                        <i class="fas fa-school" style="color:var(--aurora-gold); font-size:32px; margin-bottom:12px; display:inline-block;"></i>
+                        <h4 style="color:#ffffff; font-size:16px; margin-bottom:6px; font-family:'Cinzel',serif;">सत्यापित सहयोगी कोचिंग संस्थान</h4>
+                        <p style="color:var(--text-slate); font-size:13px; max-width:440px; margin:0 auto 16px;">
+                            संबद्धता प्राप्त कोचिंग संस्थानों की सूची संकलित की जा रही है। अपना संस्थान पंजीकृत करने हेतु नीचे दिए गए बटन पर टैप करें।
+                        </p>
+                        <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-gold" style="font-size:13px; margin:0 auto;">
+                            <i class="fas fa-plus-circle"></i> Apply for Center Affiliation
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
