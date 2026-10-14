@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBCC SKILL HUB - Complete Platform User Manual & Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0b1120;
+            --primary-light: #1e293b;
+            --accent-gold: #f59e0b;
+            --accent-blue: #38bdf8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fafc;
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Top Action Bar (Screen Only) */
+        .action-bar {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .action-bar h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-download-pdf {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #0b1120;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-download-pdf:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(245,158,11,0.4);
+        }
+
+        /* Document Container */
+        .manual-wrapper {
+            max-width: 960px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Cover Header */
+        .cover-header {
+            text-align: center;
+            padding-bottom: 35px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 35px;
+        }
+        .cover-badge {
+            display: inline-block;
+            background: rgba(245,158,11,0.15);
+            color: #b45309;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(245,158,11,0.3);
+            margin-bottom: 14px;
+        }
+        .cover-title {
+            font-family: 'Cinzel', serif;
+            font-size: 30px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .cover-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .cover-meta {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Table of Contents */
+        .toc-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 30px;
+            margin-bottom: 40px;
+        }
+        .toc-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 24px;
+            font-size: 13px;
+        }
+        .toc-item a {
+            color: #2563eb;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted #cbd5e1;
+            padding-bottom: 3px;
+        }
+        .toc-item a:hover {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        /* Section Styling */
+        .section-block {
+            margin-bottom: 50px;
+            page-break-inside: avoid;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .section-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Feature Card */
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        .feature-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+        .feature-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .feature-name {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .feature-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .feature-desc {
+            font-size: 13.5px;
+            color: #475569;
+            margin-bottom: 14px;
+        }
+
+        /* How to Use Box (Steps) */
+        .steps-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+        .steps-label {
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #0f172a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .steps-list {
+            padding-left: 20px;
+            font-size: 13px;
+            color: #334155;
+        }
+        .steps-list li {
+            margin-bottom: 6px;
+        }
+        .steps-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Tips & Callouts */
+        .callout-box {
+            background: #fef3c7;
+            border-left: 4px solid var(--accent-gold);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 12.5px;
+            color: #92400e;
+        }
+        .callout-box strong {
+            color: #78350f;
+        }
+
+        .callout-success {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+        .callout-success strong {
+            color: #047857;
+        }
+
+        /* Tables */
+        .manual-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin: 16px 0;
+        }
+        .manual-table th, .manual-table td {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .manual-table th {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .manual-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        /* Print Specifics */
+        @media print {
+            .action-bar { display: none !important; }
+            body { background: #ffffff !important; }
+            .manual-wrapper {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .section-block {
+                page-break-inside: avoid;
+            }
+            .feature-card {
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR (VISIBLE ON BROWSER ONLY) -->
+    <div class="action-bar">
+        <h2>
+            <i class="fas fa-graduation-cap"></i> BBCC SKILL HUB — Official Platform Manual
+        </h2>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-download-pdf">
+                <i class="fas fa-file-pdf"></i> Download PDF Manual
+            </a>
+            <button onclick="window.print()" class="btn-download-pdf" style="background:#334155; color:#ffffff;">
+                <i class="fas fa-print"></i> Print Manual
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN USER MANUAL CONTENT WRAPPER -->
+    <div class="manual-wrapper">
+
+        <!-- COVER / TITLE SECTION -->
+        <div class="cover-header">
+            <span class="cover-badge">Official Standard Operating Procedure (SOP)</span>
+            <h1 class="cover-title">BBCC SKILL HUB</h1>
+            <p class="cover-subtitle">
+                Complete Feature-by-Feature User Manual & Operational Guide for Super Admin, Coaching Directors, Faculty Teachers & Students.
+            </p>
+            <div class="cover-meta">
+                <span><i class="fas fa-layer-group"></i> Version: 2.0 LTS (Production)</span>
+                <span><i class="fas fa-shield-halved"></i> Zero Data Loss Architecture</span>
+                <span><i class="fas fa-calendar-check"></i> Updated: October 2026</span>
+            </div>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="toc-box">
+            <div class="toc-title">
+                <i class="fas fa-list-ol" style="color:var(--accent-gold);"></i> टेबल ऑफ कंटेंट्स (Table of Contents)
+            </div>
+            <div class="toc-grid">
+                <div class="toc-item"><a href="#sec-admin">1. Super Admin Console (सेंट्रल एडमिनिस्ट्रेशन) <span>Sec 1</span></a></div>
+                <div class="toc-item"><a href="#sec-director">2. Coaching Director Portal (कोचिंग संचालक) <span>Sec 2</span></a></div>
+                <div class="toc-item"><a href="#sec-teacher">3. Universal Teacher Studio (शिक्षक लाइव स्टूडियो) <span>Sec 3</span></a></div>
+                <div class="toc-item"><a href="#sec-student">4. Student Portal & Verification (छात्र पोर्टल) <span>Sec 4</span></a></div>
+                <div class="toc-item"><a href="#sec-live">5. Live Streaming & YouTube Dual Broadcast <span>Sec 5</span></a></div>
+                <div class="toc-item"><a href="#sec-vault">6. Central E-Library & Book Orders <span>Sec 6</span></a></div>
+                <div class="toc-item"><a href="#sec-data">7. Zero Data Loss & Image Persistence Architecture <span>Sec 7</span></a></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 1: SUPER ADMIN CONSOLE -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-admin">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-user-shield"></i></div>
+                <div>
+                    <h2 class="section-title">1. Super Admin Console (केंद्रीय नियंत्रण केंद्र)</h2>
+                    <p class="section-desc">URL: <code>/admin</code> (लॉगिन केवल हेडक्वार्टर सुपर एडमिन क्रेडेंशियल्स के लिए)</p>
+                </div>
+            </div>
+
+            <!-- Feature 1.1 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-school" style="color:#38bdf8;"></i> Partner Coaching Centers Management</span>
+                    <span class="feature-badge">Master Control</span>
+                </div>
+                <p class="feature-desc">
+                    पूरे भारत के नए कोचिंग सेंटरों को संबद्ध (Affiliate) करना, उनका यूज़रनेम-पासवर्ड बनाना और एडमिशन फ़ीस निर्धारित करना।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>एडमिन कंसोल में <b>"Affiliated Centers"</b> टैब पर क्लिक करें।</li>
+                        <li><b>"Register Institute"</b> फॉर्म में कोचिंग का नाम, डायरेक्टर का नाम, यूज़रनेम, पासवर्ड, पता, फ़ोन और <b>Center Admission Fee (₹)</b> (जैसे ₹200) भरें।</li>
+                        <li><b>"Register Institute"</b> बटन दबाते ही कोचिंग का खाता तुरंत सक्रिय हो जाएगा।</li>
+                        <li>टेबल में किसी भी कोचिंग के सामने <b>"Edit Center Data"</b> दबाकर आप कभी भी उसका नाम, पासवर्ड, एडमिशन फ़ीस और बकाया (Dues) बदल सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 1.2 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> National Live Broadcast Stage & Ops Deck</span>
+                    <span class="feature-badge">Central Live</span>
+                </div>
+                <p class="feature-desc">
+                    सेंट्रल एडमिन का देशव्यापी लाइव क्लास/प्रोग्राम का प्रसारण और भारत भर के सभी शिक्षकों की लाइव क्लास की रीयल-टाइम मॉनिटरिंग।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Central Live Stage"</b> टैब पर जाएं। कैमरा/माइक प्रीव्यू अपने-आप लोड होगा (यदि ऑडियो बिजी हो तो भी वीडियो चालू रहेगा)।</li>
+                        <li>क्लास का टाइटल लिखें और <b>Audience Scope</b> चुनें (Universal / All Centers या कोई विशेष कोचिंग)।</li>
+                        <li>वैकल्पिक रूप से <b>YouTube Live Broadcast Link</b> पेस्ट करें।</li>
+                        <li><b>"START CENTRAL BROADCAST"</b> पर क्लिक करें। मुख्य वेबसाइट (Homepage) और स्टूडेंट पोर्टल पर लाइव नोटिफिकेशन दिखने लगेगा।</li>
+                        <li>निचले <b>"National Live Classes Monitoring Deck"</b> में एडमिन देख सकते हैं कि कौन से सेंटर का कौन सा टीचर लाइव पढ़ा रहा है और 1-क्लिक में खुद भी उनकी क्लास में जुड़ सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 1.3 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-book-bookmark" style="color:#f59e0b;"></i> Central E-Library Vault (Master Document Publisher)</span>
+                    <span class="feature-badge">E-Library</span>
+                </div>
+                <p class="feature-desc">
+                    पीडीएफ नोट्स, पिछले वर्षों के प्रश्नपत्र, या डिजिटल किताबें प्रकाशित करना, उनका कवर पोस्टर लगाना और डिजिटल व हार्ड कॉपी दोनों का मूल्य तय करना।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"E-Library Vault"</b> टैब खोलें।</li>
+                        <li>डॉक्युमेंट का नाम, विषय, क्लास, ई-पीडीएफ का सेल प्राइस (Sale Price) और MRP दर्ज करें।</li>
+                        <li>यदि हार्ड कॉपी (Printed Book) भी छात्र को भेजनी है, तो हार्ड कॉपी का प्राइस और पिकअप कैंपस दर्ज करें।</li>
+                        <li>डॉक्युमेंट की मुख्य पीडीएफ फ़ाइल और उसका <b>कवर फ़ोटो (Thumbnail Cover)</b> चुनें।</li>
+                        <li><b>"Publish Document"</b> दबाएं। डॉक्युमेंट तुरंत स्थायी रूप से डेटाबेस में सेव होकर E-Library टेबल में अपने कवर फ़ोटो के साथ दिखेगा।</li>
+                        <li>एडिट करने के लिए <b>"Edit"</b> बटन दबाकर नया थंबनेल या फ़ाइल बदल सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 1.4 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-boxes-packing" style="color:#10b981;"></i> Physical Book Orders Ledger</span>
+                    <span class="feature-badge">Orders</span>
+                </div>
+                <p class="feature-desc">छात्रों द्वारा ऑर्डर की गई मुद्रित (Printed) किताबों के ऑर्डर्स, उनके डाक पते और डिस्पैच स्थिति का प्रबंधन।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Book Orders"</b> टैब में जाएं। सभी प्राप्त ऑर्डर्स की सूची दिखेगी।</li>
+                        <li>छात्र का नाम, मोबाइल नंबर, पूरा पता और भुगतान स्थिति (Paid) जांचें।</li>
+                        <li>किताब डिस्पैच करने के बाद ट्रैकिंग नंबर डालें और स्टेटस को <b>Dispatched / Delivered</b> अपडेट करें।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 1.5 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-hand-holding-dollar" style="color:#8b5cf6;"></i> Financial Ledger & Director Payout Approvals</span>
+                    <span class="feature-badge">Finance</span>
+                </div>
+                <p class="feature-desc">कोचिंग डायरेक्टर्स द्वारा की गई वॉलेट विथड्रॉल (पैसे निकालने की) रिक्वेस्ट का बैंक यूटीआर (UTR) के साथ निस्तारण।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Payout Requests"</b> टैब में डायरेक्टर द्वारा मांगी गई राशि और उनका बैंक खाता/IFSC/UPI आईडी देखें।</li>
+                        <li>नेटबैंकिंग या बैंक से भुगतान करने के बाद उसका <b>Bank UTR Number</b> दर्ज करें और <b>"Approve Payout"</b> दबाएं।</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 2: COACHING DIRECTOR PORTAL -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-director">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-chalkboard-user"></i></div>
+                <div>
+                    <h2 class="section-title">2. Coaching Director Portal (कोचिंग डायरेक्टर पोर्टल)</h2>
+                    <p class="section-desc">URL: <code>/director</code> (कोचिंग के यूज़रनेम और पासवर्ड से लॉगिन करें)</p>
+                </div>
+            </div>
+
+            <!-- Feature 2.1 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-user-plus" style="color:#10b981;"></i> Student Admission & Custom Fee Enrollment</span>
+                    <span class="feature-badge">Admissions</span>
+                </div>
+                <p class="feature-desc">
+                    छात्र का नया एडमिशन लेना, फीस निर्धारित करना (डायरेक्टर खुद तय कर सकते हैं कि छात्र से कितना एडमिशन शुल्क लेना है) और ऑटो-रसीद देना।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>डायरेक्टर पोर्टल के <b>"Student Admissions"</b> टैब में जाएं।</li>
+                        <li>छात्र का नाम, पिता का नाम, मोबाइल नंबर, क्लास, कोर्स और <b>Admission Fee (₹)</b> दर्ज करें (डिफ़ॉल्ट या कस्टम राशि)।</li>
+                        <li>छात्र की फोटो अपलोड करें और <b>"Enroll Student"</b> पर क्लिक करें।</li>
+                        <li>छात्र का रोल नंबर तुरंत जनरेट हो जाएगा। टेबल में दिए गए <b>"WhatsApp Receipt"</b> बटन पर 1-क्लिक करके छात्र या अभिभावक को आधिकारिक डिजिटल रसीद भेजें।</li>
+                        <li>छात्र की किसी भी जानकारी या फ़ोटो को बदलने के लिए टेबल में दिए गए <b>"Edit" (पेंसिल)</b> बटन पर क्लिक करें।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 2.2 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-id-card-clip" style="color:#f59e0b;"></i> Faculty Members Management & Teacher ID Provisioning</span>
+                    <span class="feature-badge">Faculty</span>
+                </div>
+                <p class="feature-desc">
+                    कोचिंग के शिक्षकों को जोड़ना और उनके लिए <b>Teacher Studio</b> लॉगिन आईडी और पासवर्ड बनाना।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Faculty Management"</b> सेक्शन में <b>"Add Faculty"</b> फॉर्म भरें।</li>
+                        <li>टीचर का नाम, विषय, अनुभव, मोबाइल नंबर और अपनी पसंद की <b>Teacher ID</b> (जैसे <code>TCH-MATHS</code>) व पासवर्ड डालें।</li>
+                        <li>टीचर की प्रोफाइल फोटो चुनें और <b>"Add Faculty"</b> दबाएं।</li>
+                        <li>टीचर की फ़ोटो स्थायी रूप से डेटाबेस में सुरक्षित रहेगी।</li>
+                        <li>टीचर को उनका Teacher ID और पासवर्ड दे दें ताकि वे <code>/teacher-portal.html</code> से लाइव क्लास ले सकें।</li>
+                        <li>कभी भी टीचर की फ़ोटो, आईडी या पासवर्ड बदलने के लिए <b>"Edit ID & Details"</b> बटन का उपयोग करें।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 2.3 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-layer-group" style="color:#38bdf8;"></i> Batch & Course Templates Library</span>
+                    <span class="feature-badge">Courses</span>
+                </div>
+                <p class="feature-desc">1-क्लिक में बोर्ड, प्रतियोगी परीक्षा, कंप्यूटर कोर्स के बैच बनाना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Courses & Batches"</b> टैब में जाएं।</li>
+                        <li><b>"Course Templates"</b> बटन दबाएं और पहले से बने टेम्पलेट्स (Class 10th, 12th Board, DCA/ADCA, CTET आदि) में से चुनें।</li>
+                        <li>कोर्स की फ़ीस सेट करके <b>"Publish Course"</b> दबाएं। यह कोर्स आपकी कोचिंग के माइक्रोसाइट पर दिखने लगेगा।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 2.4 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-wand-magic-sparkles" style="color:#ec4899;"></i> Festive Banners & Microsite Customizer</span>
+                    <span class="feature-badge">Branding</span>
+                </div>
+                <p class="feature-desc">भारतीय त्योहारों (दिवाली, होली, स्वतंत्रता दिवस आदि) के बैनर 1-क्लिक में अपनी कोचिंग के नाम के साथ पब्लिश करना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Promotions & Banners"</b> में <b>"Festival Banners Library"</b> पर क्लिक करें।</li>
+                        <li>मनपसंद पोस्टर चुनें, अपनी कोचिंग की कोई विशेष छूट या बधाई संदेश लिखें और <b>"Publish"</b> कर दें।</li>
+                        <li>यह बैनर तुरंत आपकी कोचिंग के पब्लिक पेज पर छात्रों को दिखेगा।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 2.5 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-wallet" style="color:#10b981;"></i> Director Wallet & Payout Withdrawal</span>
+                    <span class="feature-badge">Earnings</span>
+                </div>
+                <p class="feature-desc">एडमिशन और कोर्स बिक्री से हुई कमाई को अपने बैंक खाते या UPI में ट्रांसफर करना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><b>"Earnings & Wallet"</b> टैब में अपना बैंक खाता नंबर, IFSC कोड या UPI ID सेव करें।</li>
+                        <li><b>"Request Balance Withdrawal"</b> पर क्लिक करें और जितनी राशि निकालनी है वह भरें।</li>
+                        <li>रिक्वेस्ट सबमिट होते ही सेंट्रल एडमिन इसे मंज़ूर करके आपके बैंक खाते में यूटीआर नंबर के साथ ट्रांसफर कर देगा।</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 3: UNIVERSAL TEACHER STUDIO -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-teacher">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-chalkboard"></i></div>
+                <div>
+                    <h2 class="section-title">3. Universal Teacher Studio (टीचर लाइव स्टूडियो)</h2>
+                    <p class="section-desc">URL: <code>/teacher-portal.html</code> (डायरेक्टर द्वारा दी गई Teacher ID और पासवर्ड से लॉगिन)</p>
+                </div>
+            </div>
+
+            <!-- Feature 3.1 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-video" style="color:#ef4444;"></i> Zero-Conflict Live Broadcasting Studio</span>
+                    <span class="feature-badge">WebRTC + YouTube</span>
+                </div>
+                <p class="feature-desc">बिना किसी जटिल सॉफ़्टवेयर के सीधे मोबाइल या लैपटॉप के ब्राउज़र से एचडी लाइव क्लास लेना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li><code>/teacher-portal.html</code> खोलें और अपनी Teacher ID और पासवर्ड से लॉगिन करें।</li>
+                        <li>स्क्रीन पर वेबकैम का लाइव प्रीव्यू दिखेगा। अगर सिस्टम में ऑडियो बिजी होने का एरर आता था, तो अब सिस्टम अपने-आप वीडियो चालू कर देगा ताकि आपकी क्लास में देरी न हो।</li>
+                        <li>आज की क्लास का टॉपिक (Title), विषय (Subject) और बैच चुनें।</li>
+                        <li><b>YouTube Live (वैकल्पिक):</b> यदि आप YouTube पर भी एक साथ क्लास दिखाना चाहते हैं, तो YouTube Studio से अपनी Live Link कॉपी करके <b>"Optional: YouTube Live Broadcast Link"</b> वाले बॉक्स में पेस्ट करें।</li>
+                        <li><b>"START LIVE CLASS"</b> बटन दबाएं। अब आप लाइव हैं! छात्र आपके लाइव वीडियो को अपने पोर्टल पर देख सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 3.2 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-comments" style="color:#38bdf8;"></i> Live Doubts & Interaction Deck</span>
+                    <span class="feature-badge">Interactive</span>
+                </div>
+                <p class="feature-desc">लाइव क्लास के दौरान छात्रों द्वारा पूछे गए सवालों (Doubts) को रीयल-टाइम में देखना और उत्तर देना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>स्क्रीन के दाईं ओर <b>"Live Student Doubts"</b> डेक में छात्रों के सवाल अपने-आप स्क्रॉल होते हैं।</li>
+                        <li>टीचर पढ़ाते समय छात्र का नाम और उसका सवाल देखकर तुरंत आवाज़ में उत्तर दे सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 3.3 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-box-archive" style="color:#f59e0b;"></i> Auto-Archive to Revision Vault</span>
+                    <span class="feature-badge">Vault</span>
+                </div>
+                <p class="feature-desc">क्लास समाप्त होते ही लेक्चर का रिकॉर्डेड वीडियो पोर्टल के रिवीजन वॉल्ट में सेव होना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>क्लास पूरी होने पर <b>"END CLASS & ARCHIVE TO YOUTUBE"</b> बटन दबाएं।</li>
+                        <li>लेक्चर अपने-आप सुरक्षित रूप से संग्रहीत हो जाएगा ताकि जो छात्र लाइव में नहीं आ सके, वे बाद में रिकॉर्डेड वीडियो देख सकें।</li>
+                        <li>टीचर अपने पोर्टल के निचले हिस्से में <b>"Previous Live Lectures Vault"</b> में अपने सभी पिछले लेक्चर्स देख सकते हैं।</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 4: STUDENT PORTAL & VERIFICATION -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-student">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-user-graduate"></i></div>
+                <div>
+                    <h2 class="section-title">4. Student Portal & Digital ID (छात्र पोर्टल एवं सत्यापन)</h2>
+                    <p class="section-desc">URL: <code>/student</code> (रोल नंबर या मोबाइल नंबर से लॉगिन करें)</p>
+                </div>
+            </div>
+
+            <!-- Feature 4.1 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-lock" style="color:#ef4444;"></i> Coaching & Course Enrolled Scope Protection</span>
+                    <span class="feature-badge">Security Rule</span>
+                </div>
+                <p class="feature-desc">
+                    छात्र जिस कोचिंग सेंटर में एनरोल है और उसने जो कोर्स खरीदा है, वह <b>केवल और केवल उसी कोचिंग के लाइव क्लास और रिकॉर्डेड लेक्चर्स</b> को खोल सकता है।
+                </p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-shield" style="color:#10b981;"></i> सुरक्षा नियम (How Scope Lock Works):</div>
+                    <ul class="steps-list">
+                        <li>छात्र जब लॉगिन करता है, तो उसका पोर्टल उसकी अपनी कोचिंग के बैच से लॉक रहता है।</li>
+                        <li>अगर दूसरी किसी कोचिंग का शिक्षक लाइव पढ़ा रहा है, तो छात्र उसे नहीं देख पाएगा जब तक कि वह उस कोचिंग का छात्र न हो।</li>
+                        <li>सेंट्रल एडमिन के राष्ट्रीय लाइव प्रोग्राम सभी छात्रों के लिए खुले रहते हैं।</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 4.2 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-tv" style="color:#38bdf8;"></i> Live Class Viewing & Doubt Asking</span>
+                    <span class="feature-badge">Learning</span>
+                </div>
+                <p class="feature-desc">लाइव क्लास देखना और चैट/माइक के ज़रिए शिक्षक से सीधे सवाल पूछना।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>जब शिक्षक लाइव जाएंगे, तो छात्र के डैशबोर्ड पर <b>"LIVE NOW"</b> का चमकता हुआ बटन आ जाएगा।</li>
+                        <li><b>"Join Live Class"</b> पर क्लिक करते ही लाइव वीडियो शुरू हो जाएगा।</li>
+                        <li>नीचे दिए गए <b>"Ask a Doubt"</b> बॉक्स में अपना सवाल लिखकर भेजें, वह तुरंत शिक्षक के स्क्रीन पर पहुंच जाएगा।</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Feature 4.3 -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <span class="feature-name"><i class="fas fa-id-card" style="color:#f59e0b;"></i> Digital Student ID Card & Certificate Verification</span>
+                    <span class="feature-badge">Identity</span>
+                </div>
+                <p class="feature-desc">छात्र की फोटो के साथ आधिकारिक आईडी कार्ड और क्यूआर कोड वाला ऑनलाइन सत्यापन।</p>
+                <div class="steps-box">
+                    <div class="steps-label"><i class="fas fa-circle-check" style="color:#10b981;"></i> उपयोग करने का तरीका (How to Use):</div>
+                    <ol class="steps-list">
+                        <li>छात्र अपने प्रोफाइल में जाकर अपनी फ़ोटो अपलोड या बदल सकते हैं।</li>
+                        <li><b>"Download ID Card"</b> पर क्लिक करके कोचिंग के लोगो और रोल नंबर वाला पहचान पत्र डाउनलोड करें।</li>
+                        <li>मुख्य वेबसाइट पर कोई भी व्यक्ति छात्र का रोल नंबर डालकर उसके एडमिशन और प्रमाण पत्र की वैधता जांच सकता है।</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 5: LIVE STREAMING & YOUTUBE DUAL BROADCAST -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-live">
+            <div class="section-header">
+                <div class="section-icon"><i class="fab fa-youtube" style="color:#ef4444;"></i></div>
+                <div>
+                    <h2 class="section-title">5. Live Streaming & YouTube Dual Broadcast (लाइव व यूट्यूब प्रसारण)</h2>
+                    <p class="section-desc">ब्राउज़र कैमरा, WebRTC और YouTube Live का स्पष्ट तकनीकी समन्वय</p>
+                </div>
+            </div>
+
+            <div class="callout-box">
+                <strong>💡 तकनीकी सिद्धांत (Core Concept):</strong><br>
+                ब्राउज़र का कैमरा सीधे किसी बाहरी वेबसाइट पर वीडियो नहीं भेज सकता क्योंकि Google/YouTube को <b>RTMP Stream Key</b> या लाइव लिंक चाहिए होता है। BBCC प्लेटफ़ॉर्म आपको <b>Dual Broadcasting</b> की सुविधा देता है:
+            </div>
+
+            <table class="manual-table">
+                <thead>
+                    <tr>
+                        <th>प्रसारण का प्रकार (Mode)</th>
+                        <th>कैसे काम करता है (How It Works)</th>
+                        <th>छात्र कहाँ देखेंगे (Where Students Watch)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>1. In-Portal WebRTC Studio (डिफ़ॉल्ट)</b></td>
+                        <td>टीचर केवल "Start Live Class" दबाते हैं। ब्राउज़र सीधे पोर्टल पर लाइव स्ट्रीम प्रसारित करता है।</td>
+                        <td>Student Portal में लाइव वीडियो प्लेयर पर छात्र सीधे कोचिंग के अंदर देखते हैं।</td>
+                    </tr>
+                    <tr>
+                        <td><b>2. YouTube Dual Broadcast (यूट्यूब लिंक के साथ)</b></td>
+                        <td>टीचर YouTube Studio से लाइव शुरू करके उसकी लिंक पोर्टल के <code>Optional: YouTube Live Link</code> बॉक्स में पेस्ट करते हैं।</td>
+                        <td>Student Portal पर भी वही यूट्यूब वीडियो एम्बेड होकर लाइव चलता है और छात्र यूट्यूब चैनल पर भी देख सकते हैं।</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 6: ZERO DATA LOSS ARCHITECTURE -->
+        <!-- ============================================================ -->
+        <div class="section-block" id="sec-data">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-database" style="color:#10b981;"></i></div>
+                <div>
+                    <h2 class="section-title">6. Zero Data Loss Architecture (डेटा सुरक्षा एवं स्थायी फोटो प्रणाली)</h2>
+                    <p class="section-desc">भविष्य में कभी भी कोड अपडेट या सर्वर रीस्टार्ट होने पर 0% डेटा नुकसान की गारंटी</p>
+                </div>
+            </div>
+
+            <div class="callout-box callout-success">
+                <strong>🛡️ डेटा स्थायीकरण नियम (Data Preservation Guarantee):</strong><br>
+                1. <b>MongoDB Atlas Cloud Storage:</b> सभी शिक्षकों के फोटो, छात्रों के फोटो, बुक थंबनेल्स और एडमिशन फीस सीधे क्लाउड डेटाबेस में सुरक्षित रहते हैं।<br>
+                2. <b>No Ephemeral Loss:</b> Render सर्वर के रीस्टार्ट होने पर भी तस्वीरें गायब नहीं होंगी क्योंकि वे लोकल डिस्क पर निर्भर नहीं हैं।<br>
+                3. <b>Dual Mirror Backup:</b> प्रत्येक अपडेट स्वतः <code>public/data/portal_db.json</code> में बैकअप के रूप में सिंक रहता है।
+            </div>
+        </div>
+
+        <!-- FOOTER SIGNATURE -->
+        <div style="text-align:center; padding-top:30px; border-top:1px solid #e2e8f0; color:#94a3b8; font-size:12px;">
+            <p><b>BBCC SKILL HUB — Central Directorate of Distance & Technical Education</b></p>
+            <p>Empowering Coaching Institutes & Educators Across India | ISO 9001:2015 Certified Architecture</p>
+        </div>
+
+    </div>
+
+</body>
+</html>
