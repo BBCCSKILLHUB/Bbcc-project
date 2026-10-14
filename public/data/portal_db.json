@@ -71,7 +71,14 @@
   "paymentTransactions": [],
   "push_subscriptions": [],
   "push_history": [],
-  "bharti_auto_push_log": {},
+  "bharti_auto_push_log": {
+    "2026-10-14_afternoon": {
+      "dispatchedAt": "2026-10-14T10:07:15.914Z",
+      "slot": "afternoon",
+      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
+      "body": "कैरियर अलर्ट: CTET, STET, BPSC TRE एवं बोर्ड परीक्षाओं की तैयारी के लिए टेस्ट सीरीज और नोट्स डाउनलोड करें! ⚡"
+    }
+  },
   "teachers": [],
   "liveSessions": [],
   "admissionInquiries": [],
