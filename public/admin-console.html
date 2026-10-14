@@ -740,6 +740,24 @@
                         </div>
                     </div>
 
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12.5px; font-weight:700; color:#cbd5e1; display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fab fa-youtube" style="color:#ef4444;"></i> OAuth2 Refresh Token (Direct Live & Auto-Save Key)</span>
+                            <a href="https://developers.google.com/oauthplayground" target="_blank" style="color:var(--admin-gold); font-size:11.5px; text-decoration:underline;">
+                                <i class="fas fa-external-link-alt"></i> Get Token via Google Playground
+                            </a>
+                        </label>
+                        <div style="position:relative; margin-top:6px;">
+                            <input type="password" id="setYoutubeRefreshToken" placeholder="Paste 1//... Refresh Token (Required to Go Live directly without YouTube Studio)" class="console-input" style="font-family:monospace; padding-right:40px;">
+                            <button type="button" onclick="toggleApiKeyVisibility('setYoutubeRefreshToken', this)" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#94a3b8; cursor:pointer;" title="Show/Hide Token">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p style="color:#94a3b8; font-size:11px; margin-top:4px;">
+                            💡 <b>महत्वपूर्ण:</b> यह टोकन केवल एक बार Google से अधिकृत (Authorize) करना होता है। इसके बाद आपको कभी भी YouTube Studio नहीं जाना पड़ेगा — एडमिन से "GO LIVE" दबाते ही सीधे आपके चैनल पर लाइव शुरू हो जाएगा।
+                        </p>
+                    </div>
+
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                         <div>
                             <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Privacy Mode for Live Recordings</label>
@@ -3396,15 +3414,19 @@
                 const ytPrivInput = document.getElementById('setYoutubePrivacy');
                 const ytAutoInput = document.getElementById('setYoutubeAutoUpload');
 
-                if (cfg.youtubeConfigured) {
+                if (cfg.hasYoutubeRefreshToken) {
                     if (ytBadge) {
-                        ytBadge.textContent = '✅ ACTIVE (YOUTUBE READY)';
+                        ytBadge.textContent = '🟢 DIRECT 1-CLICK LIVE ACTIVE (NO YT STUDIO VISIT NEEDED)';
                         ytBadge.style.background = 'rgba(16,185,129,0.15)';
                         ytBadge.style.borderColor = '#10b981';
                         ytBadge.style.color = '#34d399';
                     }
-                    if (ytKeyInput && cfg.youtubeApiKey) {
-                        ytKeyInput.value = cfg.youtubeApiKey;
+                } else if (cfg.youtubeConfigured) {
+                    if (ytBadge) {
+                        ytBadge.textContent = '🟡 API KEY READY (PASTE REFRESH TOKEN FOR DIRECT LIVE)';
+                        ytBadge.style.background = 'rgba(245,158,11,0.15)';
+                        ytBadge.style.borderColor = '#f59e0b';
+                        ytBadge.style.color = '#fbbf24';
                     }
                 } else {
                     if (ytBadge) {
@@ -3416,6 +3438,7 @@
                 }
                 if (ytKeyInput && cfg.youtubeApiKey) ytKeyInput.value = cfg.youtubeApiKey;
                 if (ytSecInput && cfg.youtubeClientSecret) ytSecInput.value = cfg.youtubeClientSecret;
+                if (document.getElementById('setYoutubeRefreshToken') && cfg.youtubeRefreshToken) document.getElementById('setYoutubeRefreshToken').value = cfg.youtubeRefreshToken;
                 if (ytChInput && cfg.youtubeChannelId) ytChInput.value = cfg.youtubeChannelId;
                 if (ytCliInput && cfg.youtubeClientId) ytCliInput.value = cfg.youtubeClientId;
                 if (ytPrivInput && cfg.youtubePrivacyStatus) ytPrivInput.value = cfg.youtubePrivacyStatus;
@@ -3511,6 +3534,7 @@
             const clientSecret = document.getElementById('setYoutubeClientSecret') ? document.getElementById('setYoutubeClientSecret').value.trim() : '';
             const channelId = document.getElementById('setYoutubeChannelId').value.trim();
             const clientId = document.getElementById('setYoutubeClientId').value.trim();
+            const refreshToken = document.getElementById('setYoutubeRefreshToken') ? document.getElementById('setYoutubeRefreshToken').value.trim() : '';
             const privacy = document.getElementById('setYoutubePrivacy').value;
             const autoUpload = document.getElementById('setYoutubeAutoUpload').checked;
 
@@ -3533,6 +3557,7 @@
                         youtubeClientSecret: clientSecret || undefined,
                         youtubeChannelId: channelId,
                         youtubeClientId: clientId,
+                        youtubeRefreshToken: refreshToken,
                         youtubePrivacyStatus: privacy,
                         youtubeAutoUpload: autoUpload
                     })
