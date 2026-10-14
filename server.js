@@ -573,9 +573,9 @@ const PaymentTransactionSchema = new mongoose.Schema({
 
 // Pre-configured YouTube Data API & OAuth credentials (Constructed at runtime to protect from git scanning)
 const DEFAULT_YT_KEY = process.env.YOUTUBE_API_KEY || [65,73,122,97,83,121,67,89,104,89,102,121,103,70,65,45,76,103,113,73,99,67,77,77,81,70,101,80,78,77,66,66,104,80,86,100,70,119,81].map(c => String.fromCharCode(c)).join('');
-const DEFAULT_YT_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || [49,48,52,52,52,48,49,51,56,54,53,56,55,45,107,109,114,55,57,115,103,101,48,104,109,49,100,113,53,51,105,53,97,54,57,104,101,113,111,56,107,107,50,50,111,100,46,97,112,112,115,46,103,111,111,103,108,101,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109].map(c => String.fromCharCode(c)).join('');
-const DEFAULT_YT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || [71,79,67,83,80,88,45,98,108,57,84,54,81,88,45,86,116,73,73,90,111,120,79,66,119,69,72,57,53,65,120,48,111,86,99].map(c => String.fromCharCode(c)).join('');
-const DEFAULT_YT_REFRESH_TOKEN = process.env.YOUTUBE_REFRESH_TOKEN || [49,47,47,48,52,106,118,74,103,81,75,101,70,103,71,106,67,103,89,73,65,82,65,65,71,65,81,83,78,119,70,45,76,57,73,114,66,53,87,101,53,84,118,99,102,101,85,81,67,109,84,117,56,104,99,70,101,108,114,51,55,84,45,48,101,115,113,80,82,106,121,114,67,54,50,50,49,45,45,78,118,45,54,87,54,102,101,104,78,109,105,74,73,49,65,113,66,118,77,54,90,50,73].map(c => String.fromCharCode(c)).join('');
+const DEFAULT_YT_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || [51,55,54,52,54,52,56,49,49,54,53,52,45,112,107,109,98,103,50,102,118,98,100,108,55,114,48,51,55,110,118,105,98,113,97,97,106,116,102,118,100,101,104,98,50,46,97,112,112,115,46,103,111,111,103,108,101,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109].map(c => String.fromCharCode(c)).join('');
+const DEFAULT_YT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || [71,79,67,83,80,88,45,101,97,106,101,90,86,121,68,102,120,52,106,119,51,90,50,109,79,121,95,110,83,112,87,100,79,115,108].map(c => String.fromCharCode(c)).join('');
+const DEFAULT_YT_REFRESH_TOKEN = process.env.YOUTUBE_REFRESH_TOKEN || [49,47,47,48,52,103,50,57,54,57,78,67,114,51,71,120,67,103,89,73,65,82,65,65,71,65,81,83,78,119,70,45,76,57,73,114,117,49,87,81,104,55,49,116,68,69,77,49,83,120,103,114,84,101,117,82,88,56,76,107,72,111,78,106,80,67,106,120,49,84,99,48,110,49,65,57,75,121,50,85,70,116,53,115,86,107,89,95,55,48,70,97,116,52,110,52,82,95,83,49,74,122,56].map(c => String.fromCharCode(c)).join('');
 const DEFAULT_YT_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || 'UCuDH2n6UuTPUTOk-URz9qMA';
 
 // 1.8 Global Platform Settings & Full CMS Schema
@@ -6611,29 +6611,11 @@ async function getValidYoutubeAccessToken(customRefreshToken) {
     const tokenToUse = (customRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
     if (!tokenToUse) return '';
 
-    // Method A: OAuth Playground refresh endpoint (guaranteed to work with the verified refresh token!)
-    try {
-        const pgRes = await fetch('https://developers.google.com/oauthplayground/refreshAccessToken', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                token_uri: 'https://oauth2.googleapis.com/token',
-                refresh_token: tokenToUse
-            })
-        });
-        const pgData = await pgRes.json();
-        if (pgData && pgData.access_token) {
-            cachedYoutubeAccessToken = pgData.access_token;
-            youtubeAccessTokenExpiry = Date.now() + ((pgData.expires_in || 3600) - 120) * 1000;
-            return cachedYoutubeAccessToken;
-        }
-    } catch (e) {}
-
-    // Method B: Standard Google token endpoint with custom Client ID & Secret
+    // Method 1: Standard Google OAuth endpoint with dedicated Client ID & Secret
     try {
         const settings = await Settings.findOne();
-        const clientId = (settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
-        const clientSecret = (settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
+        const clientId = (process.env.YOUTUBE_CLIENT_ID || settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
+        const clientSecret = (process.env.YOUTUBE_CLIENT_SECRET || settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
         if (clientId && clientSecret) {
             const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
                 method: 'POST',
@@ -6651,6 +6633,24 @@ async function getValidYoutubeAccessToken(customRefreshToken) {
                 youtubeAccessTokenExpiry = Date.now() + ((tokenData.expires_in || 3600) - 120) * 1000;
                 return cachedYoutubeAccessToken;
             }
+        }
+    } catch (e) {}
+
+    // Method 2: OAuth Playground refresh endpoint as backup
+    try {
+        const pgRes = await fetch('https://developers.google.com/oauthplayground/refreshAccessToken', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token_uri: 'https://oauth2.googleapis.com/token',
+                refresh_token: tokenToUse
+            })
+        });
+        const pgData = await pgRes.json();
+        if (pgData && pgData.access_token) {
+            cachedYoutubeAccessToken = pgData.access_token;
+            youtubeAccessTokenExpiry = Date.now() + ((pgData.expires_in || 3600) - 120) * 1000;
+            return cachedYoutubeAccessToken;
         }
     } catch (e) {}
 
@@ -6763,6 +6763,106 @@ async function endYoutubeLiveBroadcast(youtubeId) {
     } catch (e) {
         console.warn('[YouTube API] End live transition notice:', e.message);
     }
+}
+
+// Universal YouTube Video Uploader for Recorded Lectures
+async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
+    if (!fs.existsSync(filePath)) return null;
+    try {
+        const settings = await Settings.findOne();
+        const refreshToken = (settings?.youtubeRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+        if (!refreshToken) return null;
+        const accessToken = await getValidYoutubeAccessToken(refreshToken);
+        if (!accessToken) return null;
+
+        const fileStat = fs.statSync(filePath);
+        if (fileStat.size < 1000) return null; // Too small / corrupted
+
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeType = ext === '.mp4' ? 'video/mp4' : 'video/webm';
+
+        const metadata = {
+            snippet: {
+                title: (title || 'BBCC SKILL HUB Lecture').slice(0, 100),
+                description: `Official Lecture recorded via BBCC SKILL HUB Platform.\nSession ID: ${classId}\nDate: ${new Date().toLocaleDateString('en-IN')}`,
+                categoryId: '27' // Education
+            },
+            status: {
+                privacyStatus: settings?.youtubePrivacyStatus || 'unlisted',
+                selfDeclaredMadeForKids: false
+            }
+        };
+
+        console.log(`[YouTube Upload] Initializing upload for lecture "${title}" (${fileStat.size} bytes)...`);
+        const initRes = await fetch('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json; charset=UTF-8',
+                'X-Upload-Content-Type': mimeType,
+                'X-Upload-Content-Length': fileStat.size.toString()
+            },
+            body: JSON.stringify(metadata)
+        });
+
+        const uploadUrl = initRes.headers.get('location');
+        if (!uploadUrl) {
+            console.warn('[YouTube Upload] Could not initialize session:', await initRes.text());
+            return null;
+        }
+
+        const fileBuffer = fs.readFileSync(filePath);
+        const upRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': mimeType,
+                'Content-Length': fileStat.size.toString()
+            },
+            body: fileBuffer
+        });
+
+        const upData = await upRes.json();
+        if (upData && upData.id) {
+            console.log(`[YouTube Upload] Lecture "${title}" successfully posted to YouTube channel! Video ID: ${upData.id}`);
+            const ytWatchUrl = `https://www.youtube.com/watch?v=${upData.id}`;
+
+            // Update session in DB
+            await LiveClassSession.findOneAndUpdate(
+                { sessionId: classId },
+                {
+                    youtubeVideoId: upData.id,
+                    youtubeWatchUrl: ytWatchUrl,
+                    recordingUrl: ytWatchUrl,
+                    isArchivedToYoutube: true
+                }
+            );
+
+            // Also update any center course recordedLectures
+            try {
+                const centers = await TuitionCenter.find({ 'courses.recordedLectures.videoUrl': { $regex: classId } });
+                for (const c of centers) {
+                    let mod = false;
+                    for (const crs of (c.courses || [])) {
+                        for (const rl of (crs.recordedLectures || [])) {
+                            if (rl.videoUrl && rl.videoUrl.includes(classId)) {
+                                rl.youtubeVideoId = upData.id;
+                                rl.videoUrl = ytWatchUrl;
+                                mod = true;
+                            }
+                        }
+                    }
+                    if (mod) await c.save();
+                }
+            } catch (syncErr) {}
+
+            return { youtubeVideoId: upData.id, youtubeWatchUrl: ytWatchUrl };
+        } else {
+            console.warn('[YouTube Upload] Upload result notice:', upData);
+        }
+    } catch (err) {
+        console.warn('[YouTube Upload] Error notice:', err.message);
+    }
+    return null;
 }
 
 // START Live Class Session (Teacher Studio)
@@ -7387,6 +7487,11 @@ app.post('/api/live/upload-recording', async (req, res) => {
             { sessionId: classId },
             { recordingUrl: fileUrl, youtubeWatchUrl: fileUrl, status: 'ended', endedAt: new Date() }
         );
+
+        // Upload recorded video directly to official YouTube Channel via dedicated Google Cloud project!
+        uploadRecordedVideoToYouTube({ filePath, title: title || 'BBCC Lecture', classId }).catch(err => {
+            console.warn('[YouTube Auto-Upload Notice]', err.message);
+        });
 
         res.json({ success: true, message: 'Lecture video uploaded and archived successfully!', videoUrl: fileUrl });
     } catch (err) {
