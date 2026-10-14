@@ -8630,32 +8630,90 @@ app.post('/api/admin/centers', verifySuperAdmin, async (req, res) => {
             return res.status(400).json({ success: false, message: 'Center name, username, password, and director name required' });
         }
 
-        const cleanUser = username.trim().toLowerCase();
-        const existing = await TuitionCenter.findOne({ username: cleanUser });
-        if (existing) {
-            return res.status(400).json({ success: false, message: 'Username is already taken by another center' });
+        const cleanUser = username.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+        if (!cleanUser || cleanUser.length < 3) {
+            return res.status(400).json({ success: false, message: 'Username must be at least 3 characters and contain only letters, numbers, hyphens or underscores (e.g. apex-academy)' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Check for existing center in MongoDB & portal_db
+        let existing = null;
+        if (isMongoConnected) {
+            try {
+                existing = await TuitionCenter.findOne({ username: cleanUser });
+            } catch(e) {}
+        }
+        if (!existing) {
+            const pdb = loadPortalDb();
+            existing = (pdb.centers || []).find(c => (c.username || '').toLowerCase() === cleanUser);
+        }
+        if (existing) {
+            return res.status(400).json({ success: false, message: `Username "${cleanUser}" is already taken by another center. Please choose a different username.` });
+        }
+
+        const hashedPassword = await bcrypt.hash(password.trim(), 10);
         const certId = 'BBCC-AFF-' + Date.now().toString().slice(-6);
 
-        const center = await TuitionCenter.create({
+        const newCenterData = {
             centerName: centerName.trim(),
             username: cleanUser,
             password: hashedPassword,
             directorName: directorName.trim(),
-            address: address || '',
-            contactNumber: contactNumber || '',
+            address: (address || '').trim(),
+            contactNumber: (contactNumber || '').trim(),
             fromClass: fromClass || 'Class 6th',
             toClass: toClass || 'Class 12th',
             admissionFee: (admissionFee !== undefined ? Math.max(0, Number(admissionFee) || 0) : 200),
             affiliationCertificateId: certId,
-            affiliationPaid: true
-        });
+            affiliationPaid: true,
+            affiliationDate: new Date(),
+            walletBalance: 0,
+            dueAmount: 0,
+            isBlocked: false,
+            teachers: [],
+            courses: [],
+            materials: []
+        };
 
-        res.json({ success: true, message: 'New partner center registered successfully!', data: center });
+        // Dual Persistence: MongoDB (if connected) + Portal DB (Local/GitHub)
+        let createdCenter = null;
+        if (isMongoConnected) {
+            try {
+                createdCenter = await TuitionCenter.create(newCenterData);
+            } catch(mongoErr) {
+                console.warn('MongoDB center create error, saving to Portal DB:', mongoErr.message);
+            }
+        }
+
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const existingIdx = pdb.centers.findIndex(c => (c.username || '').toLowerCase() === cleanUser);
+        const centerObj = {
+            _id: (createdCenter && createdCenter._id) ? createdCenter._id.toString() : new mongoose.Types.ObjectId().toString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            ...newCenterData
+        };
+
+        if (existingIdx !== -1) {
+            pdb.centers[existingIdx] = centerObj;
+        } else {
+            pdb.centers.push(centerObj);
+        }
+        await savePortalDb(pdb);
+
+        // Immediate cache invalidation so the new center shows instantly everywhere
+        clearCache();
+
+        console.log(`✅ [PARTNER CENTER REGISTERED] Name: "${centerName.trim()}" | Username: "${cleanUser}"`);
+
+        res.json({
+            success: true,
+            message: 'New partner center registered successfully!',
+            data: centerObj
+        });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        console.error('Error registering partner center:', err);
+        res.status(500).json({ success: false, message: 'Failed to register center: ' + err.message });
     }
 });
 
@@ -8710,8 +8768,8 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
 
         // Username update check
         if (username && username.trim().toLowerCase() !== center.username) {
-            const checkUser = username.trim().toLowerCase();
-            const exists = await TuitionCenter.findOne({ username: checkUser });
+            const checkUser = username.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+            const exists = await TuitionCenter.findOne({ username: checkUser, _id: { $ne: center._id } });
             if (exists) {
                 return res.status(400).json({ success: false, message: 'New username already taken by another center' });
             }
@@ -8724,6 +8782,7 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
         }
 
         await center.save();
+        clearCache();
         res.json({ success: true, message: 'Coaching center profile updated by Super Admin!', data: center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -8734,6 +8793,12 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
 app.delete('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
     try {
         await TuitionCenter.findByIdAndDelete(req.params.id);
+        const pdb = loadPortalDb();
+        if (pdb.centers) {
+            pdb.centers = pdb.centers.filter(c => c._id && c._id.toString() !== req.params.id.toString());
+            await savePortalDb(pdb);
+        }
+        clearCache();
         res.json({ success: true, message: 'Coaching center removed from system' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -8753,6 +8818,7 @@ app.post('/api/admin/centers/:id/block', verifySuperAdmin, async (req, res) => {
         if (paymentQr !== undefined) center.paymentQr = paymentQr;
 
         await center.save();
+        clearCache();
         res.json({ success: true, message: `Center ${center.isBlocked ? 'suspended' : 'activated'} successfully!`, data: center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
