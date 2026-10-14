@@ -61,63 +61,7 @@
       "role": "superadmin"
     }
   ],
-  "centers": [
-    {
-      "_id": "6acf9d4f9d3d59b035631e56",
-      "createdAt": "2026-10-14T15:18:39.465Z",
-      "updatedAt": "2026-10-14T15:18:39.465Z",
-      "centerName": "Verification Real Academy",
-      "username": "verify-center-8896",
-      "password": "$2a$10$6VJ01pVCkVYvyOPnYn4I3ui2O5TUlWIJeHkJcJcBSIRgC61o6Mjzm",
-      "directorName": "Director Verma",
-      "address": "Patna, Bihar",
-      "contactNumber": "9876543210",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 250,
-      "affiliationCertificateId": "BBCC-AFF-119459",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T15:18:39.459Z",
-      "walletBalance": 0,
-      "dueAmount": 0,
-      "isBlocked": false,
-      "teachers": [
-        {
-          "teacherId": "TCH-VER-8897",
-          "password": "profPass123",
-          "name": "Prof. R. K. Mishra",
-          "subject": "Mathematics",
-          "class": "All",
-          "qualification": "M.Sc Mathematics",
-          "photo": "",
-          "phone": "9811223344",
-          "experience": "3+ Years",
-          "bio": "",
-          "isActive": true,
-          "_id": "6acf9d4f9d3d59b035631e58",
-          "createdAt": "2026-10-14T15:18:39.739Z"
-        }
-      ],
-      "courses": [
-        {
-          "courseName": "Advanced Science Batch",
-          "subject": "Physics & Chemistry",
-          "classLevel": "Class 10th",
-          "mode": "Both",
-          "onlineFee": 0,
-          "offlineFee": 0,
-          "batchTiming": "Regular Batch",
-          "liveClassLink": "",
-          "description": "",
-          "active": true,
-          "_id": "6acf9d4f9d3d59b035631e57",
-          "createdAt": "2026-10-14T15:18:39.605Z"
-        }
-      ],
-      "materials": [],
-      "promotionalBanners": []
-    }
-  ],
+  "centers": [],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -136,47 +80,8 @@
       "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙"
     }
   },
-  "teachers": [
-    {
-      "teacherId": "TCH-VER-8897",
-      "password": "$2a$10$rz9/Ll1411/FooIvPUL7n.k7F/ZYgofcu7rNQddwWIeTlmjDoilWq",
-      "name": "Prof. R. K. Mishra",
-      "subject": "Mathematics",
-      "class": "All",
-      "qualification": "M.Sc Mathematics",
-      "photo": "",
-      "phone": "9811223344",
-      "experience": "3+ Years",
-      "bio": "",
-      "isActive": true,
-      "_id": "6acf9d4f9d3d59b035631e58",
-      "createdAt": "2026-10-14T15:18:39.739Z",
-      "centerId": "6acf9d4f9d3d59b035631e56",
-      "centerName": "Verification Real Academy",
-      "lastLogin": "2026-10-14T15:18:39.882Z"
-    }
-  ],
-  "liveSessions": [
-    {
-      "_id": "6acf9d539d3d59b035631e59",
-      "createdAt": "2026-10-14T15:18:43.707Z",
-      "updatedAt": "2026-10-14T15:18:43.707Z",
-      "sessionId": "LIVE_1791991119894_c88250",
-      "teacherId": "TCH-VER-8897",
-      "teacherName": "Prof. R. K. Mishra",
-      "centerId": "6acf9d4f9d3d59b035631e56",
-      "centerName": "Verification Real Academy",
-      "courseId": "",
-      "courseName": "Live Interactive Lecture",
-      "subject": "Mathematics",
-      "title": "Real-time Algebra Class",
-      "status": "live",
-      "youtubeLiveUrl": "https://www.youtube.com/watch?v=u3e7Qe-FKks",
-      "youtubeWatchUrl": "https://www.youtube.com/watch?v=u3e7Qe-FKks",
-      "startedAt": "2026-10-14T15:18:43.703Z",
-      "activeStudentsCount": 0
-    }
-  ],
+  "teachers": [],
+  "liveSessions": [],
   "admissionInquiries": [],
   "supportTickets": [],
   "affiliationApplications": []
