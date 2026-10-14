@@ -1517,9 +1517,13 @@
             statusText.textContent = 'Stopping live stream and compiling lecture video...';
 
             try {
-                // Stop local MediaRecorder if active
+                // Stop local MediaRecorder if active & safely await final emitted video chunks
                 if (teacherMediaRecorder && teacherMediaRecorder.state !== 'inactive') {
-                    teacherMediaRecorder.stop();
+                    await new Promise(resolve => {
+                        teacherMediaRecorder.onstop = () => resolve();
+                        try { teacherMediaRecorder.stop(); } catch(e) { resolve(); }
+                        setTimeout(resolve, 400);
+                    });
                 }
 
                 // If recorded chunks exist, upload actual video blob to server vault!
@@ -1676,7 +1680,9 @@
             } catch (err) {}
         }
 
-        // Load Previous Live Lectures Archive for Teacher
+        // Load Previous Live Lectures Archive for Teacher with YouTube Upload Status & Preview
+        let teacherPreviewPollTimer = null;
+
         async function loadPreviousLectures() {
             const container = document.getElementById('previousLecturesList');
             if (!container) return;
@@ -1687,27 +1693,53 @@
                 if (data.success && data.recordings && data.recordings.length > 0) {
                     container.innerHTML = data.recordings.map(r => {
                         const dateStr = r.recordedAt ? new Date(r.recordedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
-                        const playUrl = r.youtubeWatchUrl || r.videoUrl || '#';
+                        const playUrl = r.youtubeWatchUrl || r.videoUrl || '';
+                        const isYt = Boolean(r.youtubeVideoId || (playUrl && playUrl.includes('youtube.com')));
+                        const isUploading = Boolean(r.uploadStatus && r.uploadStatus.status === 'uploading');
+
+                        let statusBadge = '';
+                        if (isYt) {
+                            statusBadge = `<span style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;"><i class="fab fa-youtube"></i> YouTube Live</span>`;
+                        } else if (isUploading) {
+                            statusBadge = `<span style="background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; animation:pulse-live 1.5s infinite;"><i class="fas fa-spinner fa-spin"></i> Uploading to YouTube...</span>`;
+                        } else {
+                            statusBadge = `<span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;"><i class="fas fa-file-video"></i> Local Recording</span>`;
+                        }
+
+                        const safeTitle = (r.title || 'Recorded Lecture').replace(/'/g, "\\'");
+                        const safeCourse = (r.courseName || 'Lecture').replace(/'/g, "\\'");
+                        const safeCenter = (r.centerName || 'Coaching Center').replace(/'/g, "\\'");
+                        const sessId = r.sessionId || '';
+                        const ytId = r.youtubeVideoId || '';
+
                         return `
-                            <div style="background:#1e293b; border:1px solid var(--border-subtle); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                            <div style="background:#1e293b; border:1px solid var(--border-subtle); border-radius:14px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
                                 <div>
-                                    <h4 style="font-size:14px; color:#ffffff; margin-bottom:4px; font-weight:700;"><i class="fab fa-youtube" style="color:#ef4444; margin-right:6px;"></i> ${r.title}</h4>
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                                        <h4 style="font-size:15px; color:#ffffff; font-weight:700; margin:0;"><i class="fas fa-chalkboard-user" style="color:var(--gold); margin-right:6px;"></i> ${r.title}</h4>
+                                        ${statusBadge}
+                                    </div>
                                     <div style="font-size:12px; color:#94a3b8;">
-                                        <span>${r.courseName || 'Lecture'}</span> • <span>${r.centerName || 'Coaching Center'}</span> • <span style="color:var(--gold);">${dateStr}</span>
+                                        <span>${r.courseName || 'Lecture'}</span> • <span>${r.centerName || 'Coaching Center'}</span> • <span style="color:var(--gold);"><i class="far fa-clock"></i> ${dateStr}</span>
                                     </div>
                                 </div>
-                                <div style="display:flex; gap:8px;">
-                                    <a href="${playUrl}" target="_blank" class="btn-aurora btn-outline" style="font-size:12px; padding:6px 14px; text-decoration:none;">
-                                        <i class="fas fa-play"></i> Watch Recording
-                                    </a>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <button onclick="openTeacherLecturePreview('${encodeURIComponent(playUrl)}', '${safeTitle}', '${safeCourse}', '${safeCenter}', '${sessId}', '${ytId}')" class="btn-aurora btn-gold" style="font-size:12px; padding:7px 16px;">
+                                        <i class="fas fa-play"></i> Watch / Preview
+                                    </button>
+                                    ${playUrl && !isYt ? `
+                                        <a href="${playUrl}" download class="btn-aurora" style="font-size:12px; padding:7px 12px; background:rgba(255,255,255,0.06); color:#38bdf8;" title="Download High-Def Video">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    ` : ''}
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
                     container.innerHTML = `
-                        <div style="text-align:center; padding:24px; color:#64748b; font-size:13px;">
-                            <i class="fas fa-video-slash" style="font-size:28px; margin-bottom:8px; display:block; color:#475569;"></i>
+                        <div style="text-align:center; padding:28px; color:#64748b; font-size:13px;">
+                            <i class="fas fa-video-slash" style="font-size:32px; margin-bottom:10px; display:block; color:#475569;"></i>
                             No past lectures archived yet. When you end a live class, it will automatically appear here!
                         </div>
                     `;
@@ -1715,6 +1747,95 @@
             } catch(e) {
                 container.innerHTML = `<div style="text-align:center; padding:16px; color:#ef4444; font-size:12px;">Error loading lectures: ${e.message}</div>`;
             }
+        }
+
+        function openTeacherLecturePreview(videoUrlEncoded, title, course, center, classId, ytId) {
+            const videoUrl = decodeURIComponent(videoUrlEncoded || '').trim();
+            const modal = document.getElementById('teacherLecturePreviewModal');
+            document.getElementById('tlpTitle').textContent = title;
+            document.getElementById('tlpSub').innerHTML = `<strong>${course}</strong> • ${center}`;
+
+            const video = document.getElementById('tlpVideoPlayer');
+            const iframe = document.getElementById('tlpIframePlayer');
+            const placeholder = document.getElementById('tlpLoadingPlaceholder');
+            const statusBadge = document.getElementById('tlpUploadBadge');
+            const ytLink = document.getElementById('tlpYoutubeDirectLink');
+            const dBtn = document.getElementById('tlpDownloadBtn');
+
+            video.style.display = 'none';
+            video.src = '';
+            iframe.style.display = 'none';
+            iframe.src = 'about:blank';
+            placeholder.style.display = 'none';
+            if (teacherPreviewPollTimer) clearInterval(teacherPreviewPollTimer);
+
+            modal.style.display = 'flex';
+
+            let resolvedYtId = ytId;
+            if (!resolvedYtId && videoUrl) {
+                const match = videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|live\/|shorts\/))([\w-]{11})/);
+                if (match) resolvedYtId = match[1];
+            }
+
+            if (resolvedYtId) {
+                iframe.src = `https://www.youtube-nocookie.com/embed/${resolvedYtId}?autoplay=1`;
+                iframe.style.display = 'block';
+                statusBadge.innerHTML = `<span style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700;"><i class="fab fa-youtube"></i> Published to Official YouTube Channel</span>`;
+                ytLink.href = `https://www.youtube.com/watch?v=${resolvedYtId}`;
+                ytLink.style.display = 'inline-flex';
+                dBtn.style.display = 'none';
+            } else if (videoUrl && (videoUrl.endsWith('.webm') || videoUrl.endsWith('.mp4') || videoUrl.includes('/data/recordings/'))) {
+                video.src = videoUrl;
+                video.style.display = 'block';
+                video.play().catch(() => {});
+                statusBadge.innerHTML = `<span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#6ee7b7; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700;"><i class="fas fa-file-video"></i> High-Definition Local Recording</span>`;
+                dBtn.href = videoUrl;
+                dBtn.style.display = 'inline-flex';
+                ytLink.style.display = 'none';
+
+                if (classId) {
+                    const checkUpload = async () => {
+                        try {
+                            const res = await fetch(`/api/live/upload-status/${classId}?_t=` + Date.now());
+                            const data = await res.json();
+                            if (data.success) {
+                                if (data.status === 'completed' && data.youtubeVideoId) {
+                                    statusBadge.innerHTML = `<span style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700;"><i class="fab fa-youtube"></i> Uploaded to YouTube!</span>`;
+                                    ytLink.href = data.youtubeWatchUrl || `https://www.youtube.com/watch?v=${data.youtubeVideoId}`;
+                                    ytLink.style.display = 'inline-flex';
+                                    if (teacherPreviewPollTimer) clearInterval(teacherPreviewPollTimer);
+                                } else if (data.status === 'uploading') {
+                                    statusBadge.innerHTML = `<span style="background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; animation:pulse-live 1.5s infinite;"><i class="fas fa-spinner fa-spin"></i> Uploading to YouTube (${data.progress || 30}%)...</span>`;
+                                }
+                            }
+                        } catch(e) {}
+                    };
+                    checkUpload();
+                    teacherPreviewPollTimer = setInterval(checkUpload, 3500);
+                }
+            } else {
+                placeholder.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:#cbd5e1;">
+                        <i class="fas fa-video-slash" style="font-size:44px; color:#ef4444; margin-bottom:12px; display:block;"></i>
+                        <strong style="font-size:15px; color:#ffffff;">No Video Recording Available</strong>
+                        <p style="font-size:12px; color:#94a3b8; margin-top:6px;">इस सेशन की कोई वीडियो रिकॉर्डिंग उपलब्ध नहीं है।</p>
+                    </div>
+                `;
+                placeholder.style.display = 'block';
+                statusBadge.innerHTML = '';
+                ytLink.style.display = 'none';
+                dBtn.style.display = 'none';
+            }
+        }
+
+        function closeTeacherLecturePreview() {
+            const modal = document.getElementById('teacherLecturePreviewModal');
+            if (modal) modal.style.display = 'none';
+            const video = document.getElementById('tlpVideoPlayer');
+            const iframe = document.getElementById('tlpIframePlayer');
+            if (video) { video.pause(); video.src = ''; }
+            if (iframe) { iframe.src = 'about:blank'; }
+            if (teacherPreviewPollTimer) clearInterval(teacherPreviewPollTimer);
         }
 
         // Profile Edit Modal with Teacher ID, Password & Photo
@@ -1826,5 +1947,39 @@
             showLoginView();
         }
     </script>
+
+    <!-- TEACHER LECTURE PREVIEW MODAL -->
+    <div id="teacherLecturePreviewModal" style="display:none; position:fixed; inset:0; background:rgba(3,7,18,0.92); backdrop-filter:blur(14px); z-index:10000; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#0f172a; border:1px solid rgba(251,191,36,0.3); border-radius:18px; max-width:840px; width:100%; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+            <div style="padding:16px 22px; background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 id="tlpTitle" style="font-size:16px; color:#ffffff; font-weight:700; margin:0;">Recorded Lecture Preview</h3>
+                    <div id="tlpSub" style="font-size:12px; color:#94a3b8; margin-top:2px;"></div>
+                </div>
+                <button type="button" onclick="closeTeacherLecturePreview()" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="position:relative; width:100%; height:440px; background:#000000; display:flex; align-items:center; justify-content:center;">
+                <video id="tlpVideoPlayer" controls playsinline style="width:100%; height:100%; object-fit:contain; display:none;"></video>
+                <iframe id="tlpIframePlayer" style="width:100%; height:100%; border:none; display:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                <div id="tlpLoadingPlaceholder" style="display:none;"></div>
+            </div>
+            <div style="padding:14px 22px; background:rgba(255,255,255,0.02); border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div id="tlpUploadBadge"></div>
+                <div style="display:flex; gap:10px;">
+                    <a id="tlpYoutubeDirectLink" href="#" target="_blank" class="btn-aurora" style="background:#ef4444; color:#ffffff; font-size:12.5px; padding:7px 16px; text-decoration:none; display:none;">
+                        <i class="fab fa-youtube"></i> Watch on YouTube
+                    </a>
+                    <a id="tlpDownloadBtn" href="#" download class="btn-aurora btn-outline" style="font-size:12.5px; padding:7px 14px; text-decoration:none; display:none;">
+                        <i class="fas fa-download"></i> Download Video
+                    </a>
+                    <button type="button" onclick="closeTeacherLecturePreview()" class="btn-aurora btn-outline" style="font-size:12.5px; padding:7px 16px;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

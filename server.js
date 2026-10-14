@@ -177,11 +177,11 @@ function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf'
     const SAFE_MONGO_LIMIT = 2.5 * 1024 * 1024; // 2.5MB safe limit to keep MongoDB fast and avoid 16MB document cap
 
     const isImageSubdir = ['branding', 'teachers', 'students', 'covers', 'thumbnails', 'kyc'].includes(subDir);
-    const isImportant = (storageMode === 'important') || isImageSubdir;
+    // User requirement: Videos on YouTube, all PDFs and photos in GitHub repo/filesystem ('/data/...'), NOT bloated in MongoDB
+    const isImportant = (storageMode === 'important') && (approxByteSize < 100 * 1024);
     const exceedsLimit = approxByteSize > SAFE_MONGO_LIMIT;
 
-    // CASE 1: Important mode OR profile/branding/thumbnail images within safe limit -> Store directly in MongoDB/Atlas!
-    // This guarantees photos & thumbnails NEVER disappear across Render reboots, deployments or Git updates!
+    // CASE 1: Explicit Important mode strictly under 100KB safe threshold -> Store in MongoDB
     if (isImportant && !exceedsLimit) {
         try {
             const targetDir = path.join(__dirname, 'public', 'data', subDir);
@@ -1405,6 +1405,29 @@ app.get('/api/public/ping', (req, res) => {
 // ============================================================
 const activeCallRooms = new Map(); // roomId -> { roomId, deviceId, callerName, mode, status, signals: { admin: [], student: [] }, createdAt }
 const activeLiveRooms = new Map(); // classId -> { classId, teacherId, teacherName, centerId, centerName, courseId, courseName, subject, title, teacherSignal: null, studentSignals: new Map(), students: new Map(), chat: [], startedAt, endedAt, status }
+const youtubeUploadStatus = new Map(); // classId -> { classId, title, status: 'uploading'|'completed'|'failed', progress, youtubeVideoId, youtubeWatchUrl, message, error, updatedAt }
+
+function extractVideoBase64(dataUri) {
+    if (!dataUri || typeof dataUri !== 'string') return { rawBase64: '', ext: 'webm' };
+    let ext = 'webm';
+    if (dataUri.includes('video/mp4')) ext = 'mp4';
+    const base64Marker = ';base64,';
+    const bIndex = dataUri.indexOf(base64Marker);
+    if (bIndex !== -1) {
+        return {
+            rawBase64: dataUri.slice(bIndex + base64Marker.length).trim(),
+            ext
+        };
+    }
+    const commaIndex = dataUri.indexOf(',');
+    if (dataUri.startsWith('data:') && commaIndex !== -1) {
+        return {
+            rawBase64: dataUri.slice(commaIndex + 1).trim(),
+            ext
+        };
+    }
+    return { rawBase64: dataUri.trim(), ext };
+}
 
 function parseDeviceDetails(ua) {
     if (!ua) return { os: 'Unknown OS', browser: 'Browser', label: 'Device' };
@@ -6608,14 +6631,28 @@ async function getValidYoutubeAccessToken(customRefreshToken) {
     if (cachedYoutubeAccessToken && Date.now() < youtubeAccessTokenExpiry) {
         return cachedYoutubeAccessToken;
     }
-    const tokenToUse = (customRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+    const tokenToUse = (customRefreshToken || process.env.YOUTUBE_REFRESH_TOKEN || DEFAULT_YT_REFRESH_TOKEN || '').trim();
     if (!tokenToUse) return '';
+
+    let clientId = (process.env.YOUTUBE_CLIENT_ID || DEFAULT_YT_CLIENT_ID || '').trim();
+    let clientSecret = (process.env.YOUTUBE_CLIENT_SECRET || DEFAULT_YT_SECRET || '').trim();
+
+    if (isMongoConnected) {
+        try {
+            const settings = await Settings.findOne();
+            if (settings?.youtubeClientId && settings.youtubeClientId.trim()) {
+                clientId = settings.youtubeClientId.trim();
+            }
+            if (settings?.youtubeClientSecret && settings.youtubeClientSecret.trim()) {
+                clientSecret = settings.youtubeClientSecret.trim();
+            }
+        } catch (e) {
+            console.warn('[YouTube Auth] DB Settings lookup notice:', e.message);
+        }
+    }
 
     // Method 1: Standard Google OAuth endpoint with dedicated Client ID & Secret
     try {
-        const settings = await Settings.findOne();
-        const clientId = (process.env.YOUTUBE_CLIENT_ID || settings?.youtubeClientId || DEFAULT_YT_CLIENT_ID || '').trim();
-        const clientSecret = (process.env.YOUTUBE_CLIENT_SECRET || settings?.youtubeClientSecret || DEFAULT_YT_SECRET || '').trim();
         if (clientId && clientSecret) {
             const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
                 method: 'POST',
@@ -6632,9 +6669,13 @@ async function getValidYoutubeAccessToken(customRefreshToken) {
                 cachedYoutubeAccessToken = tokenData.access_token;
                 youtubeAccessTokenExpiry = Date.now() + ((tokenData.expires_in || 3600) - 120) * 1000;
                 return cachedYoutubeAccessToken;
+            } else {
+                console.warn('[YouTube Auth] Token endpoint response:', tokenData?.error || tokenData);
             }
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn('[YouTube Auth] Token exchange fetch error:', e.message);
+    }
 
     // Method 2: OAuth Playground refresh endpoint as backup
     try {
@@ -6765,18 +6806,52 @@ async function endYoutubeLiveBroadcast(youtubeId) {
     }
 }
 
-// Universal YouTube Video Uploader for Recorded Lectures
+// Universal YouTube Video Uploader for Recorded Lectures with Real-time Status Tracking
 async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
-    if (!fs.existsSync(filePath)) return null;
+    if (!fs.existsSync(filePath)) {
+        youtubeUploadStatus.set(classId, { classId, status: 'failed', message: 'Video file missing on server' });
+        return null;
+    }
     try {
-        const settings = await Settings.findOne();
-        const refreshToken = (settings?.youtubeRefreshToken || DEFAULT_YT_REFRESH_TOKEN || '').trim();
-        if (!refreshToken) return null;
+        youtubeUploadStatus.set(classId, {
+            classId,
+            title: title || 'BBCC Recorded Lecture',
+            status: 'uploading',
+            progress: 20,
+            message: 'Authenticating with Google Cloud YouTube API...',
+            updatedAt: Date.now()
+        });
+
+        let refreshToken = (process.env.YOUTUBE_REFRESH_TOKEN || DEFAULT_YT_REFRESH_TOKEN || '').trim();
+        let privacyStatus = 'unlisted';
+        if (isMongoConnected) {
+            try {
+                const settings = await Settings.findOne();
+                if (settings?.youtubeRefreshToken && settings.youtubeRefreshToken.trim()) {
+                    refreshToken = settings.youtubeRefreshToken.trim();
+                }
+                if (settings?.youtubePrivacyStatus) {
+                    privacyStatus = settings.youtubePrivacyStatus;
+                }
+            } catch(e) {}
+        }
+
+        if (!refreshToken) {
+            youtubeUploadStatus.set(classId, { classId, status: 'failed', message: 'No YouTube refresh token available' });
+            return null;
+        }
+
         const accessToken = await getValidYoutubeAccessToken(refreshToken);
-        if (!accessToken) return null;
+        if (!accessToken) {
+            youtubeUploadStatus.set(classId, { classId, status: 'failed', message: 'Failed to generate Google OAuth access token' });
+            return null;
+        }
 
         const fileStat = fs.statSync(filePath);
-        if (fileStat.size < 1000) return null; // Too small / corrupted
+        if (fileStat.size < 500) {
+            youtubeUploadStatus.set(classId, { classId, status: 'failed', message: 'Recorded file too small or invalid' });
+            return null;
+        }
 
         const ext = path.extname(filePath).toLowerCase();
         const mimeType = ext === '.mp4' ? 'video/mp4' : 'video/webm';
@@ -6788,10 +6863,19 @@ async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
                 categoryId: '27' // Education
             },
             status: {
-                privacyStatus: settings?.youtubePrivacyStatus || 'unlisted',
+                privacyStatus: privacyStatus || 'unlisted',
                 selfDeclaredMadeForKids: false
             }
         };
+
+        youtubeUploadStatus.set(classId, {
+            classId,
+            title: title || 'BBCC Lecture',
+            status: 'uploading',
+            progress: 45,
+            message: `Initiating YouTube session for ${(fileStat.size / (1024*1024)).toFixed(1)}MB video...`,
+            updatedAt: Date.now()
+        });
 
         console.log(`[YouTube Upload] Initializing upload for lecture "${title}" (${fileStat.size} bytes)...`);
         const initRes = await fetch('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', {
@@ -6807,9 +6891,25 @@ async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
 
         const uploadUrl = initRes.headers.get('location');
         if (!uploadUrl) {
-            console.warn('[YouTube Upload] Could not initialize session:', await initRes.text());
+            const errBody = await initRes.text();
+            console.warn('[YouTube Upload] Could not initialize session:', errBody);
+            youtubeUploadStatus.set(classId, {
+                classId,
+                status: 'failed',
+                message: 'YouTube session failed: ' + errBody.slice(0, 100),
+                updatedAt: Date.now()
+            });
             return null;
         }
+
+        youtubeUploadStatus.set(classId, {
+            classId,
+            title: title || 'BBCC Lecture',
+            status: 'uploading',
+            progress: 70,
+            message: 'Uploading video data to official BBCC YouTube Channel...',
+            updatedAt: Date.now()
+        });
 
         const fileBuffer = fs.readFileSync(filePath);
         const upRes = await fetch(uploadUrl, {
@@ -6826,16 +6926,29 @@ async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
             console.log(`[YouTube Upload] Lecture "${title}" successfully posted to YouTube channel! Video ID: ${upData.id}`);
             const ytWatchUrl = `https://www.youtube.com/watch?v=${upData.id}`;
 
+            youtubeUploadStatus.set(classId, {
+                classId,
+                title: title || 'BBCC Lecture',
+                status: 'completed',
+                progress: 100,
+                youtubeVideoId: upData.id,
+                youtubeWatchUrl: ytWatchUrl,
+                message: 'Successfully published to YouTube Channel!',
+                updatedAt: Date.now()
+            });
+
             // Update session in DB
-            await LiveClassSession.findOneAndUpdate(
-                { sessionId: classId },
-                {
-                    youtubeVideoId: upData.id,
-                    youtubeWatchUrl: ytWatchUrl,
-                    recordingUrl: ytWatchUrl,
-                    isArchivedToYoutube: true
-                }
-            );
+            try {
+                await LiveClassSession.findOneAndUpdate(
+                    { sessionId: classId },
+                    {
+                        youtubeVideoId: upData.id,
+                        youtubeWatchUrl: ytWatchUrl,
+                        recordingUrl: ytWatchUrl,
+                        isArchivedToYoutube: true
+                    }
+                );
+            } catch (dbErr) {}
 
             // Also update any center course recordedLectures
             try {
@@ -6858,9 +6971,21 @@ async function uploadRecordedVideoToYouTube({ filePath, title, classId }) {
             return { youtubeVideoId: upData.id, youtubeWatchUrl: ytWatchUrl };
         } else {
             console.warn('[YouTube Upload] Upload result notice:', upData);
+            youtubeUploadStatus.set(classId, {
+                classId,
+                status: 'failed',
+                message: upData?.error?.message || 'YouTube processing error',
+                updatedAt: Date.now()
+            });
         }
     } catch (err) {
         console.warn('[YouTube Upload] Error notice:', err.message);
+        youtubeUploadStatus.set(classId, {
+            classId,
+            status: 'failed',
+            message: err.message,
+            updatedAt: Date.now()
+        });
     }
     return null;
 }
@@ -7265,12 +7390,12 @@ app.get('/api/live/recordings', async (req, res) => {
             ];
         }
         if (courseId) query.courseId = courseId;
-
         const rawSessions = await LiveClassSession.find(query).sort({ endedAt: -1, createdAt: -1 }).limit(60).lean();
         const sessions = rawSessions.map(s => ({
             ...s,
             videoUrl: s.recordingUrl || s.youtubeWatchUrl || s.youtubeLiveUrl || s.videoUrl || '',
-            youtubeWatchUrl: s.youtubeWatchUrl || s.recordingUrl || s.youtubeLiveUrl || ''
+            youtubeWatchUrl: s.youtubeWatchUrl || s.recordingUrl || s.youtubeLiveUrl || '',
+            uploadStatus: youtubeUploadStatus.get(s.sessionId) || null
         }));
 
         // Also fetch from TuitionCenter courses.recordedLectures
@@ -7504,14 +7629,21 @@ app.post('/api/live/upload-recording', async (req, res) => {
         const recDir = path.join(__dirname, 'public', 'data', 'recordings');
         if (!fs.existsSync(recDir)) fs.mkdirSync(recDir, { recursive: true });
 
-        const matches = videoBlobBase64.match(/^data:video\/([a-zA-Z0-9]+);base64,(.+)$/);
-        const ext = matches ? (matches[1] === 'webm' ? 'webm' : 'mp4') : 'webm';
-        const rawBase64 = matches ? matches[2] : videoBlobBase64;
+        const { rawBase64, ext } = extractVideoBase64(videoBlobBase64);
         const fileName = `${classId}.${ext}`;
         const filePath = path.join(recDir, fileName);
 
         fs.writeFileSync(filePath, Buffer.from(rawBase64, 'base64'));
         const fileUrl = `/data/recordings/${fileName}`;
+
+        youtubeUploadStatus.set(classId, {
+            classId,
+            title: title || 'BBCC Lecture',
+            status: 'uploading',
+            progress: 10,
+            message: 'Lecture recorded and saved to server vault. Starting YouTube auto-upload...',
+            updatedAt: Date.now()
+        });
 
         // Update LiveClassSession
         await LiveClassSession.findOneAndUpdate(
@@ -7524,7 +7656,13 @@ app.post('/api/live/upload-recording', async (req, res) => {
             console.warn('[YouTube Auto-Upload Notice]', err.message);
         });
 
-        res.json({ success: true, message: 'Lecture video uploaded and archived successfully!', videoUrl: fileUrl });
+        res.json({
+            success: true,
+            message: 'Lecture video saved to server vault. YouTube upload in progress!',
+            videoUrl: fileUrl,
+            classId,
+            uploadStatus: 'uploading'
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -7536,27 +7674,150 @@ app.get('/api/admin/live-monitor', verifySuperAdmin, async (req, res) => {
         const activeList = [];
         for (const [id, r] of activeLiveRooms.entries()) {
             if (r.status === 'live') {
+                const isCentral = Boolean(r.isCentralAdmin);
+                const viewerCount = r.students ? r.students.size : 0;
+                const durMin = Math.max(1, Math.round((Date.now() - (r.startedAt || Date.now())) / 60000));
+                const streamType = (r.youtubeLiveUrl && r.youtubeLiveUrl.includes('youtube')) ? 'youtube' : 'webrtc';
+                const cName = r.centerName || (isCentral ? 'BBCC Central Directorate' : 'Partner Institute');
+
                 activeList.push({
                     classId: r.classId,
+                    sessionId: r.classId,
                     title: r.title,
-                    teacherName: r.teacherName,
-                    centerId: r.centerId,
-                    centerName: r.centerName,
-                    courseId: r.courseId,
-                    courseName: r.courseName,
-                    subject: r.subject,
-                    isCentralAdmin: Boolean(r.isCentralAdmin),
+                    teacherName: r.teacherName || (isCentral ? 'BBCC Central Directorate' : 'Faculty'),
+                    centerId: r.centerId || '',
+                    centerName: cName,
+                    coachingName: cName,
+                    courseId: r.courseId || '',
+                    courseName: r.courseName || r.subject || 'Interactive Lecture',
+                    subject: r.subject || 'All Subjects',
+                    isCentral: isCentral,
+                    isCentralAdmin: isCentral,
+                    viewerCount: viewerCount,
+                    activeStudentsCount: viewerCount,
+                    durationMinutes: durMin,
+                    streamType: streamType,
                     youtubeLiveUrl: r.youtubeLiveUrl || '',
+                    youtubeWatchUrl: r.youtubeLiveUrl || '',
                     hasFrame: Boolean(r.latestFrame),
                     latestFrame: r.latestFrame || null,
-                    startedAt: r.startedAt,
-                    activeStudentsCount: r.students ? r.students.size : 0
+                    startedAt: r.startedAt
                 });
             }
         }
-        res.json({ success: true, count: activeList.length, activeClasses: activeList });
+        res.json({
+            success: true,
+            count: activeList.length,
+            liveStreams: activeList,
+            activeClasses: activeList
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Coaching Center Director Live Faculty & Teaching Monitor Deck
+app.get('/api/director/live-monitor', verifyDirector, async (req, res) => {
+    try {
+        const centerId = req.center.id || req.center.centerId || '';
+        const centerName = req.center.centerName || '';
+        const activeList = [];
+
+        for (const [id, r] of activeLiveRooms.entries()) {
+            if (r.status === 'live') {
+                const isMyCenter = (centerId && r.centerId && r.centerId.toString() === centerId.toString()) ||
+                                   (centerName && r.centerName && r.centerName.toLowerCase() === centerName.toLowerCase());
+                const isCentral = Boolean(r.isCentralAdmin);
+
+                if (isMyCenter || isCentral) {
+                    const viewerCount = r.students ? r.students.size : 0;
+                    const durMin = Math.max(1, Math.round((Date.now() - (r.startedAt || Date.now())) / 60000));
+                    const streamType = (r.youtubeLiveUrl && r.youtubeLiveUrl.includes('youtube')) ? 'youtube' : 'webrtc';
+                    const cName = r.centerName || (isCentral ? 'BBCC Central Directorate' : 'Partner Institute');
+
+                    activeList.push({
+                        classId: r.classId,
+                        sessionId: r.classId,
+                        title: r.title,
+                        teacherName: r.teacherName || (isCentral ? 'BBCC Central Directorate' : 'Faculty'),
+                        centerId: r.centerId || '',
+                        centerName: cName,
+                        coachingName: cName,
+                        courseId: r.courseId || '',
+                        courseName: r.courseName || r.subject || 'Interactive Lecture',
+                        subject: r.subject || 'All Subjects',
+                        isCentral: isCentral,
+                        isCentralAdmin: isCentral,
+                        isMyCenter: Boolean(isMyCenter),
+                        viewerCount: viewerCount,
+                        activeStudentsCount: viewerCount,
+                        durationMinutes: durMin,
+                        streamType: streamType,
+                        youtubeLiveUrl: r.youtubeLiveUrl || '',
+                        youtubeWatchUrl: r.youtubeLiveUrl || '',
+                        hasFrame: Boolean(r.latestFrame),
+                        latestFrame: r.latestFrame || null,
+                        startedAt: r.startedAt
+                    });
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            count: activeList.length,
+            liveStreams: activeList,
+            activeClasses: activeList
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Live Lecture YouTube Upload Status Tracker
+app.get('/api/live/upload-status/:classId', async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const status = youtubeUploadStatus.get(classId);
+        if (status) {
+            return res.json({ success: true, ...status });
+        }
+        // Fallback: Check in DB
+        const session = await LiveClassSession.findOne({ sessionId: classId }).lean();
+        if (session) {
+            if (session.youtubeVideoId || (session.youtubeWatchUrl && session.youtubeWatchUrl.includes('youtube.com'))) {
+                return res.json({
+                    success: true,
+                    classId,
+                    status: 'completed',
+                    progress: 100,
+                    youtubeVideoId: session.youtubeVideoId,
+                    youtubeWatchUrl: session.youtubeWatchUrl,
+                    message: 'Lecture is available on YouTube!'
+                });
+            } else if (session.status === 'ended') {
+                return res.json({
+                    success: true,
+                    classId,
+                    status: 'local',
+                    progress: 100,
+                    recordingUrl: session.recordingUrl,
+                    message: 'High-definition local recording archived on server'
+                });
+            }
+        }
+        res.json({ success: true, classId, status: 'idle', message: 'No active upload' });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+app.get('/api/live/upload-status', async (req, res) => {
+    try {
+        const statuses = Array.from(youtubeUploadStatus.values());
+        res.json({ success: true, uploads: statuses });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
     }
 });
 
@@ -7587,7 +7848,8 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
                 youtubeWatchUrl: s.youtubeWatchUrl || vUrl,
                 date: dateVal,
                 recordedAt: dateVal,
-                isLocalFile: isLocal
+                isLocalFile: isLocal,
+                uploadStatus: youtubeUploadStatus.get(s.sessionId) || null
             };
         });
 
@@ -7617,7 +7879,8 @@ app.get('/api/admin/all-recordings', verifySuperAdmin, async (req, res) => {
                             youtubeWatchUrl: vUrl,
                             date: dateVal,
                             recordedAt: dateVal,
-                            isLocalFile: isLocal
+                            isLocalFile: isLocal,
+                            uploadStatus: null
                         });
                     });
                 });
