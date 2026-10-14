@@ -83,7 +83,35 @@
       "isBlocked": false,
       "teachers": [],
       "courses": [],
-      "materials": []
+      "materials": [],
+      "promotionalBanners": [],
+      "blockReason": ""
+    },
+    {
+      "_id": "6acfa7191116fb7d191fb8c3",
+      "createdAt": "2026-10-14T16:00:25.447Z",
+      "updatedAt": "2026-10-14T16:00:25.447Z",
+      "centerName": "New Affiliation Institute",
+      "username": "affil-test-5333",
+      "password": "$2a$10$H5GEeboQeNgUlcReNlydv.R.3UTdq3xeNLHaKVGsl6lsU4DQ9VlD2",
+      "directorName": "Director Verma",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "address": "Gaya, Bihar",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-625341",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T16:00:25.447Z",
+      "isBlocked": false,
+      "dueAmount": 0,
+      "walletBalance": 0,
+      "teachers": [],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": []
     }
   ],
   "studyMaterials": {
@@ -93,7 +121,23 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [],
+  "paymentTransactions": [
+    {
+      "_id": "6acfa7191116fb7d191fb8c5",
+      "orderId": "TEST_AFF_1791993625341",
+      "paymentId": "TEST_PAY_3505FC49",
+      "purpose": "coaching_affiliation",
+      "amount": 999,
+      "status": "paid",
+      "payerName": "Director Verma",
+      "payerPhone": "9876543210",
+      "payerEmail": "",
+      "centerId": "6acfa7191116fb7d191fb8c3",
+      "centerName": "New Affiliation Institute",
+      "createdAt": "2026-10-14T16:00:25.449Z",
+      "paidAt": "2026-10-14T16:00:25.449Z"
+    }
+  ],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -137,5 +181,21 @@
       "assignedOfficer": "Senior Academic Counselor"
     }
   ],
-  "affiliationApplications": []
+  "affiliationApplications": [
+    {
+      "_id": "6acfa7191116fb7d191fb8c4",
+      "centerName": "New Affiliation Institute",
+      "directorName": "Director Verma",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "address": "Gaya, Bihar",
+      "username": "affil-test-5333",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "appliedAt": "2026-10-14T16:00:25.449Z",
+      "status": "approved",
+      "feePaid": 999
+    }
+  ]
 }
