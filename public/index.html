@@ -5017,7 +5017,7 @@
             const payload = {
                 centerName: document.getElementById('srCenterName').value.trim(),
                 directorName: document.getElementById('srDirectorName').value.trim(),
-                username: document.getElementById('srUsername').value.trim().toLowerCase(),
+                username: document.getElementById('srUsername').value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, ''),
                 password: document.getElementById('srPassword').value.trim(),
                 contactNumber: document.getElementById('srContact').value.trim(),
                 whatsappNumber: document.getElementById('srWhatsapp').value.trim(),
