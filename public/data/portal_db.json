@@ -61,7 +61,34 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "6acfa6ef1116fb7d191fb8bd",
+      "createdAt": "2026-10-14T15:59:43.083Z",
+      "updatedAt": "2026-10-14T15:59:43.083Z",
+      "centerName": "Realtime Live Test Academy",
+      "username": "realtime_sync_test_1791993582829",
+      "password": "$2a$10$ErbevoM4XrddbNdw7DQZuOzgfka5aSw2GXa57GnlgPQhSzUTsoOmS",
+      "directorName": "Director Realtime",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "realtime@bbccskillhub.org",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "address": "Patna Test Hub",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-582911",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T15:59:43.081Z",
+      "isBlocked": false,
+      "dueAmount": 0,
+      "walletBalance": 0,
+      "teachers": [],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": []
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": [],
@@ -69,7 +96,23 @@
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [],
+  "paymentTransactions": [
+    {
+      "_id": "6acfa6ef1116fb7d191fb8bf",
+      "orderId": "TEST_AFF_1791993582910",
+      "paymentId": "TEST_PAY_8D5866D4",
+      "purpose": "coaching_affiliation",
+      "amount": 999,
+      "status": "paid",
+      "payerName": "Director Realtime",
+      "payerPhone": "9876543210",
+      "payerEmail": "realtime@bbccskillhub.org",
+      "centerId": "6acfa6ef1116fb7d191fb8bd",
+      "centerName": "Realtime Live Test Academy",
+      "createdAt": "2026-10-14T15:59:43.086Z",
+      "paidAt": "2026-10-14T15:59:43.086Z"
+    }
+  ],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -84,5 +127,21 @@
   "liveSessions": [],
   "admissionInquiries": [],
   "supportTickets": [],
-  "affiliationApplications": []
+  "affiliationApplications": [
+    {
+      "_id": "6acfa6ef1116fb7d191fb8be",
+      "centerName": "Realtime Live Test Academy",
+      "directorName": "Director Realtime",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "realtime@bbccskillhub.org",
+      "address": "Patna Test Hub",
+      "username": "realtime_sync_test_1791993582829",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "appliedAt": "2026-10-14T15:59:43.086Z",
+      "status": "approved",
+      "feePaid": 999
+    }
+  ]
 }
