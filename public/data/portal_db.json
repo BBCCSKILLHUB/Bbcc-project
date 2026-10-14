@@ -61,7 +61,31 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "6acf9d4f9d3d59b035631e56",
+      "createdAt": "2026-10-14T15:18:39.465Z",
+      "updatedAt": "2026-10-14T15:18:39.465Z",
+      "centerName": "Verification Real Academy",
+      "username": "verify-center-8896",
+      "password": "$2a$10$6VJ01pVCkVYvyOPnYn4I3ui2O5TUlWIJeHkJcJcBSIRgC61o6Mjzm",
+      "directorName": "Director Verma",
+      "address": "Patna, Bihar",
+      "contactNumber": "9876543210",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 250,
+      "affiliationCertificateId": "BBCC-AFF-119459",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-14T15:18:39.459Z",
+      "walletBalance": 0,
+      "dueAmount": 0,
+      "isBlocked": false,
+      "teachers": [],
+      "courses": [],
+      "materials": []
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": [],
