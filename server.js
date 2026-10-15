@@ -240,7 +240,30 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json({ limit: '80mb' }));
 app.use(express.urlencoded({ extended: true, limit: '80mb' }));
-// High-performance static caching
+
+// Global Zero-Stale HTTP Cache-Busting Headers for all API routes:
+// Ensures browsers never serve stale cached JSON for any database entity or upload!
+app.use('/api', (req, res, next) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+    });
+    next();
+});
+
+// Explicit no-cache for portal_db.json
+app.use('/data/portal_db.json', (req, res, next) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+    });
+    next();
+});
+
+// High-performance static caching for static assets
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
 
 // Dynamic /data/* GitHub asset streaming & caching middleware
@@ -297,7 +320,7 @@ function getCache(key) {
     }
     return item.data;
 }
-function setCache(key, data, ttlMs = 25000) {
+function setCache(key, data, ttlMs = 3000) {
     memoryCache.set(key, { data, expiry: Date.now() + ttlMs });
 }
 
@@ -347,6 +370,9 @@ function clearCache(keyPrefix = '') {
     }
     const eventType = keyPrefix ? `${keyPrefix}_updated` : 'data_updated';
     broadcastRealtimeEvent(eventType, { keyPrefix });
+    if (keyPrefix) {
+        broadcastRealtimeEvent('data_updated', { keyPrefix });
+    }
 }
 
 // ============================================================
@@ -1832,7 +1858,7 @@ app.get('/api/public/config', async (req, res) => {
             razorpayKeyId: keyId || '',
             razorpayConfigured: !!keyId
         };
-        setCache('public_config', payload, 25000);
+        setCache('public_config', payload, 3000);
         res.json({ success: true, data: payload });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2337,7 +2363,7 @@ app.get('/api/public/promotional-banners', async (req, res) => {
             }
         } catch(bErr) {}
 
-        setCache('public_banners', activeBanners, 30000);
+        setCache('public_banners', activeBanners, 3000);
         res.json({ success: true, data: activeBanners });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2375,7 +2401,7 @@ app.get('/api/public/centers', async (req, res) => {
             });
         }
 
-        setCache('public_centers', centers, 20000);
+        setCache('public_centers', centers, 3000);
         res.json({ success: true, data: centers });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2409,7 +2435,7 @@ app.get('/api/public/center/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Institute profile not found' });
         }
 
-        setCache(cacheKey, center, 20000);
+        setCache(cacheKey, center, 3000);
         res.json({ success: true, data: center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -2847,7 +2873,7 @@ app.get('/api/public/expert-teachers', async (req, res) => {
             });
         });
 
-        setCache('public_teachers', allTeachers, 25000);
+        setCache('public_teachers', allTeachers, 3000);
         res.json({ success: true, data: allTeachers });
     } catch(err) {
         res.status(500).json({ success: false, message: err.message });
@@ -3022,7 +3048,7 @@ app.get('/api/public/books', async (req, res) => {
         };
 
         if (cacheKey) {
-            setCache(cacheKey, resultData, 20000);
+            setCache(cacheKey, resultData, 3000);
         }
 
         res.json({
@@ -3200,7 +3226,7 @@ app.get('/api/public/courses', async (req, res) => {
             });
         }
 
-        setCache(cacheKey, allCourses, 20000);
+        setCache(cacheKey, allCourses, 3000);
         res.json({ success: true, data: allCourses });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -5986,6 +6012,7 @@ app.post('/api/director/teachers', verifyDirector, async (req, res) => {
         }
 
         clearCache();
+        broadcastRealtimeEvent('teachers_updated');
         res.json({
             success: true,
             message: 'Faculty member added! Teacher credentials created for Teacher Portal.',
@@ -6018,6 +6045,7 @@ app.delete('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
         }
 
         clearCache();
+        broadcastRealtimeEvent('teachers_updated');
         res.json({ success: true, message: 'Faculty member removed' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6164,6 +6192,7 @@ app.put('/api/director/teachers/:tid', verifyDirector, async (req, res) => {
         } catch (dbErr) {}
 
         clearCache();
+        broadcastRealtimeEvent('teachers_updated');
         res.json({
             success: true,
             message: 'Faculty member and Teacher Studio credentials updated successfully!',
@@ -6240,15 +6269,27 @@ app.put('/api/admin/teachers/:centerId/:tid', verifySuperAdmin, async (req, res)
 // 7.4 Center Promotional Banners Management (30-Day Auto Expiry)
 app.post('/api/director/banners', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
+        const centerId = req.center.centerId.toString();
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
+
         const { title, subtitle, image, link, storageMode } = req.body;
         if (!image) return res.status(400).json({ success: false, message: 'Banner image is required' });
 
+        const centerName = center ? center.centerName : (pdbCenter ? pdbCenter.centerName : 'Center');
         const mode = storageMode === 'important' ? 'important' : 'normal';
-        const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || center.centerName).trim());
+        const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || centerName).trim());
 
         const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-        center.promotionalBanners.push({
+        const newBanner = {
+            _id: new mongoose.Types.ObjectId().toString(),
             title: (title || '').trim(),
             subtitle: (subtitle || '').trim(),
             image: imgAsset.fileUrl,
@@ -6256,11 +6297,25 @@ app.post('/api/director/banners', verifyDirector, async (req, res) => {
             active: true,
             expiresAt: expiresAt,
             uploadedAt: new Date()
-        });
+        };
 
-        await center.save();
+        if (pdbCenter) {
+            if (!pdbCenter.promotionalBanners) pdbCenter.promotionalBanners = [];
+            pdbCenter.promotionalBanners.push(newBanner);
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try {
+                if (!center.promotionalBanners) center.promotionalBanners = [];
+                center.promotionalBanners.push(newBanner);
+                await center.save();
+            } catch(e) {}
+        }
+
         clearCache();
-        res.json({ success: true, message: 'Promotional banner uploaded! Valid for 30 days.', data: center.promotionalBanners });
+        broadcastRealtimeEvent('banners_updated', { centerId });
+        res.json({ success: true, message: 'Promotional banner uploaded! Valid for 30 days.', data: (pdbCenter ? pdbCenter.promotionalBanners : center.promotionalBanners) });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6268,10 +6323,29 @@ app.post('/api/director/banners', verifyDirector, async (req, res) => {
 
 app.delete('/api/director/banners/:bid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        center.promotionalBanners = center.promotionalBanners.filter(b => b._id.toString() !== req.params.bid);
-        await center.save();
+        const centerId = req.center.centerId.toString();
+        const bid = req.params.bid;
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+
+        if (pdbCenter && pdbCenter.promotionalBanners) {
+            pdbCenter.promotionalBanners = pdbCenter.promotionalBanners.filter(b => b._id && b._id.toString() !== bid);
+            await savePortalDb(pdb);
+        }
+
+        if (center && center.promotionalBanners) {
+            try {
+                center.promotionalBanners = center.promotionalBanners.filter(b => b._id.toString() !== bid);
+                await center.save();
+            } catch(e) {}
+        }
+
         clearCache();
+        broadcastRealtimeEvent('banners_updated', { centerId });
         res.json({ success: true, message: 'Promotional banner deleted' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6281,30 +6355,61 @@ app.delete('/api/director/banners/:bid', verifyDirector, async (req, res) => {
 // Update Promotional Banner by Director (Interactive WYSIWYG Card Editor)
 app.put('/api/director/banners/:bid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId.toString();
+        const bid = req.params.bid;
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
 
-        const banner = center.promotionalBanners.id(req.params.bid) || center.promotionalBanners.find(b => b._id.toString() === req.params.bid);
-        if (!banner) return res.status(404).json({ success: false, message: 'Banner not found' });
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
 
         const { title, subtitle, image, link, renewThirtyDays, storageMode } = req.body;
-        if (title !== undefined) banner.title = title.trim();
-        if (subtitle !== undefined) banner.subtitle = subtitle.trim();
-        if (link !== undefined) banner.link = link.trim();
+        const centerName = center ? center.centerName : (pdbCenter ? pdbCenter.centerName : 'Center');
 
+        let imgUrl = null;
         if (image !== undefined && image.trim() !== '') {
             const mode = storageMode === 'important' ? 'important' : 'normal';
-            const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || banner.title || center.centerName).trim());
-            if (imgAsset.fileUrl) banner.image = imgAsset.fileUrl;
+            const imgAsset = saveAssetFile(image, 'banners', 'jpg', mode, (title || centerName).trim());
+            if (imgAsset.fileUrl) imgUrl = imgAsset.fileUrl;
         }
 
-        if (renewThirtyDays) {
-            banner.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const updateBannerFields = (banner) => {
+            if (title !== undefined) banner.title = title.trim();
+            if (subtitle !== undefined) banner.subtitle = subtitle.trim();
+            if (link !== undefined) banner.link = link.trim();
+            if (imgUrl) banner.image = imgUrl;
+            if (renewThirtyDays) {
+                banner.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            }
+        };
+
+        let updated = null;
+        if (pdbCenter && pdbCenter.promotionalBanners) {
+            const pb = pdbCenter.promotionalBanners.find(b => b._id && b._id.toString() === bid);
+            if (pb) {
+                updateBannerFields(pb);
+                updated = pb;
+            }
+            await savePortalDb(pdb);
         }
 
-        await center.save();
+        if (center && center.promotionalBanners) {
+            try {
+                const cb = center.promotionalBanners.id(bid) || center.promotionalBanners.find(b => b._id.toString() === bid);
+                if (cb) {
+                    updateBannerFields(cb);
+                    if (!updated) updated = cb;
+                    await center.save();
+                }
+            } catch(e) {}
+        }
+
         clearCache();
-        res.json({ success: true, message: 'Banner updated successfully!', data: banner });
+        broadcastRealtimeEvent('banners_updated', { centerId });
+        res.json({ success: true, message: 'Banner updated successfully!', data: updated });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6345,13 +6450,24 @@ app.put('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) => {
 // 7.4B Courses & Batch Schedules Management (Online vs Physical Modes)
 app.post('/api/director/courses', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId.toString();
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        if (!pdb.centers) pdb.centers = [];
+        const pdbCenter = pdb.centers.find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
+
         const { courseName, subject, classLevel, mode, onlineFee, offlineFee, batchTiming, liveClassLink, description } = req.body;
         if (!courseName || !courseName.trim()) {
             return res.status(400).json({ success: false, message: 'Course name is required' });
         }
-        center.courses.push({
+
+        const newCourse = {
+            _id: new mongoose.Types.ObjectId().toString(),
             courseName: courseName.trim(),
             subject: (subject || 'General').trim(),
             classLevel: (classLevel || 'All').trim(),
@@ -6361,10 +6477,27 @@ app.post('/api/director/courses', verifyDirector, async (req, res) => {
             batchTiming: (batchTiming || 'Regular Batch').trim(),
             liveClassLink: (liveClassLink || '').trim(),
             description: (description || '').trim(),
-            active: true
-        });
-        await center.save();
-        res.json({ success: true, message: 'Course created successfully!', data: center.courses });
+            active: true,
+            createdAt: new Date()
+        };
+
+        if (pdbCenter) {
+            if (!pdbCenter.courses) pdbCenter.courses = [];
+            pdbCenter.courses.push(newCourse);
+            await savePortalDb(pdb);
+        }
+
+        if (center) {
+            try {
+                if (!center.courses) center.courses = [];
+                center.courses.push(newCourse);
+                await center.save();
+            } catch(e) {}
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('courses_updated', { centerId });
+        res.json({ success: true, message: 'Course created successfully!', data: (pdbCenter ? pdbCenter.courses : center.courses) });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6372,8 +6505,20 @@ app.post('/api/director/courses', verifyDirector, async (req, res) => {
 
 app.get('/api/director/courses', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        res.json({ success: true, data: center ? center.courses : [] });
+        const centerId = req.center.centerId.toString();
+        let courses = null;
+        if (isMongoConnected) {
+            try {
+                const center = await TuitionCenter.findById(centerId);
+                if (center && center.courses && center.courses.length > 0) courses = center.courses;
+            } catch(e) {}
+        }
+        if (!courses || courses.length === 0) {
+            const pdb = loadPortalDb();
+            const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+            if (pdbCenter && pdbCenter.courses) courses = pdbCenter.courses;
+        }
+        res.json({ success: true, data: courses || [] });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6381,22 +6526,56 @@ app.get('/api/director/courses', verifyDirector, async (req, res) => {
 
 app.put('/api/director/courses/:cid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        const course = center.courses.id(req.params.cid);
-        if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
+        const centerId = req.center.centerId.toString();
+        const cid = req.params.cid;
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
+
         const { courseName, subject, classLevel, mode, onlineFee, offlineFee, batchTiming, liveClassLink, description, active } = req.body;
-        if (courseName !== undefined) course.courseName = courseName.trim();
-        if (subject !== undefined) course.subject = subject.trim();
-        if (classLevel !== undefined) course.classLevel = classLevel.trim();
-        if (mode !== undefined) course.mode = mode;
-        if (onlineFee !== undefined) course.onlineFee = Math.max(0, Number(onlineFee) || 0);
-        if (offlineFee !== undefined) course.offlineFee = Math.max(0, Number(offlineFee) || 0);
-        if (batchTiming !== undefined) course.batchTiming = batchTiming.trim();
-        if (liveClassLink !== undefined) course.liveClassLink = liveClassLink.trim();
-        if (description !== undefined) course.description = description.trim();
-        if (active !== undefined) course.active = Boolean(active);
-        await center.save();
-        res.json({ success: true, message: 'Course updated successfully!', data: course });
+
+        const updateCourse = (c) => {
+            if (courseName !== undefined) c.courseName = courseName.trim();
+            if (subject !== undefined) c.subject = subject.trim();
+            if (classLevel !== undefined) c.classLevel = classLevel.trim();
+            if (mode !== undefined) c.mode = mode;
+            if (onlineFee !== undefined) c.onlineFee = Math.max(0, Number(onlineFee) || 0);
+            if (offlineFee !== undefined) c.offlineFee = Math.max(0, Number(offlineFee) || 0);
+            if (batchTiming !== undefined) c.batchTiming = batchTiming.trim();
+            if (liveClassLink !== undefined) c.liveClassLink = liveClassLink.trim();
+            if (description !== undefined) c.description = description.trim();
+            if (active !== undefined) c.active = Boolean(active);
+        };
+
+        let updatedCourse = null;
+        if (pdbCenter && pdbCenter.courses) {
+            const pc = pdbCenter.courses.find(c => c._id && c._id.toString() === cid);
+            if (pc) {
+                updateCourse(pc);
+                updatedCourse = pc;
+            }
+            await savePortalDb(pdb);
+        }
+
+        if (center && center.courses) {
+            try {
+                const mc = center.courses.id(cid) || center.courses.find(c => c._id && c._id.toString() === cid);
+                if (mc) {
+                    updateCourse(mc);
+                    if (!updatedCourse) updatedCourse = mc;
+                    await center.save();
+                }
+            } catch(e) {}
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('courses_updated', { centerId });
+        res.json({ success: true, message: 'Course updated successfully!', data: updatedCourse });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -6404,9 +6583,29 @@ app.put('/api/director/courses/:cid', verifyDirector, async (req, res) => {
 
 app.delete('/api/director/courses/:cid', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        center.courses = center.courses.filter(c => c._id.toString() !== req.params.cid);
-        await center.save();
+        const centerId = req.center.centerId.toString();
+        const cid = req.params.cid;
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+
+        if (pdbCenter && pdbCenter.courses) {
+            pdbCenter.courses = pdbCenter.courses.filter(c => c._id && c._id.toString() !== cid);
+            await savePortalDb(pdb);
+        }
+
+        if (center && center.courses) {
+            try {
+                center.courses = center.courses.filter(c => c._id && c._id.toString() !== cid);
+                await center.save();
+            } catch(e) {}
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('courses_updated', { centerId });
         res.json({ success: true, message: 'Course deleted successfully!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6550,8 +6749,16 @@ Output STRICTLY valid JSON with keys "title", "subtitle", "suggestedTheme" (one 
 // 7.5 Student Enrolment & Roll Number Roster Management
 app.post('/api/director/students', verifyDirector, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.center.centerId);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerId = req.center.centerId ? req.center.centerId.toString() : '';
+        let center = null;
+        if (isMongoConnected) {
+            try { center = await TuitionCenter.findById(centerId); } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === centerId) || (c.username && req.center.username && c.username.toLowerCase() === req.center.username.toLowerCase()));
+        if (!center && !pdbCenter) return res.status(404).json({ success: false, message: 'Center not found' });
+        const centerName = center ? center.centerName : pdbCenter.centerName;
+        const effectiveCenterId = center ? center._id : pdbCenter._id;
 
         const { name, rollNo, fatherName, course, classLevel, marksGrade, phone, mobile, email, dob, feeAmount, feePaid, aadharNumber, photo, parentMobile, address, mode } = req.body;
         if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Student Name is required' });
@@ -6623,14 +6830,15 @@ app.post('/api/director/students', verifyDirector, async (req, res) => {
                 feePaid: finalFees,
                 photo: savedPhoto,
                 aadharNumber: student.aadharNumber,
-                centerId: center._id.toString(),
-                centerName: center.centerName,
+                centerId: effectiveCenterId.toString(),
+                centerName: centerName,
                 status: student.status
             });
             await savePortalDb(db);
         } catch(dbErr) {}
 
         clearCache();
+        broadcastRealtimeEvent('students_updated', { centerId: effectiveCenterId });
         res.json({ success: true, message: 'Student successfully enrolled with custom admission fee & Roll Number!', data: student });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6680,6 +6888,7 @@ app.delete('/api/director/students/:sid', verifyDirector, async (req, res) => {
         } catch(e) {}
 
         clearCache();
+        broadcastRealtimeEvent('students_updated', { centerId: req.center.centerId });
         res.json({ success: true, message: 'Student record removed' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6789,6 +6998,7 @@ app.put('/api/director/students/:sid', verifyDirector, async (req, res) => {
         } catch(dbErr) {}
 
         clearCache();
+        broadcastRealtimeEvent('students_updated', { centerId: req.center.centerId });
         res.json({ success: true, message: 'Student details & fee record updated successfully!', data: student });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -6816,8 +7026,12 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
         const centerAddress = center ? center.address : (pdbCenter ? pdbCenter.address : '');
         const centerPhone = center ? (center.whatsappNumber || center.contactNumber) : (pdbCenter ? (pdbCenter.whatsappNumber || pdbCenter.contactNumber) : '');
 
-        const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, fileType, pdf, file, link, isRawData, storageMode, thumbnail } = req.body;
+        const { title, description, price, pdfMrp, physicalPrice, physicalMrp, pickupAddress, fileType, pdf, file, link, isRawData, storageMode, thumbnail, targetScope, targetCenterId } = req.body;
         if (!title) return res.status(400).json({ success: false, message: 'Title required' });
+
+        const isSpecificCenter = (targetScope === 'my_center' || (targetCenterId && targetCenterId !== 'all' && targetCenterId !== 'universal'));
+        const effectiveTargetCenterId = isSpecificCenter ? centerId : 'all';
+        const effectiveTargetCenterName = isSpecificCenter ? centerName : 'All Centers (Universal)';
 
         const itemPrice = Math.max(0, Number(price) || 0);
         const pMrp = Number(pdfMrp) || (itemPrice > 0 ? Math.round(itemPrice * 2.5 + 49) : 199);
@@ -6839,11 +7053,14 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
             physicalPrice: physPrice,
             physicalMrp: physMrp,
             pickupAddress: effectivePickupAddress,
+            directorContact: (centerPhone ? `${directorName} (${centerPhone})` : directorName),
             fileType: fileType || 'pdf',
             thumbnail: thumbAsset ? thumbAsset.fileUrl : (thumbnail || ''),
             pdf: fileAsset.fileUrl,
             file: fileAsset.fileUrl,
             link: link || '',
+            targetCenterId: effectiveTargetCenterId,
+            targetCenterName: effectiveTargetCenterName,
             isRawData: Boolean(fileAsset.isRawData || isRawData),
             storageMode: fileAsset.storageUsed,
             createdAt: new Date()
@@ -6859,8 +7076,8 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                 subject: centerName,
                 classLevel: 'All Classes',
                 directorContact: `${directorName} (${centerPhone})`,
-                targetCenterId: centerId,
-                targetCenterName: centerName
+                targetCenterId: effectiveTargetCenterId,
+                targetCenterName: effectiveTargetCenterName
             });
             await savePortalDb(pdb);
         }
@@ -6877,8 +7094,8 @@ app.post('/api/director/materials', verifyDirector, async (req, res) => {
                     subject: centerName,
                     classLevel: 'All Classes',
                     directorContact: `${directorName} (${centerPhone})`,
-                    targetCenterId: centerId,
-                    targetCenterName: centerName
+                    targetCenterId: effectiveTargetCenterId,
+                    targetCenterName: effectiveTargetCenterName
                 });
                 await sm.save();
             } catch(e) {}
