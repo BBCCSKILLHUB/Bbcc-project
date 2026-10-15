@@ -1157,7 +1157,7 @@
                     </form>
                     <div id="cenBannerPreviewBox" style="margin-top:12px; display:none;">
                         <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Image Preview:</div>
-                        <img id="cenBannerPreviewImg" src="" style="max-height:120px; border-radius:10px; border:1px solid var(--border-glow);">
+                        <img id="cenBannerPreviewImg" src="" style="max-height:140px; object-fit:contain; background:#020617; border-radius:10px; border:1px solid var(--border-glow); padding:4px;">
                     </div>
                 </div>
 
@@ -3591,7 +3591,7 @@
                                     <i class="fas fa-crown"></i> BBCC CENTRAL OFFICIAL
                                 </div>
                             ` : ''}
-                            <img src="${b.image}" style="width:100%; height:160px; object-fit:cover;" onerror="this.src='/data/branding/logo.png'">
+                            <img src="${b.image}" style="width:100%; height:170px; object-fit:contain; background:radial-gradient(circle, #0f172a 0%, #020617 100%); padding:6px;" onerror="this.src='/data/branding/logo.png'">
                             <div style="padding:14px;">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
                                     <div>
@@ -5247,7 +5247,7 @@
                         return `
                         <tr>
                             <td>
-                                <img src="${b.thumbnail || '/data/branding/logo.png'}" alt="Cover" style="width:38px; height:50px; object-fit:cover; border-radius:6px; border:1px solid var(--border-glow);" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
+                                <img src="${b.thumbnail || '/data/branding/logo.png'}" alt="Cover" style="width:42px; height:54px; object-fit:contain; background:rgba(15,23,42,0.9); padding:2px; border-radius:6px; border:1px solid var(--border-glow);" onerror="this.onerror=null; this.src='/data/branding/logo.png';">
                             </td>
                             <td><strong>${b.title}</strong></td>
                             <td>${b.subject || '-'} <br><small style="color:#94a3b8;">${b.classLevel || 'All'}</small></td>
