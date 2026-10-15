@@ -76,7 +76,7 @@ async function initAstraDb() {
         for (const col of requiredCols) {
             if (!existingNames.includes(col)) {
                 try {
-                    await astraDb.createCollection(col);
+                    await astraDb.createCollection(col, { indexing: { deny: ['data'] } });
                     console.log(`✅ [Astra DB] Initialized Collection: ${col}`);
                 } catch(cErr) {}
             }
@@ -133,7 +133,6 @@ async function saveAssetToAstra({ filename, subDir, mimeType, title, base64Data,
                 { _id: filename },
                 {
                     $set: {
-                        _id: filename,
                         filename: filename,
                         subDir: subDir,
                         mimeType: mimeType,
@@ -153,7 +152,6 @@ async function saveAssetToAstra({ filename, subDir, mimeType, title, base64Data,
                 { _id: filename },
                 {
                     $set: {
-                        _id: filename,
                         filename: filename,
                         subDir: subDir,
                         mimeType: mimeType,
@@ -172,7 +170,6 @@ async function saveAssetToAstra({ filename, subDir, mimeType, title, base64Data,
                     { _id: `${filename}_chunk_${i}` },
                     {
                         $set: {
-                            _id: `${filename}_chunk_${i}`,
                             parentId: filename,
                             chunkIndex: i,
                             data: chunkData
@@ -337,6 +334,19 @@ app.use('/data/portal_db.json', (req, res, next) => {
         'Expires': '0'
     });
     next();
+});
+
+// Dedicated Founder photo fallback route (guarantees zero 404s)
+app.get(['/santosh%20sir.jpeg', '/santosh sir.jpeg', '/data/photos/Santosh_Sir.jpg', '/data/photos/santosh_sir.jpeg', '/data/photos/Santosh_Sir.jpeg'], (req, res) => {
+    const photoOptions = [
+        path.join(__dirname, 'public', 'santosh sir.jpeg'),
+        path.join(__dirname, 'public', 'data', 'photos', 'Santosh_Sir.jpg'),
+        path.join(__dirname, 'public', 'data', 'photos', 'santosh_sir.jpeg')
+    ];
+    for (const p of photoOptions) {
+        if (fs.existsSync(p)) return res.sendFile(p);
+    }
+    res.redirect('/favicon.ico');
 });
 
 // High-performance static caching for static assets
@@ -782,11 +792,12 @@ const SettingsSchema = new mongoose.Schema({
     },
     // Founder & Leadership Profile
     founderProfile: {
-        name: { type: String, default: 'Santosh Kumar' },
-        photo: { type: String, default: '/data/photos/Santosh_Sir.jpg' },
+        name: { type: String, default: 'Mr. Santosh Kumar' },
+        photo: { type: String, default: '/santosh sir.jpeg' },
         designation: { type: String, default: 'Founder & Managing Director' },
-        qualification: { type: String, default: 'B.Ed, EdTech Visionary & Institutional Leader' },
-        message: { type: String, default: 'हमारा उद्देश्य प्रत्येक छात्र और कोचिंग संस्थान को आधुनिक डिजिटल प्लेटफॉर्म और उत्कृष्ट अध्ययन सामग्री प्रदान करना है।' },
+        qualification: { type: String, default: 'B.Ed, Ethical Hacking' },
+        address: { type: String, default: 'PTCC+BBCC Chakdah Chowk madhubani bihar india 847211' },
+        message: { type: String, default: 'शिक्षा और तकनीकी कौशल हर विद्यार्थी का अधिकार है। बाल भारती कोचिंग सेंटर एवं बीबीसीसी स्किल हब विद्यार्थियों के उज्ज्वल भविष्य के लिए सदैव समर्पित है।' },
         signature: { type: String, default: '' }
     },
     // Festival Theme for Homepage Background
@@ -1695,11 +1706,16 @@ async function callGroqChat({ apiKey, prompt, history = [], systemInstruction = 
 
 // Super Admin Authentication Middleware
 function verifySuperAdmin(req, res, next) {
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+    } else if (req.query && req.query.token) {
+        token = req.query.token;
+    }
+    if (!token || token === 'null' || token === 'undefined' || !token.trim()) {
         return res.status(401).json({ success: false, message: 'Authorization token required' });
     }
-    const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         if (decoded.role !== 'superadmin') {
@@ -3016,11 +3032,12 @@ app.get('/api/public/founder', async (req, res) => {
         }
         const fp = (settings && settings.founderProfile) ? settings.founderProfile : {};
         const profile = {
-            name: fp.name && fp.name !== 'Er. R. K. Bharti' ? fp.name : 'Santosh Kumar',
-            photo: (fp.photo && !fp.photo.includes('unsplash')) ? fp.photo : '/data/photos/Santosh_Sir.jpg',
+            name: fp.name || 'Mr. Santosh Kumar',
+            photo: (fp.photo && !fp.photo.includes('unsplash')) ? fp.photo : '/santosh sir.jpeg',
             designation: fp.designation || 'Founder & Managing Director',
-            qualification: fp.qualification || 'B.Ed, EdTech Visionary & Institutional Leader',
-            message: fp.message || 'हमारा उद्देश्य प्रत्येक छात्र और कोचिंग संस्थान को आधुनिक डिजिटल प्लेटफॉर्म और उत्कृष्ट अध्ययन सामग्री प्रदान करना है।',
+            qualification: fp.qualification || 'B.Ed, Ethical Hacking',
+            address: fp.address || 'PTCC+BBCC Chakdah Chowk madhubani bihar india 847211',
+            message: fp.message || 'शिक्षा और तकनीकी कौशल हर विद्यार्थी का अधिकार है। बाल भारती कोचिंग सेंटर एवं बीबीसीसी स्किल हब विद्यार्थियों के उज्ज्वल भविष्य के लिए सदैव समर्पित है।',
             signature: fp.signature || ''
         };
         res.json({ success: true, data: profile });
