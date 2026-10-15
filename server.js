@@ -10679,6 +10679,281 @@ app.put('/api/admin/settings/templates', verifySuperAdmin, async (req, res) => {
 });
 
 // ============================================================
+// 8.15 SUPER ADMIN DUAL-DATABASE & CLOUD STORAGE METRICS ENGINE
+// ============================================================
+app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+
+        // 1. DATABASE 1: MONGODB / CREDENTIALS STATS
+        let mongoStatus = isMongoConnected ? 'connected' : 'local_fallback';
+        let mongoEngine = isMongoConnected ? 'MongoDB Atlas Cloud' : 'Local Persistent JSON Engine (portal_db.json)';
+
+        let centersCount = pdb.centers ? pdb.centers.length : 0;
+        let teachersCount = pdb.teachers ? pdb.teachers.length : 0;
+        let studentsCount = pdb.students ? pdb.students.length : 0;
+        let adminsCount = pdb.admins ? pdb.admins.length : 0;
+        let txnCount = pdb.paymentTransactions ? pdb.paymentTransactions.length : 0;
+        let ticketsCount = pdb.supportTickets ? pdb.supportTickets.length : 0;
+        let pushSubsCount = pdb.push_subscriptions ? pdb.push_subscriptions.length : 0;
+
+        if (isMongoConnected) {
+            try {
+                centersCount = await TuitionCenter.countDocuments();
+                teachersCount = await TeacherAccount.countDocuments();
+                studentsCount = await Student.countDocuments();
+                adminsCount = await Admin.countDocuments();
+                txnCount = await PaymentTransaction.countDocuments();
+                ticketsCount = await SupportTicket.countDocuments();
+            } catch (mErr) {}
+        }
+
+        let portalDbSize = 0;
+        try {
+            if (fs.existsSync(DB_FILE)) {
+                portalDbSize = fs.statSync(DB_FILE).size;
+            }
+        } catch (e) {}
+
+        const mongoCollections = [
+            { name: 'Super Admin Credentials', key: 'admins', count: adminsCount, size: `${((JSON.stringify(pdb.admins || []).length) / 1024).toFixed(1)} KB`, role: 'Platform Super Admins (Bcrypt Hash)' },
+            { name: 'Partner Coaching Centers', key: 'centers', count: centersCount, size: `${((JSON.stringify(pdb.centers || []).length) / 1024).toFixed(1)} KB`, role: 'Center Director Accounts & Credentials' },
+            { name: 'Teacher Accounts', key: 'teachers', count: teachersCount, size: `${((JSON.stringify(pdb.teachers || []).length) / 1024).toFixed(1)} KB`, role: 'Faculty Logins & Center Mapping' },
+            { name: 'Student Enrolments & Auth', key: 'students', count: studentsCount, size: `${((JSON.stringify(pdb.students || []).length) / 1024).toFixed(1)} KB`, role: 'Student Roll No, Password & Profile' },
+            { name: 'Payment Transactions Ledger', key: 'paymentTransactions', count: txnCount, size: `${((JSON.stringify(pdb.paymentTransactions || []).length) / 1024).toFixed(1)} KB`, role: 'Razorpay Receipts & 80/20 Payouts' },
+            { name: 'Support Tickets & Callbacks', key: 'supportTickets', count: ticketsCount, size: `${((JSON.stringify(pdb.supportTickets || []).length) / 1024).toFixed(1)} KB`, role: 'CRM Helpdesk & Student Inquiries' },
+            { name: 'Web Push Notification Vault', key: 'push_subscriptions', count: pushSubsCount, size: `${((JSON.stringify(pdb.push_subscriptions || []).length) / 1024).toFixed(1)} KB`, role: 'PWA Web Push Endpoints' }
+        ];
+
+        // 2. DATABASE 2: DATASTAX ASTRA DB STATS
+        let astraStatus = isAstraConnected ? 'connected' : 'disconnected';
+        let astraStats = {
+            status: astraStatus,
+            endpoint: ASTRA_DB_API_ENDPOINT,
+            keyspace: ASTRA_DB_KEYSPACE,
+            collections: []
+        };
+
+        let totalAstraDocs = 0;
+        let totalAstraBytes = 0;
+        let fileExplorerList = [];
+
+        if (isAstraConnected && astraDb) {
+            try {
+                const colsToQuery = [
+                    { id: 'bbcc_assets', label: 'Campus Photos & PDFs', type: 'image_and_pdf', desc: 'Logos, Campus Gallery Photos, PDF Books' },
+                    { id: 'bbcc_banners', label: 'Promotional Banners', type: 'banner', desc: 'Full-bleed Home & Mobile Banners' },
+                    { id: 'bbcc_live_classes', label: 'Live Video Broadcasts', type: 'live', desc: 'Real-time classroom session logs' },
+                    { id: 'bbcc_recordings', label: 'Classroom Video Archives', type: 'recording', desc: 'Recorded lectures & video replays' },
+                    { id: 'bbcc_study_materials', label: 'Central Study Notes', type: 'notes', desc: 'E-Library Notes & Course Materials' }
+                ];
+
+                for (const item of colsToQuery) {
+                    try {
+                        const col = astraDb.collection(item.id);
+                        const count = await col.countDocuments({}, 5000);
+                        totalAstraDocs += count;
+
+                        const sampleDocs = await col.find({}, { limit: 25, projection: { _id: 1, filename: 1, subDir: 1, mimeType: 1, title: 1, approxByteSize: 1, createdAt: 1, isChunked: 1, totalChunks: 1, isChunk: 1 } }).toArray();
+
+                        let colBytes = 0;
+                        sampleDocs.forEach(d => {
+                            if (!d.isChunk) {
+                                const size = d.approxByteSize || 15000;
+                                colBytes += size;
+                                fileExplorerList.push({
+                                    id: d._id || d.filename,
+                                    name: d.title || d.filename || d._id,
+                                    type: item.type,
+                                    category: item.label,
+                                    mimeType: d.mimeType || 'application/octet-stream',
+                                    storage: 'DataStax Astra DB Cloud',
+                                    sizeBytes: size,
+                                    sizeFormatted: size > 1048576 ? `${(size / 1048576).toFixed(2)} MB` : `${(size / 1024).toFixed(1)} KB`,
+                                    date: d.createdAt || 'N/A',
+                                    url: d.subDir && d.filename ? `/data/${d.subDir}/${d.filename}` : `/api/astra/asset/${d._id}`
+                                });
+                            }
+                        });
+                        totalAstraBytes += colBytes;
+
+                        astraStats.collections.push({
+                            id: item.id,
+                            name: item.label,
+                            count: count,
+                            description: item.desc,
+                            estimatedSize: colBytes > 1048576 ? `${(colBytes / 1048576).toFixed(2)} MB` : `${(colBytes / 1024).toFixed(1)} KB`
+                        });
+                    } catch (colErr) {
+                        astraStats.collections.push({
+                            id: item.id,
+                            name: item.label,
+                            count: 0,
+                            description: item.desc,
+                            error: colErr.message
+                        });
+                    }
+                }
+            } catch (aErr) {
+                console.warn('Astra stats notice:', aErr.message);
+            }
+        }
+
+        // 3. LOCAL / DISK ASSET SCAN
+        let localFilesCount = 0;
+        let localFilesBytes = 0;
+        const uploadDirs = [
+            { dir: path.join(__dirname, 'public', 'uploads'), category: 'Local Uploads' },
+            { dir: path.join(__dirname, 'public', 'data', 'branding'), category: 'Branding & Logo' },
+            { dir: path.join(__dirname, 'public', 'data', 'banners'), category: 'Local Banners' },
+            { dir: path.join(__dirname, 'public', 'data', 'photos'), category: 'Gallery Photos' },
+            { dir: path.join(__dirname, 'public', 'data', 'notes'), category: 'Study Notes' },
+            { dir: path.join(__dirname, 'public', 'data', 'materials'), category: 'Materials' }
+        ];
+
+        for (const ud of uploadDirs) {
+            try {
+                if (fs.existsSync(ud.dir)) {
+                    const files = fs.readdirSync(ud.dir);
+                    for (const f of files) {
+                        if (f.startsWith('.') || f === '.gitkeep') continue;
+                        const fullPath = path.join(ud.dir, f);
+                        const stat = fs.statSync(fullPath);
+                        if (stat.isFile()) {
+                            localFilesCount++;
+                            localFilesBytes += stat.size;
+                            if (!fileExplorerList.some(x => x.name === f)) {
+                                fileExplorerList.push({
+                                    id: f,
+                                    name: f,
+                                    type: f.endsWith('.pdf') ? 'pdf' : (f.match(/\.(png|jpg|jpeg|webp)$/i) ? 'image' : 'file'),
+                                    category: ud.category,
+                                    mimeType: f.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+                                    storage: 'Local Disk Staging (Render)',
+                                    sizeBytes: stat.size,
+                                    sizeFormatted: stat.size > 1048576 ? `${(stat.size / 1048576).toFixed(2)} MB` : `${(stat.size / 1024).toFixed(1)} KB`,
+                                    date: stat.mtime.toLocaleDateString(),
+                                    url: `/data/${path.basename(ud.dir)}/${f}`
+                                });
+                            }
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        const totalHeavyBytes = totalAstraBytes + localFilesBytes;
+        const freeTierLimitBytes = 5 * 1024 * 1024 * 1024; // 5GB Astra DB Free Tier
+        const freeTierUsedPct = ((totalAstraBytes / freeTierLimitBytes) * 100).toFixed(4);
+
+        res.json({
+            success: true,
+            timestamp: new Date().toISOString(),
+            databases: {
+                database1: {
+                    name: 'Database 1: Credentials & Auth (MongoDB)',
+                    badge: '🔐 IDs & Passwords Only',
+                    status: mongoStatus,
+                    engine: mongoEngine,
+                    totalAccounts: centersCount + teachersCount + studentsCount + adminsCount,
+                    totalStorageBytes: portalDbSize,
+                    totalStorageFormatted: portalDbSize > 1048576 ? `${(portalDbSize / 1048576).toFixed(2)} MB` : `${(portalDbSize / 1024).toFixed(1)} KB`,
+                    collections: mongoCollections
+                },
+                database2: {
+                    name: 'Database 2: DataStax Astra DB (astra.datastax.com)',
+                    badge: '⚡ Cloud Heavy Assets & Media',
+                    status: astraStatus,
+                    endpoint: ASTRA_DB_API_ENDPOINT,
+                    keyspace: ASTRA_DB_KEYSPACE,
+                    totalDocuments: totalAstraDocs,
+                    storageUsedBytes: totalAstraBytes,
+                    storageUsedFormatted: totalAstraBytes > 1048576 ? `${(totalAstraBytes / 1048576).toFixed(2)} MB` : `${(totalAstraBytes / 1024).toFixed(1)} KB`,
+                    freeTierLimit: '5,120 MB (5 GB Free Serverless Quota)',
+                    freeTierUsedPercent: freeTierUsedPct,
+                    collections: astraStats.collections
+                }
+            },
+            summary: {
+                totalFiles: fileExplorerList.length,
+                totalHeavyStorageFormatted: totalHeavyBytes > 1048576 ? `${(totalHeavyBytes / 1048576).toFixed(2)} MB` : `${(totalHeavyBytes / 1024).toFixed(1)} KB`,
+                totalCredentialsStorageFormatted: portalDbSize > 1048576 ? `${(portalDbSize / 1048576).toFixed(2)} MB` : `${(portalDbSize / 1024).toFixed(1)} KB`,
+                localCachedFiles: localFilesCount,
+                cloudAstraDocuments: totalAstraDocs
+            },
+            files: fileExplorerList
+        });
+    } catch (err) {
+        console.error('Error fetching database stats:', err);
+        res.status(500).json({ success: false, message: 'Failed to retrieve database stats: ' + err.message });
+    }
+});
+
+// 8.16 SUPER ADMIN DATABASE REAL-TIME PING TEST
+app.post('/api/admin/database/test-ping', verifySuperAdmin, async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        mongo: { status: 'checking', latencyMs: 0 },
+        astra: { status: 'checking', latencyMs: 0 }
+    };
+
+    const tMongoStart = Date.now();
+    try {
+        if (isMongoConnected && mongoose.connection.readyState === 1) {
+            await mongoose.connection.db.admin().ping();
+            results.mongo = {
+                status: 'ONLINE',
+                engine: 'MongoDB Atlas Cloud',
+                latencyMs: Date.now() - tMongoStart,
+                message: 'MongoDB connection is healthy and responsive.'
+            };
+        } else {
+            loadPortalDb();
+            results.mongo = {
+                status: 'ONLINE (Local Fallback)',
+                engine: 'Local Persistent JSON Engine',
+                latencyMs: Date.now() - tMongoStart,
+                message: 'Local credentials engine is operating normally.'
+            };
+        }
+    } catch (mErr) {
+        results.mongo = {
+            status: 'ERROR',
+            latencyMs: Date.now() - tMongoStart,
+            message: mErr.message
+        };
+    }
+
+    const tAstraStart = Date.now();
+    try {
+        if (isAstraConnected && astraDb) {
+            await astraDb.listCollections();
+            results.astra = {
+                status: 'ONLINE',
+                engine: 'DataStax Astra DB (astra.datastax.com)',
+                latencyMs: Date.now() - tAstraStart,
+                endpoint: ASTRA_DB_API_ENDPOINT,
+                message: 'Astra DB Serverless Cloud is active and connected.'
+            };
+        } else {
+            results.astra = {
+                status: 'NOT CONNECTED',
+                latencyMs: 0,
+                message: 'Astra DB client is not initialized. Please verify ASTRA_DB_APPLICATION_TOKEN in Render.'
+            };
+        }
+    } catch (aErr) {
+        results.astra = {
+            status: 'ERROR',
+            latencyMs: Date.now() - tAstraStart,
+            message: aErr.message
+        };
+    }
+
+    res.json({ success: true, results });
+});
+
+// ============================================================
 // 9. CLEAN SINGLE-PAGE APPS & URL ROUTING
 // ============================================================
 app.get('/institute', (req, res) => res.sendFile(path.join(__dirname, 'public', 'institute.html')));
