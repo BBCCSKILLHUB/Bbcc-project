@@ -30,7 +30,16 @@
       "subtitle": "This is to certify that the student has been officially registered and verified under BBCC Affiliated Center Network.",
       "signatoryTitle": "Chairman & Managing Director, BBCC Board of Skill Development"
     },
-    "banners": [],
+    "banners": [
+      {
+        "_id": "6ad09fe057b2ce0b3374d06a",
+        "title": "bbcc",
+        "subtitle": "Official Educational Platform",
+        "image": "/data/branding/central_banner_2531_1792057312533_8e69b9.jpg",
+        "link": "JOIN BBCC SKILL HUB",
+        "uploadedAt": "2026-10-15T09:41:52.542Z"
+      }
+    ],
     "gallery": [],
     "youtubeRefreshToken": "",
     "youtubeChannelId": "UCuDH2n6UuTPUTOk-URz9qMA",
