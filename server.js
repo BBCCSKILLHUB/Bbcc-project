@@ -2297,71 +2297,108 @@ app.get('/api/public/promotional-banners', async (req, res) => {
             if (cached) return res.json({ success: true, data: cached });
         }
 
-        let centers = [];
-        if (isMongoConnected) {
-            try {
-                centers = await TuitionCenter.find({ isBlocked: false, 'promotionalBanners.0': { $exists: true } }, { centerName: 1, username: 1, clogo: 1, promotionalBanners: 1 }).lean();
-            } catch(e) {}
-        }
-        if (!centers || centers.length === 0) {
-            const pdb = loadPortalDb();
-            centers = pdb.centers || [];
-        }
-
         const now = new Date();
         const activeBanners = [];
-        centers.forEach(c => {
+        const seenBanners = new Set();
+
+        // 1. Dual aggregation of Coaching Centers (MongoDB + portal_db.json)
+        let mongoCenters = [];
+        if (isMongoConnected) {
+            try {
+                mongoCenters = await TuitionCenter.find({ isBlocked: { $ne: true } }, { centerName: 1, username: 1, clogo: 1, promotionalBanners: 1 }).lean();
+            } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const jsonCenters = (pdb && pdb.centers) ? pdb.centers.filter(c => !c.isBlocked) : [];
+
+        // Combine centers, prioritizing populated promotional banners
+        const allCenters = [...(mongoCenters || []), ...(jsonCenters || [])];
+
+        allCenters.forEach(c => {
             (c.promotionalBanners || []).forEach(b => {
-                const isExpired = b.expiresAt && new Date(b.expiresAt) < now;
-                if (b.active !== false && b.image && !isExpired) {
-                    const daysLeft = b.expiresAt ? Math.max(1, Math.ceil((new Date(b.expiresAt) - now) / (1000 * 60 * 60 * 24))) : 30;
+                if (!b || !b.image || typeof b.image !== 'string' || !b.image.trim()) return;
+                const imgKey = b.image.trim();
+                const bIdKey = b._id ? b._id.toString() : '';
+                const dedupKey = bIdKey ? `${c._id}_${bIdKey}` : `${c.username || c.centerName}_${imgKey}`;
+                if (seenBanners.has(dedupKey) || seenBanners.has(imgKey)) return;
+
+                const isExpired = b.expiresAt && !isNaN(new Date(b.expiresAt).getTime()) && new Date(b.expiresAt) < now;
+                if (b.active !== false && !isExpired) {
+                    seenBanners.add(dedupKey);
+                    seenBanners.add(imgKey);
+                    const daysLeft = b.expiresAt && !isNaN(new Date(b.expiresAt).getTime())
+                        ? Math.max(1, Math.ceil((new Date(b.expiresAt) - now) / (1000 * 60 * 60 * 24)))
+                        : 30;
+
                     activeBanners.push({
-                        _id: b._id,
-                        centerId: c._id,
-                        centerName: c.centerName,
-                        username: c.username,
-                        clogo: c.clogo,
-                        title: b.title || c.centerName,
-                        subtitle: b.subtitle || 'Affiliated Study Partner',
-                        image: b.image,
-                        link: b.link || `/institute.html?id=${c.username}`,
-                        expiresAt: b.expiresAt,
+                        _id: b._id || ('b_' + Math.random().toString(36).substr(2, 9)),
+                        centerId: c._id || '',
+                        centerName: c.centerName || 'Verified Institute',
+                        username: c.username || '',
+                        clogo: c.clogo || '/data/branding/logo.png',
+                        title: (b.title || c.centerName || 'Coaching Institute Announcement').trim(),
+                        subtitle: (b.subtitle || 'Affiliated Study Partner • Admissions Open').trim(),
+                        image: imgKey,
+                        link: b.link || (c.username ? `/institute.html?id=${c.username}` : '#institutes'),
+                        expiresAt: b.expiresAt || null,
                         daysLeft: daysLeft
                     });
                 }
             });
         });
 
-        // Also include Central BBCC SKILL HUB Promotional Banners
-        try {
-            let settings = null;
-            if (isMongoConnected) {
-                settings = await Settings.findOne().lean();
-            }
-            if (!settings) {
-                const pdb = loadPortalDb();
-                settings = pdb.settings || {};
-            }
-            if (settings && settings.banners && settings.banners.length > 0) {
-                settings.banners.forEach((b, idx) => {
-                    if (b.image) {
-                        activeBanners.unshift({
-                            _id: b._id ? b._id.toString() : ('central_b_' + idx),
-                            centerId: 'bbcc_central',
-                            centerName: 'BBCC SKILL HUB Central Directorate',
-                            username: 'bbcc',
-                            clogo: '/data/branding/logo.png',
-                            title: b.title || 'BBCC SKILL HUB Official Announcement',
-                            subtitle: b.subtitle || 'Platform-Wide Special Program',
-                            image: b.image,
-                            link: b.link || '/',
-                            isCentralAdmin: true,
-                            daysLeft: 30
-                        });
-                    }
-                });
-            }
-        } catch(bErr) {}
+        // 2. Dual aggregation of Central Promotional Banners (MongoDB Settings + portal_db.json settings)
+        let mongoSettings = null;
+        if (isMongoConnected) {
+            try {
+                mongoSettings = await Settings.findOne().lean();
+            } catch(e) {}
+        }
+        const jsonSettings = (pdb && pdb.settings) ? pdb.settings : {};
+        const centralBannersList = [
+            ...((mongoSettings && mongoSettings.banners) || []),
+            ...((jsonSettings && jsonSettings.banners) || [])
+        ];
+
+        centralBannersList.forEach((b, idx) => {
+            if (!b || !b.image || typeof b.image !== 'string' || !b.image.trim()) return;
+            const imgKey = b.image.trim();
+            const bIdKey = b._id ? b._id.toString() : ('central_b_' + idx);
+            if (seenBanners.has(imgKey) || seenBanners.has(bIdKey)) return;
+            seenBanners.add(imgKey);
+            seenBanners.add(bIdKey);
+
+            activeBanners.unshift({
+                _id: bIdKey,
+                centerId: 'bbcc_central',
+                centerName: 'BBCC SKILL HUB Central Directorate',
+                username: 'bbcc',
+                clogo: '/data/branding/logo.png',
+                title: (b.title || 'BBCC SKILL HUB Official Announcement').trim(),
+                subtitle: (b.subtitle || 'Platform-Wide Special Program & Scholarship Alert').trim(),
+                image: imgKey,
+                link: b.link || '/',
+                isCentralAdmin: true,
+                daysLeft: 30
+            });
+        });
+
+        // Fallback default banner if nothing active uploaded
+        if (activeBanners.length === 0) {
+            activeBanners.push({
+                _id: 'default_bbcc_hero_banner',
+                centerId: 'bbcc_central',
+                centerName: 'BBCC SKILL HUB Central Campus',
+                username: 'bbcc',
+                clogo: '/data/branding/logo.png',
+                title: 'BBCC SKILL HUB Digital Platform',
+                subtitle: 'National Institutional Network & Certified Syllabus Repository',
+                image: '/data/photos/bbcc_campus.png',
+                link: '#courses',
+                isCentralAdmin: true,
+                daysLeft: 30
+            });
+        }
 
         setCache('public_banners', activeBanners, 3000);
         res.json({ success: true, data: activeBanners });
@@ -8985,7 +9022,8 @@ app.post('/api/admin/recording/delete', verifySuperAdmin, async (req, res) => {
 // Super Admin Upload BBCC SKILL HUB Central Promotional Banner
 app.post('/api/admin/banners/central', verifySuperAdmin, async (req, res) => {
     try {
-        const { title, subtitle, image, link } = req.body;
+        const { title, subtitle, link } = req.body;
+        const image = req.body.image || req.body.fileData || req.body.file;
         if (!image) return res.status(400).json({ success: false, message: 'Banner image is required' });
 
         let savedImage = image;
@@ -8996,29 +9034,38 @@ app.post('/api/admin/banners/central', verifySuperAdmin, async (req, res) => {
             } catch (e) {}
         }
 
-        let settings = await Settings.findOne();
-        if (!settings) settings = await Settings.create({});
-
-        if (!settings.banners) settings.banners = [];
-        settings.banners.push({
+        const newBanner = {
+            _id: new mongoose.Types.ObjectId().toString(),
             title: (title || 'BBCC SKILL HUB Announcement').trim(),
             subtitle: (subtitle || 'Official Educational Platform').trim(),
             image: savedImage,
-            link: (link || '/').trim()
-        });
+            link: (link || '/').trim(),
+            uploadedAt: new Date()
+        };
 
-        await settings.save();
+        if (isMongoConnected) {
+            try {
+                let settings = await Settings.findOne();
+                if (!settings) settings = await Settings.create({});
+                if (!settings.banners) settings.banners = [];
+                settings.banners.push(newBanner);
+                await settings.save();
+            } catch(e) {}
+        }
 
         // Also sync to portal_db.json
         try {
             const db = loadPortalDb();
             if (!db.settings) db.settings = {};
-            db.settings.banners = settings.banners;
+            if (!db.settings.banners) db.settings.banners = [];
+            db.settings.banners.push(newBanner);
             await savePortalDb(db);
         } catch(e) {}
 
+        clearCache('public_banners');
         clearCache();
-        res.json({ success: true, message: 'BBCC SKILL HUB Central Promotional Banner published successfully!', banners: settings.banners });
+        broadcastRealtimeEvent('banners_updated');
+        res.json({ success: true, message: 'BBCC SKILL HUB Central Promotional Banner published successfully!', banner: newBanner });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -9028,22 +9075,28 @@ app.post('/api/admin/banners/central', verifySuperAdmin, async (req, res) => {
 app.delete('/api/admin/banners/central/:bid', verifySuperAdmin, async (req, res) => {
     try {
         const bid = req.params.bid;
-        const settings = await Settings.findOne();
-        if (!settings) return res.status(404).json({ success: false, message: 'Settings not found' });
-
-        settings.banners = (settings.banners || []).filter(b => b._id.toString() !== bid && ('central_b_' + bid) !== bid);
-        await settings.save();
+        if (isMongoConnected) {
+            try {
+                const settings = await Settings.findOne();
+                if (settings && settings.banners) {
+                    settings.banners = settings.banners.filter(b => b._id && b._id.toString() !== bid && ('central_b_' + bid) !== bid && (b._id !== bid));
+                    await settings.save();
+                }
+            } catch(e) {}
+        }
 
         try {
             const db = loadPortalDb();
-            if (db.settings) {
-                db.settings.banners = settings.banners;
+            if (db.settings && db.settings.banners) {
+                db.settings.banners = db.settings.banners.filter(b => (b._id && b._id.toString() !== bid) && ('central_b_' + bid) !== bid && (b._id !== bid));
                 await savePortalDb(db);
             }
         } catch(e) {}
 
+        clearCache('public_banners');
         clearCache();
-        res.json({ success: true, message: 'Central banner removed successfully', banners: settings.banners });
+        broadcastRealtimeEvent('banners_updated');
+        res.json({ success: true, message: 'Central banner removed from platform network' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -10259,45 +10312,73 @@ app.get('/api/admin/students', verifySuperAdmin, async (req, res) => {
 // 8.14 Get All Promotional Banners from All Centers for Super Admin Review
 app.get('/api/admin/banners', verifySuperAdmin, async (req, res) => {
     try {
-        const centers = await TuitionCenter.find({}, { centerName: 1, username: 1, promotionalBanners: 1 });
+        let centers = [];
+        if (isMongoConnected) {
+            try {
+                centers = await TuitionCenter.find({}, { centerName: 1, username: 1, promotionalBanners: 1 }).lean();
+            } catch(e) {}
+        }
+        const pdb = loadPortalDb();
+        const jsonCenters = pdb.centers || [];
+        const allCenters = [...(centers || []), ...jsonCenters];
+
         const list = [];
-        centers.forEach(c => {
+        const seenBanners = new Set();
+
+        allCenters.forEach(c => {
             (c.promotionalBanners || []).forEach(b => {
+                if (!b || !b.image || typeof b.image !== 'string' || !b.image.trim()) return;
+                const bKey = (b._id ? b._id.toString() : '') || b.image;
+                if (seenBanners.has(bKey)) return;
+                seenBanners.add(bKey);
+
                 list.push({
-                    _id: b._id,
-                    centerId: c._id,
-                    centerName: c.centerName,
-                    username: c.username,
-                    title: b.title,
-                    subtitle: b.subtitle,
+                    _id: b._id || bKey,
+                    centerId: c._id || '',
+                    centerName: c.centerName || 'Coaching Center',
+                    username: c.username || '',
+                    title: b.title || c.centerName || 'Promotional Banner',
+                    subtitle: b.subtitle || '',
                     image: b.image,
-                    link: b.link,
+                    link: b.link || '',
                     active: b.active !== false,
-                    uploadedAt: b.uploadedAt
+                    uploadedAt: b.uploadedAt || new Date()
                 });
             });
         });
 
         // Also include BBCC SKILL HUB Central Promotional Banners
         try {
-            const settings = await Settings.findOne().lean();
-            if (settings && settings.banners) {
-                settings.banners.forEach((b, idx) => {
-                    list.unshift({
-                        _id: b._id ? b._id.toString() : ('central_b_' + idx),
-                        centerId: 'bbcc_central',
-                        centerName: 'BBCC SKILL HUB Central Directorate',
-                        username: 'bbcc',
-                        title: b.title || 'BBCC Official Announcement',
-                        subtitle: b.subtitle || 'Platform Announcement',
-                        image: b.image,
-                        link: b.link,
-                        active: true,
-                        isCentral: true,
-                        uploadedAt: b.uploadedAt || new Date()
-                    });
-                });
+            let settings = null;
+            if (isMongoConnected) {
+                try { settings = await Settings.findOne().lean(); } catch(e) {}
             }
+            const jsonSettings = pdb.settings || {};
+            const centralBanners = [
+                ...((settings && settings.banners) || []),
+                ...((jsonSettings && jsonSettings.banners) || [])
+            ];
+
+            centralBanners.forEach((b, idx) => {
+                if (!b || !b.image || typeof b.image !== 'string' || !b.image.trim()) return;
+                const bKey = (b._id ? b._id.toString() : ('central_b_' + idx)) || b.image;
+                if (seenBanners.has(bKey)) return;
+                seenBanners.add(bKey);
+
+                list.unshift({
+                    _id: bKey,
+                    centerId: 'bbcc_central',
+                    centerName: 'BBCC SKILL HUB Central Directorate',
+                    username: 'bbcc',
+                    title: b.title || 'BBCC Official Announcement',
+                    subtitle: b.subtitle || 'Platform Announcement',
+                    image: b.image,
+                    link: b.link || '/',
+                    active: true,
+                    isCentral: true,
+                    uploadedAt: b.uploadedAt || new Date()
+                });
+            });
         } catch(e) {}
 
         res.json({ success: true, data: list });
@@ -10309,10 +10390,30 @@ app.get('/api/admin/banners', verifySuperAdmin, async (req, res) => {
 // 8.15 Delete Banner from Super Admin Console
 app.delete('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) => {
     try {
-        const center = await TuitionCenter.findById(req.params.cid);
-        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
-        center.promotionalBanners = (center.promotionalBanners || []).filter(b => b._id.toString() !== req.params.bid);
-        await center.save();
+        const { cid, bid } = req.params;
+        if (isMongoConnected) {
+            try {
+                let center = null;
+                if (mongoose.Types.ObjectId.isValid(cid)) center = await TuitionCenter.findById(cid);
+                if (!center) center = await TuitionCenter.findOne({ username: cid });
+                if (center) {
+                    center.promotionalBanners = (center.promotionalBanners || []).filter(b => b._id.toString() !== bid && b._id !== bid);
+                    await center.save();
+                }
+            } catch(e) {}
+        }
+        try {
+            const pdb = loadPortalDb();
+            const pdbCenter = (pdb.centers || []).find(c => (c._id && c._id.toString() === cid) || c.username === cid);
+            if (pdbCenter && pdbCenter.promotionalBanners) {
+                pdbCenter.promotionalBanners = pdbCenter.promotionalBanners.filter(b => b._id && b._id.toString() !== bid && b._id !== bid);
+                await savePortalDb(pdb);
+            }
+        } catch(e) {}
+
+        clearCache('public_banners');
+        clearCache();
+        broadcastRealtimeEvent('banners_updated');
         res.json({ success: true, message: 'Banner removed by Super Admin' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
