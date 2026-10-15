@@ -246,7 +246,19 @@
                 <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
-                <i class="fas fa-sliders"></i> Board & Gateway Settings
+                <i class="fas fa-sliders" style="color:#10b981;"></i> Board CMS & Platform
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('gateways')">
+                <i class="fas fa-credit-card" style="color:#f59e0b;"></i> Payment & AI Gateways
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('founder')">
+                <i class="fas fa-user-tie" style="color:#ec4899;"></i> Founder & Leadership
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('templates')">
+                <i class="fas fa-certificate" style="color:#8b5cf6;"></i> Templates & Themes
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('security')">
+                <i class="fas fa-shield-halved" style="color:#ef4444;"></i> Security & Data Reset
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('affiliations')">
                 <i class="fas fa-handshake"></i> Affiliations Desk
@@ -540,65 +552,101 @@
             </div>
 
             <!-- TAB 4: PLATFORM CMS, SECURITY & GATEWAY SETTINGS -->
+            <!-- TAB: PLATFORM CMS & BRANDING -->
             <div class="admin-tab" id="tab-settings">
-                <!-- 1. Super Admin Security Desk -->
-                <div class="card-console" style="margin-bottom: 24px; border-color: rgba(239, 68, 68, 0.35);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
-                        <div>
-                            <h3 style="font-family:'Cinzel',serif; font-size:19px; margin:0; color:#f87171;"><i class="fas fa-key"></i> Super Admin Security & Password Desk</h3>
-                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Change your Super Admin Username / ID and master login password.</p>
-                        </div>
-                        <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
-                            SECURITY DESK
-                        </span>
+                <!-- 4. Global Platform CMS & Branding -->
+                <div class="card-console" style="border-left:4px solid #10b981;">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#34d399; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-palette"></i> Platform CMS, Branding & Homepage Theme
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize website title, tagline, hero text, logo, breaking news marquee, footer notice, and contact details. Saving CMS will never affect your API keys.</p>
                     </div>
 
-                    <form onsubmit="handleAdminCredentialsChange(event)">
+                    <form onsubmit="saveGlobalSettings(event)">
+                        <!-- Branding & Titles -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Website Title *</label>
+                                <input type="text" id="setBoardTitle" required placeholder="BBCC SKILL HUB" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Subtitle / Tagline *</label>
+                                <input type="text" id="setTagline" required placeholder="Digital Skill & Coaching Institute Platform" class="console-input">
+                            </div>
+                        </div>
+
+                        <!-- Hero Live CMS -->
+                        <div style="display:grid; grid-template-columns:1fr 2fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Hero Section Main Headline</label>
+                                <input type="text" id="setHeroTitle" placeholder="Empowering Certified Learning & Partner Institutes" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Hero Description Paragraph</label>
+                                <input type="text" id="setHeroDesc" placeholder="Explore authentic textbook syllabus notes, discover verified faculty..." class="console-input">
+                            </div>
+                        </div>
+
+                        <!-- Footer Text & Logo Upload -->
+                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Custom Footer Notice Text</label>
+                                <input type="text" id="setFooterText" placeholder="BBCC SKILL HUB Digital Platform. Centralized Educational Verification..." class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Logo (Current & Upload)</label>
+                                <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+                                    <div style="width:48px; height:48px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                                        <img id="boardLogoCurrentImg" src="/data/branding/logo.png" alt="Board Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.onerror=null; this.src='/favicon.ico';">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <input type="file" id="setBoardLogoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleBoardLogoUpload(event)">
+                                        <input type="hidden" id="setBoardLogoBase64">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contacts -->
                         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
                             <div>
-                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Current Password *</label>
-                                <input type="password" id="adminCurrPass" required placeholder="Verify current password" class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Official Support Phone</label>
+                                <input type="text" id="setPhone" placeholder="+91 98765 43210" class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">New Admin ID / Username</label>
-                                <input type="text" id="adminNewId" placeholder="Leave blank to keep same" class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Official Email</label>
+                                <input type="email" id="setEmail" placeholder="board@bbccskillhub.org" class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">New Security Password</label>
-                                <input type="password" id="adminNewPass" placeholder="Min 6 characters" class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Central Headquarters Address</label>
+                                <input type="text" id="setAddress" placeholder="Central Directorate, New Delhi, India" class="console-input">
                             </div>
                         </div>
-                        <button type="submit" id="btnAdminCredSubmit" class="btn-aurora" style="background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; border:none;">
-                            <i class="fas fa-shield-alt"></i> Update Super Admin Credentials
-                        </button>
+
+                        <!-- Marquee & Affiliation Fee -->
+                        <div style="display:grid; grid-template-columns:3fr 1fr; gap:14px; margin-bottom:16px;">
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Running Breaking News Marquee (Homepage Ticker)</label>
+                                <input type="text" id="setNewsMarquee" placeholder="📢 Admissions Open 2026-27 Across All BBCC Certified Centers..." class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Affiliation Fee in ₹ *</label>
+                                <input type="number" id="setAffFee" required min="0" value="999" class="console-input">
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save Platform CMS & Branding
+                            </button>
+                        </div>
                     </form>
                 </div>
+            </div>
 
-                <!-- 1B. Master Data Format & Factory Reset Desk (MongoDB & GitHub Cloud) -->
-                <div class="card-console" style="margin-bottom: 24px; border-left:4px solid #ef4444; background:rgba(239,68,68,0.04);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
-                        <div>
-                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-trash-can"></i> Master Data Format & Factory Reset (MongoDB & GitHub Cloud)
-                            </h3>
-                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
-                                Wipes all coaching centers, students, tickets, inquiries, live classes, payouts, and uploaded files across MongoDB and GitHub.
-                            </p>
-                        </div>
-                        <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
-                            DANGER ZONE
-                        </span>
-                    </div>
-
-                    <div style="background:rgba(0,0,0,0.25); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.6;">
-                        <strong style="color:#34d399;"><i class="fas fa-shield-alt"></i> सुरक्षित Admin खाता:</strong> आपका वर्तमान Admin ID एवं पासवर्ड कभी फॉर्मेट नहीं होगा। डिफ़ॉल्ट बैकडोर पासवर्ड (<code>admin123</code>) पूरी तरह निष्क्रिय कर दिया गया है ताकि केवल आपका वास्तविक पासवर्ड ही काम करे।
-                    </div>
-
-                    <button type="button" onclick="openFormatDataModal()" class="btn-aurora" style="background:linear-gradient(135deg, #dc2626, #991b1b); color:#fff; border:none; font-weight:700;">
-                        <i class="fas fa-triangle-exclamation"></i> Open Master Data Format Desk
-                    </button>
-                </div>
-
+            <!-- TAB: PAYMENT & AI CLOUD GATEWAYS -->
+            <div class="admin-tab" id="tab-gateways">
                 <!-- 2. Groq Cloud AI Setup (Free Llama 3.3 70B & Llama 3.1 8B - High Speed & High Limit) -->
                 <div class="card-console" style="margin-bottom:20px; border-left:4px solid #f97316;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
@@ -813,97 +861,65 @@
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- 4. Global Platform CMS & Branding -->
-                <div class="card-console" style="border-left:4px solid #10b981;">
+            <!-- TAB: FOUNDER & LEADERSHIP PROFILE -->
+            <div class="admin-tab" id="tab-founder">
+                <!-- 6. Founder & Leadership Profile -->
+                <div class="card-console" style="border-left:4px solid #ec4899;">
                     <div style="margin-bottom:16px;">
-                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#34d399; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-palette"></i> Platform CMS, Branding & Homepage Theme
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f472b6; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-user-tie"></i> BBCC Founder & Leadership Profile
                         </h3>
-                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize website title, tagline, hero text, logo, breaking news marquee, footer notice, and contact details. Saving CMS will never affect your API keys.</p>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Appears prominently on the public homepage with photo, name, designation, qualification, vision statement, and digital signature.</p>
                     </div>
-
-                    <form onsubmit="saveGlobalSettings(event)">
-                        <!-- Branding & Titles -->
+                    <form onsubmit="saveFounderProfile(event)">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Website Title *</label>
-                                <input type="text" id="setBoardTitle" required placeholder="BBCC SKILL HUB" class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Name *</label>
+                                <input type="text" id="setFounderName" required value="Mr. Santosh Kumar" placeholder="Mr. Santosh Kumar" class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Subtitle / Tagline *</label>
-                                <input type="text" id="setTagline" required placeholder="Digital Skill & Coaching Institute Platform" class="console-input">
-                            </div>
-                        </div>
-
-                        <!-- Hero Live CMS -->
-                        <div style="display:grid; grid-template-columns:1fr 2fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Hero Section Main Headline</label>
-                                <input type="text" id="setHeroTitle" placeholder="Empowering Certified Learning & Partner Institutes" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Hero Description Paragraph</label>
-                                <input type="text" id="setHeroDesc" placeholder="Explore authentic textbook syllabus notes, discover verified faculty..." class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Designation / Title *</label>
+                                <input type="text" id="setFounderDesignation" required placeholder="Founder & Managing Director" class="console-input">
                             </div>
                         </div>
-
-                        <!-- Footer Text & Logo Upload -->
-                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Custom Footer Notice Text</label>
-                                <input type="text" id="setFooterText" placeholder="BBCC SKILL HUB Digital Platform. Centralized Educational Verification..." class="console-input">
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Qualification / Background</label>
+                                <input type="text" id="setFounderQualification" value="B.Ed, Ethical Hacking" placeholder="B.Ed, Ethical Hacking" class="console-input">
                             </div>
                             <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Platform Logo (Current & Upload)</label>
+                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Photo (Current & Upload)</label>
                                 <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
-                                    <div style="width:48px; height:48px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                                        <img id="boardLogoCurrentImg" src="/data/branding/logo.png" alt="Board Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.onerror=null; this.src='/favicon.ico';">
+                                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.06); border:2px solid var(--admin-gold); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                                        <img id="founderPhotoCurrentImg" src="/santosh sir.jpeg" onerror="this.onerror=null; this.src='/data/photos/Santosh_Sir.jpg';" alt="Founder Photo" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='/favicon.ico';">
                                     </div>
                                     <div style="flex:1;">
-                                        <input type="file" id="setBoardLogoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleBoardLogoUpload(event)">
-                                        <input type="hidden" id="setBoardLogoBase64">
+                                        <input type="file" id="setFounderPhotoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleFounderPhotoUpload(event)">
+                                        <input type="hidden" id="setFounderPhotoBase64">
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Contacts -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Official Support Phone</label>
-                                <input type="text" id="setPhone" placeholder="+91 98765 43210" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Official Email</label>
-                                <input type="email" id="setEmail" placeholder="board@bbccskillhub.org" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Central Headquarters Address</label>
-                                <input type="text" id="setAddress" placeholder="Central Directorate, New Delhi, India" class="console-input">
-                            </div>
+                        
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Campus / Office Address *</label>
+                            <input type="text" id="setFounderAddress" value="PTCC+BBCC Chakdah Chowk madhubani bihar india 847211" required class="console-input" placeholder="PTCC+BBCC Chakdah Chowk madhubani bihar india 847211">
                         </div>
-
-                        <!-- Marquee & Affiliation Fee -->
-                        <div style="display:grid; grid-template-columns:3fr 1fr; gap:14px; margin-bottom:16px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Running Breaking News Marquee (Homepage Ticker)</label>
-                                <input type="text" id="setNewsMarquee" placeholder="📢 Admissions Open 2026-27 Across All BBCC Certified Centers..." class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Affiliation Fee in ₹ *</label>
-                                <input type="number" id="setAffFee" required min="0" value="999" class="console-input">
-                            </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder's Vision / Mission Message</label>
+                            <textarea id="setFounderMessage" rows="3" class="console-input" placeholder="Our mission at BBCC SKILL HUB is to empower every coaching center..."></textarea>
                         </div>
-
-                        <div>
-                            <button type="submit" class="btn-aurora btn-gold">
-                                <i class="fas fa-save"></i> Save Platform CMS & Branding
-                            </button>
-                        </div>
+                        <button type="submit" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save Founder Profile
+                        </button>
                     </form>
                 </div>
+            </div>
 
+            <!-- TAB: TEMPLATES & FESTIVAL THEMES -->
+            <div class="admin-tab" id="tab-templates">
                 <!-- 5. Festival-Adaptive Background Theme Selector -->
                 <div class="card-console" style="border-left:4px solid #f59e0b;">
                     <div style="margin-bottom:16px;">
@@ -933,54 +949,7 @@
                     </form>
                 </div>
 
-                <!-- 6. Founder & Leadership Profile -->
-                <div class="card-console" style="border-left:4px solid #ec4899;">
-                    <div style="margin-bottom:16px;">
-                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f472b6; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-user-tie"></i> BBCC Founder & Leadership Profile
-                        </h3>
-                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Appears prominently on the public homepage with photo, name, designation, qualification, vision statement, and digital signature.</p>
-                    </div>
-                    <form onsubmit="saveFounderProfile(event)">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Name *</label>
-                                <input type="text" id="setFounderName" required placeholder="e.g. Er. R. K. Bharti" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Designation / Title *</label>
-                                <input type="text" id="setFounderDesignation" required placeholder="Founder & Managing Director" class="console-input">
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Qualification / Background</label>
-                                <input type="text" id="setFounderQualification" placeholder="M.Tech, Educational Reformer" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder Photo (Current & Upload)</label>
-                                <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
-                                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.06); border:2px solid var(--admin-gold); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                                        <img id="founderPhotoCurrentImg" src="/data/photos/Santosh_Sir.jpg" alt="Founder Photo" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='/favicon.ico';">
-                                    </div>
-                                    <div style="flex:1;">
-                                        <input type="file" id="setFounderPhotoFile" accept="image/*" class="console-input" style="padding:6px; font-size:12px;" onchange="handleFounderPhotoUpload(event)">
-                                        <input type="hidden" id="setFounderPhotoBase64">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="margin-bottom:14px;">
-                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Founder's Vision / Mission Message</label>
-                            <textarea id="setFounderMessage" rows="3" class="console-input" placeholder="Our mission at BBCC SKILL HUB is to empower every coaching center..."></textarea>
-                        </div>
-                        <button type="submit" class="btn-aurora btn-gold">
-                            <i class="fas fa-save"></i> Save Founder Profile
-                        </button>
-                    </form>
-                </div>
-
-                <!-- 7. Official Bill / Invoice Template Designer -->
+<!-- 7. Official Bill / Invoice Template Designer -->
                 <div class="card-console" style="border-left:4px solid #3b82f6;">
                     <div style="margin-bottom:16px;">
                         <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#60a5fa; display:flex; align-items:center; gap:8px;">
@@ -1064,6 +1033,67 @@
                             <i class="fas fa-save"></i> Save Certificate Template
                         </button>
                     </form>
+                </div>
+            </div>
+
+            <!-- TAB: SECURITY & MASTER DATA RESET -->
+            <div class="admin-tab" id="tab-security">
+                <!-- 1. Super Admin Security Desk -->
+                <div class="card-console" style="margin-bottom: 24px; border-color: rgba(239, 68, 68, 0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:19px; margin:0; color:#f87171;"><i class="fas fa-key"></i> Super Admin Security & Password Desk</h3>
+                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">Change your Super Admin Username / ID and master login password.</p>
+                        </div>
+                        <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                            SECURITY DESK
+                        </span>
+                    </div>
+
+                    <form onsubmit="handleAdminCredentialsChange(event)">
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Current Password *</label>
+                                <input type="password" id="adminCurrPass" required placeholder="Verify current password" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">New Admin ID / Username</label>
+                                <input type="text" id="adminNewId" placeholder="Leave blank to keep same" class="console-input">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">New Security Password</label>
+                                <input type="password" id="adminNewPass" placeholder="Min 6 characters" class="console-input">
+                            </div>
+                        </div>
+                        <button type="submit" id="btnAdminCredSubmit" class="btn-aurora" style="background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; border:none;">
+                            <i class="fas fa-shield-alt"></i> Update Super Admin Credentials
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 1B. Master Data Format & Factory Reset Desk (MongoDB & GitHub Cloud) -->
+                <div class="card-console" style="margin-bottom: 24px; border-left:4px solid #ef4444; background:rgba(239,68,68,0.04);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-trash-can"></i> Master Data Format & Factory Reset (MongoDB & GitHub Cloud)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Wipes all coaching centers, students, tickets, inquiries, live classes, payouts, and uploaded files across MongoDB and GitHub.
+                            </p>
+                        </div>
+                        <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                            DANGER ZONE
+                        </span>
+                    </div>
+
+                    <div style="background:rgba(0,0,0,0.25); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.6;">
+                        <strong style="color:#34d399;"><i class="fas fa-shield-alt"></i> सुरक्षित Admin खाता:</strong> आपका वर्तमान Admin ID एवं पासवर्ड कभी फॉर्मेट नहीं होगा। डिफ़ॉल्ट बैकडोर पासवर्ड (<code>admin123</code>) पूरी तरह निष्क्रिय कर दिया गया है ताकि केवल आपका वास्तविक पासवर्ड ही काम करे।
+                    </div>
+
+                    <button type="button" onclick="openFormatDataModal()" class="btn-aurora" style="background:linear-gradient(135deg, #dc2626, #991b1b); color:#fff; border:none; font-weight:700;">
+                        <i class="fas fa-triangle-exclamation"></i> Open Master Data Format Desk
+                    </button>
                 </div>
             </div>
 
@@ -2564,7 +2594,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ confirmation: 'FORMAT DATA' })
                 });
@@ -2629,7 +2659,7 @@
             if (tId === 'gallery') loadAdminGallery();
             if (tId === 'students') loadStudents();
             if (tId === 'database-hub') loadDatabaseStats();
-            if (tId === 'settings') loadSettingsData();
+            if (tId === 'settings' || tId === 'gateways' || tId === 'founder' || tId === 'templates') loadSettingsData();
             if (tId === 'affiliations') loadAffiliations();
             if (tId === 'transactions') loadTransactions();
             if (tId === 'payouts') loadAdminPayouts();
@@ -2641,14 +2671,20 @@
         // ============================================================
         // DUAL-DATABASE & CLOUD STORAGE METRICS ENGINE (SUPER ADMIN)
         // ============================================================
+        
+        // Universal Secure Admin Token Getter
+        function getAdminToken() {
+            return localStorage.getItem('bbcc_token') || localStorage.getItem('token') || localStorage.getItem('adminToken') || '';
+        }
+
         let allStorageFiles = [];
         let activeStorageFilter = 'all';
 
         async function loadDatabaseStats() {
-            const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+            const token = getAdminToken();
             try {
                 const res = await fetch('/api/admin/database-stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (!data.success) {
@@ -2822,11 +2858,11 @@
             const box = document.getElementById('dbPingResultBox');
             if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pinging Databases...';
 
-            const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+            const token = getAdminToken();
             try {
                 const res = await fetch('/api/admin/database/test-ping', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.results) {
@@ -3028,7 +3064,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ title, hostName, subject, youtubeLiveUrl })
                 });
@@ -3096,7 +3132,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ classId: concludingClassId })
                 });
@@ -3129,7 +3165,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
+                                'Authorization': `Bearer ${getAdminToken()}`
                             },
                             body: JSON.stringify({
                                 classId: concludingClassId,
@@ -3228,7 +3264,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         classId: adminActiveLiveClassId,
@@ -3275,7 +3311,7 @@
 
             try {
                 const res = await fetch('/api/admin/live-monitor?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && (data.liveStreams || data.activeClasses)) {
@@ -3342,7 +3378,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ classId })
                 });
@@ -3426,7 +3462,7 @@
 
             try {
                 const res = await fetch('/api/admin/all-recordings?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.recordings) {
@@ -3591,7 +3627,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ sessionId, centerId, courseId, lectureId, videoUrl })
                 });
@@ -3613,7 +3649,7 @@
         async function loadPushNotificationStatus() {
             try {
                 const res = await fetch('/api/push/status', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (!data.success) return;
@@ -3673,7 +3709,7 @@
                 if (!tbody) return;
 
                 const res = await fetch('/api/push/devices', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (!data.success) return;
@@ -3744,7 +3780,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ deviceId, customName: newName.trim() })
                 });
@@ -3766,7 +3802,7 @@
             try {
                 const res = await fetch(`/api/push/device/${deviceId}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -3791,7 +3827,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         deviceId,
@@ -3821,7 +3857,7 @@
             try {
                 const res = await fetch('/api/push/clear-history', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -3860,7 +3896,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         title,
@@ -3892,7 +3928,7 @@
             try {
                 const res = await fetch('/api/push/trigger-bharti-auto', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -3941,7 +3977,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         title,
@@ -3976,7 +4012,7 @@
             if (!grid) return;
             try {
                 const res = await fetch('/api/admin/banners', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.data) {
@@ -4026,7 +4062,7 @@
                     : `/api/admin/banners/${centerId}/${bannerId}`;
                 const res = await fetch(url, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -4100,7 +4136,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ title, image: imageBase64, storageMode })
                 });
@@ -4127,7 +4163,7 @@
             try {
                 const res = await fetch(`/api/admin/gallery/${gid}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -4170,7 +4206,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         currentPassword: curr,
@@ -4248,7 +4284,7 @@
                 // Prefer Super Admin settings endpoint for masked key status
                 try {
                     const adminRes = await fetch('/api/admin/settings', {
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                     });
                     const adminData = await adminRes.json();
                     if (adminData.success && adminData.data) {
@@ -4406,15 +4442,14 @@
 
                 // Founder Profile & Current Photo Preview
                 if (cfg.founderProfile) {
-                    if (document.getElementById('setFounderName')) document.getElementById('setFounderName').value = cfg.founderProfile.name || '';
-                    if (document.getElementById('setFounderDesignation')) document.getElementById('setFounderDesignation').value = cfg.founderProfile.designation || '';
-                    if (document.getElementById('setFounderQualification')) document.getElementById('setFounderQualification').value = cfg.founderProfile.qualification || '';
+                    if (document.getElementById('setFounderName')) document.getElementById('setFounderName').value = cfg.founderProfile.name || 'Mr. Santosh Kumar';
+                    if (document.getElementById('setFounderDesignation')) document.getElementById('setFounderDesignation').value = cfg.founderProfile.designation || 'Founder & Managing Director';
+                    if (document.getElementById('setFounderQualification')) document.getElementById('setFounderQualification').value = cfg.founderProfile.qualification || 'B.Ed, Ethical Hacking';
+                    if (document.getElementById('setFounderAddress')) document.getElementById('setFounderAddress').value = cfg.founderProfile.address || cfg.address || 'PTCC+BBCC Chakdah Chowk madhubani bihar india 847211';
                     if (document.getElementById('setFounderMessage')) document.getElementById('setFounderMessage').value = cfg.founderProfile.message || '';
-                    if (document.getElementById('setFounderPhotoBase64')) document.getElementById('setFounderPhotoBase64').value = cfg.founderProfile.photo || '';
-                    if (cfg.founderProfile.photo) {
-                        const fImg = document.getElementById('founderPhotoCurrentImg');
-                        if (fImg) fImg.src = cfg.founderProfile.photo;
-                    }
+                    if (document.getElementById('setFounderPhotoBase64')) document.getElementById('setFounderPhotoBase64').value = cfg.founderProfile.photo || '/santosh sir.jpeg';
+                    const fImg = document.getElementById('founderPhotoCurrentImg');
+                    if (fImg) fImg.src = cfg.founderProfile.photo || '/santosh sir.jpeg';
                 }
 
                 // Bill Template
@@ -4497,7 +4532,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         youtubeApiKey: apiKey || undefined,
@@ -4543,7 +4578,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ apiKey, channelId })
                 });
@@ -4582,7 +4617,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ geminiApiKey: key })
                 });
@@ -4620,7 +4655,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({
                         apiKey: activeInputKey || undefined,
@@ -4659,7 +4694,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ groqApiKey: key })
                 });
@@ -4696,7 +4731,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ apiKey: activeKey || undefined })
                 });
@@ -4725,7 +4760,7 @@
             if (!tbody) return;
             try {
                 const res = await fetch('/api/admin/tickets', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.data) {
@@ -4808,7 +4843,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ status: 'RESOLVED', resolutionNotes: 'Callback completed by counselor' })
                 });
@@ -4829,7 +4864,7 @@
                 const res = await fetch(`/api/admin/tickets/${tId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     }
                 });
                 const data = await res.json();
@@ -4862,7 +4897,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ razorpayKeyId: keyId, razorpayKeySecret: keySecret, razorpayEnabled: true })
                 });
@@ -4895,7 +4930,7 @@
 
             try {
                 const res = await fetch('/api/admin/test-razorpay', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -4947,7 +4982,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify(payload)
                 });
@@ -4983,7 +5018,7 @@
             try {
                 const res = await fetch('/api/admin/settings/templates', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({ activeFestivalTheme: theme })
                 });
                 const data = await res.json();
@@ -5002,15 +5037,16 @@
             const name = document.getElementById('setFounderName').value.trim();
             const designation = document.getElementById('setFounderDesignation').value.trim();
             const qualification = document.getElementById('setFounderQualification').value.trim();
+            const address = document.getElementById('setFounderAddress') ? document.getElementById('setFounderAddress').value.trim() : 'PTCC+BBCC Chakdah Chowk madhubani bihar india 847211';
             const message = document.getElementById('setFounderMessage').value.trim();
             const photo = document.getElementById('setFounderPhotoBase64').value;
 
             try {
                 const res = await fetch('/api/admin/settings/templates', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({
-                        founderProfile: { name, designation, qualification, message, photo }
+                        founderProfile: { name, designation, qualification, address, message, photo }
                     })
                 });
                 const data = await res.json();
@@ -5036,7 +5072,7 @@
             try {
                 const res = await fetch('/api/admin/settings/templates', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({
                         billTemplate: { headerText, title, signatoryName, signatoryTitle, terms, footerText }
                     })
@@ -5063,7 +5099,7 @@
             try {
                 const res = await fetch('/api/admin/settings/templates', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({
                         certTemplate: { boardTitle, subTitle, borderStyle, signatoryName, signatoryTitle }
                     })
@@ -5089,7 +5125,7 @@
             if (!tbody) return;
             try {
                 const res = await fetch('/api/admin/payouts', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.data) {
@@ -5207,7 +5243,7 @@
             try {
                 const res = await fetch(`/api/admin/payouts/${id}/approve`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({ utr, adminNotes })
                 });
                 const data = await res.json();
@@ -5249,7 +5285,7 @@
             try {
                 const res = await fetch(`/api/admin/payouts/${id}/reject`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` },
                     body: JSON.stringify({ reason })
                 });
                 const data = await res.json();
@@ -5416,7 +5452,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify(payload)
                 });
@@ -5466,7 +5502,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getAdminToken()}`
                 },
                 body: JSON.stringify(payload)
             });
@@ -5487,7 +5523,7 @@
 
             const res = await fetch(`/api/admin/centers/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${getAdminToken()}` }
             });
             const data = await res.json();
             if (data.success) {
@@ -5501,7 +5537,7 @@
             if (!confirm(`Are you sure you want to permanently delete "${name}"? This will remove all its courses, data, and access.`)) return;
             const res = await fetch(`/api/admin/centers/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${getAdminToken()}` }
             });
             const data = await res.json();
             if (data.success) {
@@ -5619,7 +5655,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getAdminToken()}`
                 },
                 body: JSON.stringify({ isBlocked: block, blockReason: reason, dueAmount: dueAmount })
             });
@@ -5635,7 +5671,7 @@
         async function loadVaultBooks() {
             try {
                 const res = await fetch('/api/admin/books?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` },
                     cache: 'no-store'
                 });
                 const data = await res.json();
@@ -5736,7 +5772,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getAdminToken()}`
                 },
                 body: JSON.stringify({
                     title, subject, classLevel, price, pdfMrp, physicalPrice, physicalMrp,
@@ -5858,7 +5894,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getAdminToken()}`
                 },
                 body: JSON.stringify(payload)
             });
@@ -5883,7 +5919,7 @@
 
             try {
                 const res = await fetch('/api/admin/book-orders', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 if (data.success && data.data && data.data.length > 0) {
@@ -5950,7 +5986,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getAdminToken()}`
                     },
                     body: JSON.stringify({ status: newStatus })
                 });
@@ -5970,7 +6006,7 @@
             if (!confirm('Delete this document from vault?')) return;
             const res = await fetch(`/api/admin/books/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${getAdminToken()}` }
             });
             const data = await res.json();
             if (data.success) loadVaultBooks();
@@ -5982,7 +6018,7 @@
         async function loadStudents() {
             try {
                 const res = await fetch('/api/admin/students', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
                 const tbody = document.getElementById('studentsTbody');
@@ -6009,7 +6045,7 @@
         async function loadAffiliations() {
             try {
                 const res = await fetch('/api/admin/affiliations?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` },
                     cache: 'no-store'
                 });
                 const data = await res.json();
@@ -6038,7 +6074,7 @@
         async function loadTransactions() {
             try {
                 const res = await fetch('/api/admin/transactions?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` },
                     cache: 'no-store'
                 });
                 const data = await res.json();
