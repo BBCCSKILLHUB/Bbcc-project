@@ -239,6 +239,9 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('books-hub')">
                 <i class="fas fa-book-bookmark" style="color:#10b981;"></i> E-Library & Book Orders
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('admission-fees')">
+                <i class="fas fa-hand-holding-dollar" style="color:#34d399;"></i> Direct Admission &amp; Center Fees
+            </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('database-hub')">
                 <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
             </button>
@@ -290,6 +293,53 @@
 
             <!-- TAB 1: COACHING CENTERS -->
             <div class="admin-tab active" id="tab-centers">
+                <!-- LIVE HOMEPAGE TELEMETRY & MASTER MONITOR DECK -->
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(56, 189, 248, 0.4); background:radial-gradient(circle at top right, rgba(56,189,248,0.1), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#38bdf8;"><i class="fas fa-satellite-dish"></i></span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f8fafc;">Live Public Home Page Telemetry & Status</h3>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Real-time view of what visitors, students, and institutes are currently seeing on the BBCC Skill Hub public homepage.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <a href="/" target="_blank" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; text-decoration:none; font-size:12px; padding:6px 14px;">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Open Live Homepage
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:4px;">
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;"><i class="fas fa-bullhorn" style="color:#fbbf24;"></i> Public Ticker Announcement</div>
+                            <div id="liveTelemetryMarquee" style="font-size:12px; color:#f8fafc; font-weight:600; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                Admissions open 2026-27 | Online syllabus vault active
+                            </div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;"><i class="fas fa-images" style="color:#34d399;"></i> Active Hero Offer Banner</div>
+                            <div id="liveTelemetryBanner" style="font-size:12px; color:#34d399; font-weight:700; margin-top:4px;">
+                                BBCC Special Admission Offer (50% Scholarship)
+                            </div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;"><i class="fas fa-user-tie" style="color:#ec4899;"></i> Founder Desk Photo</div>
+                            <div id="liveTelemetryFounder" style="font-size:12px; color:#f8fafc; font-weight:600; margin-top:4px;">
+                                Santosh Sir (Verified Official Portrait)
+                            </div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;"><i class="fas fa-robot" style="color:#a78bfa;"></i> AI Counselor</div>
+                            <div id="liveTelemetryAi" style="font-size:12px; color:#a78bfa; font-weight:700; margin-top:4px;">
+                                Dedicated Text Chat (/ai-counselor.html)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-console">
                     <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Register New Partner Coaching Center</h3>
                     <form onsubmit="registerCenter(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
@@ -405,6 +455,9 @@
                     <button type="button" id="btnSubTabDigital" class="btn-aurora" onclick="showBooksHubSubTab('digital')" style="font-size:13px; font-weight:700; padding:8px 18px;">
                         <i class="fas fa-book-bookmark" style="color:#38bdf8;"></i> Digital E-Library Materials & Upload
                     </button>
+                    <button type="button" id="btnSubTabVouchers" class="btn-aurora" onclick="showBooksHubSubTab('vouchers')" style="font-size:13px; font-weight:700; padding:8px 18px;">
+                        <i class="fas fa-ticket-simple" style="color:#a855f7;"></i> Scholarship Vouchers &amp; Discounts
+                    </button>
                 </div>
 
                 <!-- SUB-PANEL 1: PHYSICAL BOOK ORDERS LEDGER -->
@@ -473,6 +526,19 @@
                                         <option value="pdf">PDF Document (.pdf)</option>
                                         <option value="docx">Word Document (.docx / .doc)</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- Auto Pricing by Document Page Count -->
+                            <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                    <div>
+                                        <label style="font-size:12.5px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-invoice"></i> Total Document Pages (पेज संख्या के आधार पर ऑटो मूल्य कैलकुलेशन)</label>
+                                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">नियम: <strong>E-Book = ₹1/पेज</strong>, <strong>हार्ड कॉपी = ₹2/पेज</strong> (नीचे अपनी इच्छा से एडिट भी कर सकते हैं)</div>
+                                    </div>
+                                    <div style="max-width:180px; width:100%;">
+                                        <input type="number" id="vbPages" min="1" placeholder="उदा. 50 पेज" class="console-input" style="font-weight:800; color:#38bdf8; font-size:14px;" oninput="calculateBookPricesFromPages()">
+                                    </div>
                                 </div>
                             </div>
 
@@ -581,6 +647,70 @@
                     </div>
                 </div>
 
+                <!-- SUB-PANEL 3: SCHOLARSHIP VOUCHERS & DISCOUNT CODES DESK -->
+                <div id="booksHubPanelVouchers" style="display:none;">
+                    <div class="card-console" style="margin-bottom:20px; border-left:4px solid #a855f7;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:14px; color:#c084fc;">
+                            <i class="fas fa-ticket-simple"></i> Create New Scholarship Voucher / Coupon Code
+                        </h3>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-bottom:16px;">
+                            Generate coupon codes for students to unlock percentage discounts (e.g., 25%, 50%, 100%) on digital syllabus materials and books.
+                        </p>
+                        <form onsubmit="handleCreateVoucher(event)">
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:14px;">
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Voucher Code (उदा. BBCC50) *</label>
+                                    <input type="text" id="vchCode" required placeholder="e.g. FESTIVAL50" class="console-input" style="text-transform:uppercase; font-family:monospace; font-weight:700;">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Discount Percentage (% छूट) *</label>
+                                    <input type="number" id="vchDiscountPercent" required min="1" max="100" value="50" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Maximum Discount ₹ (अधिकतम छूट)</label>
+                                    <input type="number" id="vchMaxDiscount" min="0" value="500" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Short Description / Campaign Tag</label>
+                                    <input type="text" id="vchDesc" placeholder="e.g. 50% Special Scholarship Offer" class="console-input">
+                                </div>
+                            </div>
+                            <div id="createVoucherStatus" style="display:none; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; margin-bottom:12px;"></div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-plus"></i> Create &amp; Activate Voucher
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card-console">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f8fafc;">
+                                Active Scholarship Vouchers Ledger
+                            </h3>
+                            <button type="button" onclick="loadAdminVouchers()" class="btn-aurora" style="padding:6px 14px; font-size:12px;">
+                                <i class="fas fa-rotate"></i> Refresh Vouchers
+                            </button>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="console-table">
+                                <thead>
+                                    <tr>
+                                        <th>Voucher Code</th>
+                                        <th>Discount %</th>
+                                        <th>Max Cap ₹</th>
+                                        <th>Campaign Description</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminVouchersTbody">
+                                    <tr><td colspan="6" style="text-align:center; padding:20px;">Loading vouchers...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Hidden Backwards Compatibility Aliases -->
                 <div id="tab-vault" style="display:none;"></div>
                 <div id="tab-book-orders" style="display:none;"></div>
@@ -607,6 +737,108 @@
                                 <tr><td colspan="7" style="text-align:center; padding:20px;">Loading student records...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: DIRECT ADMISSION & COACHING CENTER FEE STRUCTURE -->
+            <div class="admin-tab" id="tab-admission-fees">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(52, 211, 153, 0.35); background:radial-gradient(circle at top right, rgba(52,211,153,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#34d399;"><i class="fas fa-hand-holding-dollar"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Direct Student Admission & Coaching Center Fee Structure</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Separate master fee control desk for Direct Student Admissions and Partner Coaching Center Affiliations / Revenue Splits.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Direct Student Admission Fees -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #34d399;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#34d399; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-user-graduate"></i> Direct Student Admission Fee Structure (Direct Enrollment)
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Fees applicable when a student directly enrolls through the BBCC Platform without an affiliated coaching institute.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Base Direct Admission Fee (₹) *</label>
+                            <input type="number" id="feeDirectStudent" min="0" placeholder="200" class="console-input" style="font-weight:700; color:var(--admin-gold); margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Class 9-10 Matric Fee (₹)</label>
+                            <input type="number" id="feeClass9_10" min="0" placeholder="150" class="console-input" style="margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Class 11-12 Science Inter Fee (₹)</label>
+                            <input type="number" id="feeClass11_12_Sci" min="0" placeholder="250" class="console-input" style="margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Class 11-12 Arts / Commerce Fee (₹)</label>
+                            <input type="number" id="feeClass11_12_Arts" min="0" placeholder="200" class="console-input" style="margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Professional / Skill Hub Course Fee (₹)</label>
+                            <input type="number" id="feeProfessional" min="0" placeholder="500" class="console-input" style="margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Registration & Digital ID Card (₹)</label>
+                            <input type="number" id="feeRegistrationCard" min="0" placeholder="50" class="console-input" style="margin-top:6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Coaching Center Affiliation & Renewal Structure -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #fbbf24;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-building-columns"></i> Coaching Institute Affiliation, Renewal & Revenue Split
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Standard charges for new coaching center onboarding, yearly affiliation renewals, and commission ledger split.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">New Center Affiliation Fee (₹) *</label>
+                            <input type="number" id="feeCoachingCenter" min="0" placeholder="999" class="console-input" style="font-weight:700; color:var(--admin-gold); margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Annual Center Renewal Fee (₹)</label>
+                            <input type="number" id="feeCenterRenewal" min="0" placeholder="499" class="console-input" style="margin-top:6px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Institute Revenue Share (%)</label>
+                            <input type="number" id="feeInstituteShare" min="0" max="100" placeholder="80" class="console-input" style="margin-top:6px; color:#34d399; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">BBCC Platform Split (%)</label>
+                            <input type="number" id="feePlatformSplit" min="0" max="100" placeholder="20" class="console-input" style="margin-top:6px; color:#fbbf24; font-weight:700;">
+                        </div>
+                    </div>
+
+                    <div id="admissionFeesAlertBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="button" onclick="saveAdmissionFees()" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save All Fee Structures
+                        </button>
+                        <button type="button" onclick="loadAdmissionFees()" class="btn-aurora" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1;">
+                            <i class="fas fa-sync-alt"></i> Reload Current
+                        </button>
                     </div>
                 </div>
             </div>
@@ -782,6 +1014,82 @@
                         <button type="button" onclick="testGeminiConnection()" class="btn-aurora" style="background:rgba(6,182,212,0.15); border:1px solid #06b6d4; color:#38bdf8;">
                             <i class="fas fa-bolt"></i> Test Gemini AI Live
                         </button>
+                    </div>
+                </div>
+
+                <!-- 3. AI Personality & Master System Prompt Customization -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #10b981;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#34d399; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-robot"></i> AI Counselor Identity, Work Scope & Master System Prompt
+                            </h3>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
+                                Customize your AI counselor's identity, role, knowledge boundary, and raw system instructions. Live changes take effect across the entire portal immediately.
+                            </p>
+                        </div>
+                        <span id="aiPromptStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399;">
+                            Active Counselor
+                        </span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;"><i class="fas fa-tag" style="color:var(--admin-gold);"></i> AI Assistant Name *</label>
+                            <input type="text" id="setAiName" placeholder="e.g. Bharti AI Counselor" class="console-input" style="margin-top:6px; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;"><i class="fas fa-briefcase" style="color:#38bdf8;"></i> AI Assistant Primary Work / Role *</label>
+                            <input type="text" id="setAiRole" placeholder="e.g. Chief Student Guide & Academic Counselor" class="console-input" style="margin-top:6px;">
+                        </div>
+                    </div>
+
+                    <!-- Data Scope Access Checkboxes -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:16px;">
+                        <label style="font-size:12.5px; font-weight:700; color:#f8fafc; display:block; margin-bottom:10px;">
+                            <i class="fas fa-database" style="color:#34d399;"></i> Data Access Scope (AI क्या-क्या डेटा एक्सेस कर सकता है):
+                        </label>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; font-size:12.5px; color:#cbd5e1;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="chkScopeCenters" checked style="accent-color:#10b981; width:16px; height:16px;"> Partner Coaching Centers List
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="chkScopeBooks" checked style="accent-color:#10b981; width:16px; height:16px;"> Syllabus Books & Notes Vault
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="chkScopeFees" checked style="accent-color:#10b981; width:16px; height:16px;"> Admission Fees & Vouchers
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="chkScopeFounder" checked style="accent-color:#10b981; width:16px; height:16px;"> Founder Santosh Sir & Board Info
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="chkScopeContact" checked style="accent-color:#10b981; width:16px; height:16px;"> Helpline & Support Contacts
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Editable Master System Prompt Textarea -->
+                    <div style="margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">
+                                <i class="fas fa-terminal" style="color:var(--admin-gold);"></i> Master System Instructions (Prompt) *
+                            </label>
+                            <button type="button" onclick="resetAiSystemPromptDefault()" style="background:none; border:none; color:#38bdf8; font-size:12px; cursor:pointer; text-decoration:underline;">
+                                <i class="fas fa-undo"></i> Reset to Master Default
+                            </button>
+                        </div>
+                        <textarea id="setAiSystemPrompt" rows="9" class="console-input" style="font-family:'Space Grotesk',monospace; font-size:12.5px; line-height:1.5; padding:12px; width:100%; resize:vertical;" placeholder="Write the exact system instructions and behavioral guidelines for the AI assistant..."></textarea>
+                    </div>
+
+                    <div id="aiPromptAlertBox" style="display:none; padding:12px 16px; border-radius:10px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button type="button" onclick="saveAiConfig()" class="btn-aurora btn-gold">
+                            <i class="fas fa-save"></i> Save AI Personality & Prompt
+                        </button>
+                        <a href="/ai-counselor.html" target="_blank" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; text-decoration:none;">
+                            <i class="fas fa-external-link-alt"></i> Open Dedicated AI Chat Page
+                        </a>
                     </div>
                 </div>
             </div>
@@ -3155,22 +3463,394 @@
         function showBooksHubSubTab(tab) {
             const btnOrders = document.getElementById('btnSubTabOrders');
             const btnDigital = document.getElementById('btnSubTabDigital');
+            const btnVouchers = document.getElementById('btnSubTabVouchers');
             const panelOrders = document.getElementById('booksHubPanelOrders');
             const panelDigital = document.getElementById('booksHubPanelDigital');
+            const panelVouchers = document.getElementById('booksHubPanelVouchers');
+
+            if (btnOrders) btnOrders.classList.remove('active');
+            if (btnDigital) btnDigital.classList.remove('active');
+            if (btnVouchers) btnVouchers.classList.remove('active');
+            if (panelOrders) panelOrders.style.display = 'none';
+            if (panelDigital) panelDigital.style.display = 'none';
+            if (panelVouchers) panelVouchers.style.display = 'none';
 
             if (tab === 'orders') {
                 if (btnOrders) btnOrders.classList.add('active');
-                if (btnDigital) btnDigital.classList.remove('active');
                 if (panelOrders) panelOrders.style.display = 'block';
-                if (panelDigital) panelDigital.style.display = 'none';
                 loadAdminBookOrders();
+            } else if (tab === 'vouchers') {
+                if (btnVouchers) btnVouchers.classList.add('active');
+                if (panelVouchers) panelVouchers.style.display = 'block';
+                loadAdminVouchers();
             } else {
                 if (btnDigital) btnDigital.classList.add('active');
-                if (btnOrders) btnOrders.classList.remove('active');
                 if (panelDigital) panelDigital.style.display = 'block';
-                if (panelOrders) panelOrders.style.display = 'none';
                 loadVaultBooks();
             }
+        }
+
+        // Auto calculate book price from page count
+        function calculateBookPricesFromPages() {
+            const pagesInput = document.getElementById('vbPages');
+            const pages = parseInt(pagesInput?.value || '0', 10);
+            if (pages > 0) {
+                // Default formula: E-Book = ₹1 per page, Physical Printed Book = ₹2 per page
+                const eBookPrice = Math.max(0, Math.round(pages * 1));
+                const eBookMrp = Math.max(eBookPrice, Math.round(pages * 1.5));
+                const hardPrice = Math.max(0, Math.round(pages * 2));
+                const hardMrp = Math.max(hardPrice, Math.round(pages * 3));
+
+                const vbPrice = document.getElementById('vbPrice');
+                const vbPdfMrp = document.getElementById('vbPdfMrp');
+                const vbPhysicalPrice = document.getElementById('vbPhysicalPrice');
+                const vbPhysicalMrp = document.getElementById('vbPhysicalMrp');
+
+                if (vbPrice) vbPrice.value = eBookPrice;
+                if (vbPdfMrp) vbPdfMrp.value = eBookMrp;
+                if (vbPhysicalPrice) vbPhysicalPrice.value = hardPrice;
+                if (vbPhysicalMrp) vbPhysicalMrp.value = hardMrp;
+            }
+        }
+
+        // ==========================================
+        // SCHOLARSHIP VOUCHERS MANAGEMENT
+        // ==========================================
+        async function loadAdminVouchers() {
+            const tbody = document.getElementById('adminVouchersTbody');
+            if (!tbody) return;
+            try {
+                const res = await fetch('/api/admin/vouchers', {
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data)) {
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No vouchers found. Create a new one above!</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(v => `
+                        <tr>
+                            <td style="font-family:monospace; font-weight:800; color:#38bdf8;">${v.code}</td>
+                            <td style="font-weight:800; color:#10b981;">${v.discountPercent}% OFF</td>
+                            <td style="font-size:12.5px; color:#cbd5e1;">${v.description || 'Scholarship discount voucher'}</td>
+                            <td><span style="padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; ${v.active ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(239,68,68,0.15); color:#fca5a5;'}">${v.active ? 'ACTIVE' : 'INACTIVE'}</span></td>
+                            <td style="font-size:12px; color:#94a3b8;">${v.maxDiscount ? '₹' + v.maxDiscount : 'No Limit'}</td>
+                            <td>
+                                <button onclick="deleteAdminVoucher('${v.code}')" class="btn-aurora" style="padding:4px 10px; font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; cursor:pointer;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(err) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#fca5a5;">Failed to load vouchers: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function handleCreateVoucher(event) {
+            if (event) event.preventDefault();
+            // Support both old IDs (vcCode) and new HTML IDs (vchCode)
+            const code = (document.getElementById('vchCode') || document.getElementById('vcCode'))?.value.trim().toUpperCase();
+            const discount = parseInt((document.getElementById('vchDiscountPercent') || document.getElementById('vcDiscount'))?.value, 10);
+            const desc = (document.getElementById('vchDesc') || document.getElementById('vcDesc'))?.value.trim();
+            const maxCap = parseInt((document.getElementById('vchMaxDiscount') || document.getElementById('vcMaxCap'))?.value, 10) || 0;
+            const statusBox = document.getElementById('createVoucherStatus');
+
+            if (!code || isNaN(discount)) {
+                alert('Please provide valid coupon code and discount %');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/vouchers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAdminToken()}`
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        discountPercent: discount,
+                        description: desc,
+                        maxDiscount: maxCap,
+                        active: true
+                    })
+                });
+                const data = await res.json();
+                if (statusBox) {
+                    statusBox.style.display = 'block';
+                    if (data.success) {
+                        statusBox.style.background = 'rgba(16,185,129,0.15)';
+                        statusBox.style.border = '1px solid #10b981';
+                        statusBox.style.color = '#34d399';
+                        statusBox.textContent = `Voucher ${code} (${discount}% OFF) created successfully!`;
+                        (document.getElementById('vchCode') || document.getElementById('vcCode')).value = '';
+                        const discountEl = document.getElementById('vchDiscountPercent') || document.getElementById('vcDiscount');
+                        if (discountEl) discountEl.value = '50';
+                        const descEl = document.getElementById('vchDesc') || document.getElementById('vcDesc');
+                        if (descEl) descEl.value = '';
+                        loadAdminVouchers();
+                    } else {
+                        statusBox.style.background = 'rgba(239,68,68,0.15)';
+                        statusBox.style.border = '1px solid #ef4444';
+                        statusBox.style.color = '#fca5a5';
+                        statusBox.textContent = `Error: ${data.message || 'Could not create voucher'}`;
+                    }
+                    setTimeout(() => { if (statusBox) statusBox.style.display = 'none'; }, 4000);
+                }
+            } catch(err) {
+                alert(`Failed to create voucher: ${err.message}`);
+            }
+        }
+
+        async function deleteAdminVoucher(code) {
+            if (!confirm(`Are you sure you want to delete voucher code ${code}?`)) return;
+            try {
+                const res = await fetch(`/api/admin/vouchers/${encodeURIComponent(code)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadAdminVouchers();
+                } else {
+                    alert(`Failed: ${data.message}`);
+                }
+            } catch(err) {
+                alert(`Error deleting voucher: ${err.message}`);
+            }
+        }
+
+        // ==========================================
+        // AI PERSONALITY & SYSTEM PROMPT CONTROLS
+        // ==========================================
+        const DEFAULT_AI_SYSTEM_PROMPT = `You are Bharti AI Counselor, the Chief Educational Counselor, Mentor & Academic Guide of BBCC SKILL HUB.
+BBCC SKILL HUB (Bharti Board of Computer & Skill Development) was established under the visionary leadership of Mr. Santosh Kumar.
+Your primary role is to guide students with deep empathy, warmth, respect, and utmost accuracy regarding:
+1. Online syllabus courses, digital notes & textbook orders from the Notes Vault.
+2. Verified coaching center admissions and direct portal admissions.
+3. Scholarship vouchers and discount codes.
+4. Answering questions in clear Hindi, English, or Hinglish based on what the student prefers.
+Speak kindly and respect the student. Use respectful words like "Aap" and "Beta" when appropriate.
+Provide authentic information and direct escalation links to leadership or center directors when necessary.`;
+
+        async function loadAiConfig() {
+            try {
+                const res = await fetch('/api/admin/settings/ai-config', {
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const cfg = data.data;
+                    const nameEl = document.getElementById('setAiName');
+                    const roleEl = document.getElementById('setAiRole');
+                    const promptEl = document.getElementById('setAiSystemPrompt');
+
+                    if (nameEl) nameEl.value = cfg.aiAssistantName || 'Bharti AI Counselor';
+                    if (roleEl) roleEl.value = cfg.aiAssistantRole || 'Chief Student Guide & Academic Counselor';
+                    if (promptEl) promptEl.value = cfg.aiSystemPrompt || DEFAULT_AI_SYSTEM_PROMPT;
+
+                    const scope = cfg.aiDataScope || {};
+                    const scCenters = document.getElementById('chkScopeCenters');
+                    const scBooks = document.getElementById('chkScopeBooks');
+                    const scFees = document.getElementById('chkScopeFees');
+                    const scFounder = document.getElementById('chkScopeFounder');
+                    const scContact = document.getElementById('chkScopeContact');
+
+                    if (scCenters) scCenters.checked = scope.centers !== false;
+                    if (scBooks) scBooks.checked = scope.books !== false;
+                    if (scFees) scFees.checked = scope.fees !== false;
+                    if (scFounder) scFounder.checked = scope.founder !== false;
+                    if (scContact) scContact.checked = scope.contact !== false;
+
+                    const badge = document.getElementById('aiPromptStatusBadge');
+                    if (badge) {
+                        badge.textContent = `Active (${cfg.aiAssistantName || 'Bharti AI'})`;
+                        badge.style.background = 'rgba(16,185,129,0.15)';
+                        badge.style.color = '#34d399';
+                    }
+                }
+            } catch(err) {
+                console.error('Error loading AI config:', err);
+            }
+        }
+
+        async function saveAiConfig() {
+            const alertBox = document.getElementById('aiPromptAlertBox');
+            const name = document.getElementById('setAiName')?.value.trim() || 'Bharti AI Counselor';
+            const role = document.getElementById('setAiRole')?.value.trim() || 'Chief Student Guide & Academic Counselor';
+            const systemPrompt = document.getElementById('setAiSystemPrompt')?.value.trim() || DEFAULT_AI_SYSTEM_PROMPT;
+
+            const scope = {
+                centers: document.getElementById('chkScopeCenters')?.checked ?? true,
+                books: document.getElementById('chkScopeBooks')?.checked ?? true,
+                fees: document.getElementById('chkScopeFees')?.checked ?? true,
+                founder: document.getElementById('chkScopeFounder')?.checked ?? true,
+                contact: document.getElementById('chkScopeContact')?.checked ?? true
+            };
+
+            try {
+                const res = await fetch('/api/admin/settings/ai-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAdminToken()}`
+                    },
+                    body: JSON.stringify({
+                        aiAssistantName: name,
+                        aiAssistantRole: role,
+                        aiDataScope: scope,
+                        aiSystemPrompt: systemPrompt
+                    })
+                });
+                const data = await res.json();
+                if (alertBox) {
+                    alertBox.style.display = 'block';
+                    if (data.success) {
+                        alertBox.style.background = 'rgba(16,185,129,0.15)';
+                        alertBox.style.border = '1px solid #10b981';
+                        alertBox.style.color = '#34d399';
+                        alertBox.innerHTML = '<i class="fas fa-check-circle"></i> AI personality, role & system prompt updated successfully across all pages!';
+                        const liveAiEl = document.getElementById('liveTelemetryAi');
+                        if (liveAiEl) liveAiEl.textContent = `${name} (${role})`;
+                    } else {
+                        alertBox.style.background = 'rgba(239,68,68,0.15)';
+                        alertBox.style.border = '1px solid #ef4444';
+                        alertBox.style.color = '#fca5a5';
+                        alertBox.innerHTML = `<i class="fas fa-times-circle"></i> Failed to save AI config: ${data.message || 'Error'}`;
+                    }
+                    setTimeout(() => { if (alertBox) alertBox.style.display = 'none'; }, 5000);
+                }
+            } catch(err) {
+                if (alertBox) {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Network error: ${err.message}`;
+                }
+            }
+        }
+
+        function resetAiSystemPromptDefault() {
+            if (confirm('Reset system instructions to the default Bharti AI Master Prompt?')) {
+                const promptEl = document.getElementById('setAiSystemPrompt');
+                if (promptEl) promptEl.value = DEFAULT_AI_SYSTEM_PROMPT;
+            }
+        }
+
+        // ==========================================
+        // DIRECT ADMISSION & COACHING FEES CONTROLS
+        // ==========================================
+        async function loadAdmissionFees() {
+            try {
+                const res = await fetch('/api/admin/settings/admission-fees', {
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const fees = data.data;
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el && val !== undefined && val !== null) el.value = val;
+                    };
+                    setVal('feeDirectStudent', fees.directStudentFee);
+                    setVal('feeClass9_10', fees.class9_10);
+                    setVal('feeClass11_12_Sci', fees.class11_12_Sci);
+                    setVal('feeClass11_12_Arts', fees.class11_12_Arts);
+                    setVal('feeProfessional', fees.professional);
+                    setVal('feeRegistrationCard', fees.registrationCard);
+                    setVal('feeCoachingCenter', fees.coachingCenterFee);
+                    setVal('feeCenterRenewal', fees.centerRenewalFee);
+                    setVal('feeInstituteShare', fees.instituteShare);
+                    setVal('feePlatformSplit', fees.platformSplit);
+                }
+            } catch(err) {
+                console.error('Error loading admission fees:', err);
+            }
+        }
+
+        async function saveAdmissionFees() {
+            const alertBox = document.getElementById('admissionFeesAlertBox');
+            const getVal = (id, fallback) => {
+                const val = parseInt(document.getElementById(id)?.value, 10);
+                return isNaN(val) ? fallback : val;
+            };
+
+            const payload = {
+                directStudentFee: getVal('feeDirectStudent', 200),
+                class9_10: getVal('feeClass9_10', 150),
+                class11_12_Sci: getVal('feeClass11_12_Sci', 250),
+                class11_12_Arts: getVal('feeClass11_12_Arts', 200),
+                professional: getVal('feeProfessional', 500),
+                registrationCard: getVal('feeRegistrationCard', 50),
+                coachingCenterFee: getVal('feeCoachingCenter', 999),
+                centerRenewalFee: getVal('feeCenterRenewal', 499),
+                instituteShare: getVal('feeInstituteShare', 80),
+                platformSplit: getVal('feePlatformSplit', 20)
+            };
+
+            try {
+                const res = await fetch('/api/admin/settings/admission-fees', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAdminToken()}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (alertBox) {
+                    alertBox.style.display = 'block';
+                    if (data.success) {
+                        alertBox.style.background = 'rgba(16,185,129,0.15)';
+                        alertBox.style.border = '1px solid #10b981';
+                        alertBox.style.color = '#34d399';
+                        alertBox.innerHTML = '<i class="fas fa-check-circle"></i> Direct admission and coaching affiliation fees saved successfully!';
+                    } else {
+                        alertBox.style.background = 'rgba(239,68,68,0.15)';
+                        alertBox.style.border = '1px solid #ef4444';
+                        alertBox.style.color = '#fca5a5';
+                        alertBox.innerHTML = `<i class="fas fa-times-circle"></i> Failed to save fees: ${data.message || 'Error'}`;
+                    }
+                    setTimeout(() => { if (alertBox) alertBox.style.display = 'none'; }, 5000);
+                }
+            } catch(err) {
+                if (alertBox) {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Network error: ${err.message}`;
+                }
+            }
+        }
+
+        // ==========================================
+        // LIVE HOMEPAGE TELEMETRY MONITOR
+        // ==========================================
+        async function updateLiveHomepageTelemetry() {
+            try {
+                const res = await fetch('/api/public/config');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const cfg = data.data;
+                    const marqueeEl = document.getElementById('liveTelemetryMarquee');
+                    const bannerEl = document.getElementById('liveTelemetryBanner');
+                    const founderEl = document.getElementById('liveTelemetryFounder');
+                    const aiEl = document.getElementById('liveTelemetryAi');
+
+                    if (marqueeEl) marqueeEl.textContent = cfg.newsMarquee || 'Admissions open 2026-27 | BBCC Skill Hub Active';
+                    if (cfg.aiConfig?.aiAssistantName && aiEl) {
+                        aiEl.textContent = `${cfg.aiConfig.aiAssistantName} (Active Text Chat)`;
+                    }
+                    if (cfg.founder?.photo && founderEl) {
+                        founderEl.textContent = `${cfg.founder.name || 'Santosh Sir'} (Photo Active: ${cfg.founder.photo})`;
+                    }
+                }
+            } catch(e) {}
         }
 
         // ==========================================
@@ -3347,6 +4027,8 @@
             if (targetId === 'tickets') loadAdminTickets();
             if (targetId === 'notifications') loadPushNotificationStatus();
             if (targetId === 'central-live') initAdminCentralLive();
+            if (targetId === 'admission-fees') loadAdmissionFees();
+            if (targetId === 'ai-engines') setTimeout(() => loadAiConfig(), 300);
         }
 
         // ============================================================
