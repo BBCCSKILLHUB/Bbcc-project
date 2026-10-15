@@ -3643,7 +3643,7 @@
             const grid = document.getElementById('adminGalleryGrid');
             if (!grid) return;
             try {
-                const res = await fetch('/api/public/config');
+                const res = await fetch('/api/public/config?_t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 if (data.success && data.data && data.data.gallery) {
                     const gallery = data.data.gallery;
@@ -3792,9 +3792,50 @@
             }
         }
 
+        let adminEventSource = null;
+        function initAdminRealtimeSync() {
+            if (adminEventSource || typeof window.EventSource === 'undefined') return;
+            try {
+                adminEventSource = new EventSource('/api/public/events');
+                adminEventSource.addEventListener('update', (e) => {
+                    try {
+                        const evt = JSON.parse(e.data);
+                        const type = evt.type || '';
+                        if (type.includes('book') || type === 'data_updated') {
+                            if (typeof loadVaultBooks === 'function') loadVaultBooks();
+                        }
+                        if (type.includes('config') || type.includes('gallery') || type === 'data_updated') {
+                            if (typeof loadAdminGallery === 'function') loadAdminGallery();
+                            if (typeof loadSettingsData === 'function') loadSettingsData();
+                        }
+                        if (type.includes('center') || type === 'data_updated') {
+                            if (typeof loadCentersList === 'function') loadCentersList();
+                        }
+                        if (type.includes('student') || type === 'data_updated') {
+                            if (typeof loadStudentsList === 'function') loadStudentsList();
+                        }
+                        if (type.includes('aff') || type === 'data_updated') {
+                            if (typeof loadAffiliations === 'function') loadAffiliations();
+                        }
+                        if (type.includes('txn') || type === 'data_updated') {
+                            if (typeof loadTransactions === 'function') loadTransactions();
+                        }
+                    } catch(err) {}
+                });
+                adminEventSource.onerror = () => {
+                    try { adminEventSource.close(); } catch(err) {}
+                    adminEventSource = null;
+                    setTimeout(initAdminRealtimeSync, 8000);
+                };
+            } catch(err) {
+                console.warn('Admin real-time sync setup notice:', err);
+            }
+        }
+
         async function initAdminConsole() {
             await loadSettingsData();
             await loadCentersList();
+            initAdminRealtimeSync();
         }
 
         async function loadSettingsData() {
@@ -5189,8 +5230,9 @@
         // ============================================
         async function loadVaultBooks() {
             try {
-                const res = await fetch('/api/admin/books', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch('/api/admin/books?_t=' + Date.now(), {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
                 const tbody = document.getElementById('booksTbody');
@@ -5563,7 +5605,8 @@
         async function loadAffiliations() {
             try {
                 const res = await fetch('/api/admin/affiliations?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
                 const tbody = document.getElementById('affTbody') || document.getElementById('affsTbody');
@@ -5591,7 +5634,8 @@
         async function loadTransactions() {
             try {
                 const res = await fetch('/api/admin/transactions?_t=' + Date.now(), {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
                 const tbody = document.getElementById('txnsTbody');
