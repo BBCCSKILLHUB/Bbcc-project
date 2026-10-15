@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Academic Counselor | BBCC SKILL HUB</title>
+    <link rel="icon" type="image/png" href="/data/branding/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #030712;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --border-glow: rgba(245, 158, 11, 0.35);
+            --gold: #fbbf24;
+            --emerald: #10b981;
+            --cyan: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .chat-topbar {
+            background: rgba(3, 7, 18, 0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .chat-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateX(-2px);
+        }
+
+        .counselor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 44px;
+            height: 44px;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--emerald);
+            background: #0f172a;
+        }
+
+        .online-dot {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 11px;
+            height: 11px;
+            background: var(--emerald);
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+            box-shadow: 0 0 8px var(--emerald);
+        }
+
+        .counselor-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .counselor-sub {
+            font-size: 11.5px;
+            color: var(--emerald);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .engine-badge {
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(249, 115, 22, 0.15);
+            border: 1px solid rgba(249, 115, 22, 0.35);
+            color: #fb923c;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 18px 16px;
+        }
+
+        /* Message Stream */
+        .chat-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: fadeInMsg 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-msg.assistant {
+            align-self: flex-start;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .msg-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--border-glow);
+            flex-shrink: 0;
+            background: #0f172a;
+        }
+
+        .msg-bubble {
+            padding: 13px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .chat-msg.assistant .msg-bubble {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+            border-top-left-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-msg.assistant .msg-bubble strong {
+            color: var(--gold);
+        }
+
+        .chat-msg.user .msg-bubble {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #030712;
+            font-weight: 600;
+            border-top-right-radius: 4px;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+        }
+
+        .msg-time {
+            font-size: 10.5px;
+            color: #64748b;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .chat-msg.user .msg-time {
+            color: rgba(3, 7, 18, 0.7);
+        }
+
+        /* Suggestion Chips */
+        .chips-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding: 4px 0;
+        }
+
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip-btn:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-1px);
+        }
+
+        /* Input Deck */
+        .chat-input-bar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            bottom: 14px;
+        }
+
+        .chat-input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 14.5px;
+            padding: 8px 10px;
+            line-height: 1.4;
+        }
+
+        .chat-input-field::placeholder {
+            color: #64748b;
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #030712;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Typing Dots */
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+        }
+
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: dotPulse 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .chat-msg { max-width: 95%; }
+            .engine-badge { display: none; }
+            .chat-container { padding: 12px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="chat-topbar">
+        <div class="chat-topbar-left">
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Home
+            </a>
+            <div class="counselor-info">
+                <div class="avatar-wrap">
+                    <img src="/data/branding/logo.png" alt="Counselor Avatar" id="counselorAvatar" class="avatar-img" onerror="this.src='/logo.png'">
+                    <span class="online-dot"></span>
+                </div>
+                <div>
+                    <div class="counselor-name" id="counselorNameDisplay">
+                        Bharti — Chief Academic Counselor <i class="fas fa-circle-check" style="color:var(--emerald); font-size:13px;"></i>
+                    </div>
+                    <div class="counselor-sub">
+                        <i class="fas fa-bolt" style="color:var(--gold);"></i> <span>Online • Instant Help (Hindi & English)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-topbar-right">
+            <span class="engine-badge">
+                <i class="fas fa-brain"></i> Llama 3.3 70B &amp; Gemini
+            </span>
+            <button onclick="clearChatHistory()" class="btn-back" style="padding:7px 11px;" title="Clear Chat">
+                <i class="fas fa-rotate-right"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="chat-container">
+        <!-- Message Stream -->
+        <div class="chat-stream" id="chatStream">
+            <!-- Initial Welcome Message from AI -->
+            <div class="chat-msg assistant">
+                <img src="/data/branding/logo.png" alt="Avatar" class="msg-avatar" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="msg-bubble" id="welcomeMsgBubble">
+                        नमस्ते! मैं <strong>भारती</strong> हूँ — <strong>BBCC SKILL HUB</strong> की Chief Academic Counselor।<br><br>
+                        मैं आपकी किस प्रकार सहायता कर सकती हूँ? आप मुझसे <strong>ऑनलाइन डायरेक्ट एडमिशन, कोर्स फीस, ADCA/DCA कंप्यूटर डिप्लोमा, स्टडी नोट्स डिस्काउंट, या परीक्षा मार्कशीट</strong> के बारे में कोई भी प्रश्न पूछ सकते हैं।
+                    </div>
+                    <div class="msg-time" id="welcomeTime">Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggestion Chips -->
+        <div class="chips-container" id="chipsBar">
+            <button class="chip-btn" onclick="sendQuickPrompt('Direct Admission की फीस और प्रक्रिया क्या है?')">
+                🎓 Direct Admission Fees
+            </button>
+            <button class="chip-btn" onclick="sendQuickPrompt('ADCA और DCA कंप्यूटर कोर्स की पूरी जानकारी दें')">
+                💻 ADCA &amp; DCA Diplomas
+            </button>
+            <button class="chip-btn" onclick="sendQuickPrompt('स्टडी नोट्स पर डिस्काउंट वाउचर कैसे इस्तेमाल करें?')">
+                🏷️ Notes Discount Voucher
+            </button>
+            <button class="chip-btn" onclick="sendQuickPrompt('नजदीकी मान्यता प्राप्त कोचिंग सेंटर कैसे खोजें?')">
+                🏫 Nearest Coaching Center
+            </button>
+            <button class="chip-btn" onclick="sendQuickPrompt('स्टूडेंट रोल नंबर और सर्टिफिकेट कैसे वेरीफाई करें?')">
+                📜 Verify Roll Number
+            </button>
+        </div>
+
+        <!-- Input Bar (Pure Text, NO Voice/Mic) -->
+        <div class="chat-input-bar">
+            <input type="text" id="chatInput" class="chat-input-field" placeholder="अपना प्रश्न यहाँ टाइप करें (Hindi, English या Hinglish)..." autocomplete="off" onkeydown="if(event.key==='Enter') sendMessage()">
+            <button id="btnSend" class="btn-send" onclick="sendMessage()">
+                <span>भेजें</span> <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        let chatHistory = [];
+        let aiConfig = null;
+
+        // Load Dynamic AI Configuration
+        async function initAiCounselor() {
+            try {
+                const res = await fetch('/api/public/config?_t=' + Date.now());
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const cfg = data.data;
+                    if (cfg.aiConfig && cfg.aiConfig.aiAssistantName) {
+                        document.getElementById('counselorNameDisplay').innerHTML = `${cfg.aiConfig.aiAssistantName} <i class="fas fa-circle-check" style="color:var(--emerald); font-size:13px;"></i>`;
+                    }
+                    if (cfg.boardLogo) {
+                        const avatar = document.getElementById('counselorAvatar');
+                        if (avatar) avatar.src = cfg.boardLogo;
+                    }
+                }
+            } catch(e) {
+                console.warn('AI config load notice:', e);
+            }
+        }
+        initAiCounselor();
+
+        function appendMessage(role, text) {
+            const stream = document.getElementById('chatStream');
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${role}`;
+
+            const avatarSrc = role === 'assistant' ? '/data/branding/logo.png' : '/santosh_sir.jpeg';
+
+            // Convert markdown bold to strong and linebreaks to <br>
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+
+            msgDiv.innerHTML = `
+                <img src="${avatarSrc}" alt="${role}" class="msg-avatar" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="msg-bubble">${formattedText}</div>
+                    <div class="msg-time">${now}</div>
+                </div>
+            `;
+            stream.appendChild(msgDiv);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const stream = document.getElementById('chatStream');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-msg assistant';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <img src="/data/branding/logo.png" alt="AI" class="msg-avatar" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="msg-bubble">
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            stream.appendChild(typingDiv);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) typingDiv.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('btnSend');
+            const text = (input.value || '').trim();
+            if (!text) return;
+
+            input.value = '';
+            input.focus();
+            appendMessage('user', text);
+            btn.disabled = true;
+
+            showTypingIndicator();
+
+            try {
+                const res = await fetch('/api/ai/counselor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        history: chatHistory.slice(-8),
+                        visitorName: localStorage.getItem('bbcc_student_name') || 'Student / Visitor'
+                    })
+                });
+                const data = await res.json();
+                hideTypingIndicator();
+
+                if (data.success && data.reply) {
+                    appendMessage('assistant', data.reply);
+                    chatHistory.push({ role: 'user', content: text });
+                    chatHistory.push({ role: 'model', content: data.reply });
+                } else {
+                    appendMessage('assistant', data.reply || data.message || 'क्षमा करें, इस समय संपर्क स्थापित नहीं हो पा रहा है। कृपया कुछ देर बाद प्रयास करें।');
+                }
+            } catch (err) {
+                hideTypingIndicator();
+                appendMessage('assistant', 'सर्वर से कनेक्ट करने में समस्या आई। कृपया अपना इंटरनेट कनेक्शन जांचें।');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('chatInput').value = promptText;
+            sendMessage();
+        }
+
+        function clearChatHistory() {
+            if (confirm('क्या आप चैट हिस्ट्री को रीसेट करना चाहते हैं?')) {
+                chatHistory = [];
+                const stream = document.getElementById('chatStream');
+                const firstMsg = stream.firstElementChild;
+                stream.innerHTML = '';
+                if (firstMsg) stream.appendChild(firstMsg);
+            }
+        }
+    </script>
+</body>
+</html>
