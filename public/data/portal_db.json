@@ -46,14 +46,57 @@
       "role": "superadmin"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "6ad09c2b5c61c227b1eaf319",
+      "createdAt": "2026-10-15T09:26:04.060Z",
+      "updatedAt": "2026-10-15T09:26:04.060Z",
+      "centerName": "PTCC+BBCC",
+      "username": "jagannath",
+      "password": "$2a$10$puBf7.r.MPnZVQQgYNp0Oe7veHCoKJ.AGfzc0R14aKgBvv0e2ZGee",
+      "directorName": "Jagannth Sir",
+      "contactNumber": "9971095964",
+      "whatsappNumber": "9971095964",
+      "email": "",
+      "fromClass": "Class 1th",
+      "toClass": "Class 12th",
+      "address": "Chakadah chowk madhubani Bihar 847211",
+      "admissionFee": 200,
+      "affiliationCertificateId": "BBCC-AFF-363038",
+      "affiliationPaid": true,
+      "affiliationDate": "2026-10-15T09:26:03.735Z",
+      "isBlocked": false,
+      "dueAmount": 0,
+      "walletBalance": 0,
+      "teachers": [],
+      "courses": [],
+      "materials": [],
+      "promotionalBanners": []
+    }
+  ],
   "studyMaterials": {
     "notes": [],
     "videos": []
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [],
+  "paymentTransactions": [
+    {
+      "_id": "6ad09c2c5c61c227b1eaf31e",
+      "orderId": "order_To8LKnXxhU5TiJ",
+      "paymentId": "pay_To8M6I6oXZzL3y",
+      "purpose": "coaching_affiliation",
+      "amount": 1,
+      "status": "paid",
+      "payerName": "Jagannth Sir",
+      "payerPhone": "9971095964",
+      "payerEmail": "",
+      "centerId": "6ad09c2b5c61c227b1eaf319",
+      "centerName": "PTCC+BBCC",
+      "createdAt": "2026-10-15T09:26:04.289Z",
+      "paidAt": "2026-10-15T09:26:04.289Z"
+    }
+  ],
   "push_subscriptions": [],
   "push_history": [],
   "bharti_auto_push_log": {
@@ -68,5 +111,21 @@
   "liveSessions": [],
   "admissionInquiries": [],
   "supportTickets": [],
-  "affiliationApplications": []
+  "affiliationApplications": [
+    {
+      "_id": "6ad09c2c5c61c227b1eaf31b",
+      "centerName": "PTCC+BBCC",
+      "directorName": "Jagannth Sir",
+      "contactNumber": "9971095964",
+      "whatsappNumber": "9971095964",
+      "email": "",
+      "address": "Chakadah chowk madhubani Bihar 847211",
+      "username": "jagannath",
+      "fromClass": "Class 1th",
+      "toClass": "Class 12th",
+      "appliedAt": "2026-10-15T09:26:04.060Z",
+      "status": "approved",
+      "feePaid": 1
+    }
+  ]
 }
