@@ -213,7 +213,7 @@
             <a href="/" target="_blank" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--admin-gold);">
                 <i class="fas fa-house-chimney"></i> Main Board Portal
             </a>
-            <button onclick="openFormatDataModal()" class="btn-aurora" style="background:rgba(220,38,38,0.22); border:1px solid #dc2626; color:#fca5a5; font-weight:700; cursor:pointer;" title="Factory Reset & Format All Data (MongoDB & GitHub Cloud)">
+            <button onclick="openFormatDataModal()" class="btn-aurora" style="background:rgba(220,38,38,0.22); border:1px solid #dc2626; color:#fca5a5; font-weight:700; cursor:pointer;" title="Factory Reset & Format All Data (MongoDB & DataStax Astra DB)">
                 <i class="fas fa-trash-can"></i> Format Data
             </button>
             <button onclick="logoutAdmin()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
@@ -225,16 +225,37 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <button class="admin-nav-btn active" onclick="switchAdminTab('centers')">
-                <i class="fas fa-school"></i> Partner Coaching Centers
+                <i class="fas fa-school" style="color:#fbbf24;"></i> Partner Coaching Centers
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('vault')">
-                <i class="fas fa-book-bookmark"></i> E-Library & Raw Data
+            <button class="admin-nav-btn" onclick="switchAdminTab('ai-engines')">
+                <i class="fas fa-brain" style="color:#f97316;"></i> Groq & Gemini AI Engines
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('book-orders')">
-                <i class="fas fa-boxes-packing"></i> Physical Book Orders
+            <button class="admin-nav-btn" onclick="switchAdminTab('razorpay')">
+                <i class="fas fa-credit-card" style="color:#38bdf8;"></i> Razorpay Payment Gateway
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('youtube')">
+                <i class="fab fa-youtube" style="color:#ef4444;"></i> YouTube Live & Studio
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('books-hub')">
+                <i class="fas fa-book-bookmark" style="color:#10b981;"></i> E-Library & Book Orders
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('database-hub')">
+                <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('templates')">
+                <i class="fas fa-certificate" style="color:#a78bfa;"></i> Templates & Themes (Live Preview)
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('founder')">
+                <i class="fas fa-user-tie" style="color:#ec4899;"></i> Founder & Leadership
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('security')">
+                <i class="fas fa-shield-halved" style="color:#ef4444;"></i> Security & Data Reset
+            </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
+                <i class="fas fa-sliders" style="color:#64748b;"></i> Board CMS & Platform
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('banners')">
-                <i class="fas fa-images"></i> Promotional Banners Network
+                <i class="fas fa-images"></i> Promotional Banners
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('gallery')">
                 <i class="fas fa-camera-retro"></i> Board Campus Gallery
@@ -242,29 +263,11 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('students')">
                 <i class="fas fa-id-card"></i> Student Enrolment Roster
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('database-hub')">
-                <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
-                <i class="fas fa-sliders" style="color:#10b981;"></i> Board CMS & Platform
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('gateways')">
-                <i class="fas fa-credit-card" style="color:#f59e0b;"></i> Payment & AI Gateways
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('founder')">
-                <i class="fas fa-user-tie" style="color:#ec4899;"></i> Founder & Leadership
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('templates')">
-                <i class="fas fa-certificate" style="color:#8b5cf6;"></i> Templates & Themes
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('security')">
-                <i class="fas fa-shield-halved" style="color:#ef4444;"></i> Security & Data Reset
-            </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('affiliations')">
                 <i class="fas fa-handshake"></i> Affiliations Desk
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('transactions')">
-                <i class="fas fa-receipt"></i> Payment Transactions
+                <i class="fas fa-receipt"></i> Payment Transactions (80/20)
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('payouts')">
                 <i class="fas fa-money-bill-transfer"></i> Withdrawals & Payouts
@@ -276,7 +279,7 @@
                 <i class="fas fa-bell"></i> Push Broadcast & BHARTI
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('central-live')">
-                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Central Live Studio & Programs
+                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Central Live Studio
             </button>
             <button class="admin-nav-btn" onclick="openAdminManualModal()" style="border-left:3px solid var(--admin-gold); background:rgba(245,158,11,0.08);">
                 <i class="fas fa-book-open" style="color:var(--admin-gold);"></i> 📖 Super Admin User Manual & SOP
@@ -348,182 +351,239 @@
                 </div>
             </div>
 
-            <!-- TAB 2: E-LIBRARY VAULT & RAW DATA -->
-            <div class="admin-tab" id="tab-vault">
-                <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Document Note / Raw Data to E-Library Vault</h3>
-                    <form onsubmit="publishVaultBook(event)">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Document Title *</label>
-                                <input type="text" id="vbTitle" required placeholder="e.g. Complete Organic Chemistry Notes" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Subject Category</label>
-                                <input type="text" id="vbSubject" placeholder="e.g. Chemistry" class="console-input">
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
-                                <input type="text" id="vbClass" placeholder="e.g. Class 12th / All Classes" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">File Format</label>
-                                <select id="vbType" class="console-input">
-                                    <option value="pdf">PDF Document (.pdf)</option>
-                                    <option value="docx">Word Document (.docx / .doc)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Dual Pricing System (E-PDF vs Printed Hard Copy) -->
-                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:14px; margin-bottom:14px;">
-                            <div style="font-size:13px; font-weight:800; color:var(--admin-gold); margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-tags"></i> डुअल प्राइसिंग एवं डिस्काउंट सेटिंग (E-PDF & Printed Hard Copy MRP System)
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:10px;">
-                                <div>
-                                    <label style="font-size:12px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-pdf"></i> E-PDF Sale Price ₹ (0 = Free) *</label>
-                                    <input type="number" id="vbPrice" required min="0" value="0" placeholder="e.g. 49" class="console-input">
-                                </div>
-                                <div>
-                                    <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-file-pdf"></i> E-PDF MRP ₹ (अधिकतम खुदरा मूल्य)</label>
-                                    <input type="number" id="vbPdfMrp" min="0" value="199" placeholder="e.g. 199 (छूट दिखेगी)" class="console-input">
-                                </div>
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-                                <div>
-                                    <label style="font-size:12px; color:#fbbf24; font-weight:700;"><i class="fas fa-box-open"></i> हार्ड कॉपी सेल मूल्य ₹ (Printed Copy Sale Price) *</label>
-                                    <input type="number" id="vbPhysicalPrice" min="0" value="149" placeholder="e.g. 149" class="console-input">
-                                </div>
-                                <div>
-                                    <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-box-open"></i> हार्ड कॉपी MRP ₹ (Printed Copy MRP)</label>
-                                    <input type="number" id="vbPhysicalMrp" min="0" value="299" placeholder="e.g. 299" class="console-input">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Campus Pickup Details for Physical Orders -->
-                        <div style="background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:14px; margin-bottom:14px;">
-                            <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-location-dot"></i> हार्ड कॉपी पिकअप विवरण (Campus Pickup Details)
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px;">
-                                <div>
-                                    <label style="font-size:12px; color:#cbd5e1;">पिकअप केंद्र का पता (Campus Address)</label>
-                                    <input type="text" id="vbPickupAddress" placeholder="e.g. BBCC Central Directorate, Patna, Bihar - 800001" class="console-input">
-                                </div>
-                                <div>
-                                    <label style="font-size:12px; color:#cbd5e1;">निदेशक / पिकअप संपर्क (Director Name & Phone)</label>
-                                    <input type="text" id="vbDirectorContact" placeholder="e.g. Santosh Kumar (+91 98765 43210)" class="console-input">
-                                </div>
-                            </div>
-                            <div style="font-size:11px; color:#94a3b8;">
-                                <i class="fas fa-circle-info"></i> खाली छोड़ने पर डिफ़ॉल्ट कोचिंग केंद्र या BBCC का आधिकारिक पता अपने-आप दिखेगा।
-                            </div>
-                        </div>
-
-                        <!-- Target Center Scope & Raw Data Flag -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12px; color:#cbd5e1;">Target Center Scope</label>
-                                <select id="vbTargetCenter" class="console-input">
-                                    <option value="all">Universal / All Coaching Centers</option>
-                                </select>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
-                                <input type="checkbox" id="vbIsRawData" style="width:18px; height:18px; accent-color:var(--admin-gold);">
-                                <label for="vbIsRawData" style="font-size:13px; color:#cbd5e1; cursor:pointer;">Is Raw Educational Data / Syllabus Resource</label>
-                            </div>
-                        </div>
-
-                        <!-- Strict GitHub Data Storage Indicator -->
-                        <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:10px 16px; border-radius:10px; display:flex; align-items:center; gap:10px;">
-                            <i class="fab fa-github" style="color:#10b981; font-size:18px;"></i>
-                            <div>
-                                <span style="font-size:12px; font-weight:700; color:#10b981;">GitHub Data Storage Engine Active</span>
-                                <p style="font-size:11px; color:#94a3b8; margin:2px 0 0 0;">All PDF files and images automatically save into GitHub <code>public/data/</code> folder. MongoDB is kept 100% free of media bloat for ultra-fast server response.</p>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom:14px;">
-                            <label style="font-size:12px; color:#cbd5e1;">Custom Thumbnail Image (Optional — if blank, 3D Book Cover auto-generates)</label>
-                            <input type="file" id="vbThumbInput" accept="image/*" class="console-input">
-                        </div>
-
-                        <div style="margin-bottom:18px;">
-                            <label style="font-size:12px; color:#cbd5e1;">Document File (Base64 Encoded for secure delivery) *</label>
-                            <input type="file" id="vbFileInput" required accept=".pdf,.doc,.docx" class="console-input">
-                        </div>
-
-                        <button type="submit" id="vbSubmitBtn" class="btn-aurora btn-gold"><i class="fas fa-upload"></i> Publish to E-Library Vault</button>
-                    </form>
-                </div>
-
-                <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Central Repository Documents (Edit & Scope Control)</h3>
-                    <div style="overflow-x:auto;">
-                        <table class="console-table">
-                            <thead>
-                                <tr>
-                                    <th>Cover</th>
-                                    <th>Title</th>
-                                    <th>Subject / Class</th>
-                                    <th>Scope / Center</th>
-                                    <th>E-PDF (Sale / MRP)</th>
-                                    <th>हार्ड कॉपी (Sale / MRP)</th>
-                                    <th>Pickup Campus</th>
-                                    <th>Downloads</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="booksTbody">
-                                <tr><td colspan="9" style="text-align:center; padding:20px;">Loading books...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: PHYSICAL PRINTED BOOK ORDERS DESK -->
-            <div class="admin-tab" id="tab-book-orders">
-                <div class="card-console">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+            <!-- TAB: UNIFIED E-LIBRARY & PHYSICAL BOOK ORDERS HUB -->
+            <div class="admin-tab" id="tab-books-hub">
+                <!-- Top Analytics Dashboard Card -->
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(16, 185, 129, 0.35); background:radial-gradient(circle at top right, rgba(16,185,129,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:18px;">
                         <div>
-                            <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
-                                <i class="fas fa-boxes-packing"></i> Physical Printed Book Orders Ledger (हार्ड कॉपी पुस्तक ऑर्डर्स)
-                            </h3>
-                            <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">
-                                Track student physical hard copy purchases, campus pickup status, and 1-click WhatsApp order dispatch.
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#10b981;"><i class="fas fa-book-bookmark"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Central E-Library & Physical Book Orders Deck</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Unified command center for digital syllabus materials (DataStax Astra DB) and physical hard copy student order fulfillment.
                             </p>
                         </div>
-                        <button type="button" onclick="loadAdminBookOrders()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
-                            <i class="fas fa-rotate"></i> Refresh Orders
-                        </button>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="loadAdminBookOrders(); loadVaultBooks();" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Hub
+                            </button>
+                        </div>
                     </div>
 
-                    <div style="overflow-x:auto;">
-                        <table class="console-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Student / Contact</th>
-                                    <th>Book Title</th>
-                                    <th>Center / Campus Pickup</th>
-                                    <th>Amount Paid (100% Online)</th>
-                                    <th>Status</th>
-                                    <th>Order Date</th>
-                                    <th>Actions / WhatsApp</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminBookOrdersTbody">
-                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Loading physical orders...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- 4 Analytics Counters Grid -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:14px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Digital Notes / Books</div>
+                            <div id="hubTotalEbooks" style="font-size:24px; font-weight:800; color:#38bdf8; margin-top:4px;">0</div>
+                            <div style="font-size:11px; color:#64748b;">In DataStax Astra DB</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:14px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Physical Orders Placed</div>
+                            <div id="hubTotalOrders" style="font-size:24px; font-weight:800; color:#fbbf24; margin-top:4px;">0</div>
+                            <div style="font-size:11px; color:#64748b;">100% Online Verified</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:14px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Book Sales Revenue</div>
+                            <div id="hubTotalRevenue" style="font-size:24px; font-weight:800; color:#34d399; margin-top:4px;">₹0</div>
+                            <div style="font-size:11px; color:#64748b;">Net Paid via Razorpay</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:14px;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Dispatched vs Pending</div>
+                            <div id="hubOrdersStatus" style="font-size:20px; font-weight:800; color:#f87171; margin-top:6px;">0 / 0</div>
+                            <div style="font-size:11px; color:#64748b;">Delivered / Pending</div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Sub-Tab Navigation Toggle -->
+                <div style="display:flex; gap:10px; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; flex-wrap:wrap;">
+                    <button type="button" id="btnSubTabOrders" class="btn-aurora active" onclick="showBooksHubSubTab('orders')" style="font-size:13px; font-weight:700; padding:8px 18px;">
+                        <i class="fas fa-boxes-packing" style="color:#fbbf24;"></i> Physical Hard Copy Orders Ledger (<span id="badgeOrderCount">0</span>)
+                    </button>
+                    <button type="button" id="btnSubTabDigital" class="btn-aurora" onclick="showBooksHubSubTab('digital')" style="font-size:13px; font-weight:700; padding:8px 18px;">
+                        <i class="fas fa-book-bookmark" style="color:#38bdf8;"></i> Digital E-Library Materials & Upload
+                    </button>
+                </div>
+
+                <!-- SUB-PANEL 1: PHYSICAL BOOK ORDERS LEDGER -->
+                <div id="booksHubPanelOrders">
+                    <div class="card-console">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                            <div>
+                                <h3 style="font-family:'Cinzel',serif; font-size:18px; color:var(--admin-gold); margin:0;">
+                                    <i class="fas fa-boxes-packing"></i> Physical Printed Book Orders Ledger (हार्ड कॉपी पुस्तक ऑर्डर्स)
+                                </h3>
+                                <p style="color:#cbd5e1; font-size:13px; margin-top:4px;">
+                                    Track student physical hard copy purchases, campus pickup status, and 1-click WhatsApp order dispatch.
+                                </p>
+                            </div>
+                            <button type="button" onclick="loadAdminBookOrders()" class="btn-aurora btn-gold" style="padding:6px 14px; font-size:12px;">
+                                <i class="fas fa-rotate"></i> Refresh Orders
+                            </button>
+                        </div>
+
+                        <div style="overflow-x:auto;">
+                            <table class="console-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Student / Contact</th>
+                                        <th>Book Title</th>
+                                        <th>Center / Campus Pickup</th>
+                                        <th>Amount Paid (100% Online)</th>
+                                        <th>Status</th>
+                                        <th>Order Date</th>
+                                        <th>Actions / WhatsApp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminBookOrdersTbody">
+                                    <tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Loading physical orders...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL 2: DIGITAL E-LIBRARY REPOSITORY & UPLOAD -->
+                <div id="booksHubPanelDigital" style="display:none;">
+                    <div class="card-console" style="margin-bottom:20px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Publish Document Note / Syllabus Book to E-Library Vault</h3>
+                        <form onsubmit="publishVaultBook(event)">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">Document Title *</label>
+                                    <input type="text" id="vbTitle" required placeholder="e.g. Complete Organic Chemistry Notes" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">Subject Category</label>
+                                    <input type="text" id="vbSubject" placeholder="e.g. Chemistry" class="console-input">
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">Class Level</label>
+                                    <input type="text" id="vbClass" placeholder="e.g. Class 12th / All Classes" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">File Format</label>
+                                    <select id="vbType" class="console-input">
+                                        <option value="pdf">PDF Document (.pdf)</option>
+                                        <option value="docx">Word Document (.docx / .doc)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Dual Pricing System (E-PDF vs Printed Hard Copy) -->
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:14px; margin-bottom:14px;">
+                                <div style="font-size:13px; font-weight:800; color:var(--admin-gold); margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fas fa-tags"></i> डुअल प्राइसिंग एवं डिस्काउंट सेटिंग (E-PDF & Printed Hard Copy MRP System)
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:10px;">
+                                    <div>
+                                        <label style="font-size:12px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-pdf"></i> E-PDF Sale Price ₹ (0 = Free) *</label>
+                                        <input type="number" id="vbPrice" required min="0" value="0" placeholder="e.g. 49" class="console-input">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-file-pdf"></i> E-PDF MRP ₹ (अधिकतम खुदरा मूल्य)</label>
+                                        <input type="number" id="vbPdfMrp" min="0" value="199" placeholder="e.g. 199 (छूट दिखेगी)" class="console-input">
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                                    <div>
+                                        <label style="font-size:12px; color:#fbbf24; font-weight:700;"><i class="fas fa-box-open"></i> हार्ड कॉपी सेल मूल्य ₹ (Printed Copy Sale Price) *</label>
+                                        <input type="number" id="vbPhysicalPrice" min="0" value="149" placeholder="e.g. 149" class="console-input">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1;"><i class="fas fa-box-open"></i> हार्ड कॉपी MRP ₹ (Printed Copy MRP)</label>
+                                        <input type="number" id="vbPhysicalMrp" min="0" value="299" placeholder="e.g. 299" class="console-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Campus Pickup Details for Physical Orders -->
+                            <div style="background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:14px; margin-bottom:14px;">
+                                <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fas fa-location-dot"></i> हार्ड कॉपी पिकअप विवरण (Campus Pickup Details)
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px;">
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1;">पिकअप केंद्र का पता (Campus Address)</label>
+                                        <input type="text" id="vbPickupAddress" placeholder="e.g. BBCC Central Directorate, Madhubani, Bihar - 847211" class="console-input">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; color:#cbd5e1;">निदेशक / पिकअप संपर्क (Director Name & Phone)</label>
+                                        <input type="text" id="vbDirectorContact" placeholder="e.g. Santosh Kumar (+91 98765 43210)" class="console-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Target Center Scope -->
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                                <div>
+                                    <label style="font-size:12px; color:#cbd5e1;">Target Center Scope</label>
+                                    <select id="vbTargetCenter" class="console-input">
+                                        <option value="all">Universal / All Coaching Centers</option>
+                                    </select>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
+                                    <input type="checkbox" id="vbIsRawData" style="width:18px; height:18px; accent-color:var(--admin-gold);">
+                                    <label for="vbIsRawData" style="font-size:13px; color:#cbd5e1; cursor:pointer;">Is Raw Educational Data / Syllabus Resource</label>
+                                </div>
+                            </div>
+
+                            <!-- DataStax Astra DB Cloud Storage Engine Indicator -->
+                            <div style="margin-bottom:14px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.25); padding:10px 16px; border-radius:10px; display:flex; align-items:center; gap:10px;">
+                                <i class="fas fa-bolt" style="color:#a855f7; font-size:18px;"></i>
+                                <div>
+                                    <span style="font-size:12px; font-weight:700; color:#c084fc;">DataStax Astra DB Serverless Cloud Engine Active</span>
+                                    <p style="font-size:11px; color:#94a3b8; margin:2px 0 0 0;">All PDF textbook files and high-res cover graphics save into DataStax Astra DB collections. MongoDB is strictly reserved for credentials and transactions.</p>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:14px;">
+                                <label style="font-size:12px; color:#cbd5e1;">Custom Thumbnail Image (Optional)</label>
+                                <input type="file" id="vbThumbInput" accept="image/*" class="console-input">
+                            </div>
+
+                            <div style="margin-bottom:18px;">
+                                <label style="font-size:12px; color:#cbd5e1;">Document File (.pdf, .docx) *</label>
+                                <input type="file" id="vbFileInput" required accept=".pdf,.doc,.docx" class="console-input">
+                            </div>
+
+                            <button type="submit" id="vbSubmitBtn" class="btn-aurora btn-gold"><i class="fas fa-upload"></i> Publish to DataStax Astra DB Vault</button>
+                        </form>
+                    </div>
+
+                    <div class="card-console">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">Central Repository Documents (Edit & Delete Controls)</h3>
+                        <div style="overflow-x:auto;">
+                            <table class="console-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cover</th>
+                                        <th>Title</th>
+                                        <th>Subject / Class</th>
+                                        <th>Scope / Center</th>
+                                        <th>E-PDF (Sale / MRP)</th>
+                                        <th>हार्ड कॉपी (Sale / MRP)</th>
+                                        <th>Storage</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booksTbody">
+                                    <tr><td colspan="8" style="text-align:center; padding:20px;">Loading books...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Backwards Compatibility Aliases -->
+                <div id="tab-vault" style="display:none;"></div>
+                <div id="tab-book-orders" style="display:none;"></div>
             </div>
 
             <!-- TAB 3: STUDENT ENROLMENT ROSTER -->
@@ -645,9 +705,23 @@
                 </div>
             </div>
 
-            <!-- TAB: PAYMENT & AI CLOUD GATEWAYS -->
-            <div class="admin-tab" id="tab-gateways">
-                <!-- 2. Groq Cloud AI Setup (Free Llama 3.3 70B & Llama 3.1 8B - High Speed & High Limit) -->
+            <!-- TAB: DEDICATED AI ENGINES (GROQ & GEMINI) -->
+            <div class="admin-tab" id="tab-ai-engines">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(249, 115, 22, 0.35); background:radial-gradient(circle at top right, rgba(249,115,22,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#f97316;"><i class="fas fa-brain"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Bharti AI Intelligence & Neural Cloud Engines</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Dual-AI intelligence pipeline: <strong>Groq Cloud AI (Primary Free Llama 3.3 70B)</strong> with ultra-fast latency + <strong>Google Gemini AI (Fallback Counselor)</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Groq Cloud AI Setup (Free Llama 3.3 70B & Llama 3.1 8B - High Speed & Zero Rate-Limit Blocks) -->
                 <div class="card-console" style="margin-bottom:20px; border-left:4px solid #f97316;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
@@ -655,7 +729,7 @@
                                 <i class="fas fa-bolt"></i> Groq Cloud AI Engine (Free Llama 3.3 70B — Ultra Fast)
                             </h3>
                             <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
-                                Primary engine for Bharti Chief Counselor. 100% Free API with zero rate-limit blocks! Get your free key instantly at <a href="https://console.groq.com/keys" target="_blank" style="color:#38bdf8; text-decoration:underline; font-weight:700;">groq.com/keys</a>.
+                                Primary ultra-fast engine for Bharti Chief Counselor. 100% Free API with zero rate-limit blocks! Get your free key instantly at <a href="https://console.groq.com/keys" target="_blank" style="color:#38bdf8; text-decoration:underline; font-weight:700;">groq.com/keys</a>.
                             </p>
                         </div>
                         <span id="groqStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(249,115,22,0.15); border:1px solid #f97316; color:#fb923c;">
@@ -680,7 +754,7 @@
                     </div>
                 </div>
 
-                <!-- 2B. Google Gemini AI Setup (Fallback AI Counselor) -->
+                <!-- 2. Google Gemini AI Setup (Fallback AI Counselor) -->
                 <div class="card-console" style="margin-bottom:20px; border-left:4px solid #06b6d4;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
@@ -710,15 +784,31 @@
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- 3. Razorpay Payment Gateway Setup -->
+            <!-- TAB: DEDICATED RAZORPAY PAYMENT GATEWAY -->
+            <div class="admin-tab" id="tab-razorpay">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(56, 189, 248, 0.35); background:radial-gradient(circle at top right, rgba(56,189,248,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#38bdf8;"><i class="fas fa-credit-card"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Razorpay Payment Gateway Master Deck</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Unified online admission fees, center affiliations, and syllabus books checkout with automatic 80/20 platform ledger splits.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-console" style="margin-bottom:20px; border-left:4px solid #f59e0b;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
                             <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#fbbf24; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-credit-card"></i> Razorpay Payment Gateway Credentials
+                                <i class="fas fa-key"></i> Razorpay Production API Credentials
                             </h3>
-                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Handles instant online student admission fees, coaching affiliation charges, and notes purchases.</p>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Securely connects your Razorpay account for instant UPI, Debit/Credit card, Netbanking, and QR code payments.</p>
                         </div>
                         <span id="rzpStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(251,191,36,0.15); border:1px solid var(--border-glow); color:var(--admin-gold);">
                             Checking Gateway...
@@ -747,16 +837,32 @@
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- 3B. Central YouTube Channel & Cloud API Studio (Live Class Auto-Archive) -->
+            <!-- TAB: DEDICATED YOUTUBE LIVE & VIDEO STUDIO -->
+            <div class="admin-tab" id="tab-youtube">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(239, 68, 68, 0.35); background:radial-gradient(circle at top right, rgba(239,68,68,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#ef4444;"><i class="fab fa-youtube"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Official YouTube Channel & Live Video Studio</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Direct 1-Click live broadcast desk and automated revision video archival for all partner faculty sessions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-console" style="margin-bottom:20px; border-left:4px solid #ef4444;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
                             <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
-                                <i class="fab fa-youtube"></i> Official YouTube Channel & Cloud API Studio (केंद्रीय यूट्यूब चैनल व ऑटो-रिकॉर्डिंग आर्काइव)
+                                <i class="fab fa-youtube"></i> YouTube Cloud API & OAuth 2.0 Credentials
                             </h3>
                             <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
-                                Central YouTube Channel credentials for automatic video archival. All teacher live classes upon ending will automatically upload or link as unlisted revision videos on this single official platform channel.
+                                Central YouTube Channel credentials for automatic video archival. All teacher live classes upon ending will automatically link or upload as unlisted revision videos.
                             </p>
                         </div>
                         <span id="youtubeStatusBadge" style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
@@ -828,9 +934,6 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <p style="color:#94a3b8; font-size:11px; margin-top:4px;">
-                            💡 <b>महत्वपूर्ण:</b> यह टोकन केवल एक बार Google से अधिकृत (Authorize) करना होता है। इसके बाद आपको कभी भी YouTube Studio नहीं जाना पड़ेगा — एडमिन से "GO LIVE" दबाते ही सीधे आपके चैनल पर लाइव शुरू हो जाएगा।
-                        </p>
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
@@ -862,6 +965,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Backwards Compatibility Alias -->
+            <div id="tab-gateways" style="display:none;"></div>
 
             <!-- TAB: FOUNDER & LEADERSHIP PROFILE -->
             <div class="admin-tab" id="tab-founder">
@@ -918,21 +1024,37 @@
                 </div>
             </div>
 
-            <!-- TAB: TEMPLATES & FESTIVAL THEMES -->
+            <!-- TAB: TEMPLATES & FESTIVAL THEMES WITH LIVE REAL-TIME PREVIEWS -->
             <div class="admin-tab" id="tab-templates">
-                <!-- 5. Festival-Adaptive Background Theme Selector -->
-                <div class="card-console" style="border-left:4px solid #f59e0b;">
+                <!-- Top Overview Card -->
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(168, 85, 247, 0.35); background:radial-gradient(circle at top right, rgba(168,85,247,0.08), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#a855f7;"><i class="fas fa-certificate"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Templates & Themes Interactive Engine</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Design and instantly preview student fee receipts, central certificates, and animated festival backgrounds in real-time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Festival-Adaptive Background Theme Selector with Live Animated Box -->
+                <div class="card-console" style="margin-bottom:24px; border-left:4px solid #f59e0b;">
                     <div style="margin-bottom:16px;">
                         <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:var(--admin-gold); display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-sparkles"></i> Indian Festival-Adaptive Animated Homepage Background
+                            <i class="fas fa-sparkles"></i> Indian Festival-Adaptive Animated Background (Live Preview)
                         </h3>
-                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Control the live animated background on the public website. Auto-mode dynamically detects national festivals (Diwali, Chhath Puja, Holi, Independence/Republic Day, Eid), or you can lock a festival theme manually.</p>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Control the live animated background on the public website. Auto-mode dynamically detects national festivals, or you can lock any theme manually.</p>
                     </div>
-                    <form onsubmit="saveFestivalTheme(event)">
-                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:16px;">
-                            <div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; align-items:start;">
+                        <form onsubmit="saveFestivalTheme(event)">
+                            <div style="margin-bottom:16px;">
                                 <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Active Animated Festival Theme</label>
-                                <select id="setActiveFestivalTheme" class="console-input" style="margin-top:6px;">
+                                <select id="setActiveFestivalTheme" onchange="updateFestivalPreview(this.value)" class="console-input" style="margin-top:6px; font-size:13.5px; font-weight:600;">
                                     <option value="auto">🌟 Auto Calendar Detect (Recommended)</option>
                                     <option value="diwali">🪔 Diwali Golden Sparkles & Diyas</option>
                                     <option value="chhath">🌅 Chhath Puja Surya Arghya Rays</option>
@@ -942,97 +1064,230 @@
                                     <option value="celestial">🌌 Celestial Obsidian (Classic Dark)</option>
                                 </select>
                             </div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save Festival Theme
+                            </button>
+                        </form>
+
+                        <!-- Live Festival Visual Box -->
+                        <div style="background:rgba(0,0,0,0.5); border:1px solid rgba(251,191,36,0.3); border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                            <div style="padding:10px 14px; background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.08); font-size:11.5px; font-weight:700; color:var(--admin-gold); display:flex; justify-content:space-between; align-items:center;">
+                                <span><i class="fas fa-eye"></i> Real-Time Festival Background Simulation</span>
+                                <span id="festivalThemeNameBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; background:rgba(251,191,36,0.2); color:#fbbf24;">Auto Detect</span>
+                            </div>
+                            <div id="festivalLivePreviewBox" style="height:150px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; text-align:center; padding:16px; background:radial-gradient(circle at center, #1e1b4b 0%, #030712 100%); transition:all 0.5s ease;">
+                                <div id="festivalPreviewParticles" style="position:absolute; inset:0; pointer-events:none;"></div>
+                                <div style="position:relative; z-index:2;">
+                                    <div id="festivalPreviewIcon" style="font-size:36px; margin-bottom:6px;">🌟</div>
+                                    <div id="festivalPreviewTitle" style="font-family:'Cinzel',serif; font-size:16px; font-weight:700; color:#fbbf24;">BBCC National Festival Engine</div>
+                                    <div id="festivalPreviewSubtitle" style="font-size:11.5px; color:#cbd5e1; margin-top:2px;">Live animated background active across the website</div>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submit" class="btn-aurora btn-gold">
-                            <i class="fas fa-save"></i> Save Festival Theme
-                        </button>
-                    </form>
+                    </div>
                 </div>
 
-<!-- 7. Official Bill / Invoice Template Designer -->
-                <div class="card-console" style="border-left:4px solid #3b82f6;">
+                <!-- 2. Official Student Fee Bill / Invoice Template Designer with Interactive Live Receipt Preview -->
+                <div class="card-console" style="margin-bottom:24px; border-left:4px solid #3b82f6;">
                     <div style="margin-bottom:16px;">
                         <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#60a5fa; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-file-invoice"></i> Student Fee Bill & Receipt Template Designer
+                            <i class="fas fa-file-invoice"></i> Student Fee Bill & Receipt Designer (with Live Receipt Canvas)
                         </h3>
-                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize the official fee invoice generated when students pay admission/course fees online or offline.</p>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize the official fee invoice. Changes in form fields immediately reflect in the live receipt preview on the right.</p>
                     </div>
-                    <form onsubmit="saveBillTemplate(event)">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Header Directorate Line</label>
-                                <input type="text" id="setBillHeader" placeholder="BBCC SKILL HUB CENTRAL DIRECTORATE" class="console-input">
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:24px; align-items:start;">
+                        <!-- Left: Form Controls -->
+                        <form onsubmit="saveBillTemplate(event)">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Header Directorate Line</label>
+                                    <input type="text" id="setBillHeader" oninput="updateBillLivePreview()" placeholder="BBCC SKILL HUB CENTRAL DIRECTORATE" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Invoice Title</label>
+                                    <input type="text" id="setBillTitle" oninput="updateBillLivePreview()" placeholder="OFFICIAL STUDENT FEE & ADMISSION RECEIPT" class="console-input">
+                                </div>
                             </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Invoice Title</label>
-                                <input type="text" id="setBillTitle" placeholder="OFFICIAL STUDENT FEE & ADMISSION RECEIPT" class="console-input">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Authorized Signatory Name</label>
+                                    <input type="text" id="setBillSignatory" oninput="updateBillLivePreview()" placeholder="DIRECTOR GENERAL" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Signatory Designation</label>
+                                    <input type="text" id="setBillSignatoryTitle" oninput="updateBillLivePreview()" placeholder="Authorized Certification Officer" class="console-input">
+                                </div>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Receipt Terms & Conditions</label>
+                                <textarea id="setBillTerms" oninput="updateBillLivePreview()" rows="2" class="console-input" placeholder="1. Admission fee is non-refundable. 2. Student ID Card is mandatory."></textarea>
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Footer Note</label>
+                                <input type="text" id="setBillFooter" oninput="updateBillLivePreview()" placeholder="Thank you for choosing certified education with BBCC SKILL HUB" class="console-input">
+                            </div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save Bill Template
+                            </button>
+                        </form>
+
+                        <!-- Right: Interactive Live Receipt Preview -->
+                        <div style="background:#ffffff; color:#0f172a; border-radius:12px; padding:20px; box-shadow:0 15px 35px rgba(0,0,0,0.6); border:2px solid #3b82f6; position:relative; overflow:hidden; font-family:'Inter', sans-serif;">
+                            <!-- Watermark Stamp -->
+                            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0.04; pointer-events:none; transform:rotate(-25deg); font-family:'Cinzel', serif; font-size:48px; font-weight:900; color:#0f172a; text-transform:uppercase;">
+                                BBCC VERIFIED
+                            </div>
+
+                            <div style="border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div id="prevBillHeader" style="font-size:10px; font-weight:800; letter-spacing:1px; color:#2563eb; text-transform:uppercase;">BBCC SKILL HUB CENTRAL DIRECTORATE</div>
+                                    <div id="prevBillTitle" style="font-family:'Cinzel', serif; font-size:14px; font-weight:800; color:#0f172a; margin-top:2px;">OFFICIAL STUDENT FEE & ADMISSION RECEIPT</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <span style="display:inline-block; padding:2px 8px; border-radius:4px; background:#dcfce7; color:#15803d; font-size:11px; font-weight:800;">PAID • VERIFIED</span>
+                                </div>
+                            </div>
+
+                            <!-- Sample Student Metadata Grid -->
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px; margin-bottom:12px; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+                                <div><strong>Receipt No:</strong> REC-2026-08492</div>
+                                <div><strong>Date:</strong> 15 Oct 2026</div>
+                                <div><strong>Student:</strong> Rahul Kumar</div>
+                                <div><strong>Roll No:</strong> BBCC-2026-401</div>
+                                <div style="grid-column:span 2;"><strong>Course / Center:</strong> Full Stack AI & Web Dev (Apex Academy)</div>
+                            </div>
+
+                            <!-- Fee Table -->
+                            <table style="width:100%; font-size:11px; border-collapse:collapse; margin-bottom:12px;">
+                                <thead>
+                                    <tr style="background:#f1f5f9; border-bottom:1px solid #cbd5e1; text-align:left;">
+                                        <th style="padding:6px;">Particulars</th>
+                                        <th style="padding:6px; text-align:right;">Amount (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid #f1f5f9;">
+                                        <td style="padding:6px;">Admission & Tuition Fee (Semester 1)</td>
+                                        <td style="padding:6px; text-align:right; font-weight:600;">₹1,999.00</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;">
+                                        <td style="padding:6px;">Digital E-Library & Live Classroom Pass</td>
+                                        <td style="padding:6px; text-align:right; font-weight:600;">₹500.00</td>
+                                    </tr>
+                                    <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #0f172a;">
+                                        <td style="padding:8px 6px;">Total Amount Received (Online Razorpay):</td>
+                                        <td style="padding:8px 6px; text-align:right; color:#15803d; font-size:13px;">₹2,499.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div style="font-size:9.5px; color:#64748b; margin-bottom:12px;">
+                                <strong>Terms:</strong> <span id="prevBillTerms">1. Fee paid is non-refundable. 2. Student ID must be presented upon request.</span>
+                            </div>
+
+                            <!-- Signatory Block -->
+                            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px dashed #cbd5e1; padding-top:10px;">
+                                <div id="prevBillFooter" style="font-size:9px; color:#94a3b8; max-width:200px;">
+                                    Thank you for choosing certified education with BBCC SKILL HUB.
+                                </div>
+                                <div style="text-align:center;">
+                                    <div style="font-family:'Brush Script MT', cursive; font-size:17px; color:#1e3a8a;">Santosh Kumar</div>
+                                    <div id="prevBillSignatory" style="font-size:10.5px; font-weight:800; color:#0f172a;">DIRECTOR GENERAL</div>
+                                    <div id="prevBillSignatoryTitle" style="font-size:9.5px; color:#64748b;">Authorized Signatory</div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Authorized Signatory Name</label>
-                                <input type="text" id="setBillSignatory" placeholder="DIRECTOR GENERAL" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Signatory Designation</label>
-                                <input type="text" id="setBillSignatoryTitle" placeholder="Authorized Certification Officer" class="console-input">
-                            </div>
-                        </div>
-                        <div style="margin-bottom:14px;">
-                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Receipt Terms & Conditions</label>
-                            <textarea id="setBillTerms" rows="2" class="console-input" placeholder="1. Admission fee is non-refundable..."></textarea>
-                        </div>
-                        <div style="margin-bottom:16px;">
-                            <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Footer Note</label>
-                            <input type="text" id="setBillFooter" placeholder="Thank you for choosing certified education..." class="console-input">
-                        </div>
-                        <button type="submit" class="btn-aurora btn-gold">
-                            <i class="fas fa-save"></i> Save Bill Template
-                        </button>
-                    </form>
+                    </div>
                 </div>
 
-                <!-- 8. Central Certificate Template Designer -->
-                <div class="card-console" style="border-left:4px solid #8b5cf6;">
+                <!-- 3. Central Certificate Template Designer with Interactive Royal Certificate Canvas -->
+                <div class="card-console" style="margin-bottom:20px; border-left:4px solid #8b5cf6;">
                     <div style="margin-bottom:16px;">
                         <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#a78bfa; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-certificate"></i> Affiliation & Student Certificate Template Designer
+                            <i class="fas fa-certificate"></i> Official Certificate Template Designer (with Live Certificate Canvas)
                         </h3>
-                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize border styling, titles, and examination authority names for central certificates.</p>
+                        <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">Customize border styling, titles, and examination authority names. See the real-time royal certificate render as you edit.</p>
                     </div>
-                    <form onsubmit="saveCertTemplate(event)">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Certificate Board Heading</label>
-                                <input type="text" id="setCertBoardTitle" placeholder="BBCC SKILL HUB" class="console-input">
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:24px; align-items:start;">
+                        <!-- Left: Form Controls -->
+                        <form onsubmit="saveCertTemplate(event)">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Certificate Board Heading</label>
+                                    <input type="text" id="setCertBoardTitle" oninput="updateCertLivePreview()" placeholder="BBCC SKILL HUB" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Sub-Header / Authority Text</label>
+                                    <input type="text" id="setCertSubTitle" oninput="updateCertLivePreview()" placeholder="CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION" class="console-input">
+                                </div>
                             </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Sub-Header / Authority Text</label>
-                                <input type="text" id="setCertSubTitle" placeholder="CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION" class="console-input">
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Decorative Border Style</label>
+                                    <select id="setCertBorderStyle" onchange="updateCertLivePreview()" class="console-input" style="margin-top:6px;">
+                                        <option value="gold-double">🏆 Royal Double Gold Border</option>
+                                        <option value="royal-navy">🔷 Regal Navy & Platinum Border</option>
+                                        <option value="emerald-modern">🌿 Modern Emerald Security Border</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Examination Controller</label>
+                                    <input type="text" id="setCertSignatory" oninput="updateCertLivePreview()" placeholder="CONTROLLER OF EXAMINATIONS" class="console-input">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Controller Designation</label>
+                                    <input type="text" id="setCertSignatoryTitle" oninput="updateCertLivePreview()" placeholder="Central Directorate" class="console-input">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save Certificate Template
+                            </button>
+                        </form>
+
+                        <!-- Right: Interactive Live Certificate Canvas -->
+                        <div id="certPreviewOuterFrame" style="background:#fffcf2; color:#1e293b; padding:16px; border-radius:12px; box-shadow:0 15px 35px rgba(0,0,0,0.7); position:relative; overflow:hidden; border:6px double #d97706;">
+                            <div id="certPreviewInnerFrame" style="border:2px solid #b45309; padding:18px 14px; text-align:center; position:relative; background:#ffffff;">
+                                <div id="prevCertBoardTitle" style="font-family:'Cinzel', serif; font-size:18px; font-weight:900; color:#b45309; letter-spacing:1px;">BBCC SKILL HUB</div>
+                                <div id="prevCertSubTitle" style="font-size:9px; font-weight:700; color:#64748b; letter-spacing:0.8px; margin-top:2px;">CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION</div>
+                                
+                                <div style="margin:12px 0 6px 0; font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0f172a; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid #e2e8f0; display:inline-block; padding-bottom:3px;">
+                                    CERTIFICATE OF EXCELLENCE
+                                </div>
+
+                                <div style="font-size:10px; color:#475569; margin-bottom:4px;">This is to proudly certify that</div>
+                                <div style="font-family:'Cinzel', serif; font-size:15px; font-weight:800; color:#1e3a8a; border-bottom:1px dashed #cbd5e1; display:inline-block; padding:0 16px;">
+                                    Rahul Kumar Sharma
+                                </div>
+                                <div style="font-size:10px; color:#475569; margin-top:4px;">
+                                    has successfully completed the comprehensive certification in
+                                </div>
+                                <div style="font-size:11.5px; font-weight:800; color:#0f172a; margin:4px 0;">
+                                    Advance Diploma in Computer Application & Ethical Hacking
+                                </div>
+                                <div style="font-size:10px; color:#15803d; font-weight:700;">
+                                    Graded: <strong>A+ (Distinction)</strong> • Verified Online
+                                </div>
+
+                                <!-- Gold Seal & Signatures -->
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:10px; border-top:1px solid #f1f5f9;">
+                                    <div style="text-align:center;">
+                                        <div style="font-family:'Brush Script MT', cursive; font-size:16px; color:#1e3a8a;">Santosh Sir</div>
+                                        <div style="font-size:9px; font-weight:800; color:#0f172a;">DIRECTOR GENERAL</div>
+                                    </div>
+                                    <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #d97706); display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:18px; box-shadow:0 4px 10px rgba(217,119,6,0.4); border:2px solid #fef3c7;">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div style="text-align:center;">
+                                        <div style="font-family:'Brush Script MT', cursive; font-size:16px; color:#1e3a8a;">Exam Controller</div>
+                                        <div id="prevCertSignatory" style="font-size:9px; font-weight:800; color:#0f172a;">CONTROLLER OF EXAMINATIONS</div>
+                                        <div id="prevCertSignatoryTitle" style="font-size:8px; color:#64748b;">Central Directorate</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px;">
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Decorative Border Style</label>
-                                <select id="setCertBorderStyle" class="console-input" style="margin-top:6px;">
-                                    <option value="gold-double">🏆 Royal Double Gold Border</option>
-                                    <option value="royal-navy">🔷 Regal Navy & Platinum Border</option>
-                                    <option value="emerald-modern">🌿 Modern Emerald Security Border</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Examination Controller Name</label>
-                                <input type="text" id="setCertSignatory" placeholder="CONTROLLER OF EXAMINATIONS" class="console-input">
-                            </div>
-                            <div>
-                                <label style="font-size:12.5px; font-weight:700; color:#cbd5e1;">Controller Designation</label>
-                                <input type="text" id="setCertSignatoryTitle" placeholder="Central Directorate" class="console-input">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-aurora btn-gold">
-                            <i class="fas fa-save"></i> Save Certificate Template
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -1071,15 +1326,15 @@
                     </form>
                 </div>
 
-                <!-- 1B. Master Data Format & Factory Reset Desk (MongoDB & GitHub Cloud) -->
+                <!-- 1B. Master Data Format & Factory Reset Desk (MongoDB & DataStax Astra DB) -->
                 <div class="card-console" style="margin-bottom: 24px; border-left:4px solid #ef4444; background:rgba(239,68,68,0.04);">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
                         <div>
                             <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f87171; display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-trash-can"></i> Master Data Format & Factory Reset (MongoDB & GitHub Cloud)
+                                <i class="fas fa-trash-can"></i> Master Data Format & Factory Reset (MongoDB & DataStax Astra DB)
                             </h3>
                             <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px;">
-                                Wipes all coaching centers, students, tickets, inquiries, live classes, payouts, and uploaded files across MongoDB and GitHub.
+                                Wipes all coaching centers, students, tickets, inquiries, live classes, payouts, and uploaded files across MongoDB and DataStax Astra DB.
                             </p>
                         </div>
                         <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
@@ -1227,6 +1482,53 @@
                     </div>
                 </div>
 
+                <!-- SECTION 2.5: DUAL DATABASE STORAGE FORMAT & WIPE DESKS -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px; margin-bottom:24px;">
+                    <!-- FORMAT MONGODB ATLAS -->
+                    <div class="card-console" style="border:1px solid rgba(239, 68, 68, 0.4); background:radial-gradient(circle at top right, rgba(239,68,68,0.08), transparent 70%);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div>
+                                <span style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#f87171;">Database 1 Format • Credentials & Records</span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:4px 0 0 0; color:#f87171;">Format MongoDB Atlas</h3>
+                            </div>
+                            <span style="padding:3px 10px; border-radius:12px; font-size:10.5px; font-weight:800; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid #ef4444;">
+                                DANGER ZONE
+                            </span>
+                        </div>
+                        <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:12px; line-height:1.5;">
+                            Wipes centers, students, teachers, payment transactions, support tickets, and attendance.
+                        </p>
+                        <div style="background:rgba(16,185,129,0.1); border-left:3px solid #10b981; padding:8px 12px; border-radius:0 6px 6px 0; font-size:11.5px; color:#a7f3d0; margin-bottom:14px;">
+                            <i class="fas fa-shield-halved"></i> <strong>सुरक्षा गारंटी:</strong> आपका वर्तमान Super Admin ID, पासवर्ड एवं सभी API इंटीग्रेशन (Razorpay, Groq Cloud, Gemini, YouTube) हमेशा सुरक्षित रहेंगे।
+                        </div>
+                        <button type="button" onclick="openFormatMongoModal()" class="btn-aurora" style="background:linear-gradient(135deg, #dc2626, #b91c1c); color:#ffffff; border:none; font-weight:800; padding:8px 18px; width:100%;">
+                            <i class="fas fa-trash-can"></i> Format MongoDB Atlas
+                        </button>
+                    </div>
+
+                    <!-- FORMAT DATASTAX ASTRA DB -->
+                    <div class="card-console" style="border:1px solid rgba(168, 85, 247, 0.4); background:radial-gradient(circle at top right, rgba(168,85,247,0.08), transparent 70%);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div>
+                                <span style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#c084fc;">Database 2 Format • Cloud Media & PDFs</span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:4px 0 0 0; color:#c084fc;">Format DataStax Astra DB</h3>
+                            </div>
+                            <span style="padding:3px 10px; border-radius:12px; font-size:10.5px; font-weight:800; background:rgba(168,85,247,0.15); color:#d8b4fe; border:1px solid #a855f7;">
+                                ASTRA CLOUD
+                            </span>
+                        </div>
+                        <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:12px; line-height:1.5;">
+                            Wipes all uploaded high-resolution campus photos, promotional banners, lecture recordings, and central study notes PDFs stored on DataStax Astra DB.
+                        </p>
+                        <div style="background:rgba(168,85,247,0.1); border-left:3px solid #a855f7; padding:8px 12px; border-radius:0 6px 6px 0; font-size:11.5px; color:#e9d5ff; margin-bottom:14px;">
+                            <i class="fas fa-bolt"></i> <strong>5 GB Serverless Quota:</strong> Cleans up storage collections on <code>astra.datastax.com</code> to 0 MB fresh quota.
+                        </div>
+                        <button type="button" onclick="openFormatAstraModal()" class="btn-aurora" style="background:linear-gradient(135deg, #9333ea, #6b21a8); color:#ffffff; border:none; font-weight:800; padding:8px 18px; width:100%;">
+                            <i class="fas fa-trash-can"></i> Format DataStax Astra DB
+                        </button>
+                    </div>
+                </div>
+
                 <!-- SECTION 3: FILE & ASSET EXPLORER ("KOUNSE FILE ME KYA DATA HAI") -->
                 <div class="card-console" style="margin-bottom:24px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
@@ -1235,7 +1537,7 @@
                                 <i class="fas fa-folder-tree" style="color:#38bdf8;"></i> Asset & Storage File Explorer
                             </h3>
                             <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
-                                Detailed inventory showing exactly what file contains what data, where it is stored (Astra DB Cloud vs Local Disk), and its exact file size.
+                                Detailed inventory showing exactly what file contains what data, its verified database host (DataStax Astra DB vs MongoDB Atlas), and individual delete options.
                             </p>
                         </div>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -1265,7 +1567,7 @@
                                     <th>Data Category</th>
                                     <th>Storage Location</th>
                                     <th>File Size</th>
-                                    <th>Action / Stream</th>
+                                    <th>Action & Delete</th>
                                 </tr>
                             </thead>
                             <tbody id="storageFilesTableBody">
@@ -1405,10 +1707,10 @@
                             </div>
                         </div>
 
-                        <!-- Strict GitHub Data Storage Indicator -->
-                        <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
-                            <i class="fab fa-github" style="color:#10b981;"></i>
-                            <span style="font-size:12px; color:#10b981; font-weight:700;">Saved into GitHub <code>public/data/photos/</code> (Zero MongoDB bloat)</span>
+                        <!-- Strict DataStax Astra DB Cloud Storage Indicator -->
+                        <div style="margin-bottom:14px; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.3); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-bolt" style="color:#a855f7;"></i>
+                            <span style="font-size:12px; color:#c084fc; font-weight:700;">Storage: DataStax Astra DB Cloud (Zero MongoDB Bloat)</span>
                         </div>
 
                         <div>
@@ -2165,10 +2467,10 @@
                     </div>
                 </div>
 
-                <!-- Strict GitHub Data Storage Indicator -->
-                <div style="margin-bottom:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
-                    <i class="fab fa-github" style="color:#10b981;"></i>
-                    <span style="font-size:12px; color:#10b981; font-weight:700;">Storage: GitHub <code>public/data/materials/</code> (Zero MongoDB Bloat)</span>
+                <!-- Strict DataStax Astra DB Cloud Storage Indicator -->
+                <div style="margin-bottom:14px; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.3); padding:8px 14px; border-radius:10px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-bolt" style="color:#a855f7;"></i>
+                    <span style="font-size:12px; color:#c084fc; font-weight:700;">Storage: DataStax Astra DB Cloud (Zero MongoDB Bloat)</span>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:16px;">
@@ -2420,7 +2722,7 @@
                 <div style="background:rgba(0,0,0,0.3); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:10px 14px; font-size:12px; color:#94a3b8; line-height:1.6;">
                     <strong style="color:#ffffff;">उपयोग विधि:</strong><br>
                     • <strong>"E-Library & Raw Data"</strong> टैब में जाएं। PDF फाइल, टाइटल, विषय, कक्षा और मूल्य (0 = मुफ़्त) चुनें।<br>
-                    • सभी फाइलें GitHub Raw CDN / डिस्क पर सुरक्षित सेव होती हैं जिससे MongoDB डेटाबेस पर शून्य भार रहता है।
+                    • सभी फाइलें DataStax Astra DB क्लाउड स्टोरेज पर सुरक्षित सेव होती हैं जिससे MongoDB डेटाबेस पर शून्य भार रहता है।
                 </div>
             </div>
 
@@ -2451,62 +2753,148 @@
         </div>
     </div>
 
-    <!-- Master Platform Data Format Modal (Factory Reset) -->
-    <div id="modalFormatData" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
+    <!-- 1. MongoDB Atlas Storage Format Modal -->
+    <div id="modalFormatMongo" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
         <div style="background:#0f172a; border:2px solid #ef4444; border-radius:18px; max-width:620px; width:100%; box-shadow:0 25px 60px rgba(239,68,68,0.3); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
             <div style="padding:18px 24px; background:linear-gradient(135deg, rgba(239,68,68,0.25), rgba(15,23,42,0.9)); border-bottom:1px solid rgba(239,68,68,0.4); display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div style="width:40px; height:40px; border-radius:10px; background:rgba(239,68,68,0.2); border:1px solid #ef4444; display:flex; align-items:center; justify-content:center; color:#f87171; font-size:18px;">
-                        <i class="fas fa-triangle-exclamation"></i>
+                        <i class="fas fa-trash-can"></i>
                     </div>
                     <div>
-                        <h2 style="font-family:'Cinzel',serif; font-size:18px; color:#f87171; margin:0;">Platform Data Format & Factory Reset</h2>
-                        <p style="font-size:11.5px; color:#fca5a5; margin:0;">MongoDB & GitHub Storage Clean Slate Desk</p>
+                        <h2 style="font-family:'Cinzel',serif; font-size:18px; color:#f87171; margin:0;">Format MongoDB Atlas Storage</h2>
+                        <p style="font-size:11.5px; color:#fca5a5; margin:0;">Credentials, Institutes & Enrolments Wipe Desk</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeFormatDataModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">
+                <button type="button" onclick="closeFormatMongoModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
             <div style="padding:22px 24px; overflow-y:auto; color:#cbd5e1; font-size:13px; line-height:1.6;">
-                <div style="background:rgba(239,68,68,0.12); border-left:4px solid #ef4444; border-radius:8px; padding:12px 16px; margin-bottom:18px;">
-                    <h4 style="color:#f87171; font-size:14px; margin:0 0 6px 0; font-weight:700;"><i class="fas fa-shield-halved"></i> एडमिन सुरक्षा गारंटी (Admin Security Guarantee)</h4>
-                    <p style="margin:0; font-size:12.5px; color:#fecaca;">
-                        • <strong>आपका वर्तमान Super Admin ID एवं Password कभी डिलीट नहीं होगा</strong> — यह सुरक्षित रहेगा ताकि आप कभी लॉकआउट न हों।<br>
-                        • डिफ़ॉल्ट बैकडोर पासवर्ड (<code>admin123</code>) पूरी तरह हटा दिया गया है। भविष्य में यदि डेटाबेस से एडमिन कभी डिलीट हुआ, तो कोई डिफ़ॉल्ट पासवर्ड नहीं रहेगा, डेटाबेस में मैन्युअल आईडी/पासवर्ड डालना होगा।
+                <div style="background:rgba(16,185,129,0.12); border-left:4px solid #10b981; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+                    <h4 style="color:#34d399; font-size:13.5px; margin:0 0 6px 0; font-weight:700;"><i class="fas fa-shield-halved"></i> 100% सुरक्षित एडमिन व API सुरक्षा गारंटी:</h4>
+                    <p style="margin:0; font-size:12px; color:#a7f3d0;">
+                        • <strong>आपका Super Admin ID एवं Password कभी डिलीट नहीं होगा</strong> — यह सुरक्षित रहेगा ताकि आप कभी लॉकआउट न हों।<br>
+                        • <strong>सभी API कीज (Razorpay, Groq Cloud, Google Gemini, YouTube) सुरक्षित रहेंगी</strong> — आपको दोबारा API सेटअप नहीं करना पड़ेगा।
                     </p>
                 </div>
 
-                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-bottom:18px;">
-                    <h4 style="color:#e2e8f0; font-size:13px; margin:0 0 8px 0; font-weight:700;"><i class="fas fa-trash-can"></i> डिलीट होने वाले डेटा की सूची (Wiped Records):</h4>
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-bottom:16px;">
+                    <h4 style="color:#e2e8f0; font-size:13px; margin:0 0 8px 0; font-weight:700;"><i class="fas fa-trash-can"></i> MongoDB से डिलीट होने वाले रिकॉर्ड्स:</h4>
                     <ul style="margin:0; padding-left:18px; font-size:12px; color:#94a3b8;">
-                        <li>सभी कोचिंग सेंटर्स (Partner Centers & Directors)</li>
-                        <li>सभी रजिस्टर्ड छात्र व रोल नंबर (Student Roster)</li>
-                        <li>सभी एडमिशन पूछताछ व संपर्क टिकट्स (Inquiries & Tickets)</li>
-                        <li>सभी लाइव क्लास रूम सेशन्स व हिस्ट्री (Live Sessions)</li>
-                        <li>विथड्रॉवल व पेआउट अनुरोध (Payouts & Transactions)</li>
-                        <li>अपलोड किए गए टेस्ट नोट्स व फाइल्स (Cleaned from disk & GitHub)</li>
+                        <li>सभी कोचिंग सेंटर्स (Partner Centers & Director Logins)</li>
+                        <li>सभी छात्र व रोल नंबर (Student Roster)</li>
+                        <li>सभी शिक्षक खाते (Teacher Logins)</li>
+                        <li>पेमेंट लेनदेन एवं 80/20 लेजर (Transactions Ledger)</li>
+                        <li>सपोर्ट टिकट्स एवं एडमिशन पूछताछ (Helpdesk & Inquiries)</li>
                     </ul>
                 </div>
 
-                <div style="margin-bottom:16px;">
+                <div style="margin-bottom:14px;">
                     <label style="display:block; font-size:12.5px; font-weight:700; color:#f87171; margin-bottom:6px;">
-                        पुष्टि के लिए बॉक्स में <span style="background:rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; font-family:monospace; border:1px solid #ef4444;">FORMAT DATA</span> टाइप करें:
+                        पुष्टि के लिए बॉक्स में <span style="background:rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; font-family:monospace; border:1px solid #ef4444;">FORMAT MONGO</span> टाइप करें:
                     </label>
-                    <input type="text" id="inputFormatConfirm" placeholder="FORMAT DATA" oninput="checkFormatConfirmInput()" class="console-input" style="font-family:monospace; font-weight:700; letter-spacing:1px; text-transform:uppercase; border-color:rgba(239,68,68,0.5);">
+                    <input type="text" id="inputFormatMongoConfirm" placeholder="FORMAT MONGO" oninput="checkFormatMongoInput()" class="console-input" style="font-family:monospace; font-weight:700; letter-spacing:1px; text-transform:uppercase; border-color:rgba(239,68,68,0.5);">
                 </div>
 
-                <div id="formatStatusBox" style="display:none; padding:12px 16px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+                <div id="formatMongoStatusBox" style="display:none; padding:12px 16px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
             </div>
 
             <div style="padding:14px 24px; background:rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" onclick="closeFormatDataModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:#cbd5e1; padding:9px 20px;">
+                <button type="button" onclick="closeFormatMongoModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:#cbd5e1; padding:9px 20px;">
                     Cancel
                 </button>
-                <button type="button" id="btnExecuteFormat" onclick="executeFormatData()" disabled class="btn-aurora" style="background:#dc2626; color:#fff; border:none; padding:9px 22px; opacity:0.4; cursor:not-allowed; font-weight:800;">
-                    <i class="fas fa-skull-crossbones"></i> Confirm & Wipe All Data
+                <button type="button" id="btnExecuteFormatMongo" onclick="executeFormatMongo()" disabled class="btn-aurora" style="background:#dc2626; color:#fff; border:none; padding:9px 22px; opacity:0.4; cursor:not-allowed; font-weight:800;">
+                    <i class="fas fa-trash-can"></i> Confirm & Format MongoDB
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DataStax Astra DB Media Storage Format Modal -->
+    <div id="modalFormatAstra" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#0f172a; border:2px solid #a855f7; border-radius:18px; max-width:620px; width:100%; box-shadow:0 25px 60px rgba(168,85,247,0.3); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
+            <div style="padding:18px 24px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(15,23,42,0.9)); border-bottom:1px solid rgba(168,85,247,0.4); display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.2); border:1px solid #a855f7; display:flex; align-items:center; justify-content:center; color:#c084fc; font-size:18px;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-family:'Cinzel',serif; font-size:18px; color:#c084fc; margin:0;">Format DataStax Astra DB</h2>
+                        <p style="font-size:11.5px; color:#d8b4fe; margin:0;">Heavy Media, PDFs & Recordings Cloud Wipe</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeFormatAstraModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="padding:22px 24px; overflow-y:auto; color:#cbd5e1; font-size:13px; line-height:1.6;">
+                <div style="background:rgba(168,85,247,0.12); border-left:4px solid #a855f7; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+                    <h4 style="color:#c084fc; font-size:13.5px; margin:0 0 6px 0; font-weight:700;"><i class="fas fa-bolt"></i> DataStax Astra DB Serverless Cloud:</h4>
+                    <p style="margin:0; font-size:12px; color:#e9d5ff;">
+                        यह प्रक्रिया <code>astra.datastax.com</code> पर संग्रहीत सभी भारी मीडिया फाइलों को क्लीन कर देती है, जिससे आपका 5,120 MB फ्री सर्वरलेस कोटा फिर से 100% खाली (0 MB used) हो जाएगा।
+                    </p>
+                </div>
+
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-bottom:16px;">
+                    <h4 style="color:#e2e8f0; font-size:13px; margin:0 0 8px 0; font-weight:700;"><i class="fas fa-trash-can"></i> Astra DB से साफ होने वाले कलेक्शन्स:</h4>
+                    <ul style="margin:0; padding-left:18px; font-size:12px; color:#94a3b8;">
+                        <li>कैंपस गैलरी एवं भारी फोटोज (<code>bbcc_assets</code>)</li>
+                        <li>प्रमोशनल बैनर्स नेटवर्क (<code>bbcc_banners</code>)</li>
+                        <li>सेंट्रल ई-लाइब्रेरी स्टडी नोट्स व किताबें (<code>bbcc_study_materials</code>)</li>
+                        <li>लाइव क्लास रिकॉर्डिंग्स व ब्रॉडकास्ट लॉग्स (<code>bbcc_recordings</code>, <code>bbcc_live_classes</code>)</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12.5px; font-weight:700; color:#c084fc; margin-bottom:6px;">
+                        पुष्टि के लिए बॉक्स में <span style="background:rgba(168,85,247,0.25); padding:2px 8px; border-radius:4px; font-family:monospace; border:1px solid #a855f7;">FORMAT ASTRA</span> टाइप करें:
+                    </label>
+                    <input type="text" id="inputFormatAstraConfirm" placeholder="FORMAT ASTRA" oninput="checkFormatAstraInput()" class="console-input" style="font-family:monospace; font-weight:700; letter-spacing:1px; text-transform:uppercase; border-color:rgba(168,85,247,0.5);">
+                </div>
+
+                <div id="formatAstraStatusBox" style="display:none; padding:12px 16px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+            </div>
+
+            <div style="padding:14px 24px; background:rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" onclick="closeFormatAstraModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:#cbd5e1; padding:9px 20px;">
+                    Cancel
+                </button>
+                <button type="button" id="btnExecuteFormatAstra" onclick="executeFormatAstra()" disabled class="btn-aurora" style="background:linear-gradient(135deg, #9333ea, #6b21a8); color:#fff; border:none; padding:9px 22px; opacity:0.4; cursor:not-allowed; font-weight:800;">
+                    <i class="fas fa-trash-can"></i> Confirm & Format Astra DB
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Format Chooser Modal for Header Quick Button -->
+    <div id="modalFormatData" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#0f172a; border:2px solid var(--border-glow); border-radius:18px; max-width:560px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.8); overflow:hidden;">
+            <div style="padding:18px 24px; background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f8fafc;"><i class="fas fa-server"></i> Choose Database to Format</h3>
+                <button type="button" onclick="closeFormatDataModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="padding:22px; display:grid; gap:14px;">
+                <div style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; border-radius:12px; padding:16px; cursor:pointer; transition:transform 0.2s;" onclick="closeFormatDataModal(); openFormatMongoModal();">
+                    <div style="font-size:15px; font-weight:800; color:#f87171; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-shield-halved"></i> 1. Format MongoDB Atlas
+                    </div>
+                    <div style="font-size:12px; color:#cbd5e1; margin-top:4px;">
+                        Wipes coaching centers, students, teachers, transactions, support tickets. <strong>Strictly preserves Admin ID & Password and API configurations.</strong>
+                    </div>
+                </div>
+                <div style="background:rgba(168,85,247,0.1); border:1px solid #a855f7; border-radius:12px; padding:16px; cursor:pointer; transition:transform 0.2s;" onclick="closeFormatDataModal(); openFormatAstraModal();">
+                    <div style="font-size:15px; font-weight:800; color:#c084fc; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-bolt"></i> 2. Format DataStax Astra DB
+                    </div>
+                    <div style="font-size:12px; color:#cbd5e1; margin-top:4px;">
+                        Wipes heavy photos, banners, recordings, and PDF notes on <code>astra.datastax.com</code> to reset free quota to 0 MB.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2528,20 +2916,7 @@
 
         function openFormatDataModal() {
             const m = document.getElementById('modalFormatData');
-            if (m) {
-                const inp = document.getElementById('inputFormatConfirm');
-                if (inp) inp.value = '';
-                const btn = document.getElementById('btnExecuteFormat');
-                if (btn) {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.4';
-                    btn.style.cursor = 'not-allowed';
-                    btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Confirm & Wipe All Data';
-                }
-                const sBox = document.getElementById('formatStatusBox');
-                if (sBox) sBox.style.display = 'none';
-                m.style.display = 'flex';
-            }
+            if (m) m.style.display = 'flex';
         }
 
         function closeFormatDataModal() {
@@ -2549,12 +2924,37 @@
             if (m) m.style.display = 'none';
         }
 
-        function checkFormatConfirmInput() {
-            const inp = document.getElementById('inputFormatConfirm');
-            const btn = document.getElementById('btnExecuteFormat');
+        // ==========================================
+        // FORMAT MONGODB CONTROLS
+        // ==========================================
+        function openFormatMongoModal() {
+            const m = document.getElementById('modalFormatMongo');
+            if (m) {
+                const inp = document.getElementById('inputFormatMongoConfirm');
+                if (inp) inp.value = '';
+                const btn = document.getElementById('btnExecuteFormatMongo');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    btn.innerHTML = '<i class="fas fa-trash-can"></i> Confirm & Format MongoDB';
+                }
+                const sBox = document.getElementById('formatMongoStatusBox');
+                if (sBox) sBox.style.display = 'none';
+                m.style.display = 'flex';
+            }
+        }
+
+        function closeFormatMongoModal() {
+            const m = document.getElementById('modalFormatMongo');
+            if (m) m.style.display = 'none';
+        }
+
+        function checkFormatMongoInput() {
+            const inp = document.getElementById('inputFormatMongoConfirm');
+            const btn = document.getElementById('btnExecuteFormatMongo');
             if (!inp || !btn) return;
-            const val = inp.value.trim().toUpperCase();
-            if (val === 'FORMAT DATA') {
+            if (inp.value.trim().toUpperCase() === 'FORMAT MONGO') {
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';
@@ -2565,60 +2965,53 @@
             }
         }
 
-        async function executeFormatData() {
-            const inp = document.getElementById('inputFormatConfirm');
-            const val = inp ? inp.value.trim().toUpperCase() : '';
-            if (val !== 'FORMAT DATA') return;
+        async function executeFormatMongo() {
+            const inp = document.getElementById('inputFormatMongoConfirm');
+            if (!inp || inp.value.trim().toUpperCase() !== 'FORMAT MONGO') return;
 
-            if (!confirm('FINAL WARNING: क्या आप सचमुच MongoDB और GitHub का संपूर्ण डेटा फॉर्मेट करना चाहते हैं? आपका वर्तमान Admin ID/Password सुरक्षित रहेगा।')) {
+            if (!confirm('FINAL WARNING: क्या आप सचमुच MongoDB का संपूर्ण डेटा फॉर्मेट करना चाहते हैं? आपका वर्तमान Super Admin ID, पासवर्ड एवं सभी API इंटीग्रेशन सुरक्षित रहेंगे।')) {
                 return;
             }
 
-            const btn = document.getElementById('btnExecuteFormat');
-            const sBox = document.getElementById('formatStatusBox');
+            const btn = document.getElementById('btnExecuteFormatMongo');
+            const sBox = document.getElementById('formatMongoStatusBox');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB & GitHub...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB...';
             }
-
             if (sBox) {
                 sBox.style.display = 'block';
                 sBox.style.background = 'rgba(239,68,68,0.15)';
                 sBox.style.border = '1px solid #ef4444';
                 sBox.style.color = '#fca5a5';
-                sBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB collections, cleaning GitHub Portal DB, and preserving Admin account...';
+                sBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting MongoDB collections while strictly preserving Admin ID and API keys...';
             }
 
             try {
-                const res = await fetch('/api/admin/format-data', {
+                const res = await fetch('/api/admin/database/format-mongo', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${getAdminToken()}`
                     },
-                    body: JSON.stringify({ confirmation: 'FORMAT DATA' })
+                    body: JSON.stringify({ confirmation: 'FORMAT MONGO' })
                 });
-
                 const data = await res.json();
                 if (data.success) {
                     if (sBox) {
                         sBox.style.background = 'rgba(16,185,129,0.15)';
                         sBox.style.border = '1px solid #10b981';
                         sBox.style.color = '#6ee7b7';
-                        sBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>सफलता:</strong> ${data.message} (Preserved Admin: <strong>${data.preservedAdminId}</strong>)`;
+                        sBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>सफलता:</strong> ${data.message}`;
                     }
-                    if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Formatted Successfully!';
-
+                    if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Formatted!';
                     setTimeout(() => {
-                        closeFormatDataModal();
-                        alert('डेटा सफलतापूर्वक फॉर्मेट कर दिया गया है! आपका वर्तमान Admin खाता सुरक्षित है।');
+                        closeFormatMongoModal();
+                        showToast('MongoDB डेटा सफलतापूर्वक फॉर्मेट हो गया! एडमिन खाता सुरक्षित है।', 'circle-check', '#10b981');
                         if (typeof loadCentersList === 'function') loadCentersList();
                         if (typeof loadStudents === 'function') loadStudents();
-                        if (typeof loadVaultBooks === 'function') loadVaultBooks();
-                        if (typeof loadAffiliations === 'function') loadAffiliations();
+                        if (typeof loadDatabaseStats === 'function') loadDatabaseStats();
                         if (typeof loadTransactions === 'function') loadTransactions();
-                        if (typeof loadAdminPayouts === 'function') loadAdminPayouts();
-                        if (typeof loadAdminTickets === 'function') loadAdminTickets();
                     }, 1200);
                 } else {
                     if (sBox) {
@@ -2628,10 +3021,10 @@
                     }
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Retry Format';
+                        btn.innerHTML = '<i class="fas fa-trash-can"></i> Retry Format';
                     }
                 }
-            } catch(err) {
+            } catch (err) {
                 if (sBox) {
                     sBox.style.background = 'rgba(239,68,68,0.2)';
                     sBox.style.color = '#f87171';
@@ -2639,7 +3032,269 @@
                 }
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-skull-crossbones"></i> Retry Format';
+                    btn.innerHTML = '<i class="fas fa-trash-can"></i> Retry Format';
+                }
+            }
+        }
+
+        // ==========================================
+        // FORMAT DATASTAX ASTRA DB CONTROLS
+        // ==========================================
+        function openFormatAstraModal() {
+            const m = document.getElementById('modalFormatAstra');
+            if (m) {
+                const inp = document.getElementById('inputFormatAstraConfirm');
+                if (inp) inp.value = '';
+                const btn = document.getElementById('btnExecuteFormatAstra');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    btn.innerHTML = '<i class="fas fa-trash-can"></i> Confirm & Format Astra DB';
+                }
+                const sBox = document.getElementById('formatAstraStatusBox');
+                if (sBox) sBox.style.display = 'none';
+                m.style.display = 'flex';
+            }
+        }
+
+        function closeFormatAstraModal() {
+            const m = document.getElementById('modalFormatAstra');
+            if (m) m.style.display = 'none';
+        }
+
+        function checkFormatAstraInput() {
+            const inp = document.getElementById('inputFormatAstraConfirm');
+            const btn = document.getElementById('btnExecuteFormatAstra');
+            if (!inp || !btn) return;
+            if (inp.value.trim().toUpperCase() === 'FORMAT ASTRA') {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.4';
+                btn.style.cursor = 'not-allowed';
+            }
+        }
+
+        async function executeFormatAstra() {
+            const inp = document.getElementById('inputFormatAstraConfirm');
+            if (!inp || inp.value.trim().toUpperCase() !== 'FORMAT ASTRA') return;
+
+            if (!confirm('FINAL WARNING: क्या आप सचमुच DataStax Astra DB का समस्त मीडिया और फाइल्स फॉर्मेट करना चाहते हैं?')) {
+                return;
+            }
+
+            const btn = document.getElementById('btnExecuteFormatAstra');
+            const sBox = document.getElementById('formatAstraStatusBox');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Formatting Astra DB...';
+            }
+            if (sBox) {
+                sBox.style.display = 'block';
+                sBox.style.background = 'rgba(168,85,247,0.15)';
+                sBox.style.border = '1px solid #a855f7';
+                sBox.style.color = '#e9d5ff';
+                sBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wiping DataStax Astra DB serverless media collections...';
+            }
+
+            try {
+                const res = await fetch('/api/admin/database/format-astra', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAdminToken()}`
+                    },
+                    body: JSON.stringify({ confirmation: 'FORMAT ASTRA' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (sBox) {
+                        sBox.style.background = 'rgba(16,185,129,0.15)';
+                        sBox.style.border = '1px solid #10b981';
+                        sBox.style.color = '#6ee7b7';
+                        sBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>सफलता:</strong> ${data.message}`;
+                    }
+                    if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Formatted!';
+                    setTimeout(() => {
+                        closeFormatAstraModal();
+                        showToast('DataStax Astra DB स्टोरेज सफलतापूर्वक खाली कर दिया गया!', 'circle-check', '#10b981');
+                        if (typeof loadDatabaseStats === 'function') loadDatabaseStats();
+                        if (typeof loadVaultBooks === 'function') loadVaultBooks();
+                        if (typeof loadAllBanners === 'function') loadAllBanners();
+                    }, 1200);
+                } else {
+                    if (sBox) {
+                        sBox.style.background = 'rgba(239,68,68,0.2)';
+                        sBox.style.color = '#f87171';
+                        sBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${data.message || 'Format failed'}`;
+                    }
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-trash-can"></i> Retry Format';
+                    }
+                }
+            } catch (err) {
+                if (sBox) {
+                    sBox.style.background = 'rgba(239,68,68,0.2)';
+                    sBox.style.color = '#f87171';
+                    sBox.innerHTML = `<i class="fas fa-circle-exclamation"></i> Network error: ${err.message}`;
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-trash-can"></i> Retry Format';
+                }
+            }
+        }
+
+        // ==========================================
+        // BOOKS HUB SUB-TAB CONTROLLER
+        // ==========================================
+        function showBooksHubSubTab(tab) {
+            const btnOrders = document.getElementById('btnSubTabOrders');
+            const btnDigital = document.getElementById('btnSubTabDigital');
+            const panelOrders = document.getElementById('booksHubPanelOrders');
+            const panelDigital = document.getElementById('booksHubPanelDigital');
+
+            if (tab === 'orders') {
+                if (btnOrders) btnOrders.classList.add('active');
+                if (btnDigital) btnDigital.classList.remove('active');
+                if (panelOrders) panelOrders.style.display = 'block';
+                if (panelDigital) panelDigital.style.display = 'none';
+                loadAdminBookOrders();
+            } else {
+                if (btnDigital) btnDigital.classList.add('active');
+                if (btnOrders) btnOrders.classList.remove('active');
+                if (panelDigital) panelDigital.style.display = 'block';
+                if (panelOrders) panelOrders.style.display = 'none';
+                loadVaultBooks();
+            }
+        }
+
+        // ==========================================
+        // INDIVIDUAL ASSET DELETION CONTROLS
+        // ==========================================
+        async function deleteStorageAsset(rawId, rawName, collection) {
+            const id = decodeURIComponent(rawId);
+            const name = decodeURIComponent(rawName);
+            if (!confirm(`क्या आप सचमुच "${name}" को DataStax Astra DB स्टोरेज से डिलीट करना चाहते हैं?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/database/delete-asset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAdminToken()}`
+                    },
+                    body: JSON.stringify({ id, name, collection })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`सफलता: "${name}" स्टोरेज से डिलीट हो गया!`, 'circle-check', '#10b981');
+                    loadDatabaseStats();
+                    if (typeof loadAllBanners === 'function') loadAllBanners();
+                    if (typeof loadAdminGallery === 'function') loadAdminGallery();
+                    if (typeof loadVaultBooks === 'function') loadVaultBooks();
+                } else {
+                    showToast(data.message || 'फाइल डिलीट करने में त्रुटि आई', 'triangle-exclamation', '#ef4444');
+                }
+            } catch (err) {
+                console.error('deleteStorageAsset error:', err);
+                showToast('सर्वर से कनेक्ट करने में त्रुटि आई', 'triangle-exclamation', '#ef4444');
+            }
+        }
+
+        // ==========================================
+        // TEMPLATES & THEMES REAL-TIME LIVE PREVIEW
+        // ==========================================
+        function updateFestivalPreview(theme) {
+            const box = document.getElementById('festivalLivePreviewBox');
+            const title = document.getElementById('festivalPreviewTitle');
+            const icon = document.getElementById('festivalPreviewIcon');
+            const badge = document.getElementById('festivalThemeNameBadge');
+            const sub = document.getElementById('festivalPreviewSubtitle');
+            if (!box) return;
+
+            const themes = {
+                'auto': { name: 'Auto Calendar', icon: '🌟', bg: 'radial-gradient(circle at center, #1e1b4b 0%, #030712 100%)', title: 'Auto Calendar Festival Detect', sub: 'Dynamically adapts to Diwali, Chhath, Holi, Eid, or Tiranga' },
+                'diwali': { name: 'Diwali Sparkles', icon: '🪔', bg: 'radial-gradient(circle at center, #78350f 0%, #1e1b4b 60%, #020617 100%)', title: 'Shubh Deepawali & Lakshmi Pujan', sub: 'Golden sparkling aura with floating earthen lamps' },
+                'chhath': { name: 'Chhath Mahaparv', icon: '🌅', bg: 'linear-gradient(135deg, #7c2d12 0%, #ea580c 40%, #0c0a09 100%)', title: 'Surya Upasana Chhath Mahaparv', sub: 'Holy dawn arghya sunburst rays & lotus blossoms' },
+                'holi': { name: 'Holi Colors', icon: '🎨', bg: 'linear-gradient(135deg, #be185d 0%, #7c3aed 50%, #0f172a 100%)', title: 'Rangotsav Holi Celebrations', sub: 'Swirling clouds of vibrant gulal colors & festive energy' },
+                'tricolor': { name: 'Tiranga Pride', icon: '🇮🇳', bg: 'linear-gradient(180deg, #ea580c 0%, #0f172a 45%, #15803d 100%)', title: 'National Tiranga Pride Celebrations', sub: 'Saffron, white & green national sovereignty aura' },
+                'eid': { name: 'Eid Mubarak', icon: '🌙', bg: 'radial-gradient(circle at center, #064e3b 0%, #022c22 60%, #020617 100%)', title: 'Eid-ul-Fitr Crescent Moon Blessings', sub: 'Emerald starry skies & silver crescent moon' },
+                'celestial': { name: 'Celestial Obsidian', icon: '🌌', bg: 'radial-gradient(circle at center, #1e1b4b 0%, #030712 100%)', title: 'BBCC Celestial Classic Obsidian', sub: 'Deep space obsidian with starlight particles' }
+            };
+
+            const active = themes[theme] || themes['auto'];
+            box.style.background = active.bg;
+            if (icon) icon.innerText = active.icon;
+            if (title) title.innerText = active.title;
+            if (badge) badge.innerText = active.name;
+            if (sub) sub.innerText = active.sub;
+        }
+
+        function updateBillLivePreview() {
+            const h = document.getElementById('setBillHeader')?.value || 'BBCC SKILL HUB CENTRAL DIRECTORATE';
+            const t = document.getElementById('setBillTitle')?.value || 'OFFICIAL STUDENT FEE & ADMISSION RECEIPT';
+            const s = document.getElementById('setBillSignatory')?.value || 'DIRECTOR GENERAL';
+            const st = document.getElementById('setBillSignatoryTitle')?.value || 'Authorized Signatory';
+            const tm = document.getElementById('setBillTerms')?.value || '1. Fee paid is non-refundable. 2. Student ID must be presented upon request.';
+            const f = document.getElementById('setBillFooter')?.value || 'Thank you for choosing certified education with BBCC SKILL HUB.';
+
+            const prevH = document.getElementById('prevBillHeader');
+            const prevT = document.getElementById('prevBillTitle');
+            const prevS = document.getElementById('prevBillSignatory');
+            const prevST = document.getElementById('prevBillSignatoryTitle');
+            const prevTM = document.getElementById('prevBillTerms');
+            const prevF = document.getElementById('prevBillFooter');
+
+            if (prevH) prevH.innerText = h;
+            if (prevT) prevT.innerText = t;
+            if (prevS) prevS.innerText = s;
+            if (prevST) prevST.innerText = st;
+            if (prevTM) prevTM.innerText = tm;
+            if (prevF) prevF.innerText = f;
+        }
+
+        function updateCertLivePreview() {
+            const b = document.getElementById('setCertBoardTitle')?.value || 'BBCC SKILL HUB';
+            const sb = document.getElementById('setCertSubTitle')?.value || 'CENTRAL BOARD OF VOCATIONAL & COACHING EDUCATION';
+            const borderStyle = document.getElementById('setCertBorderStyle')?.value || 'gold-double';
+            const s = document.getElementById('setCertSignatory')?.value || 'CONTROLLER OF EXAMINATIONS';
+            const st = document.getElementById('setCertSignatoryTitle')?.value || 'Central Directorate';
+
+            const prevB = document.getElementById('prevCertBoardTitle');
+            const prevSB = document.getElementById('prevCertSubTitle');
+            const prevS = document.getElementById('prevCertSignatory');
+            const prevST = document.getElementById('prevCertSignatoryTitle');
+            const outer = document.getElementById('certPreviewOuterFrame');
+            const inner = document.getElementById('certPreviewInnerFrame');
+
+            if (prevB) prevB.innerText = b;
+            if (prevSB) prevSB.innerText = sb;
+            if (prevS) prevS.innerText = s;
+            if (prevST) prevST.innerText = st;
+
+            if (outer && inner) {
+                if (borderStyle === 'royal-navy') {
+                    outer.style.border = '6px double #1e3a8a';
+                    outer.style.background = '#f0f9ff';
+                    inner.style.borderColor = '#0284c7';
+                    if (prevB) prevB.style.color = '#1e3a8a';
+                } else if (borderStyle === 'emerald-modern') {
+                    outer.style.border = '6px double #047857';
+                    outer.style.background = '#f0fdf4';
+                    inner.style.borderColor = '#10b981';
+                    if (prevB) prevB.style.color = '#047857';
+                } else {
+                    outer.style.border = '6px double #d97706';
+                    outer.style.background = '#fffcf2';
+                    inner.style.borderColor = '#b45309';
+                    if (prevB) prevB.style.color = '#b45309';
                 }
             }
         }
@@ -2650,22 +3305,48 @@
         function switchAdminTab(tId) {
             document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${tId}`).classList.add('active');
-            if (event && event.currentTarget) event.currentTarget.classList.add('active');
-            if (tId === 'centers') loadCentersList();
-            if (tId === 'vault') loadVaultBooks();
-            if (tId === 'book-orders') loadAdminBookOrders();
-            if (tId === 'banners') loadAllBanners();
-            if (tId === 'gallery') loadAdminGallery();
-            if (tId === 'students') loadStudents();
-            if (tId === 'database-hub') loadDatabaseStats();
-            if (tId === 'settings' || tId === 'gateways' || tId === 'founder' || tId === 'templates') loadSettingsData();
-            if (tId === 'affiliations') loadAffiliations();
-            if (tId === 'transactions') loadTransactions();
-            if (tId === 'payouts') loadAdminPayouts();
-            if (tId === 'tickets') loadAdminTickets();
-            if (tId === 'notifications') loadPushNotificationStatus();
-            if (tId === 'central-live') initAdminCentralLive();
+            
+            // Map legacy aliases
+            let targetId = tId;
+            if (tId === 'vault' || tId === 'book-orders') targetId = 'books-hub';
+            if (tId === 'gateways') targetId = 'ai-engines';
+
+            const targetTab = document.getElementById(`tab-${targetId}`);
+            if (targetTab) targetTab.classList.add('active');
+
+            // Highlight nav button
+            const navBtn = Array.from(document.querySelectorAll('.admin-nav-btn')).find(b => {
+                const oc = b.getAttribute('onclick') || '';
+                return oc.includes(`'${tId}'`) || oc.includes(`'${targetId}'`);
+            });
+            if (navBtn) navBtn.classList.add('active');
+
+            if (targetId === 'centers') loadCentersList();
+            if (targetId === 'books-hub') {
+                if (tId === 'book-orders') showBooksHubSubTab('orders');
+                else if (tId === 'vault') showBooksHubSubTab('digital');
+                else { loadAdminBookOrders(); loadVaultBooks(); }
+            }
+            if (targetId === 'banners') loadAllBanners();
+            if (targetId === 'gallery') loadAdminGallery();
+            if (targetId === 'students') loadStudents();
+            if (targetId === 'database-hub') loadDatabaseStats();
+            if (targetId === 'ai-engines' || targetId === 'razorpay' || targetId === 'youtube' || targetId === 'settings' || targetId === 'founder' || targetId === 'templates') {
+                loadSettingsData();
+                if (targetId === 'templates') {
+                    setTimeout(() => {
+                        updateFestivalPreview(document.getElementById('setActiveFestivalTheme')?.value || 'auto');
+                        updateBillLivePreview();
+                        updateCertLivePreview();
+                    }, 100);
+                }
+            }
+            if (targetId === 'affiliations') loadAffiliations();
+            if (targetId === 'transactions') loadTransactions();
+            if (targetId === 'payouts') loadAdminPayouts();
+            if (targetId === 'tickets') loadAdminTickets();
+            if (targetId === 'notifications') loadPushNotificationStatus();
+            if (targetId === 'central-live') initAdminCentralLive();
         }
 
         // ============================================================
@@ -2789,7 +3470,7 @@
                 else if (f.type === 'pdf' || f.mimeType === 'application/pdf') { icon = 'fa-file-pdf'; iconColor = '#ef4444'; }
                 else if (f.type === 'live' || f.type === 'recording') { icon = 'fa-video'; iconColor = '#a855f7'; }
 
-                let isAstra = f.storage && f.storage.includes('Astra');
+                let isAstra = !f.storage || f.storage.includes('Astra') || f.storage.includes('DataStax');
 
                 return `
                     <tr>
@@ -2804,15 +3485,20 @@
                             <span style="font-size:11.5px; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.06); color:#cbd5e1;">${f.category}</span>
                         </td>
                         <td>
-                            <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; ${isAstra ? 'background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);' : 'background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);'}">
-                                ${isAstra ? '⚡ Astra DB Cloud' : '📁 Local / Disk'}
+                            <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; ${isAstra ? 'background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);' : 'background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);'}">
+                                ${isAstra ? '⚡ DataStax Astra DB' : '🍃 MongoDB Atlas'}
                             </span>
                         </td>
                         <td style="font-weight:700; color:#34d399;">${f.sizeFormatted}</td>
-                        <td>
-                            <a href="${f.url}" target="_blank" style="text-decoration:none; padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:600; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:5px;">
-                                <i class="fas fa-arrow-up-right-from-square"></i> Open
-                            </a>
+                        <td style="white-space:nowrap;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <a href="${f.url}" target="_blank" style="text-decoration:none; padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:600; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:5px;">
+                                    <i class="fas fa-arrow-up-right-from-square"></i> Open
+                                </a>
+                                <button type="button" onclick="deleteStorageAsset('${encodeURIComponent(f.id)}', '${encodeURIComponent(f.name ? f.name.replace(/'/g, "\\'") : '')}', '${f.collection || ''}')" style="cursor:pointer; padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:700; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.35); display:inline-flex; align-items:center; gap:5px;">
+                                    <i class="fas fa-trash-can"></i> Delete
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -5593,7 +6279,7 @@
                 statusBox.style.background = 'rgba(245, 158, 11, 0.15)';
                 statusBox.style.border = '1px solid #f59e0b';
                 statusBox.style.color = '#fbbf24';
-                statusBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering new coaching center across MongoDB & GitHub...';
+                statusBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering new coaching center in Database...';
             }
 
             try {
@@ -5678,6 +6364,8 @@
                 const tbody = document.getElementById('booksTbody');
                 if (data.success && data.data) {
                     globalBooks = data.data;
+                    const hubEbooks = document.getElementById('hubTotalEbooks');
+                    if (hubEbooks) hubEbooks.innerText = globalBooks.length;
                     tbody.innerHTML = globalBooks.map(b => {
                         const pdfPrice = Number(b.price) || 0;
                         const pdfMrp = Number(b.pdfMrp) || (pdfPrice > 0 ? Math.round(pdfPrice * 2.5 + 49) : 199);
@@ -5922,6 +6610,17 @@
                     headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
+                if (data.summary) {
+                    const hubOrders = document.getElementById('hubTotalOrders');
+                    const hubRev = document.getElementById('hubTotalRevenue');
+                    const hubStatus = document.getElementById('hubOrdersStatus');
+                    const badgeCount = document.getElementById('badgeOrderCount');
+
+                    if (hubOrders) hubOrders.innerText = data.summary.totalOrders || 0;
+                    if (hubRev) hubRev.innerText = data.summary.totalRevenueFormatted || `₹${data.summary.totalRevenue || 0}`;
+                    if (hubStatus) hubStatus.innerText = `${data.summary.deliveredCount || 0} / ${data.summary.pendingCount || 0}`;
+                    if (badgeCount) badgeCount.innerText = data.summary.totalOrders || 0;
+                }
                 if (data.success && data.data && data.data.length > 0) {
                     tbody.innerHTML = data.data.map(o => {
                         const cleanPhone = (o.payerPhone || '').replace(/[^0-9]/g, '');
