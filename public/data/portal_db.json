@@ -71,7 +71,18 @@
       "teachers": [],
       "courses": [],
       "materials": [],
-      "promotionalBanners": []
+      "promotionalBanners": [
+        {
+          "_id": "6ad09cbfda86e6df2208cc07",
+          "title": "Durga Puja Mega Vijaya Batch 2026",
+          "subtitle": "Flat 50% Concession & Free Mock Test Series",
+          "image": "/data/banners/Durga_Puja_Mega_Vijaya_Batch_2_1792056511577_840534.png",
+          "link": "",
+          "active": true,
+          "expiresAt": "2026-11-14T09:28:31.588Z",
+          "uploadedAt": "2026-10-15T09:28:31.588Z"
+        }
+      ]
     }
   ],
   "studyMaterials": {
