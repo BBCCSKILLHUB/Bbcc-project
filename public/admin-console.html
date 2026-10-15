@@ -242,6 +242,9 @@
             <button class="admin-nav-btn" onclick="switchAdminTab('students')">
                 <i class="fas fa-id-card"></i> Student Enrolment Roster
             </button>
+            <button class="admin-nav-btn" onclick="switchAdminTab('database-hub')">
+                <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
+            </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
                 <i class="fas fa-sliders"></i> Board & Gateway Settings
             </button>
@@ -1061,6 +1064,185 @@
                             <i class="fas fa-save"></i> Save Certificate Template
                         </button>
                     </form>
+                </div>
+            </div>
+
+            <!-- TAB: DUAL DATABASE & CLOUD STORAGE MANAGEMENT HUB -->
+            <div class="admin-tab" id="tab-database-hub">
+                <!-- Header Card with Live Action Controls -->
+                <div class="card-console" style="margin-bottom:24px; border-color:rgba(56, 189, 248, 0.35); background:radial-gradient(circle at top right, rgba(56,189,248,0.06), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#38bdf8;"><i class="fas fa-server"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Database & Cloud Storage Control Deck</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:6px 0 0 0;">
+                                Real-time dual-database telemetry: <strong style="color:#38bdf8;">MongoDB Atlas</strong> (IDs & Passwords) + <strong style="color:#a855f7;">DataStax Astra DB</strong> (Heavy Photos, PDFs & Media).
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button onclick="pingDatabases()" id="btnPingDb" class="btn-aurora" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
+                                <i class="fas fa-bolt"></i> Ping & Test Latency
+                            </button>
+                            <button onclick="loadDatabaseStats()" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Real-Time Metrics
+                            </button>
+                            <a href="https://astra.datastax.com" target="_blank" class="btn-aurora" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                <i class="fas fa-external-link-alt"></i> Open Astra DB Console
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Ping Latency Status Banner -->
+                    <div id="dbPingResultBox" style="display:none; margin-top:16px; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                </div>
+
+                <!-- Two Big Architectural Column Cards: MongoDB vs Astra DB -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px; margin-bottom:24px;">
+                    
+                    <!-- DATABASE 1: MONGODB (AUTH & CREDENTIALS) -->
+                    <div class="card-console" style="border-left:4px solid #10b981; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                            <div>
+                                <span style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#10b981;">Database 1 • Auth & Logins</span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:4px 0 0 0; color:#f1f5f9;">MongoDB Atlas Engine</h3>
+                            </div>
+                            <span id="mongoLiveBadge" style="padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981;">
+                                <i class="fas fa-circle-dot"></i> Live
+                            </span>
+                        </div>
+                        <p style="font-size:12.5px; color:#94a3b8; margin-bottom:16px;">
+                            Strictly reserved for User IDs, Passwords (Bcrypt hash), Institute Directors, Teachers, Student accounts & payment records. 100% Free of binary/media bloat.
+                        </p>
+
+                        <!-- Key Storage Metrics -->
+                        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:16px;">
+                            <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Storage Consumed</div>
+                                <div id="mongoStorageUsed" style="font-size:20px; font-weight:800; color:#34d399; margin-top:2px;">-- MB</div>
+                                <div style="font-size:11px; color:#64748b;">Ultra-lean & fast</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Total Credential Accounts</div>
+                                <div id="mongoTotalAccounts" style="font-size:20px; font-weight:800; color:#f8fafc; margin-top:2px;">--</div>
+                                <div style="font-size:11px; color:#64748b;">Admins, Centers, Students</div>
+                            </div>
+                        </div>
+
+                        <!-- Collection Breakdown Table -->
+                        <h4 style="font-size:13px; font-weight:700; color:#cbd5e1; margin-bottom:8px;">Credential Collections Breakdown:</h4>
+                        <div style="max-height:220px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); border-radius:6px;">
+                            <table class="console-table" style="font-size:12px; margin:0;">
+                                <thead>
+                                    <tr>
+                                        <th>Entity / Role</th>
+                                        <th>Count</th>
+                                        <th>Data Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mongoCollectionsTableBody">
+                                    <tr><td colspan="3" style="text-align:center; padding:12px; color:#64748b;">Loading credentials telemetry...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DATABASE 2: DATASTAX ASTRA DB (HEAVY MEDIA & CLOUD) -->
+                    <div class="card-console" style="border-left:4px solid #a855f7; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                            <div>
+                                <span style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#c084fc;">Database 2 • Heavy Cloud NoSQL</span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:4px 0 0 0; color:#f1f5f9;">DataStax Astra DB</h3>
+                            </div>
+                            <span id="astraLiveBadge" style="padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid #a855f7;">
+                                <i class="fas fa-circle-dot"></i> Connected
+                            </span>
+                        </div>
+                        <p style="font-size:12.5px; color:#94a3b8; margin-bottom:14px;">
+                            Serverless high-capacity NoSQL engine hosting high-res photos, campus banners, physical book cover graphics, full PDF materials, and live streaming archives.
+                        </p>
+
+                        <!-- Free Tier Usage Progress Bar -->
+                        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); margin-bottom:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:6px;">
+                                <span style="color:#94a3b8; text-transform:uppercase;">Serverless Storage Quota (5,120 MB Free Tier)</span>
+                                <span id="astraStorageUsedText" style="font-weight:700; color:#c084fc;">0.00 MB / 5,120 MB</span>
+                            </div>
+                            <div style="height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                                <div id="astraProgressBar" style="width:0.1%; height:100%; background:linear-gradient(90deg, #a855f7, #38bdf8); transition:width 0.4s ease;"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:4px;">
+                                <span>Used: <strong id="astraPercentText" style="color:#f8fafc;">0.001%</strong></span>
+                                <span>Remaining: <strong style="color:#34d399;">~5 GB Free</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Astra Heavy Collections Breakdown -->
+                        <h4 style="font-size:13px; font-weight:700; color:#cbd5e1; margin-bottom:8px;">Heavy Cloud Collections:</h4>
+                        <div style="max-height:220px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); border-radius:6px;">
+                            <table class="console-table" style="font-size:12px; margin:0;">
+                                <thead>
+                                    <tr>
+                                        <th>Collection</th>
+                                        <th>Files/Docs</th>
+                                        <th>Content Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="astraCollectionsTableBody">
+                                    <tr><td colspan="3" style="text-align:center; padding:12px; color:#64748b;">Loading Astra DB collections...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: FILE & ASSET EXPLORER ("KOUNSE FILE ME KYA DATA HAI") -->
+                <div class="card-console" style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                        <div>
+                            <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#f8fafc; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-folder-tree" style="color:#38bdf8;"></i> Asset & Storage File Explorer
+                            </h3>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Detailed inventory showing exactly what file contains what data, where it is stored (Astra DB Cloud vs Local Disk), and its exact file size.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <div style="position:relative;">
+                                <input type="text" id="storageFileSearchInput" oninput="searchStorageFiles(this.value)" placeholder="Search file by name..." class="console-input" style="padding-left:32px; width:220px; font-size:12.5px;">
+                                <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#64748b; font-size:12px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter Tabs -->
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                        <button class="btn-aurora active" onclick="filterStorageFiles('all', this)" style="padding:6px 14px; font-size:12px;">All Assets</button>
+                        <button class="btn-aurora" onclick="filterStorageFiles('image', this)" style="padding:6px 14px; font-size:12px;"><i class="fas fa-image"></i> Photos & Logos</button>
+                        <button class="btn-aurora" onclick="filterStorageFiles('banner', this)" style="padding:6px 14px; font-size:12px;"><i class="fas fa-panorama"></i> Banners</button>
+                        <button class="btn-aurora" onclick="filterStorageFiles('pdf', this)" style="padding:6px 14px; font-size:12px;"><i class="fas fa-file-pdf"></i> Books & PDFs</button>
+                        <button class="btn-aurora" onclick="filterStorageFiles('live', this)" style="padding:6px 14px; font-size:12px;"><i class="fas fa-video"></i> Live & Video Archives</button>
+                    </div>
+
+                    <!-- File Explorer Table -->
+                    <div style="overflow-x:auto;">
+                        <table class="console-table" style="font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>File / Asset Title</th>
+                                    <th>Data Category</th>
+                                    <th>Storage Location</th>
+                                    <th>File Size</th>
+                                    <th>Action / Stream</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageFilesTableBody">
+                                <tr><td colspan="6" style="text-align:center; padding:18px; color:#64748b;">Loading storage files inventory...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -2446,6 +2628,7 @@
             if (tId === 'banners') loadAllBanners();
             if (tId === 'gallery') loadAdminGallery();
             if (tId === 'students') loadStudents();
+            if (tId === 'database-hub') loadDatabaseStats();
             if (tId === 'settings') loadSettingsData();
             if (tId === 'affiliations') loadAffiliations();
             if (tId === 'transactions') loadTransactions();
@@ -2453,6 +2636,227 @@
             if (tId === 'tickets') loadAdminTickets();
             if (tId === 'notifications') loadPushNotificationStatus();
             if (tId === 'central-live') initAdminCentralLive();
+        }
+
+        // ============================================================
+        // DUAL-DATABASE & CLOUD STORAGE METRICS ENGINE (SUPER ADMIN)
+        // ============================================================
+        let allStorageFiles = [];
+        let activeStorageFilter = 'all';
+
+        async function loadDatabaseStats() {
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/admin/database-stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    showToast(data.message || 'Failed to fetch database telemetry', 'triangle-exclamation', '#ef4444');
+                    return;
+                }
+
+                // 1. Update Database 1 (MongoDB / Auth)
+                const db1 = data.databases.database1;
+                const mongoBadge = document.getElementById('mongoLiveBadge');
+                if (mongoBadge) {
+                    if (db1.status === 'connected') {
+                        mongoBadge.innerHTML = '<i class="fas fa-circle-dot"></i> MongoDB Cloud Active';
+                        mongoBadge.style.cssText = 'padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981;';
+                    } else {
+                        mongoBadge.innerHTML = '<i class="fas fa-shield-halved"></i> Local Engine (Safe)';
+                        mongoBadge.style.cssText = 'padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid #f59e0b;';
+                    }
+                }
+                const mongoUsed = document.getElementById('mongoStorageUsed');
+                if (mongoUsed) mongoUsed.innerText = db1.totalStorageFormatted || '0.00 KB';
+                const mongoAccounts = document.getElementById('mongoTotalAccounts');
+                if (mongoAccounts) mongoAccounts.innerText = db1.totalAccounts || 0;
+
+                // Render MongoDB Collections Table
+                const mongoTbody = document.getElementById('mongoCollectionsTableBody');
+                if (mongoTbody && db1.collections) {
+                    mongoTbody.innerHTML = db1.collections.map(c => `
+                        <tr>
+                            <td>
+                                <strong style="color:#f1f5f9;">${c.name}</strong>
+                                <div style="font-size:10.5px; color:#64748b;">${c.role}</div>
+                            </td>
+                            <td><span style="display:inline-block; padding:2px 8px; border-radius:10px; font-weight:700; background:rgba(255,255,255,0.06); color:#cbd5e1;">${c.count}</span></td>
+                            <td style="color:#34d399; font-weight:600;">${c.size}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // 2. Update Database 2 (DataStax Astra DB)
+                const db2 = data.databases.database2;
+                const astraBadge = document.getElementById('astraLiveBadge');
+                if (astraBadge) {
+                    if (db2.status === 'connected') {
+                        astraBadge.innerHTML = '<i class="fas fa-circle-dot"></i> Astra DB Cloud Live';
+                        astraBadge.style.cssText = 'padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid #a855f7;';
+                    } else {
+                        astraBadge.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Disconnected';
+                        astraBadge.style.cssText = 'padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444;';
+                    }
+                }
+
+                const astraUsedText = document.getElementById('astraStorageUsedText');
+                if (astraUsedText) astraUsedText.innerText = `${db2.storageUsedFormatted || '0.00 KB'} / 5,120 MB`;
+                const astraProgress = document.getElementById('astraProgressBar');
+                if (astraProgress) {
+                    const pct = Math.max(parseFloat(db2.freeTierUsedPercent || 0), 0.5);
+                    astraProgress.style.width = `${pct}%`;
+                }
+                const astraPctText = document.getElementById('astraPercentText');
+                if (astraPctText) astraPctText.innerText = `${db2.freeTierUsedPercent || '0.000'}%`;
+
+                // Render Astra Collections Table
+                const astraTbody = document.getElementById('astraCollectionsTableBody');
+                if (astraTbody && db2.collections) {
+                    astraTbody.innerHTML = db2.collections.map(c => `
+                        <tr>
+                            <td>
+                                <strong style="color:#f1f5f9;">${c.name}</strong>
+                                <div style="font-size:10.5px; color:#64748b;">${c.description}</div>
+                            </td>
+                            <td><span style="display:inline-block; padding:2px 8px; border-radius:10px; font-weight:700; background:rgba(168,85,247,0.15); color:#c084fc;">${c.count || 0}</span></td>
+                            <td style="color:#38bdf8; font-weight:600;">${c.estimatedSize || '0 KB'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // 3. Populate File Explorer
+                allStorageFiles = data.files || [];
+                renderStorageFiles(allStorageFiles);
+
+            } catch (err) {
+                console.error('loadDatabaseStats error:', err);
+                showToast('Network error loading database stats', 'triangle-exclamation', '#ef4444');
+            }
+        }
+
+        function renderStorageFiles(files) {
+            const tbody = document.getElementById('storageFilesTableBody');
+            if (!tbody) return;
+
+            if (!files || files.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:#64748b;">No files uploaded in this category yet. Upload a banner, logo or book to see it here!</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = files.map(f => {
+                let icon = 'fa-file';
+                let iconColor = '#94a3b8';
+                if (f.type === 'image' || (f.mimeType && f.mimeType.startsWith('image'))) { icon = 'fa-image'; iconColor = '#38bdf8'; }
+                else if (f.type === 'banner') { icon = 'fa-panorama'; iconColor = '#f59e0b'; }
+                else if (f.type === 'pdf' || f.mimeType === 'application/pdf') { icon = 'fa-file-pdf'; iconColor = '#ef4444'; }
+                else if (f.type === 'live' || f.type === 'recording') { icon = 'fa-video'; iconColor = '#a855f7'; }
+
+                let isAstra = f.storage && f.storage.includes('Astra');
+
+                return `
+                    <tr>
+                        <td style="width:50px; text-align:center;">
+                            <i class="fas ${icon}" style="font-size:18px; color:${iconColor};"></i>
+                        </td>
+                        <td>
+                            <strong style="color:#f8fafc; word-break:break-all;">${f.name}</strong>
+                            <div style="font-size:11px; color:#64748b;">${f.mimeType || 'binary/asset'}</div>
+                        </td>
+                        <td>
+                            <span style="font-size:11.5px; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.06); color:#cbd5e1;">${f.category}</span>
+                        </td>
+                        <td>
+                            <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; ${isAstra ? 'background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);' : 'background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);'}">
+                                ${isAstra ? '⚡ Astra DB Cloud' : '📁 Local / Disk'}
+                            </span>
+                        </td>
+                        <td style="font-weight:700; color:#34d399;">${f.sizeFormatted}</td>
+                        <td>
+                            <a href="${f.url}" target="_blank" style="text-decoration:none; padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:600; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:5px;">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Open
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterStorageFiles(category, btn) {
+            activeStorageFilter = category;
+            if (btn && btn.parentElement) {
+                btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            if (category === 'all') {
+                renderStorageFiles(allStorageFiles);
+            } else if (category === 'image') {
+                renderStorageFiles(allStorageFiles.filter(f => f.type === 'image' || f.type === 'image_and_pdf' || (f.category && f.category.includes('Photo')) || (f.category && f.category.includes('Logo')) || (f.mimeType && f.mimeType.startsWith('image'))));
+            } else if (category === 'banner') {
+                renderStorageFiles(allStorageFiles.filter(f => f.type === 'banner' || (f.category && f.category.includes('Banner'))));
+            } else if (category === 'pdf') {
+                renderStorageFiles(allStorageFiles.filter(f => f.type === 'pdf' || f.type === 'notes' || f.mimeType === 'application/pdf' || (f.name && f.name.endsWith('.pdf'))));
+            } else if (category === 'live') {
+                renderStorageFiles(allStorageFiles.filter(f => f.type === 'live' || f.type === 'recording' || (f.category && f.category.includes('Video')) || (f.category && f.category.includes('Live'))));
+            }
+        }
+
+        function searchStorageFiles(query) {
+            const q = (query || '').toLowerCase().trim();
+            if (!q) {
+                filterStorageFiles(activeStorageFilter);
+                return;
+            }
+            const filtered = allStorageFiles.filter(f => 
+                (f.name && f.name.toLowerCase().includes(q)) ||
+                (f.category && f.category.toLowerCase().includes(q)) ||
+                (f.storage && f.storage.toLowerCase().includes(q))
+            );
+            renderStorageFiles(filtered);
+        }
+
+        async function pingDatabases() {
+            const btn = document.getElementById('btnPingDb');
+            const box = document.getElementById('dbPingResultBox');
+            if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pinging Databases...';
+
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/admin/database/test-ping', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.results) {
+                    const m = data.results.mongo;
+                    const a = data.results.astra;
+
+                    if (box) {
+                        box.style.display = 'block';
+                        box.style.background = 'rgba(15,23,42,0.85)';
+                        box.style.border = '1px solid #38bdf8';
+                        box.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+                                    <span style="color:#f1f5f9;"><strong>Database 1 (MongoDB / Auth):</strong> ${m.status} (${m.latencyMs}ms latency) - ${m.engine}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#a855f7;"></span>
+                                    <span style="color:#f1f5f9;"><strong>Database 2 (Astra DB Heavy Cloud):</strong> ${a.status} (${a.latencyMs}ms latency) - ${a.engine}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    showToast('Dual-Database ping test successful!', 'circle-check', '#10b981');
+                }
+            } catch (e) {
+                showToast('Ping test error: ' + e.message, 'triangle-exclamation', '#ef4444');
+            } finally {
+                if (btn) btn.innerHTML = '<i class="fas fa-bolt"></i> Ping & Test Latency';
+            }
         }
 
         // Universal Admin Toast Notification
