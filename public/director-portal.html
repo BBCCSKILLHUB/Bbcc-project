@@ -773,6 +773,15 @@
 
                     <form onsubmit="uploadCenterMaterial(event)">
                         <div style="margin-bottom:14px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700;"><i class="fas fa-bullseye" style="color:var(--aurora-gold);"></i> Target Scope / Visibility (कहाँ दिखाना चाहते हैं?) *</label>
+                            <select id="matTargetScope" class="studio-input" style="cursor:pointer; font-weight:600;">
+                                <option value="all">🌐 Public E-Library (BBCC Home Page & All Centers)</option>
+                                <option value="my_center">🔒 My Coaching Center Only (Private to My Center Dashboard & Students)</option>
+                            </select>
+                            <span style="font-size:11px; color:#94a3b8;">"Public E-Library" चुनने पर यह तुरंत BBCC के मुख्य होम पेज पर E-Library में लाइव दिखेगा। "My Coaching Center Only" चुनने पर केवल आपके कोचिंग डैशबोर्ड और आपके छात्रों को दिखेगा।</span>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
                             <label style="font-size:12px; color:#cbd5e1;">Book / Study Material Title *</label>
                             <input type="text" id="matTitle" required placeholder="e.g. Chapter 4 Motion Formula Sheet & Question Bank" class="studio-input">
                         </div>
@@ -1872,8 +1881,9 @@
                 return;
             }
             try {
-                const res = await fetch('/api/director/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch('/api/director/profile?_t=' + Date.now(), {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
                 if (!data.success) {
@@ -1900,14 +1910,55 @@
                 setInterval(checkDirectorLiveClassStatus, 12000);
 
                 // Dynamic Favicon sync
-                fetch('/api/public/config').then(r => r.json()).then(pub => {
+                fetch('/api/public/config?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(pub => {
                     if (pub.success && pub.data && pub.data.boardLogo) {
                         const df = document.getElementById('dynamicFavicon');
                         if (df) df.href = pub.data.boardLogo;
                     }
                 }).catch(()=>{});
+
+                initDirectorRealtimeSync();
             } catch(e) {
                 console.error('initDirectorStudio error:', e);
+            }
+        }
+
+        let directorEventSource = null;
+        function initDirectorRealtimeSync() {
+            if (directorEventSource || typeof window.EventSource === 'undefined') return;
+            try {
+                directorEventSource = new EventSource('/api/public/events');
+                directorEventSource.addEventListener('update', (e) => {
+                    try {
+                        const evt = JSON.parse(e.data);
+                        const type = evt.type || '';
+                        if (type.includes('course') || type === 'data_updated') {
+                            loadCoursesList();
+                        }
+                        if (type.includes('teacher') || type.includes('banner') || type.includes('center') || type.includes('book') || type === 'data_updated') {
+                            fetch('/api/director/profile?_t=' + Date.now(), {
+                                headers: { 'Authorization': `Bearer ${token}` },
+                                cache: 'no-store'
+                            }).then(r => r.json()).then(d => {
+                                if (d.success && d.data) {
+                                    centerProfile = d.data;
+                                    populateStudioUI(centerProfile);
+                                    loadBanners();
+                                }
+                            }).catch(()=>{});
+                        }
+                        if (type.includes('student') || type === 'data_updated') {
+                            if (typeof loadStudents === 'function') loadStudents();
+                        }
+                    } catch(err) {}
+                });
+                directorEventSource.onerror = () => {
+                    try { directorEventSource.close(); } catch(err) {}
+                    directorEventSource = null;
+                    setTimeout(initDirectorRealtimeSync, 8000);
+                };
+            } catch(err) {
+                console.warn('Director real-time sync setup notice:', err);
             }
         }
 
@@ -2263,6 +2314,10 @@
             if (data.success) {
                 alert('Promotional banner uploaded successfully! It is now live on your website and the BBCC homepage showcase.');
                 e.target.reset();
+                if (data.data && Array.isArray(data.data)) {
+                    if (centerProfile) centerProfile.promotionalBanners = data.data;
+                    loadBanners();
+                }
                 initDirectorStudio();
             }
         }
@@ -2274,7 +2329,13 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.success) initDirectorStudio();
+            if (data.success) {
+                if (centerProfile && centerProfile.promotionalBanners) {
+                    centerProfile.promotionalBanners = centerProfile.promotionalBanners.filter(b => b._id !== bid);
+                    loadBanners();
+                }
+                initDirectorStudio();
+            }
         }
 
         // Students Enrolment & Roster
@@ -2852,6 +2913,10 @@
             const data = await res.json();
             if (data.success) {
                 alert('Study material deleted successfully');
+                if (centerProfile && centerProfile.materials) {
+                    centerProfile.materials = centerProfile.materials.filter(m => m._id !== mid);
+                    renderMaterialsList(centerProfile.materials);
+                }
                 initDirectorStudio();
             } else {
                 alert(data.message || 'Error deleting material');
@@ -2860,6 +2925,7 @@
 
         async function uploadCenterMaterial(e) {
             e.preventDefault();
+            const targetScope = document.getElementById('matTargetScope') ? document.getElementById('matTargetScope').value : 'all';
             const title = document.getElementById('matTitle').value.trim();
             const desc = document.getElementById('matDesc').value.trim();
             const price = Number(document.getElementById('matPrice') ? document.getElementById('matPrice').value : 0) || 0;
@@ -2905,6 +2971,7 @@
                     physicalMrp,
                     pickupAddress,
                     directorContact,
+                    targetScope,
                     pdf: base64, 
                     storageMode, 
                     thumbnail: thumbBase64 
@@ -2912,8 +2979,12 @@
             });
             const data = await res.json();
             if (data.success) {
-                alert('Study note published to Marketplace! 80% will be credited to your wallet per student purchase.');
+                alert('Study note published! ' + (targetScope === 'all' ? 'Visible immediately on BBCC Homepage E-Library & Coaching Studio.' : 'Visible privately on your Coaching Studio & for your students.'));
                 e.target.reset();
+                if (data.data && Array.isArray(data.data)) {
+                    if (centerProfile) centerProfile.materials = data.data;
+                    renderMaterialsList(data.data);
+                }
                 if (centerProfile) {
                     if (document.getElementById('matPickupAddress')) {
                         document.getElementById('matPickupAddress').value = centerProfile.address || '';
@@ -3037,8 +3108,9 @@
         // ==========================================
         async function loadCoursesList() {
             try {
-                const res = await fetch('/api/director/courses', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch('/api/director/courses?_t=' + Date.now(), {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
                 const dock = document.getElementById('coursesListDock');
