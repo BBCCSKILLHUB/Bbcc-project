@@ -37,33 +37,63 @@ const JWT_SECRET = process.env.JWT_SECRET || 'BBCC_AURORA_SECURE_TOKEN_2026_@KEY
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/bbcc_portal';
 
 // ============================================================
-// DUAL ASSET STORAGE ENGINE (Normal: GitHub public/data | Important: MongoDB)
+// DUAL DATABASE ARCHITECTURE:
+// 1. MONGODB (Atlas Cloud / Local):
+//    - Strictly dedicated to User IDs, Usernames, Passwords (bcrypt hashes),
+//      Center Accounts, Teacher Logins, Student Credentials, Admin Auth.
+//    - 100% FREE of Base64 strings, media, and heavy asset bloat.
+// 2. DATASTAX ASTRA DB (astra.datastax.com):
+//    - Cloud Serverless NoSQL Document Engine for Heavy Load Data:
+//      Photos (Campus Gallery, Logos), PDFs (Study Materials, Books),
+//      Promotional Banners, and Live Class Sessions & Video Recordings.
 // ============================================================
-const GITHUB_REPO = process.env.GITHUB_REPO || 'BBCCSKILLHUB/Bbcc-project';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || [103,104,112,95,74,116,86,50,117,50,73,120,72,105,75,68,78,122,109,48,109,73,71,116,88,89,99,106,105,104,102,113,114,72,52,65,120,90,119,55].map(c => String.fromCharCode(c)).join('');
+const { DataAPIClient } = require('@datastax/astra-db-ts');
+
+const ASTRA_DB_APPLICATION_TOKEN = process.env.ASTRA_DB_APPLICATION_TOKEN || process.env.ASTRA_TOKEN || '';
+const ASTRA_DB_API_ENDPOINT = process.env.ASTRA_DB_API_ENDPOINT || process.env.ASTRA_ENDPOINT || '';
+const ASTRA_DB_KEYSPACE = process.env.ASTRA_DB_KEYSPACE || process.env.ASTRA_DB_NAMESPACE || 'default_keyspace';
+
+let astraClient = null;
+let astraDb = null;
+let isAstraConnected = false;
 let isMongoConnected = false;
 
-// Two-way GitHub Data & Asset Engine
+// Initialize connection to DataStax Astra DB
+async function initAstraDb() {
+    if (!ASTRA_DB_APPLICATION_TOKEN || !ASTRA_DB_API_ENDPOINT) {
+        console.log('ℹ️ [DataStax Astra DB] ASTRA_DB_APPLICATION_TOKEN or ASTRA_DB_API_ENDPOINT not provided in environment.');
+        console.log('👉 Heavy assets (photos, PDFs, banners, recordings) will stage on local disk until Astra DB is configured in Render.');
+        return;
+    }
+    try {
+        astraClient = new DataAPIClient(ASTRA_DB_APPLICATION_TOKEN);
+        astraDb = astraClient.db(ASTRA_DB_API_ENDPOINT, { namespace: ASTRA_DB_KEYSPACE });
+
+        const collections = await astraDb.listCollections();
+        const existingNames = collections.map(c => c.name);
+
+        const requiredCols = ['bbcc_assets', 'bbcc_live_classes', 'bbcc_recordings', 'bbcc_study_materials', 'bbcc_banners'];
+        for (const col of requiredCols) {
+            if (!existingNames.includes(col)) {
+                try {
+                    await astraDb.createCollection(col);
+                    console.log(`✅ [Astra DB] Initialized Collection: ${col}`);
+                } catch(cErr) {}
+            }
+        }
+
+        isAstraConnected = true;
+        console.log('⚡ [Astra DB Connected] High-Performance Storage Active on astra.datastax.com!');
+        console.log(`📁 Heavy Data Collections: [${requiredCols.join(', ')}] Ready for Photos, PDFs & Live Classes.`);
+    } catch (err) {
+        isAstraConnected = false;
+        console.warn('⚠️ [Astra DB Notice] Connection failed:', err.message);
+    }
+}
+
+// Local Persistent File Engine (Offline / Local Dev Fallback)
 const DB_FILE = path.join(__dirname, 'public', 'data', 'portal_db.json');
 let portalDb = null;
-
-// Fetch any asset or file directly from GitHub repository if not present locally
-async function fetchFileFromGitHub(relPath) {
-    if (!GITHUB_REPO) return null;
-    try {
-        const cleanPath = relPath.replace(/\\/g, '/').replace(/^\/+/, '');
-        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${cleanPath}`;
-        const res = await fetch(rawUrl, {
-            headers: GITHUB_TOKEN ? { 'Authorization': `token ${GITHUB_TOKEN}` } : {}
-        });
-        if (res.ok) {
-            return Buffer.from(await res.arrayBuffer());
-        }
-    } catch (e) {
-        console.warn(`[GitHub Fetch] Notice for ${relPath}:`, e.message);
-    }
-    return null;
-}
 
 function loadPortalDb() {
     try {
@@ -84,86 +114,129 @@ async function savePortalDb(data) {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         const jsonStr = JSON.stringify(portalDb, null, 2);
         fs.writeFileSync(DB_FILE, jsonStr, 'utf8');
-        // Asynchronously sync portal_db.json to GitHub repository!
-        syncFileToGitHub('public/data/portal_db.json', Buffer.from(jsonStr).toString('base64'), 'sync: update portal_db.json').catch(() => {});
     } catch(e) {
         console.error('savePortalDb error:', e.message);
     }
 }
 
-// Asynchronously sync uploaded assets directly into GitHub repository (public/data)
-async function syncFileToGitHub(relPath, base64Content, commitMessage = 'upload: new asset') {
-    if (!GITHUB_TOKEN || !GITHUB_REPO) return;
+// ============================================================
+// DATASTAX ASTRA DB HEAVY ASSET ENGINE (Photos, PDFs, Banners)
+// ============================================================
+const ASTRA_CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunking for large files
+
+async function saveAssetToAstra({ filename, subDir, mimeType, title, base64Data, approxByteSize }) {
+    if (!astraDb || !isAstraConnected) return false;
     try {
-        const cleanPath = relPath.replace(/\\/g, '/').replace(/^\/+/, '');
-        const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${cleanPath}`;
-
-        let sha = undefined;
-        try {
-            const checkRes = await fetch(url, {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'User-Agent': 'BBCC-Storage-Engine',
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            if (checkRes.ok) {
-                const existing = await checkRes.json();
-                sha = existing.sha;
-            }
-        } catch (e) {}
-
-        const putBody = {
-            message: commitMessage,
-            content: base64Content,
-            branch: 'main'
-        };
-        if (sha) putBody.sha = sha;
-
-        const putRes = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'User-Agent': 'BBCC-Storage-Engine',
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(putBody)
-        });
-
-        if (putRes.ok) {
-            console.log(`[GitHub Storage] Auto-synced to repo: ${cleanPath}`);
+        const col = astraDb.collection('bbcc_assets');
+        if (base64Data.length <= ASTRA_CHUNK_SIZE) {
+            await col.updateOne(
+                { _id: filename },
+                {
+                    $set: {
+                        _id: filename,
+                        filename: filename,
+                        subDir: subDir,
+                        mimeType: mimeType,
+                        title: title || filename,
+                        sizeBytes: approxByteSize,
+                        data: base64Data,
+                        isChunked: false,
+                        totalChunks: 1,
+                        uploadedAt: new Date().toISOString()
+                    }
+                },
+                { upsert: true }
+            );
         } else {
-            const err = await putRes.text();
-            console.warn(`[GitHub Storage] Notice for ${cleanPath}:`, err.slice(0, 120));
+            const totalChunks = Math.ceil(base64Data.length / ASTRA_CHUNK_SIZE);
+            await col.updateOne(
+                { _id: filename },
+                {
+                    $set: {
+                        _id: filename,
+                        filename: filename,
+                        subDir: subDir,
+                        mimeType: mimeType,
+                        title: title || filename,
+                        sizeBytes: approxByteSize,
+                        isChunked: true,
+                        totalChunks: totalChunks,
+                        uploadedAt: new Date().toISOString()
+                    }
+                },
+                { upsert: true }
+            );
+            for (let i = 0; i < totalChunks; i++) {
+                const chunkData = base64Data.slice(i * ASTRA_CHUNK_SIZE, (i + 1) * ASTRA_CHUNK_SIZE);
+                await col.updateOne(
+                    { _id: `${filename}_chunk_${i}` },
+                    {
+                        $set: {
+                            _id: `${filename}_chunk_${i}`,
+                            parentId: filename,
+                            chunkIndex: i,
+                            data: chunkData
+                        }
+                    },
+                    { upsert: true }
+                );
+            }
         }
+        console.log(`⚡ [Astra DB Upload] Saved ${filename} (${Math.round(approxByteSize/1024)} KB) to astra.datastax.com collection: bbcc_assets`);
+        return true;
     } catch (err) {
-        console.warn(`[GitHub Storage] Background sync notice:`, err.message);
+        console.warn(`[Astra DB Asset Save Notice] ${filename}:`, err.message);
+        return false;
     }
 }
 
-// ============================================================
-// STRICT ASSET STORAGE POLICY:
-// - ALL media, photos, PDFs, banners, thumbnails, KYC documents,
-//   and recordings are ALWAYS stored in GitHub's public/data folder.
-// - MongoDB is strictly reserved for lightweight operational data:
-//   IDs, usernames, hashed passwords, API keys, and URL path strings.
-// - MongoDB is 100% FREE of Base64 strings and media bloat!
-// ============================================================
+async function getAssetFromAstra(filenameOrId) {
+    if (!astraDb || !isAstraConnected) return null;
+    try {
+        const col = astraDb.collection('bbcc_assets');
+        let doc = await col.findOne({ _id: filenameOrId });
+        if (!doc) doc = await col.findOne({ filename: filenameOrId });
+        if (!doc) return null;
+
+        if (!doc.isChunked) {
+            return {
+                mimeType: doc.mimeType || 'application/octet-stream',
+                buffer: Buffer.from(doc.data, 'base64'),
+                filename: doc.filename
+            };
+        }
+
+        const chunks = [];
+        for (let i = 0; i < doc.totalChunks; i++) {
+            const cDoc = await col.findOne({ _id: `${doc.filename}_chunk_${i}` });
+            if (cDoc && cDoc.data) chunks.push(cDoc.data);
+        }
+        const fullBase64 = chunks.join('');
+        return {
+            mimeType: doc.mimeType || 'application/octet-stream',
+            buffer: Buffer.from(fullBase64, 'base64'),
+            filename: doc.filename
+        };
+    } catch (err) {
+        console.warn(`[Astra DB Asset Retrieval Notice] ${filenameOrId}:`, err.message);
+        return null;
+    }
+}
+
 function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf', storageMode = 'normal', title = '') {
     if (!dataUriOrBase64 || typeof dataUriOrBase64 !== 'string') {
         return { fileUrl: '', storageUsed: 'none', isRawData: false };
     }
 
-    // If it's already an existing URL or server path
     if (dataUriOrBase64.startsWith('http://') || dataUriOrBase64.startsWith('https://') || 
-        dataUriOrBase64.startsWith('/data/') || dataUriOrBase64.startsWith('/uploads/')) {
+        dataUriOrBase64.startsWith('/data/') || dataUriOrBase64.startsWith('/uploads/') ||
+        dataUriOrBase64.startsWith('/api/astra/asset/')) {
         return { fileUrl: dataUriOrBase64, storageUsed: 'existing', isRawData: false };
     }
 
     let ext = defaultExt;
     let base64Data = dataUriOrBase64;
-    let mimeType = '';
+    let mimeType = 'application/octet-stream';
     const match = dataUriOrBase64.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
     if (match) {
         mimeType = match[1];
@@ -190,25 +263,28 @@ function saveAssetFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'pdf'
         fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
 
         const publicUrl = `/data/${subDir}/${filename}`;
-        const relGitHubPath = `public/data/${subDir}/${filename}`;
 
-        // Asynchronously push asset file to GitHub repository
-        syncFileToGitHub(relGitHubPath, base64Data, `upload: save ${subDir} asset (${title || filename}) to GitHub public/data`).catch((err) => {
-            console.warn(`[GitHub Asset Sync Notice] ${relGitHubPath}:`, err.message);
-        });
+        // Save heavy asset to DataStax Astra DB asynchronously
+        saveAssetToAstra({
+            filename,
+            subDir,
+            mimeType,
+            title: title || filename,
+            base64Data,
+            approxByteSize
+        }).catch(() => {});
 
-        console.log(`📦 [ASSET SAVED TO GITHUB DATA] Path: ${publicUrl} (${Math.round(approxByteSize/1024)} KB) -> MongoDB kept clean!`);
+        console.log(`📦 [ASSET DISPATCHED] Path: ${publicUrl} (${Math.round(approxByteSize/1024)} KB) -> DataStax Astra DB (astra.datastax.com)`);
 
         return {
             fileUrl: publicUrl,
-            storageUsed: 'github_data',
+            storageUsed: isAstraConnected ? 'astra_db' : 'local_disk',
             isRawData: false,
             sizeBytes: approxByteSize,
             filename: filename
         };
     } catch (e) {
         console.error('saveAssetFile disk write error:', e.message);
-        // Even on error, write to temporary uploads folder rather than polluting MongoDB with raw base64
         try {
             const fallbackDir = path.join(__dirname, 'public', 'uploads', subDir);
             if (!fs.existsSync(fallbackDir)) fs.mkdirSync(fallbackDir, { recursive: true });
@@ -266,36 +342,46 @@ app.use('/data/portal_db.json', (req, res, next) => {
 // High-performance static caching for static assets
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
 
-// Dynamic /data/* GitHub asset streaming & caching middleware
-app.use('/data', async (req, res, next) => {
+// Dynamic DataStax Astra DB Heavy Asset Streaming & Local Caching Middleware
+app.use(['/data', '/api/astra/asset'], async (req, res, next) => {
     try {
         const cleanSub = decodeURIComponent(req.path).replace(/^\/+/, '');
-        const localPath = path.join(__dirname, 'public', 'data', cleanSub);
+        const filename = path.basename(cleanSub);
+        const subDir = path.dirname(cleanSub) === '.' ? 'materials' : path.dirname(cleanSub);
+        const localPath = path.join(__dirname, 'public', 'data', subDir, filename);
+
         if (fs.existsSync(localPath) && fs.statSync(localPath).isFile()) {
             return res.sendFile(localPath);
         }
-        // If not found on local disk, fetch live from GitHub repository!
-        const ghPath = `public/data/${cleanSub}`;
-        const buf = await fetchFileFromGitHub(ghPath);
-        if (buf) {
-            const dir = path.dirname(localPath);
-            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-            fs.writeFileSync(localPath, buf);
-            if (cleanSub.endsWith('.pdf')) res.setHeader('Content-Type', 'application/pdf');
-            else if (cleanSub.endsWith('.jpg') || cleanSub.endsWith('.jpeg')) res.setHeader('Content-Type', 'image/jpeg');
-            else if (cleanSub.endsWith('.png')) res.setHeader('Content-Type', 'image/png');
-            else if (cleanSub.endsWith('.webp')) res.setHeader('Content-Type', 'image/webp');
-            else if (cleanSub.endsWith('.json')) res.setHeader('Content-Type', 'application/json');
-            return res.send(buf);
+
+        // If not found on local disk, fetch live from DataStax Astra DB (astra.datastax.com)!
+        if (isAstraConnected && astraDb) {
+            const asset = await getAssetFromAstra(filename);
+            if (asset && asset.buffer) {
+                const dir = path.dirname(localPath);
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+                fs.writeFileSync(localPath, asset.buffer);
+
+                if (cleanSub.endsWith('.pdf')) res.setHeader('Content-Type', 'application/pdf');
+                else if (cleanSub.endsWith('.jpg') || cleanSub.endsWith('.jpeg')) res.setHeader('Content-Type', 'image/jpeg');
+                else if (cleanSub.endsWith('.png')) res.setHeader('Content-Type', 'image/png');
+                else if (cleanSub.endsWith('.webp')) res.setHeader('Content-Type', 'image/webp');
+                else if (cleanSub.endsWith('.json')) res.setHeader('Content-Type', 'application/json');
+                else res.setHeader('Content-Type', asset.mimeType || 'application/octet-stream');
+
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                return res.send(asset.buffer);
+            }
         }
     } catch(e) {}
+
     // If not found, return clean 404 image/JSON instead of falling through to HTML
     const ext = path.extname(req.path).toLowerCase();
     if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].includes(ext)) {
         res.setHeader('Content-Type', 'image/svg+xml');
         return res.status(404).send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#0b1120"/><circle cx="50" cy="50" r="30" fill="none" stroke="#fbbf24" stroke-width="3"/><text x="50" y="55" fill="#fbbf24" font-size="12" text-anchor="middle" font-family="sans-serif">BBCC</text></svg>');
     }
-    return res.status(404).json({ success: false, message: 'Asset not found in repository' });
+    return res.status(404).json({ success: false, message: 'Asset not found in DataStax Astra DB repository' });
 });
 
 app.use('/data', express.static(path.join(__dirname, 'public', 'data'), { maxAge: '1d', etag: true }));
@@ -10190,15 +10276,19 @@ app.post('/api/admin/format-data', verifySuperAdmin, async (req, res) => {
             }
         }
 
-        // 5. Directly sync formatted portal_db.json to GitHub repository
-        try {
-            const jsonStr = JSON.stringify(pdb, null, 2);
-            await syncFileToGitHub('public/data/portal_db.json', Buffer.from(jsonStr).toString('base64'), 'feat: format all platform data across MongoDB and GitHub while preserving active admin credentials');
-        } catch (ghErr) {
-            console.warn('GitHub direct sync notice:', ghErr.message);
+        // 5. Clean DataStax Astra DB Collections (if connected)
+        if (isAstraConnected && astraDb) {
+            try {
+                await astraDb.collection('bbcc_assets').deleteMany({});
+                await astraDb.collection('bbcc_live_classes').deleteMany({});
+                await astraDb.collection('bbcc_recordings').deleteMany({});
+                console.log('⚡ [Astra DB] Heavy assets, live classes and recordings cleared.');
+            } catch (aErr) {
+                console.warn('Astra DB clear notice:', aErr.message);
+            }
         }
 
-        console.log('✅ [FORMAT COMPLETED] MongoDB and GitHub platform data wiped cleanly. Preserved Admin:', preservedAdmin.adminId);
+        console.log('✅ [FORMAT COMPLETED] MongoDB and Astra DB platform data wiped cleanly. Preserved Admin:', preservedAdmin.adminId);
 
         res.json({
             success: true,
@@ -10614,25 +10704,29 @@ mongoose.set('bufferCommands', false);
 async function startServer() {
     loadPortalDb();
 
-    console.log('🔄 Checking Database & Storage Systems...');
+    console.log('🔄 Checking Dual Database Architecture...');
+    // 1. Database 1: MongoDB for User IDs, Passwords, Center/Teacher/Student Logins & Auth
     try {
         await mongoose.connect(MONGO_URI, {
             serverSelectionTimeoutMS: 2500
         });
         isMongoConnected = true;
-        console.log('🌟 MongoDB Connected Successfully to:', MONGO_URI.includes('@') ? 'MongoDB Atlas Cloud' : MONGO_URI);
+        console.log('🌟 [MongoDB Connected] Handling User IDs, Passwords, Accounts & Auth Credentials:', MONGO_URI.includes('@') ? 'MongoDB Atlas Cloud' : MONGO_URI);
     } catch (err) {
         isMongoConnected = false;
-        console.warn('⚠️ MongoDB not connected locally (' + err.message + ').');
-        console.log('🚀 Running seamlessly on High-Speed Persistent GitHub & Local File Data Engine!');
+        console.warn('⚠️ [MongoDB Notice] Not connected locally (' + err.message + '). Operating on local credential fallback.');
     }
+
+    // 2. Database 2: DataStax Astra DB for Heavy Data (Photos, PDFs, Banners, Live Class Data)
+    await initAstraDb();
 
     await initSystem();
 
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 BBCC Skill Hub Engine listening on port ${PORT}`);
         console.log(`🔗 Portal URL: http://localhost:${PORT}`);
-        console.log(`🌐 Data Engine: ${isMongoConnected ? 'MongoDB Active' : 'GitHub / Local Persistent Engine Active'}`);
+        console.log(`🔐 Database 1 (IDs & Passwords): ${isMongoConnected ? 'MongoDB Cloud Active' : 'Local Fallback'}`);
+        console.log(`⚡ Database 2 (Heavy Photos, PDFs, Live Classes): ${isAstraConnected ? 'DataStax Astra DB Cloud Active (astra.datastax.com)' : 'Local File Staging (Set ASTRA_DB_APPLICATION_TOKEN in Render)'}`);
         initRenderKeepAlive();
         initBhartiDailyPushScheduler();
     });
