@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Portal Login | BBCC SKILL HUB</title>
+    <link rel="icon" type="image/png" href="/data/branding/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #030712;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --gold: #fbbf24;
+            --emerald: #10b981;
+            --cyan: #38bdf8;
+            --border-glow: rgba(245, 158, 11, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 50%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+        }
+
+        .login-card {
+            max-width: 460px;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glow);
+            background: rgba(3, 7, 18, 0.8);
+            padding: 4px;
+        }
+
+        .brand-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .brand-sub {
+            font-size: 12.5px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Role Switcher Tabs */
+        .role-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 5px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .role-tab {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 10px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .role-tab.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #030712;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Director Secondary Tab */
+        .role-tab-director {
+            grid-column: 1 / -1;
+            margin-top: 4px;
+        }
+
+        .role-tab-director.active {
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(3, 7, 18, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #f8fafc;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #030712;
+            border: none;
+            border-radius: 12px;
+            padding: 13px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 12.5px;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <!-- Brand Header -->
+        <div class="brand-header">
+            <a href="/">
+                <img src="/data/branding/logo.png" alt="BBCC Logo" class="brand-logo" onerror="this.src='/logo.png'">
+            </a>
+            <h1 class="brand-title">BBCC SKILL HUB</h1>
+            <p class="brand-sub">Unified Portal Login (Student, Teacher &amp; Center)</p>
+        </div>
+
+        <!-- Role Switcher -->
+        <div class="role-tabs">
+            <button type="button" class="role-tab active" id="tabBtnStudent" onclick="switchRole('student')">
+                <i class="fas fa-graduation-cap"></i> Student Login
+            </button>
+            <button type="button" class="role-tab" id="tabBtnTeacher" onclick="switchRole('teacher')">
+                <i class="fas fa-chalkboard-user"></i> Teacher Login
+            </button>
+            <button type="button" class="role-tab role-tab-director" id="tabBtnDirector" onclick="switchRole('director')">
+                <i class="fas fa-building-columns"></i> Coaching Center Director Login
+            </button>
+        </div>
+
+        <!-- Error Notice -->
+        <div class="error-msg" id="loginErrorMsg">
+            <i class="fas fa-triangle-exclamation"></i> <span id="errorText">Error message</span>
+        </div>
+
+        <!-- FORM 1: STUDENT CLASSROOM LOGIN -->
+        <form id="formStudent" onsubmit="handleStudentLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Student Roll Number or Aadhar *</label>
+                <input type="text" id="stuQuery" required placeholder="Enter Verified Roll No or 12-digit Aadhar" class="form-input">
+            </div>
+            <button type="submit" id="btnStudentSubmit" class="btn-submit">
+                <span>Enter Classroom</span> <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- FORM 2: TEACHER / FACULTY LOGIN -->
+        <form id="formTeacher" style="display:none;" onsubmit="handleTeacherLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Teacher Mobile / Teacher ID *</label>
+                <input type="text" id="tchPhone" required placeholder="Enter Registered 10-digit Mobile Number" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password *</label>
+                <input type="password" id="tchPassword" required placeholder="Enter Your Teacher Password" class="form-input">
+            </div>
+            <button type="submit" id="btnTeacherSubmit" class="btn-submit">
+                <span>Login to Teacher Portal</span> <i class="fas fa-right-to-bracket"></i>
+            </button>
+        </form>
+
+        <!-- FORM 3: COACHING CENTER DIRECTOR LOGIN -->
+        <form id="formDirector" style="display:none;" onsubmit="handleDirectorLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Center Username / Code *</label>
+                <input type="text" id="dirUsername" required placeholder="e.g. patna_branch / Center ID" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Director Password *</label>
+                <input type="password" id="dirPassword" required placeholder="Enter Center Password" class="form-input">
+            </div>
+            <button type="submit" id="btnDirectorSubmit" class="btn-submit">
+                <span>Login to Director Desk</span> <i class="fas fa-right-to-bracket"></i>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="footer-links">
+            <a href="/" class="footer-link"><i class="fas fa-arrow-left"></i> Back to Main Portal</a>
+            <a href="/admin-console.html" class="footer-link" style="color:var(--gold);"><i class="fas fa-shield-halved"></i> Super Admin</a>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'student';
+
+        function switchRole(role) {
+            currentRole = role;
+            document.getElementById('loginErrorMsg').style.display = 'none';
+
+            // Buttons
+            document.getElementById('tabBtnStudent').className = 'role-tab' + (role === 'student' ? ' active' : '');
+            document.getElementById('tabBtnTeacher').className = 'role-tab' + (role === 'teacher' ? ' active' : '');
+            document.getElementById('tabBtnDirector').className = 'role-tab role-tab-director' + (role === 'director' ? ' active' : '');
+
+            // Forms
+            document.getElementById('formStudent').style.display = role === 'student' ? 'block' : 'none';
+            document.getElementById('formTeacher').style.display = role === 'teacher' ? 'block' : 'none';
+            document.getElementById('formDirector').style.display = role === 'director' ? 'block' : 'none';
+        }
+
+        // 1. Student Login
+        async function handleStudentLogin(e) {
+            e.preventDefault();
+            const query = document.getElementById('stuQuery').value.trim();
+            const errBox = document.getElementById('loginErrorMsg');
+            const errText = document.getElementById('errorText');
+            const btn = document.getElementById('btnStudentSubmit');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Student...';
+            errBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/public/student-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await res.json();
+                if (data.success && data.student) {
+                    localStorage.setItem('bbcc_student_roll', data.student.rollNo || '');
+                    localStorage.setItem('bbcc_student_name', data.student.name || '');
+                    localStorage.setItem('bbcc_student_center', data.student.centerName || '');
+                    window.location.href = '/classroom.html?roll=' + encodeURIComponent(data.student.rollNo || query);
+                } else {
+                    errText.textContent = data.message || 'No enrolled student record found with this Roll Number or Aadhar.';
+                    errBox.style.display = 'flex';
+                }
+            } catch (err) {
+                errText.textContent = 'Connection error: ' + err.message;
+                errBox.style.display = 'flex';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Enter Classroom</span> <i class="fas fa-arrow-right"></i>';
+            }
+        }
+
+        // 2. Teacher Login
+        async function handleTeacherLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('tchPhone').value.trim();
+            const password = document.getElementById('tchPassword').value;
+            const errBox = document.getElementById('loginErrorMsg');
+            const errText = document.getElementById('errorText');
+            const btn = document.getElementById('btnTeacherSubmit');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating Teacher...';
+            errBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/teacher/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+                const data = await res.json();
+                if (data.success && data.token) {
+                    localStorage.setItem('bbcc_teacher_token', data.token);
+                    localStorage.setItem('bbcc_teacher_name', data.teacher?.name || '');
+                    window.location.href = '/teacher-portal.html';
+                } else {
+                    errText.textContent = data.message || 'Invalid Teacher credentials.';
+                    errBox.style.display = 'flex';
+                }
+            } catch (err) {
+                errText.textContent = 'Connection error: ' + err.message;
+                errBox.style.display = 'flex';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Login to Teacher Portal</span> <i class="fas fa-right-to-bracket"></i>';
+            }
+        }
+
+        // 3. Director Login
+        async function handleDirectorLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('dirUsername').value.trim();
+            const password = document.getElementById('dirPassword').value;
+            const errBox = document.getElementById('loginErrorMsg');
+            const errText = document.getElementById('errorText');
+            const btn = document.getElementById('btnDirectorSubmit');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating Center...';
+            errBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/director/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.success && data.token) {
+                    localStorage.setItem('bbcc_director_token', data.token);
+                    window.location.href = '/director-portal.html';
+                } else {
+                    errText.textContent = data.message || 'Invalid Center credentials.';
+                    errBox.style.display = 'flex';
+                }
+            } catch (err) {
+                errText.textContent = 'Connection error: ' + err.message;
+                errBox.style.display = 'flex';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Login to Director Desk</span> <i class="fas fa-right-to-bracket"></i>';
+            }
+        }
+
+        // Auto-select role from URL if present (?role=teacher)
+        const params = new URLSearchParams(window.location.search);
+        const urlRole = params.get('role');
+        if (urlRole && ['student', 'teacher', 'director'].includes(urlRole)) {
+            switchRole(urlRole);
+        }
+    </script>
+</body>
+</html>
