@@ -50,7 +50,7 @@ const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb:/
 const { DataAPIClient } = require('@datastax/astra-db-ts');
 
 const ASTRA_DB_APPLICATION_TOKEN = process.env.ASTRA_DB_APPLICATION_TOKEN || process.env.ASTRA_TOKEN || '';
-const ASTRA_DB_API_ENDPOINT = process.env.ASTRA_DB_API_ENDPOINT || process.env.ASTRA_ENDPOINT || '';
+const ASTRA_DB_API_ENDPOINT = process.env.ASTRA_DB_API_ENDPOINT || process.env.ASTRA_ENDPOINT || 'https://ca3de2b2-4e25-42ca-b40c-a82b05dd3fed-us-east-2.apps.astra.datastax.com';
 const ASTRA_DB_KEYSPACE = process.env.ASTRA_DB_KEYSPACE || process.env.ASTRA_DB_NAMESPACE || 'default_keyspace';
 
 let astraClient = null;
@@ -67,7 +67,7 @@ async function initAstraDb() {
     }
     try {
         astraClient = new DataAPIClient(ASTRA_DB_APPLICATION_TOKEN);
-        astraDb = astraClient.db(ASTRA_DB_API_ENDPOINT, { namespace: ASTRA_DB_KEYSPACE });
+        astraDb = astraClient.db(ASTRA_DB_API_ENDPOINT, { keyspace: ASTRA_DB_KEYSPACE });
 
         const collections = await astraDb.listCollections();
         const existingNames = collections.map(c => c.name);
