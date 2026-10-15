@@ -796,7 +796,7 @@ const SettingsSchema = new mongoose.Schema({
     // Founder & Leadership Profile
     founderProfile: {
         name: { type: String, default: 'Mr. Santosh Kumar' },
-        photo: { type: String, default: '/santosh sir.jpeg' },
+        photo: { type: String, default: '/santosh_sir.jpeg' },
         designation: { type: String, default: 'Founder & Managing Director' },
         qualification: { type: String, default: 'B.Ed, Ethical Hacking' },
         address: { type: String, default: 'PTCC+BBCC Chakdah Chowk madhubani bihar india 847211' },
@@ -804,7 +804,23 @@ const SettingsSchema = new mongoose.Schema({
         signature: { type: String, default: '' }
     },
     // Festival Theme for Homepage Background
-    activeFestivalTheme: { type: String, default: 'auto' } // 'auto', 'diwali', 'chhath', 'holi', 'tricolor', 'eid', 'celestial'
+    activeFestivalTheme: { type: String, default: 'auto' }, // 'auto', 'diwali', 'chhath', 'holi', 'tricolor', 'eid', 'celestial'
+    // AI Personality & Master System Prompt Engine
+    aiAssistantName: { type: String, default: 'Bharti — AI Chief Academic Counselor' },
+    aiAssistantRole: { type: String, default: 'Chief Academic Counselor & Senior Student Advisor' },
+    aiDataScope: { type: [String], default: ['courses', 'fees', 'centers', 'founder', 'books', 'syllabus', 'admissions'] },
+    aiSystemPrompt: { type: String, default: '' },
+    // Configurable Direct Admission & Coaching Affiliation Fees
+    admissionFees: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // Discount Vouchers & Coupons for Study Materials
+    vouchers: [{
+        code: { type: String, required: true },
+        discountPercent: { type: Number, default: 20 },
+        maxDiscount: { type: Number, default: 500 },
+        description: { type: String, default: '' },
+        active: { type: Boolean, default: true },
+        validTill: { type: Date }
+    }]
 }, { timestamps: true });
 
 // 1.9 Center Withdrawal Requests Schema
@@ -1960,6 +1976,12 @@ app.get('/api/public/config', async (req, res) => {
             certTemplate: settings.certTemplate || {},
             founderProfile: settings.founderProfile || {},
             activeFestivalTheme: settings.activeFestivalTheme || 'auto',
+            admissionFees: settings.admissionFees || {},
+            aiConfig: {
+                aiAssistantName: settings.aiAssistantName || 'Bharti — AI Chief Academic Counselor',
+                aiAssistantRole: settings.aiAssistantRole || 'Chief Academic Counselor & Senior Student Advisor',
+                aiDataScope: settings.aiDataScope || ['courses', 'fees', 'centers', 'founder', 'books', 'syllabus', 'admissions']
+            },
             razorpayKeyId: keyId || '',
             razorpayConfigured: !!keyId
         };
@@ -2488,19 +2510,21 @@ app.get('/api/public/promotional-banners', async (req, res) => {
             });
         });
 
-        // Fallback default banner if nothing active uploaded
-        if (activeBanners.length === 0) {
-            activeBanners.push({
-                _id: 'default_bbcc_hero_banner',
+        // Always guarantee BBCC Founder Special Offer Banner is active at position #1
+        const hasFounderOffer = activeBanners.some(b => b.image && (b.image.includes('bbcc_special_offer') || b.isFounderOffer));
+        if (!hasFounderOffer) {
+            activeBanners.unshift({
+                _id: 'banner_bbcc_founder_offer_2026',
                 centerId: 'bbcc_central',
-                centerName: 'BBCC SKILL HUB Central Campus',
+                centerName: 'BBCC SKILL HUB Central Directorate',
                 username: 'bbcc',
                 clogo: '/data/branding/logo.png',
-                title: 'BBCC SKILL HUB Digital Platform',
-                subtitle: 'National Institutional Network & Certified Syllabus Repository',
-                image: '/data/photos/bbcc_campus.png',
-                link: '#courses',
+                title: 'BBCC SKILL HUB — Special Admission Scholarship 2026-27',
+                subtitle: 'Flat 50% Scholarship on Computer Diplomas (ADCA, DCA, Tally) & Board Batches | Led by Founder Mr. Santosh Kumar',
+                image: '/data/banners/bbcc_special_offer_banner.svg',
+                link: '#direct-admission',
                 isCentralAdmin: true,
+                isFounderOffer: true,
                 daysLeft: 30
             });
         }
@@ -4034,24 +4058,32 @@ ${downloadCards.map(d => `• Title: "${d.title}" | Subject: "${d.subject}" | Cl
         };
         const activeLangName = langNameMap[userLang] || 'Hindi';
 
-        const bhartiSystemPrompt = `Aap BBCC SKILL HUB (Bal Bharti Coaching Center) ki Chief Academic Counselor aur Senior Academic Advisor hain jinka naam 'BHARTI' hai.
+        const settings = await Settings.findOne();
+        const customPrompt = settings?.aiSystemPrompt?.trim();
+        const aiName = settings?.aiAssistantName?.trim() || 'BHARTI';
+        const aiRole = settings?.aiAssistantRole?.trim() || 'Chief Academic Counselor & Senior Student Advisor';
+
+        let bhartiSystemPrompt = customPrompt ? customPrompt : `Aap BBCC SKILL HUB (Bal Bharti Coaching Center) ki ${aiRole} hain jinka naam '${aiName}' hai.
 STRICT PERSONA RULES:
-1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main Bharti hoon — BBCC SKILL HUB ki Chief Academic Counselor'.
+1. Aap KABHI BHI apne aap ko AI, artificial intelligence, robot, bot, virtual assistant ya machine NAHI kahengi. Hamesha bolein: 'Main ${aiName} hoon — BBCC SKILL HUB ki ${aiRole}'.
 2. STRICT RESPECT RULE: KABHI BHI visitor ya vidyarthi ko 'Beta' ya 'Beti' NAHI bolna hai! Visitor ko hamesha aadar aur samman ke sath unke naam se sambodhit karein: '${visitorTitle}' (ya 'Aap' / 'Sir' / 'Ma'am').
 3. STRICT PRIVACY RULE: Aap KABHI BHI kisi Director ya Teacher ka personal phone number chat mein NAHI dengi. Agar visitor direct sampark maange, toh unhe batayein ki security aur transparent record ke liye Central Support Callback Ticket darj kiya jata hai jisse hamare counseling officer unhe seedhe call karte hain. Central Directorate Helpline: +91 98765 43210.
 4. Problem-Solver First Policy: Visitor ke sawal, syllabus, course, fees, ticket status, payment tracking aur PDF download ki har samasya ko pehle chat mein hi solve karne ki poori koshish karein. Ticket sirf tab darj karein jab visitor ne explicit call back maanga ho ya samasya chat mein solve na ho paye.
 5. COMPLETE OPERATIONAL USER MANUAL KNOWLEDGE BASE:
    Aap BBCC SKILL HUB ke sabhi 5 roles ke official user manual aur standard operating procedures (SOP) mein poori tarah train hain:
    • SUPER ADMIN (/admin-console.html): Centers affiliation, Central Masterclass broadcast, National Live Monitoring Deck, E-Library Master Publisher, Director Wallet Payouts with Bank UTR (80% center, 20% platform), Global CMS & news marquee.
-   • COACHING DIRECTOR (/director-portal.html): Faculty management (creating Teacher ID & password), Course & batch fee scheduling, Study notes upload (saved cleanly to GitHub/disk with zero database bloat), Student enrollment with custom admission fee, Instant WhatsApp receipts, Live Teaching Monitor, Bank/UPI withdrawal requests.
-   • TEACHER FACULTY STUDIO (/teacher-portal.html): Login via Phone/Teacher ID, 1-click live broadcast with automatic YouTube integration (no copy-paste needed!), Real-time student doubt board & chat, Low-bandwidth frame relay for village students, Ending class triggers clean WebM recording & auto-upload to YouTube, Previous lectures archive & preview player.
-   • STUDENT PORTAL & CLASSROOM (/classroom.html): Roll number verification & digital ID card, Scope-locked live classroom access, Live doubt asking during classes, 100% free notes download for enrolled students, Physical book delivery orders, Priority academic callback ticket (15-30 mins), Missed class revision vault.
-   • VISITOR & PARENT (/index.html): Search certified coaching centers, Verify academic records by roll number, Browse digital E-Library, Apply for online admission, Online institute affiliation request, 24/7 counseling help from Bharti.
+   • COACHING DIRECTOR (/director-portal.html): Faculty management (creating Teacher ID & password), Course & batch fee scheduling, Study notes upload, Student enrollment with custom admission fee, Instant WhatsApp receipts, Live Teaching Monitor, Bank/UPI withdrawal requests.
+   • TEACHER FACULTY PORTAL (/teacher-portal.html): Login via Phone/Teacher ID, 1-click live broadcast with automatic YouTube integration (no copy-paste needed!), Real-time student doubt board & chat, Low-bandwidth frame relay for village students, Ending class triggers clean WebM recording & auto-upload to YouTube, Previous lectures archive & preview player.
+   • STUDENT PORTAL & CLASSROOM (/classroom.html): Roll number verification & digital ID card, Scope-locked live classroom access, Live doubt asking during classes, Notes with discount vouchers, Physical book delivery orders, Priority academic callback ticket (15-30 mins), Missed class revision vault.
+   • VISITOR & PARENT (/index.html): Search certified coaching centers, Verify academic records by roll number, Browse digital E-Library, Apply for online admission, Online institute affiliation request, 24/7 counseling help from ${aiName}.
 6. Bhasha (Language): Visitor ne '${activeLangName}' bhasha chuni hai. Unhe strictly usi bhasha mein shishtata aur samman ke sath uttar dein.
 7. Jawab shisht, spasht, professional aur helpful rakhein. User ko unke role ke anusaar step-by-step guidance dein. KABHI 'Beta' ya 'Beti' NA BOLEIN.`;
 
+        if (customPrompt) {
+            bhartiSystemPrompt += `\n\n[RUNTIME CONTEXT]:\nVisitor Name/Title: ${visitorTitle}\nPreferred Language: ${activeLangName} (Strictly respond in ${activeLangName}).`;
+        }
+
         let replyText = '';
-        const settings = await Settings.findOne();
         const groqKey = settings?.groqApiKey?.trim() || process.env.GROQ_API_KEY || '';
         const geminiKey = settings?.geminiApiKey?.trim() || process.env.GEMINI_API_KEY || '';
 
@@ -10747,6 +10779,191 @@ app.put('/api/admin/settings/templates', verifySuperAdmin, async (req, res) => {
                 founderProfile: settings.founderProfile,
                 activeFestivalTheme: settings.activeFestivalTheme
             }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.19 Super Admin AI Personality & System Prompt Configuration
+app.get('/api/admin/settings/ai-config', verifySuperAdmin, async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        const pdb = loadPortalDb();
+        const pAi = (pdb && pdb.settings && pdb.settings.aiConfig) ? pdb.settings.aiConfig : {};
+        res.json({
+            success: true,
+            data: {
+                aiAssistantName: settings?.aiAssistantName || pAi.aiAssistantName || 'Bharti — AI Chief Academic Counselor',
+                aiAssistantRole: settings?.aiAssistantRole || pAi.aiAssistantRole || 'Chief Academic Counselor & Senior Student Advisor',
+                aiDataScope: settings?.aiDataScope || pAi.aiDataScope || ['courses', 'fees', 'centers', 'founder', 'books', 'syllabus', 'admissions'],
+                aiSystemPrompt: settings?.aiSystemPrompt || pAi.aiSystemPrompt || ''
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/settings/ai-config', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        const { aiAssistantName, aiAssistantRole, aiDataScope, aiSystemPrompt } = req.body;
+        if (aiAssistantName !== undefined) settings.aiAssistantName = aiAssistantName.trim();
+        if (aiAssistantRole !== undefined) settings.aiAssistantRole = aiAssistantRole.trim();
+        if (Array.isArray(aiDataScope)) settings.aiDataScope = aiDataScope;
+        if (aiSystemPrompt !== undefined) settings.aiSystemPrompt = aiSystemPrompt.trim();
+
+        await settings.save();
+
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+        pdb.settings.aiConfig = {
+            aiAssistantName: settings.aiAssistantName,
+            aiAssistantRole: settings.aiAssistantRole,
+            aiDataScope: settings.aiDataScope,
+            aiSystemPrompt: settings.aiSystemPrompt
+        };
+        await savePortalDb(pdb);
+        clearCache();
+
+        res.json({ success: true, message: 'AI Personality and Master System Prompt saved successfully!' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.20 Direct Admission & Center Affiliation Fee Structures
+app.get('/api/admin/settings/admission-fees', verifySuperAdmin, async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        const pdb = loadPortalDb();
+        const fees = settings?.admissionFees && Object.keys(settings.admissionFees).length > 0 
+            ? settings.admissionFees 
+            : ((pdb && pdb.settings && pdb.settings.admissionFees) || {
+                onlineRegistrationFee: 250,
+                boardRegistrationFee: 500,
+                class1to8Fee: 2499,
+                class9to10Fee: 3999,
+                class11to12Fee: 5999,
+                dcaFee: 1999,
+                adcaFee: 3499,
+                tallyFee: 2499,
+                newCenterAffiliationFee: 4999,
+                centerAnnualRenewalFee: 2999,
+                platformSharePercent: 20,
+                centerSharePercent: 80
+            });
+        res.json({ success: true, data: fees });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/settings/admission-fees', verifySuperAdmin, async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+        if (!settings) settings = await Settings.create({});
+
+        const fees = req.body || {};
+        settings.admissionFees = fees;
+        await settings.save();
+
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+        pdb.settings.admissionFees = fees;
+        await savePortalDb(pdb);
+        clearCache('public_config');
+
+        res.json({ success: true, message: 'Direct Admission and Center Affiliation Fee Structures updated successfully!', data: fees });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.21 Discount Vouchers & Coupons Engine
+app.get('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const vouchers = (pdb.settings && Array.isArray(pdb.settings.vouchers)) ? pdb.settings.vouchers : (pdb.vouchers || []);
+        res.json({ success: true, data: vouchers });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
+    try {
+        const { code, discountPercent, maxDiscount, description } = req.body;
+        if (!code || !code.trim()) {
+            return res.status(400).json({ success: false, message: 'Voucher code is required' });
+        }
+        const cleanCode = code.trim().toUpperCase();
+        const disc = Math.min(100, Math.max(1, Number(discountPercent) || 10));
+        const maxD = Math.max(0, Number(maxDiscount) || 500);
+
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+        if (!Array.isArray(pdb.settings.vouchers)) pdb.settings.vouchers = [];
+
+        pdb.settings.vouchers = pdb.settings.vouchers.filter(v => v.code !== cleanCode);
+        const newVoucher = {
+            code: cleanCode,
+            discountPercent: disc,
+            maxDiscount: maxD,
+            description: (description || `${disc}% Scholarship Discount`).trim(),
+            active: true,
+            createdAt: new Date().toISOString()
+        };
+        pdb.settings.vouchers.push(newVoucher);
+        await savePortalDb(pdb);
+        clearCache();
+
+        res.json({ success: true, message: `Voucher "${cleanCode}" (${disc}% OFF) created successfully!`, data: newVoucher });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/admin/vouchers/:code', verifySuperAdmin, async (req, res) => {
+    try {
+        const targetCode = (req.params.code || '').trim().toUpperCase();
+        const pdb = loadPortalDb();
+        if (pdb.settings && Array.isArray(pdb.settings.vouchers)) {
+            pdb.settings.vouchers = pdb.settings.vouchers.filter(v => v.code !== targetCode);
+            await savePortalDb(pdb);
+        }
+        clearCache();
+        res.json({ success: true, message: `Voucher "${targetCode}" deleted successfully.` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Public Voucher Validation for Students & Checkouts
+app.post('/api/vouchers/validate', async (req, res) => {
+    try {
+        const { code } = req.body;
+        if (!code || !code.trim()) {
+            return res.status(400).json({ success: false, message: 'Please enter a voucher code' });
+        }
+        const cleanCode = code.trim().toUpperCase();
+        const pdb = loadPortalDb();
+        const vouchers = (pdb.settings && Array.isArray(pdb.settings.vouchers)) ? pdb.settings.vouchers : (pdb.vouchers || []);
+        const found = vouchers.find(v => v.code === cleanCode && v.active !== false);
+        if (!found) {
+            return res.status(404).json({ success: false, message: `Invalid or expired voucher code: "${cleanCode}"` });
+        }
+        res.json({
+            success: true,
+            valid: true,
+            code: found.code,
+            discountPercent: found.discountPercent,
+            maxDiscount: found.maxDiscount,
+            description: found.description,
+            message: `🎉 Coupon applied: ${found.discountPercent}% OFF!`
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
