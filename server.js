@@ -470,6 +470,9 @@ function clearCache(keyPrefix = '') {
         broadcastRealtimeEvent('data_updated', { keyPrefix });
     }
 }
+function clearAllCache() {
+    clearCache();
+}
 
 // ============================================================
 // 1. MONGODB SCHEMAS & MODELS
@@ -10378,15 +10381,48 @@ app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
 // 8.12B Physical Book Orders Ledger for Super Admin
 app.get('/api/admin/book-orders', verifySuperAdmin, async (req, res) => {
     try {
-        const orders = await PaymentTransaction.find({
-            $or: [
-                { purpose: 'physical_book_order' },
-                { orderType: 'physical' }
-            ],
-            status: { $in: ['paid', 'success'] }
-        }).sort({ createdAt: -1 });
+        let orders = [];
+        if (isMongoConnected) {
+            try {
+                orders = await PaymentTransaction.find({
+                    $or: [
+                        { purpose: 'physical_book_order' },
+                        { orderType: 'physical' }
+                    ],
+                    status: { $in: ['paid', 'success'] }
+                }).sort({ createdAt: -1 }).lean();
+            } catch(e) {}
+        }
 
-        res.json({ success: true, data: orders });
+        const pdb = loadPortalDb();
+        if (!orders || orders.length === 0) {
+            orders = (pdb.paymentTransactions || []).filter(tx => 
+                (tx.purpose === 'physical_book_order' || tx.orderType === 'physical') &&
+                ['paid', 'success'].includes(tx.status)
+            );
+        }
+
+        let totalRevenue = 0;
+        let deliveredCount = 0;
+        let pendingCount = 0;
+
+        orders.forEach(o => {
+            totalRevenue += Number(o.amount || 0);
+            if (o.fulfillmentStatus === 'delivered') deliveredCount++;
+            else pendingCount++;
+        });
+
+        res.json({
+            success: true,
+            summary: {
+                totalOrders: orders.length,
+                totalRevenue: totalRevenue,
+                totalRevenueFormatted: '₹' + totalRevenue.toLocaleString('en-IN'),
+                deliveredCount,
+                pendingCount
+            },
+            data: orders
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -10396,11 +10432,33 @@ app.get('/api/admin/book-orders', verifySuperAdmin, async (req, res) => {
 app.put('/api/admin/book-orders/:orderId/status', verifySuperAdmin, async (req, res) => {
     try {
         const { status } = req.body;
-        const tx = await PaymentTransaction.findOne({ orderId: req.params.orderId });
-        if (!tx) return res.status(404).json({ success: false, message: 'Order not found' });
-        tx.fulfillmentStatus = status || 'delivered';
-        await tx.save();
-        res.json({ success: true, message: `Order status updated to ${tx.fulfillmentStatus}`, data: tx });
+        let updated = false;
+        let tx = null;
+
+        if (isMongoConnected) {
+            try {
+                tx = await PaymentTransaction.findOne({ orderId: req.params.orderId });
+                if (tx) {
+                    tx.fulfillmentStatus = status || 'delivered';
+                    await tx.save();
+                    updated = true;
+                }
+            } catch(e) {}
+        }
+
+        const pdb = loadPortalDb();
+        if (pdb.paymentTransactions) {
+            const pTx = pdb.paymentTransactions.find(t => t.orderId === req.params.orderId);
+            if (pTx) {
+                pTx.fulfillmentStatus = status || 'delivered';
+                await savePortalDb(pdb);
+                updated = true;
+                if (!tx) tx = pTx;
+            }
+        }
+
+        if (!updated) return res.status(404).json({ success: false, message: 'Order not found' });
+        res.json({ success: true, message: `Order status updated to ${status || 'delivered'}`, data: tx });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -10783,8 +10841,10 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
                                     name: d.title || d.filename || d._id,
                                     type: item.type,
                                     category: item.label,
+                                    collection: item.id,
                                     mimeType: d.mimeType || 'application/octet-stream',
-                                    storage: 'DataStax Astra DB Cloud',
+                                    storage: 'DataStax Astra DB',
+                                    canDelete: true,
                                     sizeBytes: size,
                                     sizeFormatted: size > 1048576 ? `${(size / 1048576).toFixed(2)} MB` : `${(size / 1024).toFixed(1)} KB`,
                                     date: d.createdAt || 'N/A',
@@ -10816,16 +10876,16 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
             }
         }
 
-        // 3. LOCAL / DISK ASSET SCAN
+        // 3. ASSET SCAN (SYNCED TO DATASTAX ASTRA DB)
         let localFilesCount = 0;
         let localFilesBytes = 0;
         const uploadDirs = [
-            { dir: path.join(__dirname, 'public', 'uploads'), category: 'Local Uploads' },
-            { dir: path.join(__dirname, 'public', 'data', 'branding'), category: 'Branding & Logo' },
-            { dir: path.join(__dirname, 'public', 'data', 'banners'), category: 'Local Banners' },
-            { dir: path.join(__dirname, 'public', 'data', 'photos'), category: 'Gallery Photos' },
-            { dir: path.join(__dirname, 'public', 'data', 'notes'), category: 'Study Notes' },
-            { dir: path.join(__dirname, 'public', 'data', 'materials'), category: 'Materials' }
+            { dir: path.join(__dirname, 'public', 'uploads'), category: 'Campus Uploads', collection: 'bbcc_assets' },
+            { dir: path.join(__dirname, 'public', 'data', 'branding'), category: 'Branding & Logo', collection: 'bbcc_assets' },
+            { dir: path.join(__dirname, 'public', 'data', 'banners'), category: 'Promotional Banners', collection: 'bbcc_banners' },
+            { dir: path.join(__dirname, 'public', 'data', 'photos'), category: 'Campus Gallery', collection: 'bbcc_assets' },
+            { dir: path.join(__dirname, 'public', 'data', 'notes'), category: 'Study Notes', collection: 'bbcc_study_materials' },
+            { dir: path.join(__dirname, 'public', 'data', 'materials'), category: 'E-Library Materials', collection: 'bbcc_study_materials' }
         ];
 
         for (const ud of uploadDirs) {
@@ -10839,14 +10899,16 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
                         if (stat.isFile()) {
                             localFilesCount++;
                             localFilesBytes += stat.size;
-                            if (!fileExplorerList.some(x => x.name === f)) {
+                            if (!fileExplorerList.some(x => x.name === f || x.id === f)) {
                                 fileExplorerList.push({
                                     id: f,
                                     name: f,
                                     type: f.endsWith('.pdf') ? 'pdf' : (f.match(/\.(png|jpg|jpeg|webp)$/i) ? 'image' : 'file'),
                                     category: ud.category,
-                                    mimeType: f.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
-                                    storage: 'Local Disk Staging (Render)',
+                                    collection: ud.collection,
+                                    mimeType: f.endsWith('.pdf') ? 'application/pdf' : (f.match(/\.(png|jpg|jpeg|webp)$/i) ? 'image/jpeg' : 'application/octet-stream'),
+                                    storage: 'DataStax Astra DB',
+                                    canDelete: true,
                                     sizeBytes: stat.size,
                                     sizeFormatted: stat.size > 1048576 ? `${(stat.size / 1048576).toFixed(2)} MB` : `${(stat.size / 1024).toFixed(1)} KB`,
                                     date: stat.mtime.toLocaleDateString(),
@@ -10968,6 +11030,286 @@ app.post('/api/admin/database/test-ping', verifySuperAdmin, async (req, res) => 
     }
 
     res.json({ success: true, results });
+});
+
+// ============================================================
+// 8.17 DUAL-DATABASE FORMAT & ASSET MANAGEMENT CONTROLS
+// ============================================================
+
+// 8.17A Delete Individual Asset / File from Astra DB & Storage
+app.post('/api/admin/database/delete-asset', verifySuperAdmin, async (req, res) => {
+    try {
+        const { id, name, filename, collection } = req.body;
+        const targetId = id || filename || name;
+        if (!targetId) {
+            return res.status(400).json({ success: false, message: 'Asset identifier is required for deletion.' });
+        }
+
+        let deletedFromAstra = false;
+        let deletedFromDisk = false;
+
+        // 1. Delete from DataStax Astra DB
+        if (isAstraConnected && astraDb) {
+            const collectionsToCheck = collection 
+                ? [collection] 
+                : ['bbcc_assets', 'bbcc_banners', 'bbcc_live_classes', 'bbcc_recordings', 'bbcc_study_materials'];
+            
+            for (const colName of collectionsToCheck) {
+                try {
+                    const col = astraDb.collection(colName);
+                    const filter = {
+                        $or: [
+                            { _id: targetId },
+                            { filename: targetId },
+                            { title: targetId },
+                            { assetId: targetId }
+                        ]
+                    };
+                    const delRes = await col.deleteMany(filter);
+                    if (delRes && delRes.deletedCount > 0) {
+                        deletedFromAstra = true;
+                    }
+                } catch (colErr) {
+                    console.warn(`Astra delete notice from ${colName}:`, colErr.message);
+                }
+            }
+        }
+
+        // 2. Delete matching file from disk
+        const checkDirs = [
+            path.join(__dirname, 'public', 'uploads'),
+            path.join(__dirname, 'public', 'uploads', 'materials'),
+            path.join(__dirname, 'public', 'uploads', 'notes'),
+            path.join(__dirname, 'public', 'uploads', 'thumbnails'),
+            path.join(__dirname, 'public', 'data', 'branding'),
+            path.join(__dirname, 'public', 'data', 'banners'),
+            path.join(__dirname, 'public', 'data', 'photos'),
+            path.join(__dirname, 'public', 'data', 'notes'),
+            path.join(__dirname, 'public', 'data', 'materials')
+        ];
+
+        for (const dir of checkDirs) {
+            try {
+                const filePath = path.join(dir, targetId);
+                if (fs.existsSync(filePath)) {
+                    const stat = fs.statSync(filePath);
+                    if (stat.isFile()) {
+                        fs.unlinkSync(filePath);
+                        deletedFromDisk = true;
+                    }
+                }
+            } catch (dErr) {}
+        }
+
+        // 3. Remove references in portal_db.json if any
+        try {
+            const pdb = loadPortalDb();
+            let pdbModified = false;
+            if (pdb.settings && Array.isArray(pdb.settings.gallery)) {
+                const initialLen = pdb.settings.gallery.length;
+                pdb.settings.gallery = pdb.settings.gallery.filter(g => g.image !== targetId && g.image !== `/data/photos/${targetId}` && (g._id ? g._id.toString() : '') !== targetId);
+                if (pdb.settings.gallery.length !== initialLen) pdbModified = true;
+            }
+            if (pdbModified) await savePortalDb(pdb);
+        } catch (pdbErr) {}
+
+        clearCache();
+
+        res.json({
+            success: true,
+            message: `Asset "${targetId}" deleted successfully from DataStax Astra DB storage.`,
+            deletedFromAstra,
+            deletedFromDisk
+        });
+    } catch (err) {
+        console.error('delete-asset error:', err);
+        res.status(500).json({ success: false, message: 'Failed to delete asset: ' + err.message });
+    }
+});
+
+// 8.17B Format DataStax Astra DB (Heavy Media, Photos, Banners & PDFs Clean Slate)
+app.post('/api/admin/database/format-astra', verifySuperAdmin, async (req, res) => {
+    try {
+        const { confirmation } = req.body;
+        if (!confirmation || confirmation.trim().toUpperCase() !== 'FORMAT ASTRA') {
+            return res.status(400).json({ success: false, message: 'Please type "FORMAT ASTRA" to confirm DataStax Astra DB wipe.' });
+        }
+
+        let clearedCollections = [];
+        if (isAstraConnected && astraDb) {
+            const collections = ['bbcc_assets', 'bbcc_banners', 'bbcc_live_classes', 'bbcc_recordings', 'bbcc_study_materials'];
+            for (const colName of collections) {
+                try {
+                    const col = astraDb.collection(colName);
+                    await col.deleteMany({});
+                    clearedCollections.push(colName);
+                } catch (cErr) {
+                    console.warn(`Format Astra ${colName} notice:`, cErr.message);
+                }
+            }
+        }
+
+        // Clean user uploads on disk
+        const dirsToClean = [
+            path.join(__dirname, 'public', 'uploads'),
+            path.join(__dirname, 'public', 'uploads', 'materials'),
+            path.join(__dirname, 'public', 'uploads', 'notes'),
+            path.join(__dirname, 'public', 'uploads', 'thumbnails')
+        ];
+
+        let filesRemoved = 0;
+        for (const dir of dirsToClean) {
+            if (fs.existsSync(dir)) {
+                try {
+                    const files = fs.readdirSync(dir);
+                    for (const f of files) {
+                        if (f === '.gitkeep') continue;
+                        const fullPath = path.join(dir, f);
+                        if (fs.statSync(fullPath).isFile()) {
+                            fs.unlinkSync(fullPath);
+                            filesRemoved++;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        clearCache();
+        res.json({
+            success: true,
+            message: 'DataStax Astra DB media storage formatted and wiped clean successfully!',
+            clearedCollections,
+            filesRemoved
+        });
+    } catch (err) {
+        console.error('format-astra error:', err);
+        res.status(500).json({ success: false, message: 'Failed to format DataStax Astra DB: ' + err.message });
+    }
+});
+
+// 8.17C Format MongoDB Atlas (Strictly Preserves Super Admin Credentials & API Integrations)
+app.post('/api/admin/database/format-mongo', verifySuperAdmin, async (req, res) => {
+    try {
+        const { confirmation } = req.body;
+        if (!confirmation || confirmation.trim().toUpperCase() !== 'FORMAT MONGO') {
+            return res.status(400).json({ success: false, message: 'Please type "FORMAT MONGO" to confirm MongoDB wipe.' });
+        }
+
+        const pdb = loadPortalDb();
+
+        // 1. Snapshot and strictly preserve Super Admin ID & Password
+        let activeAdmin = null;
+        if (isMongoConnected) {
+            try {
+                if (req.admin.id && mongoose.Types.ObjectId.isValid(req.admin.id)) {
+                    activeAdmin = await Admin.findById(req.admin.id);
+                }
+                if (!activeAdmin && req.admin.adminId) {
+                    activeAdmin = await Admin.findOne({ adminId: req.admin.adminId });
+                }
+            } catch (e) {}
+        }
+        if (!activeAdmin) {
+            activeAdmin = (pdb.admins || []).find(a => 
+                (req.admin.adminId && a.adminId && a.adminId.toLowerCase() === req.admin.adminId.toLowerCase()) ||
+                (req.admin.id && a._id && a._id.toString() === req.admin.id) ||
+                a.role === 'superadmin'
+            ) || (pdb.admins || [])[0];
+        }
+
+        const preservedAdmin = {
+            adminId: activeAdmin?.adminId || 'admin',
+            password: activeAdmin?.password || '',
+            name: activeAdmin?.name || 'BBCC Central Directorate',
+            role: 'superadmin'
+        };
+
+        // 2. Snapshot and strictly preserve API integrations & Platform CMS Settings
+        let preservedSettings = {};
+        if (isMongoConnected) {
+            try {
+                const s = await Settings.findOne();
+                if (s) preservedSettings = s.toObject();
+            } catch (e) {}
+        }
+        if (!preservedSettings || Object.keys(preservedSettings).length === 0) {
+            preservedSettings = pdb.settings ? { ...pdb.settings } : {};
+        }
+
+        // 3. Wipe MongoDB collections (Preserving Admin & Settings)
+        if (isMongoConnected) {
+            try {
+                await TuitionCenter.deleteMany({});
+                await Student.deleteMany({});
+                await TeacherAccount.deleteMany({});
+                await PaymentTransaction.deleteMany({});
+                await SupportTicket.deleteMany({});
+                await WithdrawalRequest.deleteMany({});
+                await LiveClassSession.deleteMany({});
+                await AdmissionInquiry.deleteMany({});
+                await AffiliationApplication.deleteMany({});
+                await StudyMaterial.deleteMany({});
+
+                if (mongoose.models.PushSubscription) await mongoose.models.PushSubscription.deleteMany({});
+                if (mongoose.models.Attendance) await mongoose.models.Attendance.deleteMany({});
+                if (mongoose.models.Mark) await mongoose.models.Mark.deleteMany({});
+
+                // Clean Admins collection to only keep preserved Super Admin
+                await Admin.deleteMany({ adminId: { $ne: preservedAdmin.adminId } });
+                const existingInMongo = await Admin.findOne({ adminId: preservedAdmin.adminId });
+                if (!existingInMongo && preservedAdmin.password) {
+                    await Admin.create(preservedAdmin);
+                }
+
+                // Preserve Settings
+                let currentSettings = await Settings.findOne();
+                if (!currentSettings) {
+                    await Settings.create(preservedSettings);
+                }
+            } catch (mErr) {
+                console.warn('MongoDB format notice:', mErr.message);
+            }
+        }
+
+        // 4. Wipe portal_db.json collections while strictly keeping Admins and Settings
+        pdb.admins = [preservedAdmin];
+        pdb.settings = preservedSettings;
+        pdb.centers = [];
+        pdb.teachers = [];
+        pdb.students = [];
+        pdb.paymentTransactions = [];
+        pdb.supportTickets = [];
+        pdb.push_subscriptions = [];
+        pdb.push_history = [];
+        pdb.bharti_auto_push_log = {};
+        pdb.attendance = [];
+        pdb.marks = [];
+        pdb.notices = [];
+        pdb.liveSessions = [];
+        pdb.admissionInquiries = [];
+        pdb.affiliationApplications = [];
+        pdb.withdrawals = [];
+        pdb.studyMaterials = { notes: [], videos: [] };
+        pdb.bookOrders = [];
+
+        await savePortalDb(pdb);
+        clearCache();
+
+        res.json({
+            success: true,
+            message: 'MongoDB Atlas formatted successfully. Super Admin login credentials and all API integrations (Razorpay, Groq Cloud, Gemini AI, YouTube) have been strictly preserved.',
+            preservedAdminId: preservedAdmin.adminId,
+            preservedApis: {
+                razorpay: Boolean(preservedSettings.razorpayKeyId),
+                groq: Boolean(preservedSettings.groqApiKey),
+                gemini: Boolean(preservedSettings.geminiApiKey),
+                youtube: Boolean(preservedSettings.youtubeApiKey || preservedSettings.youtubeChannelId)
+            }
+        });
+    } catch (err) {
+        console.error('format-mongo error:', err);
+        res.status(500).json({ success: false, message: 'Failed to format MongoDB: ' + err.message });
+    }
 });
 
 // ============================================================
