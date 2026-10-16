@@ -4445,7 +4445,7 @@ app.put('/api/director/tickets/:id', verifyDirector, async (req, res) => {
 // 5.1 Create Order for E-Library Document (Free Instant Unlock or Paid Razorpay Order)
 app.post('/api/pay/create-document-order', async (req, res) => {
     try {
-        const { docId, payerName, payerPhone, payerEmail, studentQuery, onlyVerify, orderType } = req.body;
+        const { docId, payerName, payerPhone, payerEmail, studentQuery, onlyVerify, orderType, voucherCode } = req.body;
         if (!docId) {
             return res.status(400).json({ success: false, message: 'Document ID is required' });
         }
@@ -4494,52 +4494,42 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             price = Number(note.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
         }
 
-        // Check if student is enrolled in this coaching center or course for 100% Free Access (PDF Only)
-        let isEnrolledStudent = false;
-        let studentRecord = null;
-        const q = (studentQuery || '').trim().replace(/\s+/g, '');
-
-        if (!isPhysicalOrder && q) {
-            studentRecord = await Student.findOne({
-                $or: [{ aadharNumber: q }, { rollNo: (studentQuery || '').trim() }]
-            });
-            if (studentRecord) {
-                const matchesCenter = note.targetCenterId && (
-                    note.targetCenterId === 'all' ||
-                    (studentRecord.centerId && studentRecord.centerId.toString() === note.targetCenterId.toString())
-                );
-                const matchesCourse = studentRecord.course && note.title && (
-                    note.title.toLowerCase().includes(studentRecord.course.toLowerCase()) ||
-                    studentRecord.course.toLowerCase().includes((note.subject || '').toLowerCase())
-                );
-                if (matchesCenter || matchesCourse) {
-                    isEnrolledStudent = true;
+        // Apply Scholarship Voucher / Discount Coupon System (Per Admin Policy - No Aadhar Free bypass)
+        let appliedVoucher = null;
+        let discountPercent = 0;
+        let discountAmount = 0;
+        const vCode = (voucherCode || '').trim().toUpperCase();
+        if (vCode) {
+            const pdb = loadPortalDb();
+            const vouchers = (pdb.settings && Array.isArray(pdb.settings.vouchers)) ? pdb.settings.vouchers : (pdb.vouchers || []);
+            const found = vouchers.find(v => v.code === vCode && v.active !== false);
+            if (found) {
+                appliedVoucher = found;
+                discountPercent = Number(found.discountPercent) || 0;
+                discountAmount = Math.round((price * discountPercent) / 100);
+                if (found.maxDiscount && discountAmount > Number(found.maxDiscount)) {
+                    discountAmount = Number(found.maxDiscount);
                 }
+                price = Math.max(0, price - discountAmount);
             }
-        } else if (!isPhysicalOrder && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-            try {
-                const decoded = jwt.verify(req.headers.authorization.split(' ')[1], JWT_SECRET);
-                if (decoded && decoded.centerId && note.targetCenterId && decoded.centerId.toString() === note.targetCenterId.toString()) {
-                    isEnrolledStudent = true;
-                }
-            } catch (e) {}
         }
 
         if (onlyVerify) {
-            if (isEnrolledStudent) {
+            if (appliedVoucher) {
                 return res.json({
                     success: true,
                     verified: true,
-                    studentName: studentRecord?.name || 'Verified Student',
-                    message: `Verified! Enrolled student of ${note.targetCenterName}. 100% Free Access Unlocked.`
+                    voucher: appliedVoucher.code,
+                    discountPercent: appliedVoucher.discountPercent,
+                    discountAmount,
+                    finalPrice: price,
+                    message: `Verified! Voucher ${appliedVoucher.code} (${appliedVoucher.discountPercent}% OFF) applied.`
                 });
             } else {
-                return res.status(403).json({
+                return res.status(400).json({
                     success: false,
                     verified: false,
-                    message: studentRecord
-                        ? `Student found (${studentRecord.name}), but is not enrolled in ${note.targetCenterName} or in this course. Free download is reserved strictly for enrolled students.`
-                        : 'No enrolled student record found with this Aadhar / Roll Number.'
+                    message: 'Study materials require payment or a valid scholarship voucher code.'
                 });
             }
         }
@@ -4567,21 +4557,21 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             centerDirectorPhone = note.directorContact.trim();
         }
 
-        // CASE A: Free E-PDF or Enrolled Student Benefit -> Instant 100% Free Delivery (Never for Physical Copy)
-        if (!isPhysicalOrder && (price === 0 || isEnrolledStudent)) {
+        // CASE A: Free E-PDF (Document Price 0 or 100% Scholarship Voucher) -> Instant 100% Free Delivery
+        if (!isPhysicalOrder && price === 0) {
             if (parentSm && note.downloadCount !== undefined) {
                 note.downloadCount = (note.downloadCount || 0) + 1;
                 await parentSm.save();
             }
 
             await PaymentTransaction.create({
-                orderId: (isEnrolledStudent ? 'ENROLLED_FREE_' : 'FREE_') + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
-                paymentId: isEnrolledStudent ? 'ENROLLED_BENEFIT' : 'FREE_ACCESS',
+                orderId: (appliedVoucher ? 'VOUCHER_FREE_' : 'FREE_') + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
+                paymentId: appliedVoucher ? `VOUCHER_${appliedVoucher.code}` : 'FREE_ACCESS',
                 purpose: 'document_purchase',
                 amount: 0,
                 status: 'paid',
-                payerName: (payerName || studentRecord?.name || 'Student').trim(),
-                payerPhone: (payerPhone || studentRecord?.mobile || '').trim(),
+                payerName: (payerName || 'Student').trim(),
+                payerPhone: (payerPhone || '').trim(),
                 payerEmail: (payerEmail || '').trim(),
                 docId: note._id.toString(),
                 docTitle: note.title,
