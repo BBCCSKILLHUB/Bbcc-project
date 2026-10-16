@@ -4483,7 +4483,7 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             price = Number(note.physicalPrice) || (origPrice > 0 ? Math.max(99, Math.round(origPrice * 1.8 + 50)) : 149);
         }
 
-        // Apply Scholarship Voucher / Discount Coupon System (Per Admin Policy - No Aadhar Free bypass)
+        // Apply Scholarship Voucher / Discount Coupon System (Per Admin Policy - Supports % and Flat ₹ Discounts)
         let appliedVoucher = null;
         let discountPercent = 0;
         let discountAmount = 0;
@@ -4494,10 +4494,16 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             const found = vouchers.find(v => v.code === vCode && v.active !== false);
             if (found) {
                 appliedVoucher = found;
-                discountPercent = Number(found.discountPercent) || 0;
-                discountAmount = Math.round((price * discountPercent) / 100);
-                if (found.maxDiscount && discountAmount > Number(found.maxDiscount)) {
-                    discountAmount = Number(found.maxDiscount);
+                const isFlat = found.discountType === 'flat' || (Number(found.discountAmount) > 0 && !found.discountPercent);
+                if (isFlat) {
+                    discountAmount = Math.max(0, Number(found.discountAmount) || 0);
+                    discountPercent = price > 0 ? Math.min(100, Math.round((discountAmount / price) * 100)) : 0;
+                } else {
+                    discountPercent = Number(found.discountPercent) || 0;
+                    discountAmount = Math.round((price * discountPercent) / 100);
+                    if (found.maxDiscount && discountAmount > Number(found.maxDiscount)) {
+                        discountAmount = Number(found.maxDiscount);
+                    }
                 }
                 price = Math.max(0, price - discountAmount);
             }
@@ -4505,14 +4511,17 @@ app.post('/api/pay/create-document-order', async (req, res) => {
 
         if (onlyVerify) {
             if (appliedVoucher) {
+                const isFlat = appliedVoucher.discountType === 'flat' || (Number(appliedVoucher.discountAmount) > 0 && !appliedVoucher.discountPercent);
+                const discLabel = isFlat ? `₹${appliedVoucher.discountAmount} FLAT OFF` : `${appliedVoucher.discountPercent}% OFF`;
                 return res.json({
                     success: true,
                     verified: true,
                     voucher: appliedVoucher.code,
+                    discountType: isFlat ? 'flat' : 'percent',
                     discountPercent: appliedVoucher.discountPercent,
                     discountAmount,
                     finalPrice: price,
-                    message: `Verified! Voucher ${appliedVoucher.code} (${appliedVoucher.discountPercent}% OFF) applied.`
+                    message: `Verified! Voucher ${appliedVoucher.code} (${discLabel}) applied.`
                 });
             } else {
                 return res.status(400).json({
@@ -4546,17 +4555,18 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             centerDirectorPhone = note.directorContact.trim();
         }
 
-        // CASE A: Free E-PDF (Document Price 0 or 100% Scholarship Voucher) -> Instant 100% Free Delivery
-        if (!isPhysicalOrder && price === 0) {
+        // CASE A: 100% Free / Fully Discounted (Price = 0)
+        if (price === 0) {
             if (parentSm && note.downloadCount !== undefined) {
                 note.downloadCount = (note.downloadCount || 0) + 1;
                 await parentSm.save();
             }
 
+            const freeOrderId = (appliedVoucher ? 'VOUCHER_FREE_' : 'FREE_') + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
             await PaymentTransaction.create({
-                orderId: (appliedVoucher ? 'VOUCHER_FREE_' : 'FREE_') + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
+                orderId: freeOrderId,
                 paymentId: appliedVoucher ? `VOUCHER_${appliedVoucher.code}` : 'FREE_ACCESS',
-                purpose: 'document_purchase',
+                purpose: isPhysicalOrder ? 'physical_book_order' : 'document_purchase',
                 amount: 0,
                 status: 'paid',
                 payerName: (payerName || 'Student').trim(),
@@ -4564,22 +4574,37 @@ app.post('/api/pay/create-document-order', async (req, res) => {
                 payerEmail: (payerEmail || '').trim(),
                 docId: note._id.toString(),
                 docTitle: note.title,
-                orderType: 'pdf',
+                orderType: isPhysicalOrder ? 'physical' : 'pdf',
+                pickupAddress: isPhysicalOrder ? centerPickupAddress : '',
+                fulfillmentStatus: isPhysicalOrder ? 'pending' : 'none',
                 paidAt: new Date()
             });
+
+            if (isPhysicalOrder) {
+                return res.json({
+                    success: true,
+                    free: true,
+                    isPhysicalOrder: true,
+                    pickupAddress: centerPickupAddress,
+                    pickupPhone: centerDirectorPhone,
+                    pickupDirector: centerDirectorName,
+                    orderId: freeOrderId,
+                    message: appliedVoucher
+                        ? `100% Scholarship Voucher applied! Your hard copy order is confirmed for pickup from: ${centerPickupAddress}`
+                        : `Order confirmed! Pickup from: ${centerPickupAddress}`
+                });
+            }
 
             const freeDownloadUrl = `/api/pay/download-file?docId=${encodeURIComponent(note._id.toString())}`;
             return res.json({
                 success: true,
                 free: true,
-                enrolledBenefit: isEnrolledStudent,
+                isPhysicalOrder: false,
                 file: note.file || note.pdf || freeDownloadUrl,
                 downloadUrl: freeDownloadUrl,
                 fileName: note.fileName || (note.title.replace(/[^a-zA-Z0-9]/g, '_') + '.' + (note.fileType || 'pdf')),
                 fileType: note.fileType || 'pdf',
-                message: isEnrolledStudent
-                    ? `Enrolled Student Benefit: 100% Free download granted for student of ${note.targetCenterName}!`
-                    : 'Free document ready for download!'
+                message: 'Free document ready for download!'
             });
         }
 
@@ -10875,12 +10900,14 @@ app.get('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
 
 app.post('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
     try {
-        const { code, discountPercent, maxDiscount, description } = req.body;
+        const { code, discountType, discountPercent, discountAmount, maxDiscount, description } = req.body;
         if (!code || !code.trim()) {
             return res.status(400).json({ success: false, message: 'Voucher code is required' });
         }
         const cleanCode = code.trim().toUpperCase();
-        const disc = Math.min(100, Math.max(1, Number(discountPercent) || 10));
+        const type = (discountType === 'flat' || (Number(discountAmount) > 0 && !discountPercent)) ? 'flat' : 'percent';
+        const discPct = type === 'percent' ? Math.min(100, Math.max(1, Number(discountPercent) || 10)) : 0;
+        const discAmt = type === 'flat' ? Math.max(1, Number(discountAmount) || 50) : 0;
         const maxD = Math.max(0, Number(maxDiscount) || 500);
 
         const pdb = loadPortalDb();
@@ -10890,9 +10917,11 @@ app.post('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
         pdb.settings.vouchers = pdb.settings.vouchers.filter(v => v.code !== cleanCode);
         const newVoucher = {
             code: cleanCode,
-            discountPercent: disc,
+            discountType: type,
+            discountPercent: discPct,
+            discountAmount: discAmt,
             maxDiscount: maxD,
-            description: (description || `${disc}% Scholarship Discount`).trim(),
+            description: (description || (type === 'flat' ? `₹${discAmt} Flat Scholarship Discount` : `${discPct}% Scholarship Discount`)).trim(),
             active: true,
             createdAt: new Date().toISOString()
         };
@@ -10900,7 +10929,8 @@ app.post('/api/admin/vouchers', verifySuperAdmin, async (req, res) => {
         await savePortalDb(pdb);
         clearCache();
 
-        res.json({ success: true, message: `Voucher "${cleanCode}" (${disc}% OFF) created successfully!`, data: newVoucher });
+        const badgeMsg = type === 'flat' ? `₹${discAmt} FLAT OFF` : `${discPct}% OFF`;
+        res.json({ success: true, message: `Voucher "${cleanCode}" (${badgeMsg}) created successfully!`, data: newVoucher });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -10935,14 +10965,23 @@ app.post('/api/vouchers/validate', async (req, res) => {
         if (!found) {
             return res.status(404).json({ success: false, message: `Invalid or expired voucher code: "${cleanCode}"` });
         }
+        const isFlat = found.discountType === 'flat' || (Number(found.discountAmount) > 0 && !found.discountPercent);
+        const discType = isFlat ? 'flat' : 'percent';
+        const discAmt = isFlat ? (Number(found.discountAmount) || 0) : 0;
+        const discPct = !isFlat ? (Number(found.discountPercent) || 0) : 0;
+
         res.json({
             success: true,
             valid: true,
             code: found.code,
-            discountPercent: found.discountPercent,
-            maxDiscount: found.maxDiscount,
+            discountType: discType,
+            discountPercent: discPct,
+            discountAmount: discAmt,
+            maxDiscount: found.maxDiscount || 0,
             description: found.description,
-            message: `🎉 Coupon applied: ${found.discountPercent}% OFF!`
+            message: isFlat
+                ? `🎉 Coupon applied: ₹${discAmt} FLAT OFF!`
+                : `🎉 Coupon applied: ${discPct}% OFF!`
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
