@@ -2756,11 +2756,11 @@
             <a href="#promotions" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
-            <a href="#vault" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-book-bookmark"></i> Study Material & किताबें
+            <a href="/e-library" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-book-bookmark"></i> Central E-Library &amp; किताबें
             </a>
-            <a href="#courses" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            <a href="/courses" class="btn-aurora btn-aurora-outline">
+                <i class="fas fa-graduation-cap"></i> Courses &amp; Batches
             </a>
             <a href="#institutes" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-school"></i> Partner Institutes
@@ -2838,11 +2838,11 @@
             <a href="#promotions" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
                 <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
-            <a href="#vault" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-book-bookmark"></i> Study Material & पुस्तकें
+            <a href="/e-library" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-book-bookmark"></i> Central E-Library &amp; पुस्तकें
             </a>
-            <a href="#courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-graduation-cap"></i> Courses & Batches
+            <a href="/courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
+                <i class="fas fa-graduation-cap"></i> Courses &amp; Batches
             </a>
             <a href="#institutes" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
                 <i class="fas fa-building-columns"></i> Partner Institutes
@@ -2980,48 +2980,33 @@
             <p>Curated syllabus notes, guides, and model question papers. Download authentic E-PDFs or order printed physical hard copies to pick up from coaching campus.</p>
         </div>
 
-        <!-- Live Search & Category Filter Bar -->
-        <div style="margin-bottom:32px; display:flex; flex-direction:column; gap:16px; align-items:center;">
-            <div style="position:relative; width:100%; max-width:640px;">
-                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
-                <input type="text" id="vaultSearchInput" oninput="filterVaultBooks()" placeholder="Search documents by title, subject (Science, Maths), or class..." class="verify-input" style="width:100%; padding-left:48px;">
+        <div style="background:radial-gradient(circle at center, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.95) 100%); border:1px solid var(--border-glow); border-radius:24px; padding:44px 24px; text-align:center; max-width:850px; margin:0 auto; box-shadow:0 16px 40px rgba(0,0,0,0.6), 0 0 30px rgba(251,191,36,0.15);">
+            <div style="width:72px; height:72px; border-radius:50%; background:rgba(251,191,36,0.15); border:2px solid var(--border-glow); color:var(--aurora-gold); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:30px; box-shadow:0 0 24px rgba(251,191,36,0.3);">
+                <i class="fas fa-book-open-reader"></i>
+            </div>
+            
+            <h3 style="font-family:'Cinzel',serif; font-size:24px; font-weight:800; color:#f8fafc; margin-bottom:12px;">
+                Explore Dedicated Central E-Library
+            </h3>
+            <p style="font-size:14px; color:var(--text-dim); max-width:580px; margin:0 auto 24px; line-height:1.6;">
+                सभी कक्षाओं (Class 10th, 12th, IT, CTET) के सम्पूर्ण स्टडी नोट्स, मॉडल पेपर्स, और किताबें अब हमारे अलग समर्पित ई-लाइब्रेरी पोर्टल पर उपलब्ध हैं।
+            </p>
+
+            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:28px;">
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-file-pdf" style="color:var(--aurora-cyan);"></i> Free &amp; Paid PDFs</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-box-open" style="color:var(--aurora-gold);"></i> Printed Hard Copy Delivery</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-ticket-simple" style="color:#c084fc;"></i> Up to 100% Scholarship Coupons</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-graduation-cap" style="color:#34d399;"></i> Enrolled Student Pass</span>
             </div>
 
-            <!-- Notes Scholarship Voucher & Discount Bar -->
-            <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:10px 18px; max-width:640px; width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#cbd5e1;">
-                    <i class="fas fa-ticket-simple" style="color:var(--aurora-gold); font-size:16px;"></i>
-                    <span>Have a Scholarship Voucher? <b style="color:var(--aurora-gold);">Get Up To 50% - 100% OFF</b>:</span>
-                </div>
-                <div style="display:flex; gap:6px; flex:1; max-width:280px;">
-                    <input type="text" id="vaultVoucherInput" placeholder="e.g. BBCC50 / SCHOLAR100" class="verify-input" style="padding:6px 12px; font-size:12px; font-family:monospace; margin:0; text-transform:uppercase;" onkeydown="if(event.key==='Enter') applyVaultVoucher()">
-                    <button type="button" onclick="applyVaultVoucher()" class="btn-aurora btn-aurora-gold" style="padding:6px 14px; font-size:12px; white-space:nowrap;">
-                        <i class="fas fa-tag"></i> Apply
-                    </button>
-                </div>
-            </div>
-            <div id="voucherNoticeBox" style="display:none; max-width:640px; width:100%; padding:8px 14px; border-radius:8px; font-size:12px; font-weight:700;"></div>
-
-            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <button type="button" class="vault-filter-pill active" onclick="applyBookFilter('all', this)">All Documents</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('free', this)"><i class="fas fa-gift"></i> Free Notes</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 10', this)">Class 10th</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('class 12', this)">Class 12th</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('science', this)">Science</button>
-                <button type="button" class="vault-filter-pill" onclick="applyBookFilter('math', this)">Mathematics</button>
-            </div>
-        </div>
-
-        <div class="vault-grid" id="booksGrid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p style="margin-top:12px;">Loading E-Library documents...</p>
-            </div>
+            <a href="/e-library" class="btn-aurora btn-aurora-gold" style="padding:14px 34px; font-size:16px; font-weight:800; border-radius:14px; display:inline-flex; align-items:center; gap:10px; text-decoration:none; box-shadow:0 8px 28px rgba(245,158,11,0.45);">
+                <i class="fas fa-book-open"></i> Open Central E-Library (ई-लाइब्रेरी खोलें) <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </section>
 
     <!-- ============================================================
-         6. COURSE EXPLORER & BEST CHOICE FINDER
+         6. COURSE EXPLORER & BEST CHOICE FINDER (SHOWCASE & PORTAL GATEWAY)
          ============================================================ -->
     <section class="universe-section" id="courses">
         <div class="section-header-elite">
@@ -3032,26 +3017,28 @@
             <p>Compare course curriculum, batch timings, and Online vs Physical fees across our certified partner coaching institutes.</p>
         </div>
 
-        <!-- Filter bar -->
-        <div style="margin-bottom:30px; display:flex; flex-direction:column; gap:14px; align-items:center;">
-            <div style="position:relative; width:100%; max-width:640px;">
-                <i class="fas fa-search" style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--aurora-gold); font-size:15px;"></i>
-                <input type="text" id="courseSearchInput" oninput="filterCoursesList()" placeholder="Search course name, subject, or institute name..." class="verify-input" style="width:100%; padding-left:48px;">
+        <div style="background:radial-gradient(circle at center, rgba(14,165,233,0.12) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(56,189,248,0.35); border-radius:24px; padding:44px 24px; text-align:center; max-width:850px; margin:0 auto; box-shadow:0 16px 40px rgba(0,0,0,0.6), 0 0 30px rgba(56,189,248,0.15);">
+            <div style="width:72px; height:72px; border-radius:50%; background:rgba(56,189,248,0.15); border:2px solid rgba(56,189,248,0.4); color:var(--aurora-cyan); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:30px; box-shadow:0 0 24px rgba(56,189,248,0.3);">
+                <i class="fas fa-graduation-cap"></i>
             </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <button type="button" class="vault-filter-pill active" onclick="applyCourseFilter('all', this)">All Courses</button>
-                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('online', this)"><i class="fas fa-video"></i> Online Mode</button>
-                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('physical', this)"><i class="fas fa-building"></i> Physical Campus</button>
-                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('class 10', this)">Class 10th</button>
-                <button type="button" class="vault-filter-pill" onclick="applyCourseFilter('class 12', this)">Class 12th</button>
-            </div>
-        </div>
+            
+            <h3 style="font-family:'Cinzel',serif; font-size:24px; font-weight:800; color:#f8fafc; margin-bottom:12px;">
+                Explore Dedicated Course Finder &amp; Batches
+            </h3>
+            <p style="font-size:14px; color:var(--text-dim); max-width:580px; margin:0 auto 24px; line-height:1.6;">
+                सभी प्रमाणित कोचिंग संस्थानों के लाइव ऑनलाइन एवं ऑफलाइन बैच, फीस तुलना और सीधे प्रवेश (Direct Admission) के लिए हमारे अलग कोर्स पोर्टल पर जाएँ।
+            </p>
 
-        <div class="courses-grid" id="coursesGrid">
-            <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-slate);">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p style="margin-top:10px;">Loading courses from affiliated centers...</p>
+            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:28px;">
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-video" style="color:var(--aurora-cyan);"></i> Live Online Classes</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-building" style="color:var(--aurora-gold);"></i> Physical Campus Batches</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-scale-balanced" style="color:#34d399;"></i> Online vs Offline Fee Compare</span>
+                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-school" style="color:#c084fc;"></i> Certified Partner Centers</span>
             </div>
+
+            <a href="/courses" class="btn-aurora btn-aurora-gold" style="padding:14px 34px; font-size:16px; font-weight:800; border-radius:14px; display:inline-flex; align-items:center; gap:10px; text-decoration:none; box-shadow:0 8px 28px rgba(245,158,11,0.45);">
+                <i class="fas fa-compass"></i> Explore All Courses &amp; Batches (कोर्स खोजें) <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </section>
 
@@ -6524,11 +6511,11 @@
             <i class="fas fa-bullhorn"></i>
             <span>ऑफर्स</span>
         </a>
-        <a href="#vault" class="app-dock-item" onclick="activateDockItem(this)">
+        <a href="/e-library" class="app-dock-item">
             <i class="fas fa-book-bookmark"></i>
             <span>ई-लाइब्रेरी</span>
         </a>
-        <a href="#courses" class="app-dock-item" onclick="activateDockItem(this)">
+        <a href="/courses" class="app-dock-item">
             <i class="fas fa-graduation-cap"></i>
             <span>कोर्सेज</span>
         </a>
