@@ -10997,6 +10997,31 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
             }
         } catch (e) {}
 
+        let mongoStorageBytes = portalDbSize;
+        let mongoDataSizeBytes = portalDbSize;
+        let mongoIndexSizeBytes = 0;
+        let mongoCollectionsCount = 0;
+
+        if (isMongoConnected && mongoose.connection && mongoose.connection.readyState === 1) {
+            try {
+                const dbStats = await mongoose.connection.db.stats();
+                if (dbStats) {
+                    mongoStorageBytes = dbStats.storageSize || dbStats.dataSize || 0;
+                    mongoDataSizeBytes = dbStats.dataSize || 0;
+                    mongoIndexSizeBytes = dbStats.indexSize || 0;
+                    mongoCollectionsCount = dbStats.collections || 0;
+                }
+            } catch (mStatsErr) {
+                console.warn('MongoDB db.stats() notice:', mStatsErr.message);
+            }
+        }
+
+        const mongoStorageFormatted = mongoStorageBytes > 1048576 
+            ? `${(mongoStorageBytes / 1048576).toFixed(2)} MB` 
+            : `${(mongoStorageBytes / 1024).toFixed(1)} KB`;
+        const mongoFreeLimitBytes = 512 * 1024 * 1024; // 512MB Atlas M0 Free Tier
+        const mongoFreeUsedPct = ((mongoStorageBytes / mongoFreeLimitBytes) * 100).toFixed(2);
+
         const mongoCollections = [
             { name: 'Super Admin Credentials', key: 'admins', count: adminsCount, size: `${((JSON.stringify(pdb.admins || []).length) / 1024).toFixed(1)} KB`, role: 'Platform Super Admins (Bcrypt Hash)' },
             { name: 'Partner Coaching Centers', key: 'centers', count: centersCount, size: `${((JSON.stringify(pdb.centers || []).length) / 1024).toFixed(1)} KB`, role: 'Center Director Accounts & Credentials' },
@@ -11142,8 +11167,12 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
                     status: mongoStatus,
                     engine: mongoEngine,
                     totalAccounts: centersCount + teachersCount + studentsCount + adminsCount,
-                    totalStorageBytes: portalDbSize,
-                    totalStorageFormatted: portalDbSize > 1048576 ? `${(portalDbSize / 1048576).toFixed(2)} MB` : `${(portalDbSize / 1024).toFixed(1)} KB`,
+                    totalStorageBytes: mongoStorageBytes,
+                    totalStorageFormatted: mongoStorageFormatted,
+                    dataSizeBytes: mongoDataSizeBytes,
+                    indexSizeBytes: mongoIndexSizeBytes,
+                    freeTierLimit: '512 MB (Atlas M0 Cluster Quota)',
+                    freeTierUsedPercent: mongoFreeUsedPct,
                     collections: mongoCollections
                 },
                 database2: {
@@ -11163,7 +11192,7 @@ app.get('/api/admin/database-stats', verifySuperAdmin, async (req, res) => {
             summary: {
                 totalFiles: fileExplorerList.length,
                 totalHeavyStorageFormatted: totalHeavyBytes > 1048576 ? `${(totalHeavyBytes / 1048576).toFixed(2)} MB` : `${(totalHeavyBytes / 1024).toFixed(1)} KB`,
-                totalCredentialsStorageFormatted: portalDbSize > 1048576 ? `${(portalDbSize / 1048576).toFixed(2)} MB` : `${(portalDbSize / 1024).toFixed(1)} KB`,
+                totalCredentialsStorageFormatted: mongoStorageFormatted,
                 localCachedFiles: localFilesCount,
                 cloudAstraDocuments: totalAstraDocs
             },
