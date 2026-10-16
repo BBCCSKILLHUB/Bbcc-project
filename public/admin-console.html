@@ -663,16 +663,27 @@
                                     <input type="text" id="vchCode" required placeholder="e.g. FESTIVAL50" class="console-input" style="text-transform:uppercase; font-family:monospace; font-weight:700;">
                                 </div>
                                 <div>
-                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Discount Percentage (% छूट) *</label>
-                                    <input type="number" id="vchDiscountPercent" required min="1" max="100" value="50" class="console-input">
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Discount Type (छूट का प्रकार) *</label>
+                                    <select id="vchDiscountType" class="console-input" onchange="toggleVoucherDiscountType()" style="background:#0f172a; color:#f8fafc; font-weight:600;">
+                                        <option value="percent">Percentage (% प्रतिशत छूट)</option>
+                                        <option value="flat">Flat Rupee Amount (रुपये में सीधी छूट ₹)</option>
+                                    </select>
                                 </div>
-                                <div>
-                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Maximum Discount ₹ (अधिकतम छूट)</label>
-                                    <input type="number" id="vchMaxDiscount" min="0" value="500" class="console-input">
+                                <div id="vchPercentField">
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Discount Percentage (% छूट) *</label>
+                                    <input type="number" id="vchDiscountPercent" min="1" max="100" value="50" class="console-input" placeholder="e.g. 50">
+                                </div>
+                                <div id="vchAmountField" style="display:none;">
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Flat Discount ₹ (रुपये में छूट) *</label>
+                                    <input type="number" id="vchDiscountAmount" min="1" value="100" class="console-input" placeholder="e.g. 100">
+                                </div>
+                                <div id="vchMaxDiscountField">
+                                    <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Maximum Discount Limit ₹ (अधिकतम सीमा)</label>
+                                    <input type="number" id="vchMaxDiscount" min="0" value="500" class="console-input" placeholder="e.g. 500">
                                 </div>
                                 <div>
                                     <label style="font-size:12px; color:#cbd5e1; font-weight:700;">Short Description / Campaign Tag</label>
-                                    <input type="text" id="vchDesc" placeholder="e.g. 50% Special Scholarship Offer" class="console-input">
+                                    <input type="text" id="vchDesc" placeholder="e.g. Special Scholarship Offer" class="console-input">
                                 </div>
                             </div>
                             <div id="createVoucherStatus" style="display:none; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; margin-bottom:12px;"></div>
@@ -696,7 +707,7 @@
                                 <thead>
                                     <tr>
                                         <th>Voucher Code</th>
-                                        <th>Discount %</th>
+                                        <th>Discount (छूट)</th>
                                         <th>Max Cap ₹</th>
                                         <th>Campaign Description</th>
                                         <th>Status</th>
@@ -3516,6 +3527,22 @@
         // ==========================================
         // SCHOLARSHIP VOUCHERS MANAGEMENT
         // ==========================================
+        function toggleVoucherDiscountType() {
+            const type = document.getElementById('vchDiscountType')?.value || 'percent';
+            const percentField = document.getElementById('vchPercentField');
+            const amountField = document.getElementById('vchAmountField');
+            const maxDiscountField = document.getElementById('vchMaxDiscountField');
+            if (type === 'flat') {
+                if (percentField) percentField.style.display = 'none';
+                if (amountField) amountField.style.display = 'block';
+                if (maxDiscountField) maxDiscountField.style.display = 'none';
+            } else {
+                if (percentField) percentField.style.display = 'block';
+                if (amountField) amountField.style.display = 'none';
+                if (maxDiscountField) maxDiscountField.style.display = 'block';
+            }
+        }
+
         async function loadAdminVouchers() {
             const tbody = document.getElementById('adminVouchersTbody');
             if (!tbody) return;
@@ -3529,20 +3556,29 @@
                         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No vouchers found. Create a new one above!</td></tr>';
                         return;
                     }
-                    tbody.innerHTML = data.data.map(v => `
+                    tbody.innerHTML = data.data.map(v => {
+                        const isFlat = v.discountType === 'flat' || (v.discountAmount > 0 && !v.discountPercent);
+                        const discountDisplay = isFlat
+                            ? `<span style="color:#38bdf8; font-weight:800;">₹${v.discountAmount} FLAT</span>`
+                            : `<span style="color:#10b981; font-weight:800;">${v.discountPercent}% OFF</span>`;
+                        const capDisplay = isFlat
+                            ? `<span style="color:#94a3b8; font-size:12px;">Flat Discount</span>`
+                            : (v.maxDiscount ? `₹${v.maxDiscount}` : 'No Limit');
+                        return `
                         <tr>
-                            <td style="font-family:monospace; font-weight:800; color:#38bdf8;">${v.code}</td>
-                            <td style="font-weight:800; color:#10b981;">${v.discountPercent}% OFF</td>
+                            <td style="font-family:monospace; font-weight:800; color:#f59e0b;">${v.code}</td>
+                            <td>${discountDisplay}</td>
+                            <td style="font-size:12px; color:#cbd5e1;">${capDisplay}</td>
                             <td style="font-size:12.5px; color:#cbd5e1;">${v.description || 'Scholarship discount voucher'}</td>
                             <td><span style="padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; ${v.active ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(239,68,68,0.15); color:#fca5a5;'}">${v.active ? 'ACTIVE' : 'INACTIVE'}</span></td>
-                            <td style="font-size:12px; color:#94a3b8;">${v.maxDiscount ? '₹' + v.maxDiscount : 'No Limit'}</td>
                             <td>
                                 <button onclick="deleteAdminVoucher('${v.code}')" class="btn-aurora" style="padding:4px 10px; font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; cursor:pointer;">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
                             </td>
                         </tr>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             } catch(err) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#fca5a5;">Failed to load vouchers: ${err.message}</td></tr>`;
@@ -3553,13 +3589,23 @@
             if (event) event.preventDefault();
             // Support both old IDs (vcCode) and new HTML IDs (vchCode)
             const code = (document.getElementById('vchCode') || document.getElementById('vcCode'))?.value.trim().toUpperCase();
-            const discount = parseInt((document.getElementById('vchDiscountPercent') || document.getElementById('vcDiscount'))?.value, 10);
+            const discountType = document.getElementById('vchDiscountType')?.value || 'percent';
+            const discountPercent = parseInt((document.getElementById('vchDiscountPercent') || document.getElementById('vcDiscount'))?.value, 10);
+            const discountAmount = parseInt(document.getElementById('vchDiscountAmount')?.value, 10);
             const desc = (document.getElementById('vchDesc') || document.getElementById('vcDesc'))?.value.trim();
             const maxCap = parseInt((document.getElementById('vchMaxDiscount') || document.getElementById('vcMaxCap'))?.value, 10) || 0;
             const statusBox = document.getElementById('createVoucherStatus');
 
-            if (!code || isNaN(discount)) {
-                alert('Please provide valid coupon code and discount %');
+            if (!code) {
+                alert('Please provide a valid voucher/coupon code.');
+                return;
+            }
+            if (discountType === 'percent' && (isNaN(discountPercent) || discountPercent <= 0 || discountPercent > 100)) {
+                alert('Please provide valid percentage between 1 and 100%');
+                return;
+            }
+            if (discountType === 'flat' && (isNaN(discountAmount) || discountAmount <= 0)) {
+                alert('Please provide valid flat discount amount in ₹');
                 return;
             }
 
@@ -3572,9 +3618,11 @@
                     },
                     body: JSON.stringify({
                         code: code,
-                        discountPercent: discount,
+                        discountType: discountType,
+                        discountPercent: discountType === 'percent' ? discountPercent : 0,
+                        discountAmount: discountType === 'flat' ? discountAmount : 0,
                         description: desc,
-                        maxDiscount: maxCap,
+                        maxDiscount: discountType === 'percent' ? maxCap : discountAmount,
                         active: true
                     })
                 });
@@ -3585,10 +3633,9 @@
                         statusBox.style.background = 'rgba(16,185,129,0.15)';
                         statusBox.style.border = '1px solid #10b981';
                         statusBox.style.color = '#34d399';
-                        statusBox.textContent = `Voucher ${code} (${discount}% OFF) created successfully!`;
+                        const discountLabel = discountType === 'flat' ? `₹${discountAmount} FLAT OFF` : `${discountPercent}% OFF`;
+                        statusBox.textContent = `Voucher ${code} (${discountLabel}) created successfully!`;
                         (document.getElementById('vchCode') || document.getElementById('vcCode')).value = '';
-                        const discountEl = document.getElementById('vchDiscountPercent') || document.getElementById('vcDiscount');
-                        if (discountEl) discountEl.value = '50';
                         const descEl = document.getElementById('vchDesc') || document.getElementById('vcDesc');
                         if (descEl) descEl.value = '';
                         loadAdminVouchers();
