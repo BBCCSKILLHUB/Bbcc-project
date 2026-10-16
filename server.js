@@ -353,15 +353,24 @@ app.get(['/santosh%20sir.jpeg', '/santosh sir.jpeg', '/data/photos/Santosh_Sir.j
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
 
 // Dynamic DataStax Astra DB Heavy Asset Streaming & Local Caching Middleware
-app.use(['/data', '/api/astra/asset'], async (req, res, next) => {
+// Dynamic DataStax Astra DB Heavy Asset Streaming & Local Caching Middleware
+app.use(['/data', '/uploads', '/api/astra/asset'], async (req, res, next) => {
     try {
+        const baseFolder = (req.baseUrl && req.baseUrl.includes('uploads')) ? 'uploads' : 'data';
         const cleanSub = decodeURIComponent(req.path).replace(/^\/+/, '');
         const filename = path.basename(cleanSub);
         const subDir = path.dirname(cleanSub) === '.' ? 'materials' : path.dirname(cleanSub);
-        const localPath = path.join(__dirname, 'public', 'data', subDir, filename);
+        const localPath = path.join(__dirname, 'public', baseFolder, subDir, filename);
 
         if (fs.existsSync(localPath) && fs.statSync(localPath).isFile()) {
             return res.sendFile(localPath);
+        }
+
+        // Also check alternate folder (data vs uploads)
+        const altFolder = baseFolder === 'uploads' ? 'data' : 'uploads';
+        const altPath = path.join(__dirname, 'public', altFolder, subDir, filename);
+        if (fs.existsSync(altPath) && fs.statSync(altPath).isFile()) {
+            return res.sendFile(altPath);
         }
 
         // If not found on local disk, fetch live from DataStax Astra DB (astra.datastax.com)!
@@ -376,6 +385,7 @@ app.use(['/data', '/api/astra/asset'], async (req, res, next) => {
                 else if (cleanSub.endsWith('.jpg') || cleanSub.endsWith('.jpeg')) res.setHeader('Content-Type', 'image/jpeg');
                 else if (cleanSub.endsWith('.png')) res.setHeader('Content-Type', 'image/png');
                 else if (cleanSub.endsWith('.webp')) res.setHeader('Content-Type', 'image/webp');
+                else if (cleanSub.endsWith('.svg')) res.setHeader('Content-Type', 'image/svg+xml');
                 else if (cleanSub.endsWith('.json')) res.setHeader('Content-Type', 'application/json');
                 else res.setHeader('Content-Type', asset.mimeType || 'application/octet-stream');
 
@@ -396,14 +406,6 @@ app.use(['/data', '/api/astra/asset'], async (req, res, next) => {
 
 app.use('/data', express.static(path.join(__dirname, 'public', 'data'), { maxAge: '1d', etag: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), { maxAge: '1d', etag: true }));
-app.use('/uploads', (req, res) => {
-    const ext = path.extname(req.path).toLowerCase();
-    if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].includes(ext)) {
-        res.setHeader('Content-Type', 'image/svg+xml');
-        return res.status(404).send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#0b1120"/><circle cx="50" cy="50" r="30" fill="none" stroke="#fbbf24" stroke-width="3"/><text x="50" y="55" fill="#fbbf24" font-size="12" text-anchor="middle" font-family="sans-serif">BBCC</text></svg>');
-    }
-    return res.status(404).json({ success: false, message: 'Upload asset not found' });
-});
 
 // Ultra-fast In-Memory Cache (drops Atlas latency from ~600ms to <2ms)
 const memoryCache = new Map();
@@ -1920,6 +1922,24 @@ async function initSystem() {
                 existingPdbIds.add(mid);
             }
         });
+
+        // Tri-merge with Astra DB bbcc_study_materials so notes persist forever even across Render redeploys!
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                const astraNotes = await astraCol.find({}).toArray();
+                if (Array.isArray(astraNotes)) {
+                    astraNotes.forEach(an => {
+                        const aid = (an._id || '').toString();
+                        if (aid && !existingPdbIds.has(aid)) {
+                            pdb.studyMaterials.notes.push(an);
+                            existingPdbIds.add(aid);
+                        }
+                    });
+                }
+            } catch(e) {}
+        }
+
         await smDoc.save().catch(() => {});
         await savePortalDb(pdb).catch(() => {});
 
@@ -5013,6 +5033,12 @@ app.post('/api/pay/verify-document-payment', async (req, res) => {
     }
 });
 
+// 5.2A Direct Download Helper Endpoint
+app.get(['/api/pay/direct-download/:id', '/api/pay/direct-download'], (req, res) => {
+    const docId = req.params.id || req.query.docId || req.query.id;
+    return res.redirect(`/api/pay/download-file?docId=${encodeURIComponent(docId)}`);
+});
+
 // 5.2B Direct Secured Document Downloader (Serves File with Content-Disposition Attachment)
 app.get('/api/pay/download-file', async (req, res) => {
     try {
@@ -5032,17 +5058,45 @@ app.get('/api/pay/download-file', async (req, res) => {
 
         // Search for note
         let note = null;
-        const sm = await StudyMaterial.findOne();
-        if (sm && sm.notes && sm.notes.length > 0) {
-            if (targetDocId) {
-                note = sm.notes.id(targetDocId) || sm.notes.find(n => n._id.toString() === targetDocId);
-            }
-            if (!note && docTitle) {
-                note = sm.notes.find(n => n.title && n.title.trim().toLowerCase() === docTitle.trim().toLowerCase());
-            }
+        if (isMongoConnected) {
+            try {
+                const sm = await StudyMaterial.findOne();
+                if (sm && sm.notes && sm.notes.length > 0) {
+                    if (targetDocId) {
+                        note = sm.notes.id(targetDocId) || sm.notes.find(n => n._id.toString() === targetDocId);
+                    }
+                    if (!note && docTitle) {
+                        note = sm.notes.find(n => n.title && n.title.trim().toLowerCase() === docTitle.trim().toLowerCase());
+                    }
+                }
+            } catch(e) {}
         }
 
         if (!note) {
+            const pdb = loadPortalDb();
+            if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+                if (targetDocId) {
+                    note = pdb.studyMaterials.notes.find(n => (n._id || '').toString() === targetDocId);
+                }
+                if (!note && docTitle) {
+                    note = pdb.studyMaterials.notes.find(n => n.title && n.title.trim().toLowerCase() === docTitle.trim().toLowerCase());
+                }
+            }
+        }
+
+        if (!note && astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                if (targetDocId) {
+                    note = await astraCol.findOne({ _id: targetDocId });
+                }
+                if (!note && docTitle) {
+                    note = await astraCol.findOne({ title: docTitle });
+                }
+            } catch(e) {}
+        }
+
+        if (!note && isMongoConnected) {
             let center = null;
             if (targetDocId) {
                 center = await TuitionCenter.findOne({ 'materials._id': targetDocId });
@@ -5092,13 +5146,28 @@ app.get('/api/pay/download-file', async (req, res) => {
             return res.status(404).send('Document file payload is currently empty.');
         }
 
-        // 1. If it's a local or GitHub file path e.g. /data/... or /uploads/...
+        // 1. If it's a local, Astra DB, or GitHub file path e.g. /data/... or /uploads/...
         if (file.startsWith('/data/') || file.startsWith('/uploads/')) {
             const relPath = file.replace(/^\/+/, '');
             const fullPath = path.join(__dirname, 'public', relPath);
             if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
                 return res.download(fullPath, fileName);
             }
+
+            // Fetch live from DataStax Astra DB!
+            if (isAstraConnected && astraDb) {
+                const aName = path.basename(relPath);
+                const asset = await getAssetFromAstra(aName);
+                if (asset && asset.buffer) {
+                    const dir = path.dirname(fullPath);
+                    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+                    fs.writeFileSync(fullPath, asset.buffer);
+                    res.setHeader('Content-Type', fileExt === 'pdf' ? 'application/pdf' : (asset.mimeType || 'application/octet-stream'));
+                    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+                    return res.send(asset.buffer);
+                }
+            }
+
             // Fetch live from GitHub!
             const ghBuf = await fetchFileFromGitHub(`public/${relPath}`);
             if (ghBuf) {
@@ -9747,6 +9816,23 @@ app.get('/api/admin/books', verifySuperAdmin, async (req, res) => {
                 if (sm && sm.notes) notes = sm.notes;
             } catch(e) {}
         }
+        // From Astra DB bbcc_study_materials
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                const astraNotes = await astraCol.find({}).toArray();
+                if (Array.isArray(astraNotes)) {
+                    const existingIds = new Set(notes.map(n => n._id ? n._id.toString() : ''));
+                    astraNotes.forEach(an => {
+                        const aid = an._id ? an._id.toString() : '';
+                        if (!aid || !existingIds.has(aid)) {
+                            notes.push(an);
+                            existingIds.add(aid);
+                        }
+                    });
+                }
+            } catch(e) {}
+        }
         const pdb = loadPortalDb();
         if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
             const existingIds = new Set(notes.map(n => n._id ? n._id.toString() : ''));
@@ -9754,6 +9840,7 @@ app.get('/api/admin/books', verifySuperAdmin, async (req, res) => {
                 const pid = pn._id ? pn._id.toString() : '';
                 if (!pid || !existingIds.has(pid)) {
                     notes.push(pn);
+                    existingIds.add(pid);
                 }
             });
         }
@@ -9844,7 +9931,8 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
         if (astraDb && isAstraConnected) {
             try {
                 const col = astraDb.collection('bbcc_study_materials');
-                await col.updateOne({ _id: newNote._id }, { $set: newNote }, { upsert: true });
+                const { _id, ...noteFields } = newNote;
+                await col.updateOne({ _id: newNote._id }, { $set: noteFields }, { upsert: true });
             } catch(e) {}
         }
 
@@ -9952,7 +10040,9 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
                 const col = astraDb.collection('bbcc_study_materials');
                 const updatedDoc = pdbNote || mongoNote;
                 if (updatedDoc) {
-                    await col.updateOne({ _id: noteId.toString() }, { $set: updatedDoc }, { upsert: true });
+                    const docObj = (typeof updatedDoc.toObject === 'function') ? updatedDoc.toObject() : { ...updatedDoc };
+                    delete docObj._id;
+                    await col.updateOne({ _id: noteId.toString() }, { $set: docObj }, { upsert: true });
                 }
             } catch(e) {}
         }
