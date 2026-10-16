@@ -5247,7 +5247,8 @@
                         box.style.background = 'rgba(16,185,129,0.15)';
                         box.style.border = '1px solid #10b981';
                         box.style.color = '#34d399';
-                        box.innerHTML = `<i class="fas fa-circle-check"></i> <strong>${data.code} लागू हुआ:</strong> ${data.discountPercent}% छात्रवृत्ति छूट सभी स्टडी नोट्स पर सक्रिय कर दी गई है!`;
+                        const discLabel = data.discountType === 'flat' ? `₹${data.discountAmount} फ्लैट छूट` : `${data.discountPercent}% छात्रवृत्ति छूट`;
+                        box.innerHTML = `<i class="fas fa-circle-check"></i> <strong>${data.code} लागू हुआ:</strong> ${discLabel} सभी स्टडी नोट्स पर सक्रिय कर दी गई है!`;
                     }
                     renderBooks(allBooks);
                 } else {
@@ -5288,13 +5289,27 @@
             allBooks = books;
 
             grid.innerHTML = books.map(b => {
-                const voucherDisc = (activeVoucher && activeVoucher.discountPercent) ? activeVoucher.discountPercent : 0;
                 let pdfPrice = Number(b.price) || 0;
                 let physPrice = Number(b.physicalPrice) || (pdfPrice > 0 ? Math.max(99, Math.round(pdfPrice * 1.8 + 50)) : 149);
 
-                if (voucherDisc > 0) {
-                    pdfPrice = Math.max(0, Math.round(pdfPrice * (100 - voucherDisc) / 100));
-                    physPrice = Math.max(0, Math.round(physPrice * (100 - voucherDisc) / 100));
+                if (activeVoucher) {
+                    const isFlat = activeVoucher.discountType === 'flat' || (Number(activeVoucher.discountAmount) > 0 && !activeVoucher.discountPercent);
+                    if (isFlat) {
+                        const flatD = Number(activeVoucher.discountAmount) || 0;
+                        pdfPrice = Math.max(0, pdfPrice - flatD);
+                        physPrice = Math.max(0, physPrice - flatD);
+                    } else if (Number(activeVoucher.discountPercent) > 0) {
+                        const pct = Number(activeVoucher.discountPercent);
+                        let pdfD = Math.round((pdfPrice * pct) / 100);
+                        let physD = Math.round((physPrice * pct) / 100);
+                        if (activeVoucher.maxDiscount) {
+                            const maxCap = Number(activeVoucher.maxDiscount);
+                            pdfD = Math.min(pdfD, maxCap);
+                            physD = Math.min(physD, maxCap);
+                        }
+                        pdfPrice = Math.max(0, pdfPrice - pdfD);
+                        physPrice = Math.max(0, physPrice - physD);
+                    }
                 }
 
                 const origPrice = Number(b.originalPrice || b.price) || 0;
@@ -5489,8 +5504,18 @@
                 ? (Number(currentCheckoutBook.physicalPrice) || 149)
                 : (Number(currentCheckoutBook.price) || 0);
 
-            if (activeVoucher && activeVoucher.discountPercent > 0) {
-                price = Math.max(0, Math.round(price * (100 - activeVoucher.discountPercent) / 100));
+            if (activeVoucher) {
+                const isFlat = activeVoucher.discountType === 'flat' || (Number(activeVoucher.discountAmount) > 0 && !activeVoucher.discountPercent);
+                if (isFlat) {
+                    const flatD = Number(activeVoucher.discountAmount) || 0;
+                    price = Math.max(0, price - flatD);
+                } else if (Number(activeVoucher.discountPercent) > 0) {
+                    let disc = Math.round((price * Number(activeVoucher.discountPercent)) / 100);
+                    if (activeVoucher.maxDiscount && disc > Number(activeVoucher.maxDiscount)) {
+                        disc = Number(activeVoucher.maxDiscount);
+                    }
+                    price = Math.max(0, price - disc);
+                }
             }
 
             const mrp = isPhysical 
@@ -5517,7 +5542,7 @@
             const payBtnText = document.getElementById('dockPayBtnText');
             if (payBtnText) {
                 if (price === 0) {
-                    payBtnText.textContent = 'Free Download Now';
+                    payBtnText.textContent = isPhysical ? 'Confirm Free Hard Copy Pickup' : 'Free Download Now';
                 } else if (isPhysical) {
                     payBtnText.textContent = `Pay ₹${price} & Confirm Hard Copy`;
                 } else {
@@ -5562,7 +5587,8 @@
                         alertBox.style.background = 'rgba(16,185,129,0.15)';
                         alertBox.style.border = '1px solid #10b981';
                         alertBox.style.color = '#34d399';
-                        alertBox.innerHTML = `<i class="fas fa-circle-check"></i> <b>${data.code} सक्रिय!</b> ${data.discountPercent}% छात्रवृत्ति छूट लागू हो गई है।`;
+                        const discText = data.discountType === 'flat' ? `₹${data.discountAmount} फ्लैट छूट` : `${data.discountPercent}% छात्रवृत्ति छूट`;
+                        alertBox.innerHTML = `<i class="fas fa-circle-check"></i> <b>${data.code} सक्रिय!</b> ${discText} लागू हो गई है।`;
                     }
                     updateCheckoutDockUI();
                 } else {
