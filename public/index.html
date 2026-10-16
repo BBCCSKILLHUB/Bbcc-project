@@ -2757,7 +2757,7 @@
                 <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
             <a href="#vault" class="btn-aurora btn-aurora-outline">
-                <i class="fas fa-book-bookmark"></i> E-Locker (किताबें)
+                <i class="fas fa-book-bookmark"></i> Study Material & किताबें
             </a>
             <a href="#courses" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-graduation-cap"></i> Courses & Batches
@@ -2839,7 +2839,7 @@
                 <i class="fas fa-bullhorn"></i> Offers & Banners
             </a>
             <a href="#vault" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
-                <i class="fas fa-book-bookmark"></i> E-Locker & Hard Copy
+                <i class="fas fa-book-bookmark"></i> Study Material & पुस्तकें
             </a>
             <a href="#courses" onclick="toggleMobileDrawer(false)" class="drawer-nav-link">
                 <i class="fas fa-graduation-cap"></i> Courses & Batches
@@ -2974,9 +2974,9 @@
     <section class="universe-section" id="vault">
         <div class="section-header-elite">
             <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
-                <i class="fas fa-book-bookmark"></i> E-Locker Book Vault
+                <i class="fas fa-book-bookmark"></i> Study Material & Notes
             </span>
-            <h2 style="margin-top:10px;">Central E-Library & Study Material Vault</h2>
+            <h2 style="margin-top:10px;">Central Study Material & E-Library Vault (अध्ययन सामग्री)</h2>
             <p>Curated syllabus notes, guides, and model question papers. Download authentic E-PDFs or order printed physical hard copies to pick up from coaching campus.</p>
         </div>
 
@@ -5298,6 +5298,7 @@
                 const safeTitle = (b.title || 'Untitled Document').replace(/'/g, "&#39;");
                 const centerName = (b.targetCenterName && b.targetCenterId !== 'all') ? b.targetCenterName : null;
                 const pickupCenter = centerName || 'BBCC Central Directorate';
+                const isEnrolledFree = Boolean(b.isEnrolledFree);
 
                 return `
                     <div class="vault-book-card">
