@@ -11647,6 +11647,8 @@ app.post('/api/admin/database/format-mongo', verifySuperAdmin, async (req, res) 
 // ============================================================
 // 9. CLEAN SINGLE-PAGE APPS & URL ROUTING
 // ============================================================
+app.get(['/e-library', '/library'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'e-library.html')));
+app.get(['/courses', '/course-explorer'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'courses.html')));
 app.get('/institute', (req, res) => res.sendFile(path.join(__dirname, 'public', 'institute.html')));
 app.get('/institute/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'institute.html')));
 app.get('/center', (req, res) => res.sendFile(path.join(__dirname, 'public', 'institute.html')));
@@ -11673,8 +11675,20 @@ async function startServer() {
     console.log('🔄 Checking Dual Database Architecture...');
     // 1. Database 1: MongoDB for User IDs, Passwords, Center/Teacher/Student Logins & Auth
     try {
+        mongoose.connection.on('connected', () => {
+            isMongoConnected = true;
+            console.log('🌟 [MongoDB Connected] Database active.');
+        });
+        mongoose.connection.on('error', (err) => {
+            console.warn('⚠️ [MongoDB Error]:', err.message);
+        });
+        mongoose.connection.on('disconnected', () => {
+            isMongoConnected = false;
+            console.warn('⚠️ [MongoDB Disconnected] Falling back to dual persistence.');
+        });
+
         await mongoose.connect(MONGO_URI, {
-            serverSelectionTimeoutMS: 2500
+            serverSelectionTimeoutMS: 8000
         });
         isMongoConnected = true;
         console.log('🌟 [MongoDB Connected] Handling User IDs, Passwords, Accounts & Auth Credentials:', MONGO_URI.includes('@') ? 'MongoDB Atlas Cloud' : MONGO_URI);
