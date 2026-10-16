@@ -4254,9 +4254,9 @@
             } else {
                 promotionalBanners = [
                     {
-                        title: "BBCC SKILL HUB Central Campus",
-                        subtitle: "National Institutional Network & Certified Syllabus Repository",
-                        image: "/data/photos/bbcc_campus.png",
+                        title: "BBCC SKILL HUB Special Admission Offer",
+                        subtitle: "Led by Founder Mr. Santosh Kumar | Scholarship & Free Notes",
+                        image: "/data/banners/bbcc_special_offer_banner.svg",
                         centerName: "BBCC Central Directorate",
                         daysLeft: 30,
                         link: "#courses"
@@ -5272,7 +5272,17 @@
         function renderBooks(books) {
             const grid = document.getElementById('booksGrid');
             if (!books || books.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px;">No documents available in repository at the moment.</div>';
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:16px;">
+                        <div style="width:54px; height:54px; border-radius:50%; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:var(--aurora-gold); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:22px;">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h4 style="font-size:15px; font-weight:700; color:#f1f5f9; margin-bottom:4px;">वर्तमान में कोई स्टडी मटेरियल अपलोड नहीं है</h4>
+                        <p style="font-size:12.5px; color:#94a3b8; max-width:440px; margin:0 auto;">
+                            जैसे ही शिक्षक या कोचिंग सेंटर नया स्टडी मटेरियल या ई-बुक अपलोड करेंगे, वे यहाँ लाइव प्रदर्शित होंगे।
+                        </p>
+                    </div>
+                `;
                 return;
             }
             allBooks = books;
