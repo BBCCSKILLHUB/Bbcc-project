@@ -1894,26 +1894,15 @@ async function initSystem() {
             console.warn('Demo centers cleanup notice:', cleanErr.message);
         }
 
-        // 3. Ensure StudyMaterial has verified notes & valid PDF links
+        // 3. Synchronize StudyMaterial strictly with portal_db.json (no ghost/unadded notes)
         let smDoc = await StudyMaterial.findOne();
         if (!smDoc) {
             smDoc = await StudyMaterial.create({ notes: [], videos: [] });
         }
-        if (pdb.studyMaterials && pdb.studyMaterials.notes) {
-            for (const pn of pdb.studyMaterials.notes) {
-                const titleLower = (pn.title || '').trim().toLowerCase();
-                const existingNote = smDoc.notes.find(n => (n.title || '').trim().toLowerCase() === titleLower || n._id.toString() === pn._id.toString());
-                if (existingNote) {
-                    existingNote.file = pn.file;
-                    existingNote.pdf = pn.pdf;
-                    existingNote.thumbnail = pn.thumbnail;
-                    existingNote.hasFile = true;
-                } else {
-                    smDoc.notes.push(pn);
-                }
-            }
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            smDoc.notes = pdb.studyMaterials.notes;
+            smDoc.videos = pdb.studyMaterials.videos || [];
             await smDoc.save();
-            console.log('✅ Synchronized educational PDF notes into StudyMaterial vault');
         }
 
         // 4. Ensure Settings has valid restored logo, gallery, founder & promotional banners
@@ -11485,6 +11474,7 @@ app.post('/api/admin/database/format-mongo', verifySuperAdmin, async (req, res) 
                 await AdmissionInquiry.deleteMany({});
                 await AffiliationApplication.deleteMany({});
                 await StudyMaterial.deleteMany({});
+                await StudyMaterial.create({ notes: [], videos: [] });
 
                 if (mongoose.models.PushSubscription) await mongoose.models.PushSubscription.deleteMany({});
                 if (mongoose.models.Attendance) await mongoose.models.Attendance.deleteMany({});
