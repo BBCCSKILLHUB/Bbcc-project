@@ -1894,16 +1894,34 @@ async function initSystem() {
             console.warn('Demo centers cleanup notice:', cleanErr.message);
         }
 
-        // 3. Synchronize StudyMaterial strictly with portal_db.json (no ghost/unadded notes)
+        // 3. Preserve and merge StudyMaterial notes across MongoDB & portal_db.json
         let smDoc = await StudyMaterial.findOne();
         if (!smDoc) {
             smDoc = await StudyMaterial.create({ notes: [], videos: [] });
         }
-        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
-            smDoc.notes = pdb.studyMaterials.notes;
-            smDoc.videos = pdb.studyMaterials.videos || [];
-            await smDoc.save();
-        }
+        if (!smDoc.notes) smDoc.notes = [];
+        if (!pdb.studyMaterials) pdb.studyMaterials = { notes: [], videos: [] };
+        if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
+
+        // Merge notes so user-added books in MongoDB are never wiped out on restart!
+        const existingSmIds = new Set(smDoc.notes.map(n => (n._id || '').toString()));
+        pdb.studyMaterials.notes.forEach(pn => {
+            const pid = (pn._id || '').toString();
+            if (pid && !existingSmIds.has(pid)) {
+                smDoc.notes.push(pn);
+                existingSmIds.add(pid);
+            }
+        });
+        const existingPdbIds = new Set(pdb.studyMaterials.notes.map(n => (n._id || '').toString()));
+        smDoc.notes.forEach(mn => {
+            const mid = (mn._id || '').toString();
+            if (mid && !existingPdbIds.has(mid)) {
+                pdb.studyMaterials.notes.push(mn);
+                existingPdbIds.add(mid);
+            }
+        });
+        await smDoc.save().catch(() => {});
+        await savePortalDb(pdb).catch(() => {});
 
         // 4. Ensure Settings has valid restored logo, gallery, founder & promotional banners
         let settingsDoc = await Settings.findOne();
@@ -3166,37 +3184,61 @@ app.get('/api/public/books', async (req, res) => {
             };
         };
 
-        // 1. Gather all notes from both MongoDB and portal_db.json dual storage
+        // 1. Gather all notes from MongoDB, portal_db.json, all coaching centers, and Astra DB
         const allNotesList = [];
         const seenNoteIds = new Set();
-        const seenNoteTitles = new Set();
 
-        const addNoteUnique = (n) => {
+        const addNoteUnique = (n, centerRef = null) => {
             if (!n || !n.title) return;
             const nid = n._id ? n._id.toString() : '';
-            const nTitle = (n.title || '').trim().toLowerCase();
             if (nid && seenNoteIds.has(nid)) return;
-            if (seenNoteTitles.has(nTitle)) return;
             if (nid) seenNoteIds.add(nid);
-            seenNoteTitles.add(nTitle);
-            allNotesList.push(n);
+            allNotesList.push({ note: n, centerRef });
         };
 
-        (sm.notes || []).forEach(addNoteUnique);
-        const pdb = loadPortalDb();
-        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
-            pdb.studyMaterials.notes.forEach(addNoteUnique);
+        // A. From StudyMaterial in MongoDB
+        if (sm && Array.isArray(sm.notes)) {
+            sm.notes.forEach(n => addNoteUnique(n));
         }
 
-        // 2. TARGET CENTER SCOPE ENFORCEMENT:
-        // Strictly filter: on the public BBCC Homepage E-Library, ONLY universal / all notes appear!
-        // Center-specific notes belong strictly to that specific coaching center's dashboard.
-        const universalNotes = allNotesList.filter(n => {
-            const tId = (n.targetCenterId || 'all').toString().trim().toLowerCase();
-            return tId === 'all' || tId === '' || tId === 'universal';
-        });
+        // B. From portal_db.json studyMaterials
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            pdb.studyMaterials.notes.forEach(n => addNoteUnique(n));
+        }
 
-        const sanitizedNotes = universalNotes.map(n => buildBookItem(n));
+        // C. From all coaching centers (materials uploaded by center directors/teachers)
+        if (Array.isArray(pdb.centers)) {
+            pdb.centers.forEach(c => {
+                if (Array.isArray(c.materials)) {
+                    c.materials.forEach(m => addNoteUnique(m, c));
+                }
+            });
+        }
+        if (isMongoConnected) {
+            try {
+                const dbCenters = await TuitionCenter.find({}, { centerName: 1, address: 1, contactNumber: 1, whatsappNumber: 1, directorName: 1, materials: 1 }).lean();
+                dbCenters.forEach(c => {
+                    if (Array.isArray(c.materials)) {
+                        c.materials.forEach(m => addNoteUnique(m, c));
+                    }
+                });
+            } catch(e) {}
+        }
+
+        // D. From Astra DB collection bbcc_study_materials (if connected)
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                const astraNotes = await astraCol.find({}).toArray();
+                if (Array.isArray(astraNotes)) {
+                    astraNotes.forEach(an => addNoteUnique(an));
+                }
+            } catch(e) {}
+        }
+
+        // 2. Deliver ALL books to the public E-Library Vault (Unlimited - show as many as uploaded)
+        const sanitizedNotes = allNotesList.map(item => buildBookItem(item.note, item.centerRef));
 
         const resultData = {
             notes: sanitizedNotes,
@@ -9798,6 +9840,14 @@ app.post('/api/admin/books', verifySuperAdmin, async (req, res) => {
             } catch(e) {}
         }
 
+        // Tri-persist to Astra DB collection bbcc_study_materials
+        if (astraDb && isAstraConnected) {
+            try {
+                const col = astraDb.collection('bbcc_study_materials');
+                await col.updateOne({ _id: newNote._id }, { $set: newNote }, { upsert: true });
+            } catch(e) {}
+        }
+
         clearCache();
         broadcastRealtimeEvent('books_updated');
         res.json({
@@ -9897,6 +9947,16 @@ app.put('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
             await sm.save();
         }
 
+        if (astraDb && isAstraConnected) {
+            try {
+                const col = astraDb.collection('bbcc_study_materials');
+                const updatedDoc = pdbNote || mongoNote;
+                if (updatedDoc) {
+                    await col.updateOne({ _id: noteId.toString() }, { $set: updatedDoc }, { upsert: true });
+                }
+            } catch(e) {}
+        }
+
         clearCache();
         broadcastRealtimeEvent('books_updated');
         res.json({ success: true, message: 'Document updated successfully!', data: pdbNote || mongoNote });
@@ -9922,6 +9982,13 @@ app.delete('/api/admin/books/:id', verifySuperAdmin, async (req, res) => {
                     sm.notes = sm.notes.filter(n => n._id.toString() !== noteId.toString());
                     await sm.save();
                 }
+            } catch(e) {}
+        }
+
+        if (astraDb && isAstraConnected) {
+            try {
+                const col = astraDb.collection('bbcc_study_materials');
+                await col.deleteOne({ _id: noteId.toString() });
             } catch(e) {}
         }
 
