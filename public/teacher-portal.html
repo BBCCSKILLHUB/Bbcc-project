@@ -865,6 +865,74 @@
                 </div>
             </div>
 
+            <!-- Teacher Study Notes & Materials Upload Card with Auto-Page Pricing -->
+            <div class="studio-card" style="margin-top:24px; border-color:rgba(56, 189, 248, 0.35);">
+                <div class="card-header-flex">
+                    <div class="card-title">
+                        <i class="fas fa-book-bookmark" style="color:var(--cyan);"></i> 📖 Publish Study Notes, Question Banks &amp; Syllabus
+                    </div>
+                </div>
+                <p style="color:#cbd5e1; font-size:12.5px; margin-top:4px; margin-bottom:16px;">
+                    Upload educational notes and assignments for your students. Prices are auto-calculated by page count (₹1/page E-Book, ₹2/page Hard Copy) and can be customized.
+                </p>
+
+                <form onsubmit="handleTeacherNoteUpload(event)">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">Document Title *</label>
+                            <input type="text" id="tchMatTitle" required placeholder="e.g. Class 12 Physics Complete Chapter 1-5 Formula Notes" class="input-control" style="padding-left:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">Subject / Class</label>
+                            <input type="text" id="tchMatSubject" placeholder="e.g. Physics / Class 12th" class="input-control" style="padding-left:14px;">
+                        </div>
+                    </div>
+
+                    <!-- Auto Pricing by Document Page Count -->
+                    <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <label style="font-size:12.5px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-invoice"></i> Total Document Pages (पेज संख्या के आधार पर ऑटो मूल्य)</label>
+                                <div style="font-size:11px; color:#94a3b8; margin-top:2px;">नियम: <strong>E-Book = ₹1/पेज</strong>, <strong>हार्ड कॉपी = ₹2/पेज</strong> (नीचे बदल भी सकते हैं)</div>
+                            </div>
+                            <div style="max-width:180px; width:100%;">
+                                <input type="number" id="tchMatPages" min="1" placeholder="उदा. 40 पेज" class="input-control" style="font-weight:800; color:#38bdf8; font-size:14px; padding-left:14px;" oninput="calculateTeacherBookPrices()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#38bdf8;">E-Book Price ₹ (0 = Free)</label>
+                            <input type="number" id="tchMatPrice" min="0" value="0" placeholder="0" class="input-control" style="padding-left:14px; color:#38bdf8; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">E-Book MRP ₹</label>
+                            <input type="number" id="tchMatPdfMrp" min="0" value="99" placeholder="99" class="input-control" style="padding-left:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#f59e0b;">Hard Copy Price ₹</label>
+                            <input type="number" id="tchMatPhysicalPrice" min="0" value="149" placeholder="149" class="input-control" style="padding-left:14px; color:#f59e0b; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Hard Copy MRP ₹</label>
+                            <input type="number" id="tchMatPhysicalMrp" min="0" value="250" placeholder="250" class="input-control" style="padding-left:14px;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px; font-weight:700; color:#cbd5e1; display:block; margin-bottom:6px;">Select Document File (.pdf, .doc, .docx) *</label>
+                        <input type="file" id="tchMatFile" required accept=".pdf,.doc,.docx" class="input-control" style="padding:8px 12px;">
+                    </div>
+
+                    <div id="tchMatAlert" style="display:none; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; margin-bottom:12px;"></div>
+
+                    <button type="submit" id="btnUploadTchMat" class="btn-aurora btn-gold">
+                        <i class="fas fa-upload"></i> Upload &amp; Publish Notes
+                    </button>
+                </form>
+            </div>
+
         </section>
 
     </div>
@@ -966,6 +1034,113 @@
             toast.style.borderColor = color;
             toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color};"></i> ${msg}`;
             setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+
+        function calculateTeacherBookPrices() {
+            const pagesInput = document.getElementById('tchMatPages');
+            const pages = parseInt(pagesInput?.value || '0', 10);
+            if (pages > 0) {
+                const eBookPrice = Math.max(0, Math.round(pages * 1));
+                const eBookMrp = Math.max(eBookPrice, Math.round(pages * 1.5));
+                const hardPrice = Math.max(0, Math.round(pages * 2));
+                const hardMrp = Math.max(hardPrice, Math.round(pages * 3));
+
+                const priceEl = document.getElementById('tchMatPrice');
+                const pdfMrpEl = document.getElementById('tchMatPdfMrp');
+                const physPriceEl = document.getElementById('tchMatPhysicalPrice');
+                const physMrpEl = document.getElementById('tchMatPhysicalMrp');
+
+                if (priceEl) priceEl.value = eBookPrice;
+                if (pdfMrpEl) pdfMrpEl.value = eBookMrp;
+                if (physPriceEl) physPriceEl.value = hardPrice;
+                if (physMrpEl) physMrpEl.value = hardMrp;
+            }
+        }
+
+        async function handleTeacherNoteUpload(e) {
+            e.preventDefault();
+            const title = document.getElementById('tchMatTitle').value.trim();
+            const subject = document.getElementById('tchMatSubject').value.trim();
+            const price = Number(document.getElementById('tchMatPrice')?.value || 0) || 0;
+            const pdfMrp = Number(document.getElementById('tchMatPdfMrp')?.value || 0) || 0;
+            const physicalPrice = Number(document.getElementById('tchMatPhysicalPrice')?.value || 0) || 0;
+            const physicalMrp = Number(document.getElementById('tchMatPhysicalMrp')?.value || 0) || 0;
+            const fileInput = document.getElementById('tchMatFile');
+            const alertBox = document.getElementById('tchMatAlert');
+            const btn = document.getElementById('btnUploadTchMat');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a PDF document file to upload');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading Document...';
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(56,189,248,0.15)';
+                alertBox.style.border = '1px solid #38bdf8';
+                alertBox.style.color = '#38bdf8';
+                alertBox.textContent = 'Uploading note to central repository...';
+            }
+
+            try {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    const base64 = reader.result;
+                    const centerId = currentTeacher?.centerId || (document.getElementById('selectCoachingCenter')?.value || 'all');
+                    const res = await fetch('/api/director/study-materials', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${teacherToken}`
+                        },
+                        body: JSON.stringify({
+                            title,
+                            subject,
+                            price,
+                            pdfMrp,
+                            physicalPrice,
+                            physicalMrp,
+                            file: base64,
+                            targetCenter: centerId
+                        })
+                    });
+                    const data = await res.json();
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-upload"></i> Upload & Publish Notes';
+                    if (data.success) {
+                        if (alertBox) {
+                            alertBox.style.background = 'rgba(16,185,129,0.15)';
+                            alertBox.style.border = '1px solid #10b981';
+                            alertBox.style.color = '#34d399';
+                            alertBox.textContent = 'Document successfully published to BBCC E-Library!';
+                        }
+                        document.getElementById('tchMatTitle').value = '';
+                        document.getElementById('tchMatSubject').value = '';
+                        document.getElementById('tchMatFile').value = '';
+                        showToast('Study note published successfully!', 'check-circle', '#10b981');
+                    } else {
+                        if (alertBox) {
+                            alertBox.style.background = 'rgba(239,68,68,0.15)';
+                            alertBox.style.border = '1px solid #ef4444';
+                            alertBox.style.color = '#fca5a5';
+                            alertBox.textContent = `Upload failed: ${data.message || 'Error uploading'}`;
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Upload & Publish Notes';
+                if (alertBox) {
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.textContent = `Error: ${err.message}`;
+                }
+            }
         }
 
         // Init Check
