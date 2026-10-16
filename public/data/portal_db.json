@@ -6,7 +6,7 @@
     "heroDesc": "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
     "newsMarquee": "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live",
     "affiliationFee": 999,
-    "boardLogo": "",
+    "boardLogo": "/data/branding/logo.png",
     "phone": "+91 98765 43210",
     "email": "admin@bbccskillhub.org",
     "address": "BBCC Central Directorate, Patna, Bihar - 800001",
@@ -37,7 +37,38 @@
         "image": ""
       }
     ],
-    "gallery": []
+    "gallery": [],
+    "_id": "6ad1b3b5b53cbd344cc652f1",
+    "vouchers": [
+      {
+        "code": "BBCC10",
+        "discountPercent": 10,
+        "maxDiscount": 100,
+        "description": "10% Welcome Discount on all study notes",
+        "active": true
+      },
+      {
+        "code": "BBCC25",
+        "discountPercent": 25,
+        "maxDiscount": 250,
+        "description": "25% Special Student Discount",
+        "active": true
+      },
+      {
+        "code": "BBCC50",
+        "discountPercent": 50,
+        "maxDiscount": 500,
+        "description": "50% Festival Scholarship Discount",
+        "active": true
+      },
+      {
+        "code": "SCHOLAR100",
+        "discountPercent": 100,
+        "maxDiscount": 1000,
+        "description": "100% Full Scholarship Fee Waiver",
+        "active": true
+      }
+    ]
   },
   "admins": [
     {
@@ -47,176 +78,7 @@
       "role": "superadmin"
     }
   ],
-  "centers": [
-    {
-      "_id": "ctr_patna_001",
-      "centerName": "Patna Central Science Academy",
-      "username": "patna-science",
-      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
-      "directorName": "Er. Arvind Swaroop",
-      "contactNumber": "9876500001",
-      "whatsappNumber": "9876500001",
-      "email": "director@patnascience.org",
-      "address": "Boring Road Crossing, Patna, Bihar - 800001",
-      "admissionFee": 200,
-      "walletBalance": 0,
-      "themeColor": "gold",
-      "courses": [
-        {
-          "_id": "crs_sci_10",
-          "courseName": "Class 10th Board Complete Target Batch (BSEB / CBSE)",
-          "subject": "Maths, Science & English",
-          "classLevel": "Class 10th",
-          "mode": "both",
-          "onlineFee": 1500,
-          "offlineFee": 2500,
-          "batchTiming": "Morning 7:00 AM - 10:00 AM",
-          "description": "Strict NCERT aligned lectures, assertion-reasoning drill, sample model papers.",
-          "active": true
-        },
-        {
-          "_id": "crs_sci_12_pcm",
-          "courseName": "Class 12th Science Stream (PCM Core)",
-          "subject": "Physics, Chemistry & Mathematics",
-          "classLevel": "Class 12th",
-          "mode": "both",
-          "onlineFee": 2500,
-          "offlineFee": 3500,
-          "batchTiming": "Morning 6:30 AM - 9:30 AM",
-          "description": "Deep derivation practice, numerical shortcuts, board practical drill.",
-          "active": true
-        }
-      ],
-      "teachers": [
-        {
-          "name": "Prof. Anand Verma",
-          "subject": "Mathematics & Advanced Calculus",
-          "class": "Class 10th - 12th BSEB/CBSE",
-          "qualification": "M.Sc. Mathematics (Gold Medalist)",
-          "experience": "12+ Years Teaching",
-          "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-          "phone": "9876500001"
-        }
-      ],
-      "materials": [
-        {
-          "_id": "mat_patna_101",
-          "title": "Class 10th Science Complete NCERT Formula & Concept Notes",
-          "description": "Chapterwise physics formulas, chemistry reaction balance charts and biology diagrams.",
-          "price": 0,
-          "fileType": "pdf",
-          "file": "/data/materials/class_10_science_handbook.pdf",
-          "pdf": "/data/materials/class_10_science_handbook.pdf",
-          "isRawData": true,
-          "downloadCount": 142
-        }
-      ],
-      "promotionalBanners": [
-        {
-          "_id": "pban_001",
-          "title": "Chhath Puja Mahaparv Special High Scoring Batch 2026",
-          "subtitle": "100% Syllabus Coverage & Mock Test Series | Admissions Open",
-          "image": "https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop",
-          "active": true,
-          "expiresAt": "2026-11-10T20:17:09.898Z"
-        }
-      ]
-    },
-    {
-      "_id": "ctr_mithila_002",
-      "centerName": "Mithila Digital IT Hub",
-      "username": "mithila-it",
-      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
-      "directorName": "Er. Rajesh Ranjan",
-      "contactNumber": "9876500002",
-      "whatsappNumber": "9876500002",
-      "email": "director@mithilait.org",
-      "address": "Station Road, Darbhanga, Bihar - 846004",
-      "admissionFee": 250,
-      "walletBalance": 0,
-      "themeColor": "cyan",
-      "courses": [
-        {
-          "_id": "crs_adca_01",
-          "courseName": "ADCA (Advanced Diploma in Computer Applications - 1 Year)",
-          "subject": "DCA + Tally Prime with GST, Photoshop & Office Automation",
-          "classLevel": "Vocational IT Diploma",
-          "mode": "both",
-          "onlineFee": 3500,
-          "offlineFee": 5000,
-          "batchTiming": "Daily 1.5 Hours Lab (Morning/Evening)",
-          "description": "Job-oriented professional diploma in computer applications, complete business accounting and DTP.",
-          "active": true
-        }
-      ],
-      "teachers": [
-        {
-          "name": "Er. Rajesh Ranjan",
-          "subject": "Computer & Digital Technologies (ADCA/Tally)",
-          "class": "Vocational IT Diploma",
-          "qualification": "B.Tech IT, Certified Tally Professional",
-          "experience": "9+ Years Industry Experience",
-          "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-          "phone": "9876500002"
-        }
-      ],
-      "materials": [
-        {
-          "_id": "mat_mithila_201",
-          "title": "ADCA & DCA Complete Practical Lab Manual with Shortcuts",
-          "description": "Windows 11, MS Word, Excel financial formulas, PowerPoint animations and Hindi/English typing shortcuts.",
-          "price": 0,
-          "fileType": "pdf",
-          "file": "/data/materials/adca_complete_practical_manual.pdf",
-          "pdf": "/data/materials/adca_complete_practical_manual.pdf",
-          "isRawData": true,
-          "downloadCount": 98
-        }
-      ],
-      "promotionalBanners": []
-    },
-    {
-      "_id": "ctr_magadh_003",
-      "centerName": "Magadh Teachers Training Center",
-      "username": "magadh-teachers",
-      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
-      "directorName": "Dr. Sunita Sharma",
-      "contactNumber": "9876500003",
-      "whatsappNumber": "9876500003",
-      "email": "contact@magadhteachers.org",
-      "address": "Main Road, Gaya, Bihar - 823001",
-      "admissionFee": 200,
-      "walletBalance": 0,
-      "themeColor": "emerald",
-      "courses": [
-        {
-          "_id": "crs_ctet_01",
-          "courseName": "CTET Paper 1 & 2 Special Success Batch",
-          "subject": "CDP, EVS, Maths, Hindi & English Pedagogy",
-          "classLevel": "Primary & Upper Primary",
-          "mode": "both",
-          "onlineFee": 2000,
-          "offlineFee": 3000,
-          "batchTiming": "Morning 7:00 AM - 10:00 AM",
-          "description": "Child development theories (Piaget, Vygotsky, Kohlberg), pedagogy tricks, 10-year previous papers.",
-          "active": true
-        }
-      ],
-      "teachers": [
-        {
-          "name": "Dr. Sunita Sharma",
-          "subject": "Child Development & Pedagogy (CDP)",
-          "class": "CTET Paper 1 & 2 / BPSC TRE",
-          "qualification": "Ph.D. Education, UGC-NET Qualified",
-          "experience": "14+ Years Teacher Prep",
-          "photo": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
-          "phone": "9876500003"
-        }
-      ],
-      "materials": [],
-      "promotionalBanners": []
-    }
-  ],
+  "centers": [],
   "studyMaterials": {
     "notes": [
       {
@@ -232,7 +94,8 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 310
+        "downloadCount": 310,
+        "hasFile": true
       },
       {
         "_id": "note_univ_002",
@@ -247,12 +110,22 @@
         "targetCenterId": "all",
         "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "downloadCount": 204
+        "downloadCount": 204,
+        "hasFile": true
       }
     ],
-    "videos": []
+    "videos": [],
+    "_id": "6ad1b3b5b53cbd344cc652f2"
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": []
+  "paymentTransactions": [],
+  "bharti_auto_push_log": {
+    "2026-10-16_morning": {
+      "dispatchedAt": "2026-10-16T05:20:19.230Z",
+      "slot": "morning",
+      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
+      "body": "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅"
+    }
+  }
 }
