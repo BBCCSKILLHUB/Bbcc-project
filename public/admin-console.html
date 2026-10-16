@@ -1714,7 +1714,7 @@
                             <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
                                 <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Storage Consumed</div>
                                 <div id="mongoStorageUsed" style="font-size:20px; font-weight:800; color:#34d399; margin-top:2px;">-- MB</div>
-                                <div style="font-size:11px; color:#64748b;">Ultra-lean & fast</div>
+                                <div id="mongoStorageQuota" style="font-size:11px; color:#64748b;">Ultra-lean & fast</div>
                             </div>
                             <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
                                 <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Total Credential Accounts</div>
@@ -4069,6 +4069,10 @@ Provide authentic information and direct escalation links to leadership or cente
                 }
                 const mongoUsed = document.getElementById('mongoStorageUsed');
                 if (mongoUsed) mongoUsed.innerText = db1.totalStorageFormatted || '0.00 KB';
+                const mongoQuota = document.getElementById('mongoStorageQuota');
+                if (mongoQuota) {
+                    mongoQuota.innerText = db1.freeTierLimit ? `Limit: ${db1.freeTierLimit} (${db1.freeTierUsedPercent || 0}% used)` : 'Ultra-lean & fast';
+                }
                 const mongoAccounts = document.getElementById('mongoTotalAccounts');
                 if (mongoAccounts) mongoAccounts.innerText = db1.totalAccounts || 0;
 
