@@ -786,6 +786,19 @@
                             <input type="text" id="matTitle" required placeholder="e.g. Chapter 4 Motion Formula Sheet & Question Bank" class="studio-input">
                         </div>
 
+                        <!-- Auto Pricing by Document Page Count -->
+                        <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <label style="font-size:12.5px; color:#38bdf8; font-weight:700;"><i class="fas fa-file-invoice"></i> Total Document Pages (पेज संख्या के आधार पर ऑटो मूल्य)</label>
+                                    <div style="font-size:11px; color:#94a3b8; margin-top:2px;">डिफ़ॉल्ट नियम: <strong>E-Book = ₹1/पेज</strong>, <strong>हार्ड कॉपी = ₹2/पेज</strong> (अपनी इच्छा से नीचे बदल भी सकते हैं)</div>
+                                </div>
+                                <div style="max-width:180px; width:100%;">
+                                    <input type="number" id="matPages" min="1" placeholder="उदा. 50 पेज" class="studio-input" style="font-weight:800; color:#38bdf8; font-size:14px;" oninput="calculateMatPricesFromPages()">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Dual Pricing: E-PDF vs Hard Copy -->
                         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:10px;">
                             <div>
@@ -2920,6 +2933,27 @@
                 initDirectorStudio();
             } else {
                 alert(data.message || 'Error deleting material');
+            }
+        }
+
+        function calculateMatPricesFromPages() {
+            const pagesInput = document.getElementById('matPages');
+            const pages = parseInt(pagesInput?.value || '0', 10);
+            if (pages > 0) {
+                const eBookPrice = Math.max(0, Math.round(pages * 1));
+                const eBookMrp = Math.max(eBookPrice, Math.round(pages * 1.5));
+                const hardPrice = Math.max(0, Math.round(pages * 2));
+                const hardMrp = Math.max(hardPrice, Math.round(pages * 3));
+
+                const matPrice = document.getElementById('matPrice');
+                const matPdfMrp = document.getElementById('matPdfMrp');
+                const matPhysicalPrice = document.getElementById('matPhysicalPrice');
+                const matPhysicalMrp = document.getElementById('matPhysicalMrp');
+
+                if (matPrice) matPrice.value = eBookPrice;
+                if (matPdfMrp) matPdfMrp.value = eBookMrp;
+                if (matPhysicalPrice) matPhysicalPrice.value = hardPrice;
+                if (matPhysicalMrp) matPhysicalMrp.value = hardMrp;
             }
         }
 
