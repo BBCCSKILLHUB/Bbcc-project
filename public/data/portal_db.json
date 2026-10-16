@@ -30,13 +30,7 @@
       "subtitle": "This is to certify that the student has been officially registered and verified under BBCC Affiliated Center Network.",
       "signatoryTitle": "Chairman & Managing Director, BBCC Board of Skill Development"
     },
-    "banners": [
-      {
-        "title": "BBCC SKILL HUB Digital Platform",
-        "subtitle": "National Institutional Network & Certified Syllabus Repository",
-        "image": ""
-      }
-    ],
+    "banners": [],
     "gallery": [],
     "_id": "6ad1b3b5b53cbd344cc652f1",
     "vouchers": [
@@ -80,42 +74,9 @@
   ],
   "centers": [],
   "studyMaterials": {
-    "notes": [
-      {
-        "_id": "note_univ_001",
-        "title": "Class 10th All Subjects Board Model Question Papers with Solutions",
-        "subject": "Board Exam Preparation",
-        "classLevel": "Class 10th",
-        "description": "Bihar Board & CBSE latest pattern model papers with step-by-step marking scheme answers.",
-        "fileType": "pdf",
-        "file": "/data/materials/class_10_model_papers.pdf",
-        "pdf": "/data/materials/class_10_model_papers.pdf",
-        "price": 0,
-        "targetCenterId": "all",
-        "targetCenterName": "All Centers (Universal)",
-        "isRawData": true,
-        "downloadCount": 310,
-        "hasFile": true
-      },
-      {
-        "_id": "note_univ_002",
-        "title": "Complete Tally Prime with GST Voucher Entry & Payroll Guide",
-        "subject": "Computer & Vocational Accounting",
-        "classLevel": "All Classes",
-        "description": "Step-by-step business case study guide for contra, payment, receipt, journal, sales, and GST returns.",
-        "fileType": "pdf",
-        "file": "/data/materials/tally_prime_gst_guide.pdf",
-        "pdf": "/data/materials/tally_prime_gst_guide.pdf",
-        "price": 0,
-        "targetCenterId": "all",
-        "targetCenterName": "All Centers (Universal)",
-        "isRawData": true,
-        "downloadCount": 204,
-        "hasFile": true
-      }
-    ],
+    "notes": [],
     "videos": [],
-    "_id": "6ad1b3b5b53cbd344cc652f2"
+    "_id": "6ad1c356c59c547ef7d603d8"
   },
   "students": [],
   "withdrawals": [],
@@ -127,5 +88,11 @@
       "title": "🤖 भारती AI — प्रभात संदेश 🌅",
       "body": "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅"
     }
-  }
+  },
+  "teachers": [],
+  "bookOrders": [],
+  "supportTickets": [],
+  "admissionInquiries": [],
+  "affiliationApplications": [],
+  "liveSessions": []
 }
