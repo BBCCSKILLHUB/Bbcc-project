@@ -36,28 +36,45 @@
     "vouchers": [
       {
         "code": "BBCC10",
+        "discountType": "percent",
         "discountPercent": 10,
+        "discountAmount": 0,
         "maxDiscount": 100,
         "description": "10% Welcome Discount on all study notes",
         "active": true
       },
       {
         "code": "BBCC25",
+        "discountType": "percent",
         "discountPercent": 25,
+        "discountAmount": 0,
         "maxDiscount": 250,
         "description": "25% Special Student Discount",
         "active": true
       },
       {
         "code": "BBCC50",
+        "discountType": "percent",
         "discountPercent": 50,
+        "discountAmount": 0,
         "maxDiscount": 500,
         "description": "50% Festival Scholarship Discount",
         "active": true
       },
       {
+        "code": "FLAT50",
+        "discountType": "flat",
+        "discountPercent": 0,
+        "discountAmount": 50,
+        "maxDiscount": 50,
+        "description": "₹50 Direct Rupee Discount",
+        "active": true
+      },
+      {
         "code": "SCHOLAR100",
+        "discountType": "percent",
         "discountPercent": 100,
+        "discountAmount": 0,
         "maxDiscount": 1000,
         "description": "100% Full Scholarship Fee Waiver",
         "active": true
@@ -87,6 +104,12 @@
       "slot": "morning",
       "title": "🤖 भारती AI — प्रभात संदेश 🌅",
       "body": "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅"
+    },
+    "2026-10-16_afternoon": {
+      "dispatchedAt": "2026-10-16T09:11:39.576Z",
+      "slot": "afternoon",
+      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
+      "body": "दैनिक सामान्य ज्ञान: 'शिक्षा वह सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।' 🧠"
     }
   },
   "teachers": [],
