@@ -6,18 +6,17 @@
     "heroDesc": "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
     "newsMarquee": "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live",
     "affiliationFee": 999,
-    "boardLogo": "/data/branding/logo.png",
+    "boardLogo": "",
     "phone": "+91 98765 43210",
     "email": "admin@bbccskillhub.org",
-    "address": "PTCC+BBCC Chakdah Chowk madhubani bihar india 847211",
+    "address": "BBCC Central Directorate, Patna, Bihar - 800001",
     "activeFestivalTheme": "auto",
     "founderProfile": {
-      "name": "Mr. Santosh Kumar",
-      "photo": "/santosh sir.jpeg",
+      "name": "Dr. Brajesh Bhushan",
+      "photo": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
       "designation": "Founder & Managing Director",
-      "qualification": "B.Ed, Ethical Hacking",
-      "address": "PTCC+BBCC Chakdah Chowk madhubani bihar india 847211",
-      "message": "शिक्षा और तकनीकी कौशल हर विद्यार्थी का अधिकार है। बाल भारती कोचिंग सेंटर एवं बीबीसीसी स्किल हब विद्यार्थियों के उज्ज्वल भविष्य के लिए सदैव समर्पित है।",
+      "qualification": "M.Tech, Ph.D. in Computer Science & Educational Leadership",
+      "message": "हमारा लक्ष्य प्रत्येक गांव और शहर के छात्र तक गुणवत्तापूर्ण शिक्षा और आधुनिक कंप्यूटर कौशल पहुंचाना है। BBCC से जुड़े कोचिंग संस्थानों को सशक्त बनाकर हम बिहार और भारत के युवाओं को आत्मनिर्भर और रोजगार-योग्य बना रहे हैं।",
       "signature": ""
     },
     "billTemplate": {
@@ -31,239 +30,229 @@
       "subtitle": "This is to certify that the student has been officially registered and verified under BBCC Affiliated Center Network.",
       "signatoryTitle": "Chairman & Managing Director, BBCC Board of Skill Development"
     },
-    "banners": [],
-    "gallery": [],
-    "youtubeRefreshToken": "",
-    "youtubeChannelId": "UCuDH2n6UuTPUTOk-URz9qMA",
-    "youtubePrivacyStatus": "unlisted",
-    "youtubeAutoUpload": true,
-    "_id": "6acf4258653f7d80df426d17"
+    "banners": [
+      {
+        "title": "BBCC SKILL HUB Digital Platform",
+        "subtitle": "National Institutional Network & Certified Syllabus Repository",
+        "image": ""
+      }
+    ],
+    "gallery": []
   },
   "admins": [
     {
       "adminId": "admin",
-      "password": "$2a$10$o0CsLvC6ifIKO/dI2c94Q.lIJPprxN5a4lrc9dnt7CHgBSQLLQuky",
+      "password": "$2a$10$AOswQPvk2qsIaPlJExzYI.pbDNa2PAxNW6KWaTs1jLNfN1DIYMUcK",
       "name": "BBCC Central Directorate",
       "role": "superadmin"
     }
   ],
   "centers": [
     {
-      "_id": "6acfc10d9ebc43906b464c80",
-      "createdAt": "2026-10-14T17:51:09.785Z",
-      "updatedAt": "2026-10-14T17:51:09.785Z",
-      "centerName": "PTCC+BBCC",
-      "username": "jks",
-      "password": "$2a$10$fdr0pllEKnaR/POUwLjx7OF19w9mlSy2OGT7WRvlt1ooPc5iKZVmK",
-      "directorName": "jagannath sir",
-      "contactNumber": "9971095964",
-      "whatsappNumber": "9971095964",
-      "email": "",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "address": "Chakdah chowk",
-      "admissionFee": 1,
-      "affiliationCertificateId": "BBCC-AFF-268877",
-      "affiliationPaid": true,
-      "affiliationDate": "2026-10-14T17:51:09.488Z",
-      "isBlocked": false,
-      "dueAmount": 0,
+      "_id": "ctr_patna_001",
+      "centerName": "Patna Central Science Academy",
+      "username": "patna-science",
+      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
+      "directorName": "Er. Arvind Swaroop",
+      "contactNumber": "9876500001",
+      "whatsappNumber": "9876500001",
+      "email": "director@patnascience.org",
+      "address": "Boring Road Crossing, Patna, Bihar - 800001",
+      "admissionFee": 200,
       "walletBalance": 0,
-      "teachers": [],
-      "courses": [],
+      "themeColor": "gold",
+      "courses": [
+        {
+          "_id": "crs_sci_10",
+          "courseName": "Class 10th Board Complete Target Batch (BSEB / CBSE)",
+          "subject": "Maths, Science & English",
+          "classLevel": "Class 10th",
+          "mode": "both",
+          "onlineFee": 1500,
+          "offlineFee": 2500,
+          "batchTiming": "Morning 7:00 AM - 10:00 AM",
+          "description": "Strict NCERT aligned lectures, assertion-reasoning drill, sample model papers.",
+          "active": true
+        },
+        {
+          "_id": "crs_sci_12_pcm",
+          "courseName": "Class 12th Science Stream (PCM Core)",
+          "subject": "Physics, Chemistry & Mathematics",
+          "classLevel": "Class 12th",
+          "mode": "both",
+          "onlineFee": 2500,
+          "offlineFee": 3500,
+          "batchTiming": "Morning 6:30 AM - 9:30 AM",
+          "description": "Deep derivation practice, numerical shortcuts, board practical drill.",
+          "active": true
+        }
+      ],
+      "teachers": [
+        {
+          "name": "Prof. Anand Verma",
+          "subject": "Mathematics & Advanced Calculus",
+          "class": "Class 10th - 12th BSEB/CBSE",
+          "qualification": "M.Sc. Mathematics (Gold Medalist)",
+          "experience": "12+ Years Teaching",
+          "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+          "phone": "9876500001"
+        }
+      ],
+      "materials": [
+        {
+          "_id": "mat_patna_101",
+          "title": "Class 10th Science Complete NCERT Formula & Concept Notes",
+          "description": "Chapterwise physics formulas, chemistry reaction balance charts and biology diagrams.",
+          "price": 0,
+          "fileType": "pdf",
+          "file": "/data/materials/class_10_science_handbook.pdf",
+          "pdf": "/data/materials/class_10_science_handbook.pdf",
+          "isRawData": true,
+          "downloadCount": 142
+        }
+      ],
+      "promotionalBanners": [
+        {
+          "_id": "pban_001",
+          "title": "Chhath Puja Mahaparv Special High Scoring Batch 2026",
+          "subtitle": "100% Syllabus Coverage & Mock Test Series | Admissions Open",
+          "image": "https://images.unsplash.com/photo-1605335198124-f725a3d76465?w=1200&auto=format&fit=crop",
+          "active": true,
+          "expiresAt": "2026-11-10T20:17:09.898Z"
+        }
+      ]
+    },
+    {
+      "_id": "ctr_mithila_002",
+      "centerName": "Mithila Digital IT Hub",
+      "username": "mithila-it",
+      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
+      "directorName": "Er. Rajesh Ranjan",
+      "contactNumber": "9876500002",
+      "whatsappNumber": "9876500002",
+      "email": "director@mithilait.org",
+      "address": "Station Road, Darbhanga, Bihar - 846004",
+      "admissionFee": 250,
+      "walletBalance": 0,
+      "themeColor": "cyan",
+      "courses": [
+        {
+          "_id": "crs_adca_01",
+          "courseName": "ADCA (Advanced Diploma in Computer Applications - 1 Year)",
+          "subject": "DCA + Tally Prime with GST, Photoshop & Office Automation",
+          "classLevel": "Vocational IT Diploma",
+          "mode": "both",
+          "onlineFee": 3500,
+          "offlineFee": 5000,
+          "batchTiming": "Daily 1.5 Hours Lab (Morning/Evening)",
+          "description": "Job-oriented professional diploma in computer applications, complete business accounting and DTP.",
+          "active": true
+        }
+      ],
+      "teachers": [
+        {
+          "name": "Er. Rajesh Ranjan",
+          "subject": "Computer & Digital Technologies (ADCA/Tally)",
+          "class": "Vocational IT Diploma",
+          "qualification": "B.Tech IT, Certified Tally Professional",
+          "experience": "9+ Years Industry Experience",
+          "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+          "phone": "9876500002"
+        }
+      ],
+      "materials": [
+        {
+          "_id": "mat_mithila_201",
+          "title": "ADCA & DCA Complete Practical Lab Manual with Shortcuts",
+          "description": "Windows 11, MS Word, Excel financial formulas, PowerPoint animations and Hindi/English typing shortcuts.",
+          "price": 0,
+          "fileType": "pdf",
+          "file": "/data/materials/adca_complete_practical_manual.pdf",
+          "pdf": "/data/materials/adca_complete_practical_manual.pdf",
+          "isRawData": true,
+          "downloadCount": 98
+        }
+      ],
+      "promotionalBanners": []
+    },
+    {
+      "_id": "ctr_magadh_003",
+      "centerName": "Magadh Teachers Training Center",
+      "username": "magadh-teachers",
+      "password": "$2a$10$Gnr02cima9OL0I9Q5msS9eOKQ/Ns4v6mwQkcbpVTMp0abzmNs/DGy",
+      "directorName": "Dr. Sunita Sharma",
+      "contactNumber": "9876500003",
+      "whatsappNumber": "9876500003",
+      "email": "contact@magadhteachers.org",
+      "address": "Main Road, Gaya, Bihar - 823001",
+      "admissionFee": 200,
+      "walletBalance": 0,
+      "themeColor": "emerald",
+      "courses": [
+        {
+          "_id": "crs_ctet_01",
+          "courseName": "CTET Paper 1 & 2 Special Success Batch",
+          "subject": "CDP, EVS, Maths, Hindi & English Pedagogy",
+          "classLevel": "Primary & Upper Primary",
+          "mode": "both",
+          "onlineFee": 2000,
+          "offlineFee": 3000,
+          "batchTiming": "Morning 7:00 AM - 10:00 AM",
+          "description": "Child development theories (Piaget, Vygotsky, Kohlberg), pedagogy tricks, 10-year previous papers.",
+          "active": true
+        }
+      ],
+      "teachers": [
+        {
+          "name": "Dr. Sunita Sharma",
+          "subject": "Child Development & Pedagogy (CDP)",
+          "class": "CTET Paper 1 & 2 / BPSC TRE",
+          "qualification": "Ph.D. Education, UGC-NET Qualified",
+          "experience": "14+ Years Teacher Prep",
+          "photo": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+          "phone": "9876500003"
+        }
+      ],
       "materials": [],
-      "promotionalBanners": [],
-      "encryptedCallLink": "https://call.doorvi.co/6a16b16de2dfc9742d223f53",
-      "headerNotice": ""
+      "promotionalBanners": []
     }
   ],
   "studyMaterials": {
     "notes": [
       {
-        "_id": "6acfc4f27227e3c7ce30d292",
-        "title": "Class 9th Economics",
-        "subject": "Economic",
-        "classLevel": "9th",
-        "description": "",
+        "_id": "note_univ_001",
+        "title": "Class 10th All Subjects Board Model Question Papers with Solutions",
+        "subject": "Board Exam Preparation",
+        "classLevel": "Class 10th",
+        "description": "Bihar Board & CBSE latest pattern model papers with step-by-step marking scheme answers.",
         "fileType": "pdf",
-        "thumbnail": "/data/thumbnails/Class_9th_Economics_thumb.png",
-        "file": "/data/materials/Class_9th_Economics_1792001266692_322c7f.pdf",
-        "pdf": "/data/materials/Class_9th_Economics_1792001266692_322c7f.pdf",
-        "fileName": "class 9th economics book notes.pdf",
-        "price": 29,
-        "pdfMrp": 199,
-        "physicalPrice": 57,
-        "physicalMrp": 299,
-        "pickupAddress": "",
-        "directorContact": "",
+        "file": "/data/materials/class_10_model_papers.pdf",
+        "pdf": "/data/materials/class_10_model_papers.pdf",
+        "price": 0,
         "targetCenterId": "all",
-        "targetCenterName": "Universal / All Coaching Centers",
-        "isRawData": false,
-        "storageMode": "github_data",
-        "createdAt": "2026-10-14T18:07:46.796Z",
-        "hasFile": true
+        "targetCenterName": "All Centers (Universal)",
+        "isRawData": true,
+        "downloadCount": 310
       },
       {
-        "_id": "6acfc470e1e2cef89c72d7e0",
-        "title": "Class 9th History",
-        "subject": "History",
-        "classLevel": "9th",
-        "description": "",
+        "_id": "note_univ_002",
+        "title": "Complete Tally Prime with GST Voucher Entry & Payroll Guide",
+        "subject": "Computer & Vocational Accounting",
+        "classLevel": "All Classes",
+        "description": "Step-by-step business case study guide for contra, payment, receipt, journal, sales, and GST returns.",
         "fileType": "pdf",
-        "thumbnail": "/data/branding/Class_9th_History_1792001136167_2aae6a.png",
-        "file": "/data/materials/Class_9th_History_1792001136063_4c09f4.pdf",
-        "pdf": "/data/materials/Class_9th_History_1792001136063_4c09f4.pdf",
-        "fileName": "CLASS 9th NOTES BOOK .pdf",
-        "price": 29,
-        "pdfMrp": 99,
-        "physicalPrice": 59,
-        "physicalMrp": 199,
-        "pickupAddress": "",
-        "directorContact": "",
+        "file": "/data/materials/tally_prime_gst_guide.pdf",
+        "pdf": "/data/materials/tally_prime_gst_guide.pdf",
+        "price": 0,
         "targetCenterId": "all",
-        "targetCenterName": "Universal / All Coaching Centers",
+        "targetCenterName": "All Centers (Universal)",
         "isRawData": true,
-        "storageMode": "github_data",
-        "createdAt": "2026-10-14T18:05:36.269Z",
-        "hasFile": true
+        "downloadCount": 204
       }
     ],
-    "videos": [],
-    "_id": "6acf996abf475ef31ff53416"
+    "videos": []
   },
   "students": [],
   "withdrawals": [],
-  "paymentTransactions": [
-    {
-      "_id": "6acfc10d9ebc43906b464c85",
-      "orderId": "AFF_FREE_1792000268876",
-      "paymentId": "FREE_AFFILIATION",
-      "purpose": "coaching_affiliation",
-      "amount": 0,
-      "status": "paid",
-      "payerName": "jagannath sir",
-      "payerPhone": "9971095964",
-      "payerEmail": "",
-      "centerId": "6acfc10d9ebc43906b464c80",
-      "centerName": "PTCC+BBCC",
-      "createdAt": "2026-10-14T17:51:09.991Z",
-      "paidAt": "2026-10-14T17:51:09.991Z"
-    }
-  ],
-  "push_subscriptions": [
-    {
-      "deviceId": "dev_95d36359",
-      "deviceName": "Student Device (Linux (Chrome))",
-      "deviceInfo": {
-        "os": "Linux",
-        "browser": "Chrome",
-        "modelHint": "",
-        "label": "Linux (Chrome)"
-      },
-      "endpoint": "https://fcm.googleapis.com/fcm/send/c7z_byV_Tlg:APA91bFq1TOVa7FtpvOq70wWZVp9wf4IFL8K09kw0MwoKwJBl2ZVBVl7HY46ij-6b8O94cK7u69J3uYEKPLPzheT5oIa0l8DhUZvJow3lEZVBa-_D2O8NbteqET3GEzHKsRYbbeMxAMF",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BK6eDAmgBcxQe3aBo6gno7-hWil0ChugQTtKz6NgsnW2qd73MuxzRs4qhrgs5G9OUkY9ryhMYcdtQawqdKSVfD0",
-        "auth": "2T5CGTvPjyFiSU-rM7jkrw"
-      },
-      "centerId": "all",
-      "subscribedAt": "2026-10-14T18:26:13.424Z",
-      "lastActive": "2026-10-14T18:26:13.424Z",
-      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
-    }
-  ],
-  "push_history": [
-    {
-      "id": "push_1792071725555",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "भारती AI नाइट स्टडी मंत्र: सोने से पहले आज पढ़े गए विषयों का 15 मिनट का त्वरित रिविजन करें। कल के लिए ऑल द बेस्ट! 📖",
-      "url": "/",
-      "targetCenterId": "all",
-      "sentCount": 1,
-      "failedCount": 0,
-      "timestamp": "2026-10-15T13:42:05.555Z",
-      "sender": "भारती AI ऑटोमैटिक असिस्टेंट"
-    },
-    {
-      "id": "push_1792053284480",
-      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
-      "body": "दैनिक सामान्य ज्ञान: 'शिक्षा वह सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।' 🧠",
-      "url": "/",
-      "targetCenterId": "all",
-      "sentCount": 1,
-      "failedCount": 0,
-      "timestamp": "2026-10-15T08:34:44.480Z",
-      "sender": "भारती AI ऑटोमैटिक असिस्टेंट"
-    }
-  ],
-  "bharti_auto_push_log": {
-    "2026-10-14_evening": {
-      "dispatchedAt": "2026-10-14T15:02:47.943Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "शाम का अध्ययन समय: पढ़ाई में कोई भी डाउट हो तो सीधे मुझसे (भारती AI) पूछें! मैं 24/7 आपकी सहायता के लिए तैयार हूँ। 🌙"
-    },
-    "2026-10-15_afternoon": {
-      "dispatchedAt": "2026-10-15T08:34:43.175Z",
-      "slot": "afternoon",
-      "title": "🤖 भारती AI — दैनिक अध्ययन टिप 📚",
-      "body": "दैनिक सामान्य ज्ञान: 'शिक्षा वह सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।' 🧠"
-    },
-    "2026-10-15_evening": {
-      "dispatchedAt": "2026-10-15T13:42:04.845Z",
-      "slot": "evening",
-      "title": "🤖 भारती AI — शाम का चेक-इन 🌙",
-      "body": "भारती AI नाइट स्टडी मंत्र: सोने से पहले आज पढ़े गए विषयों का 15 मिनट का त्वरित रिविजन करें। कल के लिए ऑल द बेस्ट! 📖"
-    }
-  },
-  "teachers": [],
-  "liveSessions": [],
-  "admissionInquiries": [
-    {
-      "_id": "6acfa7151116fb7d191fb8c0",
-      "createdAt": "2026-10-14T16:00:21.947Z",
-      "updatedAt": "2026-10-14T16:00:21.947Z",
-      "centerId": null,
-      "centerName": "BBCC Central Board",
-      "studentName": "Rahul Verma",
-      "parentName": "",
-      "mobile": "9876501234",
-      "targetClass": "",
-      "message": "Inquiring about science batch timings"
-    }
-  ],
-  "supportTickets": [
-    {
-      "_id": "6acfa7151116fb7d191fb8c1",
-      "createdAt": "2026-10-14T16:00:21.963Z",
-      "updatedAt": "2026-10-14T16:00:21.963Z",
-      "ticketId": "TKT-BBCC-799394",
-      "studentName": "Student / Parent",
-      "phone": "9876543210",
-      "centerId": "central",
-      "centerName": "BBCC Central Directorate",
-      "category": "Academic Counseling & Callback",
-      "issueSummary": "Requested callback from counselor or center director",
-      "status": "CALLBACK_SCHEDULED",
-      "scheduledCallback": "Within 15-30 Minutes",
-      "assignedOfficer": "Senior Academic Counselor"
-    }
-  ],
-  "affiliationApplications": [
-    {
-      "_id": "6acfc10d9ebc43906b464c82",
-      "centerName": "PTCC+BBCC",
-      "directorName": "jagannath sir",
-      "contactNumber": "9971095964",
-      "whatsappNumber": "9971095964",
-      "email": "",
-      "address": "Chakdah chowk",
-      "username": "jks",
-      "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "appliedAt": "2026-10-14T17:51:09.785Z",
-      "status": "approved",
-      "feePaid": 0
-    }
-  ]
+  "paymentTransactions": []
 }
