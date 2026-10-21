@@ -12,7 +12,7 @@
     "address": "BBCC Central Directorate, Patna, Bihar - 800001",
     "activeFestivalTheme": "auto",
     "founderProfile": {
-      "name": "Dr. Brajesh Bhushan",
+      "name": "Santosh Kumar",
       "photo": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
       "designation": "Founder & Managing Director",
       "qualification": "M.Tech, Ph.D. in Computer Science & Educational Leadership",
@@ -99,7 +99,27 @@
       "createdAt": "2026-10-21T12:00:23.825Z"
     }
   ],
-  "centers": [],
+  "centers": [
+    {
+      "_id": "ctr_mvi3r3zv5mkj9",
+      "centerName": "Test Apex Academy",
+      "directorName": "Prof. Test Kumar",
+      "email": "testapex@gmail.com",
+      "contactNumber": "9876543210",
+      "address": "",
+      "regNumber": "BBCC-REG-207040",
+      "username": "testapexac45",
+      "fromClass": "Class 6th",
+      "toClass": "Class 12th",
+      "admissionFee": 200,
+      "status": "Active",
+      "isBlocked": false,
+      "courses": [],
+      "teachers": [],
+      "materials": [],
+      "createdAt": "2026-10-21T12:42:37.435Z"
+    }
+  ],
   "students": [],
   "teachers": [],
   "studyMaterials": {
