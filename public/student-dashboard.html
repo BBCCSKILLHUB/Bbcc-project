@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>स्टूडेंट डैशबोर्ड (My Library &amp; Profile) — BBCC SKILL HUB</title>
+    <link rel="icon" type="image/png" href="/data/branding/logo.png">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --cosmic-dark: #030712;
+            --cosmic-card: rgba(15, 23, 42, 0.78);
+            --aurora-gold: #fbbf24;
+            --aurora-gold-light: #fef3c7;
+            --aurora-cyan: #38bdf8;
+            --aurora-emerald: #10b981;
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(251, 191, 36, 0.4);
+            --text-main: #f8fafc;
+            --text-slate: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--cosmic-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(251, 191, 36, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* Top Navigation */
+        .dash-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            background: rgba(3, 7, 18, 0.88);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .nav-title-box h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .nav-title-box span {
+            font-size: 11px;
+            color: var(--aurora-gold);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-dash {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .btn-dash-outline {
+            background: rgba(255, 255, 255, 0.04);
+            color: #cbd5e1;
+            border-color: var(--border-subtle);
+        }
+
+        .btn-dash-outline:hover {
+            background: rgba(255, 255, 255, 0.09);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-dash-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #030712;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-dash-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Container */
+        .dash-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+        }
+
+        /* Hero Welcome Banner */
+        .dash-hero-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 24px;
+            padding: 28px 32px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+            margin-bottom: 28px;
+        }
+
+        .dash-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .user-meta-dock {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-avatar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .user-avatar-circle {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(56, 189, 248, 0.2) 100%);
+            border: 2px solid var(--aurora-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--aurora-gold);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .user-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--aurora-emerald);
+            color: #34d399;
+            margin-bottom: 6px;
+        }
+
+        .user-name-title {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .user-email-text {
+            font-size: 13.5px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Grid */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon-gold {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--aurora-gold);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .stat-icon-cyan {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--aurora-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .stat-icon-emerald {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--aurora-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 11.5px;
+            color: var(--text-slate);
+            font-weight: 600;
+        }
+
+        /* Tabs Nav */
+        .tabs-header-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            color: var(--aurora-gold);
+            border-bottom-color: var(--aurora-gold);
+        }
+
+        /* Library Section */
+        .library-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .lib-search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 14px;
+            flex: 1;
+            max-width: 380px;
+        }
+
+        .lib-search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 13.5px;
+            width: 100%;
+        }
+
+        /* Library Cards Grid */
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .lib-card {
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .lib-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.15);
+        }
+
+        .lib-card-stage {
+            height: 180px;
+            background: linear-gradient(135deg, #090e1a 0%, #172138 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .lib-custom-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .lib-card:hover .lib-custom-img {
+            transform: scale(1.05);
+        }
+
+        .lib-card-spine {
+            width: 120px;
+            height: 145px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-radius: 6px 12px 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            text-align: center;
+            box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .lib-card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--aurora-emerald);
+            color: #34d399;
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+        }
+
+        .lib-card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lib-card-subject {
+            font-size: 11px;
+            color: var(--aurora-gold);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .lib-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .lib-card-meta {
+            font-size: 12px;
+            color: var(--text-slate);
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lib-card-actions {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-card-action {
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download-action {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-download-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-read-action {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }
+
+        .btn-read-action:hover {
+            background: rgba(56, 189, 248, 0.25);
+            color: #ffffff;
+        }
+
+        /* Empty State */
+        .empty-lib-box {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(251, 191, 36, 0.3);
+            border-radius: 20px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            color: var(--aurora-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 16px;
+        }
+
+        /* Profile Tab Form */
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            background: var(--cosmic-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--aurora-gold);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--aurora-gold);
+        }
+
+        /* In-Browser PDF Preview Modal */
+        .pdf-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10005;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pdf-modal-box {
+            width: 95%;
+            max-width: 900px;
+            height: 85vh;
+            background: #070d1d;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+        }
+
+        .pdf-modal-head {
+            padding: 14px 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pdf-iframe-wrap {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .dash-container {
+                padding: 16px 12px 90px;
+            }
+            .dash-hero-card {
+                padding: 20px 16px;
+                border-radius: 18px;
+            }
+            .user-avatar-circle {
+                width: 54px;
+                height: 54px;
+                font-size: 24px;
+            }
+            .user-name-title {
+                font-size: 19px;
+            }
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="dash-nav">
+        <a href="/" class="nav-brand">
+            <img src="/data/branding/logo.png" alt="BBCC Logo" class="nav-logo">
+            <div class="nav-title-box">
+                <h1>BBCC SKILL HUB</h1>
+                <span>Student Back-Office &amp; Library</span>
+            </div>
+        </a>
+
+        <div class="nav-links">
+            <a href="/" class="btn-dash btn-dash-outline">
+                <i class="fas fa-house"></i> <span class="hide-mobile">होम (Home)</span>
+            </a>
+            <a href="/e-library" class="btn-dash btn-dash-outline">
+                <i class="fas fa-book-bookmark"></i> <span class="hide-mobile">ई-लाइब्रेरी</span>
+            </a>
+            <a href="/courses" class="btn-dash btn-dash-outline">
+                <i class="fas fa-graduation-cap"></i> <span class="hide-mobile">कोर्सेज</span>
+            </a>
+            <button type="button" onclick="logoutStudent()" class="btn-dash" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                <i class="fas fa-arrow-right-from-bracket"></i> लॉग आउट
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="dash-container">
+
+        <!-- Hero User Profile Card -->
+        <section class="dash-hero-card">
+            <div class="user-meta-dock">
+                <div class="user-avatar-wrap">
+                    <div class="user-avatar-circle" id="userAvatarIcon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <div class="user-badge-pill">
+                            <i class="fas fa-circle-check"></i> <span id="userAccountStatus">100% Verified Student</span>
+                        </div>
+                        <h2 class="user-name-title" id="displayUserName">नमस्ते, लोड हो रहा है...</h2>
+                        <div class="user-email-text">
+                            <span id="displayUserEmail"><i class="fas fa-envelope"></i> student@bbccskillhub.org</span>
+                            <span id="displayUserPhone" style="margin-left:10px;"><i class="fas fa-phone"></i> +91 9876543210</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <a href="/e-library" class="btn-dash btn-dash-gold">
+                        <i class="fas fa-cart-shopping"></i> और पुस्तकें खरीदें / पढ़ें
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Strip -->
+            <div class="stats-strip">
+                <div class="stat-box">
+                    <div class="stat-icon stat-icon-gold">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="statBookCount">0</div>
+                        <div class="stat-label">मेरी कुल पुस्तकें / ई-नोट्स</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon stat-icon-cyan">
+                        <i class="fas fa-cloud-arrow-down"></i>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="statLifetimeDownloads">लाइफटाइम</div>
+                        <div class="stat-label">Astra DB फ्री री-डाउनलोड</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon stat-icon-emerald">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="statRoleDisplay">सक्रिय</div>
+                        <div class="stat-label">30-Day OTP Session Active</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-header-bar" aria-label="Dashboard Tabs">
+            <button class="tab-btn active" id="tabBtnLibrary" onclick="switchTab('library')">
+                <i class="fas fa-book-bookmark"></i> मेरी लाइब्रेरी (My Purchased Books)
+            </button>
+            <button class="tab-btn" id="tabBtnProfile" onclick="switchTab('profile')">
+                <i class="fas fa-user-pen"></i> प्रोफ़ाइल विवरण (Profile Settings)
+            </button>
+            <button class="tab-btn" id="tabBtnHelp" onclick="switchTab('help')">
+                <i class="fas fa-robot" style="color:var(--aurora-gold);"></i> भारती AI ट्यूटर एवं सहायता
+            </button>
+        </nav>
+
+        <!-- TAB 1: MY LIBRARY -->
+        <section id="viewLibrarySection">
+            <div class="library-toolbar">
+                <div class="lib-search-box">
+                    <i class="fas fa-magnifying-glass" style="color:var(--aurora-gold);"></i>
+                    <input type="text" id="libFilterInput" oninput="filterLibraryBooks(this.value)" placeholder="अपनी पुस्तकों में खोजें (विषय, शीर्षक)...">
+                </div>
+                <div style="font-size:12.5px; color:var(--text-slate);">
+                    <i class="fas fa-circle-info" style="color:#38bdf8;"></i> यदि पुस्तक आपके फोन से हट जाए, तो आप यहाँ से कभी भी <b>मुफ़्त में दोबारा डाउनलोड</b> कर सकते हैं।
+                </div>
+            </div>
+
+            <!-- Library Grid -->
+            <div class="library-grid" id="libraryCardsGrid">
+                <!-- Dynamically Populated -->
+                <div class="empty-lib-box">
+                    <div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                    <h3 style="color:#ffffff; font-size:17px; margin-bottom:6px;">आपकी लाइब्रेरी लोड हो रही है...</h3>
+                    <p style="color:#94a3b8; font-size:13px;">कृपया प्रतीक्षा करें, DataStax Astra DB से आपकी पुस्तकें सिंक हो रही हैं।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PROFILE EDIT -->
+        <section id="viewProfileSection" style="display:none;">
+            <div class="profile-form-grid">
+                <div style="grid-column: 1/-1; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; margin-bottom:8px;">
+                    <h3 style="font-family:'Cinzel',serif; font-size:18px; color:#ffffff;">विद्यार्थी प्रोफ़ाइल सेटिंग्स</h3>
+                    <p style="font-size:12.5px; color:#94a3b8;">अपना नाम व मोबाइल नंबर अपडेट करें ताकि प्रमाण पत्र व ई-रसीद पर सही विवरण दिखे।</p>
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> पूरा नाम (Full Name as per Aadhar)</label>
+                    <input type="text" id="profStudentName" class="input-field" placeholder="अपना नाम दर्ज करें">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> रजिस्टर्ड ईमेल (Registered Email)</label>
+                    <input type="email" id="profStudentEmail" class="input-field" disabled style="opacity:0.6; cursor:not-allowed;">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-phone"></i> 10-अंकीय मोबाइल नंबर (Mobile Number)</label>
+                    <input type="tel" id="profStudentPhone" class="input-field" placeholder="10-digit mobile number">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-shield-halved"></i> लॉगिन प्रकार (Authentication Mode)</label>
+                    <input type="text" value="30-Day Verified OTP Token" class="input-field" disabled style="opacity:0.6; cursor:not-allowed;">
+                </div>
+
+                <div style="grid-column: 1/-1; margin-top:10px;">
+                    <button type="button" onclick="saveProfileChanges()" class="btn-dash btn-dash-gold" style="padding:12px 24px; font-size:14px;">
+                        <i class="fas fa-floppy-disk"></i> विवरण सुरक्षित करें (Save Profile)
+                    </button>
+                    <span id="profSaveNotice" style="margin-left:14px; font-size:13px; font-weight:700;"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: BHARTI AI & HELP -->
+        <section id="viewHelpSection" style="display:none;">
+            <div style="background:var(--cosmic-card); border:1px solid var(--border-subtle); border-radius:20px; padding:32px; text-align:center;">
+                <div style="width:70px; height:70px; border-radius:50%; background:rgba(168,85,247,0.2); border:1px solid #a855f7; color:#c084fc; font-size:32px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 style="font-family:'Cinzel',serif; font-size:22px; color:#ffffff; margin-bottom:8px;">भारती AI चीफ एकेडमिक काउंसलर</h3>
+                <p style="font-size:14px; color:#94a3b8; max-width:540px; margin:0 auto 20px; line-height:1.6;">
+                    अपनी पुस्तकों के अध्यायों को समझने, परीक्षा की तैयारी, और सही करियर कोर्स चुनने के लिए 24/7 AI काउंसलर से हिंदी में बातचीत करें।
+                </p>
+                <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                    <a href="/ai-counselor.html" class="btn-dash btn-dash-gold" style="padding:12px 24px;">
+                        <i class="fas fa-comments"></i> AI काउंसलर से चैट करें
+                    </a>
+                    <a href="https://api.whatsapp.com/send?phone=919876543210&text=Namaste%20BBCC%20Support" target="_blank" class="btn-dash" style="background:#25D366; color:#ffffff; padding:12px 24px;">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp सहायता
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PDF PREVIEW MODAL -->
+    <div class="pdf-modal-overlay" id="pdfPreviewModal">
+        <div class="pdf-modal-box">
+            <div class="pdf-modal-head">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-file-pdf" style="color:var(--aurora-gold); font-size:20px;"></i>
+                    <h4 id="previewPdfTitle" style="font-size:15px; color:#ffffff; margin:0;">Document Preview</h4>
+                </div>
+                <button type="button" onclick="closePdfPreview()" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+            </div>
+            <iframe id="pdfPreviewIframe" class="pdf-iframe-wrap" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let myLibraryBooks = [];
+        let currentUser = null;
+
+        function checkAuthOrRedirect() {
+            const token = localStorage.getItem('bbcc_auth_token');
+            if (!token) {
+                alert('कृपया पहले अपने ईमेल / मोबाइल से OTP लॉगिन करें।');
+                window.location.href = '/?login=true';
+                return false;
+            }
+            return token;
+        }
+
+        async function loadStudentDashboard() {
+            const token = checkAuthOrRedirect();
+            if (!token) return;
+
+            try {
+                const res = await fetch(`/api/user/my-library?token=${encodeURIComponent(token)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    alert(data.message || 'आपका लॉगिन सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।');
+                    localStorage.removeItem('bbcc_auth_token');
+                    window.location.href = '/?login=true';
+                    return;
+                }
+
+                currentUser = data.user;
+                myLibraryBooks = data.library || [];
+
+                // Render User Info
+                const displayName = currentUser.name || currentUser.email.split('@')[0];
+                document.getElementById('displayUserName').textContent = `नमस्ते, ${displayName}!`;
+                document.getElementById('displayUserEmail').innerHTML = `<i class="fas fa-envelope"></i> ${currentUser.email}`;
+                if (currentUser.phone) {
+                    document.getElementById('displayUserPhone').innerHTML = `<i class="fas fa-phone"></i> +91 ${currentUser.phone}`;
+                } else {
+                    document.getElementById('displayUserPhone').style.display = 'none';
+                }
+
+                document.getElementById('profStudentName').value = currentUser.name || '';
+                document.getElementById('profStudentEmail').value = currentUser.email || '';
+                document.getElementById('profStudentPhone').value = currentUser.phone || '';
+
+                // Render Statistics
+                document.getElementById('statBookCount').textContent = myLibraryBooks.length;
+
+                // Render Library Items
+                renderLibraryCards(myLibraryBooks);
+
+            } catch (err) {
+                console.error('Error loading student dashboard:', err);
+                const grid = document.getElementById('libraryCardsGrid');
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="empty-lib-box" style="border-color:#ef4444;">
+                            <div class="empty-icon" style="color:#ef4444; border-color:#ef4444; background:rgba(239,68,68,0.1);"><i class="fas fa-triangle-exclamation"></i></div>
+                            <h3 style="color:#ffffff; font-size:16px;">डेटा लोड करने में त्रुटि आई</h3>
+                            <p style="color:#fca5a5; font-size:13px;">${err.message}</p>
+                            <button onclick="location.reload()" class="btn-dash btn-dash-gold" style="margin-top:14px;">
+                                <i class="fas fa-rotate"></i> पुनः प्रयास करें
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function renderLibraryCards(books) {
+            const grid = document.getElementById('libraryCardsGrid');
+            if (!books || books.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-lib-box">
+                        <div class="empty-icon"><i class="fas fa-book-open"></i></div>
+                        <h3 style="color:#ffffff; font-size:18px; margin-bottom:6px;">आपकी लाइब्रेरी अभी खाली है</h3>
+                        <p style="color:#94a3b8; font-size:13px; max-width:440px; margin:0 auto 18px;">
+                            आपने अभी तक कोई पुस्तक या स्टडी नोट्स नहीं लिया है। ई-लाइब्रेरी से अपनी कक्षा व विषय की पुस्तकें मुफ़्त या रियायती शुल्क पर प्राप्त करें।
+                        </p>
+                        <a href="/e-library" class="btn-dash btn-dash-gold" style="display:inline-flex;">
+                            <i class="fas fa-book-bookmark"></i> ई-लाइब्रेरी में पुस्तकें देखें
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const token = localStorage.getItem('bbcc_auth_token') || '';
+
+            grid.innerHTML = books.map(b => {
+                const isPhysical = b.orderType === 'physical';
+                const safeTitle = (b.title || 'Academic Study Document').replace(/'/g, "&#39;");
+                const purchaseDateStr = b.purchasedAt ? new Date(b.purchasedAt).toLocaleDateString('hi-IN', { day:'numeric', month:'short', year:'numeric' }) : 'Verified';
+                const downloadLink = b.downloadUrl || `/api/pay/download-file?docId=${encodeURIComponent(b.docId)}&token=${encodeURIComponent(token)}`;
+
+                return `
+                    <div class="lib-card">
+                        <div class="lib-card-stage">
+                            ${b.thumbnail ? `
+                                <img src="${b.thumbnail}" alt="${safeTitle}" class="lib-custom-img" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="lib-card-spine" style="display:none;">
+                                    <i class="fas ${isPhysical ? 'fa-box-open' : 'fa-book-bookmark'}" style="font-size:26px; color:var(--aurora-gold); margin-bottom:6px;"></i>
+                                    <div style="font-size:11px; font-weight:700; color:#ffffff;">${safeTitle}</div>
+                                </div>
+                            ` : `
+                                <div class="lib-card-spine">
+                                    <i class="fas ${isPhysical ? 'fa-box-open' : 'fa-book-bookmark'}" style="font-size:26px; color:var(--aurora-gold); margin-bottom:6px;"></i>
+                                    <div style="font-size:10.5px; font-weight:700; color:#ffffff; line-height:1.2;">${safeTitle}</div>
+                                    <div style="font-size:9.5px; color:var(--aurora-gold); margin-top:4px;">${b.subject || 'General'}</div>
+                                </div>
+                            `}
+                            <div class="lib-card-badge">
+                                <i class="fas ${isPhysical ? 'fa-truck-fast' : 'fa-circle-check'}"></i> ${isPhysical ? 'हार्ड कॉपी ऑर्डर' : 'E-PDF लाइफटाइम'}
+                            </div>
+                        </div>
+
+                        <div class="lib-card-body">
+                            <div class="lib-card-subject">${b.subject || 'Curriculum'} • ${b.classLevel || 'All Levels'}</div>
+                            <h4 class="lib-card-title" title="${safeTitle}">${safeTitle}</h4>
+
+                            <div class="lib-card-meta">
+                                <div><i class="fas fa-calendar-day" style="color:var(--aurora-gold);"></i> प्राप्त तिथि: <b>${purchaseDateStr}</b></div>
+                                <div><i class="fas fa-barcode" style="color:#38bdf8;"></i> Order ID: <code style="color:#38bdf8; font-size:11px;">${b.orderId || 'FREE_UNLOCKED'}</code></div>
+                                ${isPhysical && b.pickupAddress ? `
+                                    <div style="font-size:11px; color:#fbbf24; margin-top:2px;">
+                                        <i class="fas fa-location-dot"></i> पिकअप: ${b.pickupAddress}
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="lib-card-actions">
+                                <a href="${downloadLink}" download="${safeTitle}.pdf" class="btn-card-action btn-download-action" title="DataStax Astra DB से कभी भी दोबारा फ्री डाउनलोड करें">
+                                    <i class="fas fa-download"></i> डाउनलोड
+                                </a>
+                                <button type="button" onclick="openPdfPreview('${downloadLink}', '${safeTitle}')" class="btn-card-action btn-read-action">
+                                    <i class="fas fa-book-reader"></i> पढ़ें
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterLibraryBooks(query) {
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                renderLibraryCards(myLibraryBooks);
+                return;
+            }
+            const filtered = myLibraryBooks.filter(b => 
+                (b.title || '').toLowerCase().includes(q) ||
+                (b.subject || '').toLowerCase().includes(q) ||
+                (b.classLevel || '').toLowerCase().includes(q) ||
+                (b.orderId || '').toLowerCase().includes(q)
+            );
+            renderLibraryCards(filtered);
+        }
+
+        function switchTab(tab) {
+            ['library', 'profile', 'help'].forEach(t => {
+                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                const sec = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1) + 'Section');
+                if (btn) btn.classList.remove('active');
+                if (sec) sec.style.display = 'none';
+            });
+
+            const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            const activeSec = document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Section');
+            if (activeBtn) activeBtn.classList.add('active');
+            if (activeSec) activeSec.style.display = 'block';
+        }
+
+        async function saveProfileChanges() {
+            const token = localStorage.getItem('bbcc_auth_token');
+            if (!token) return;
+
+            const name = document.getElementById('profStudentName').value.trim();
+            const phone = document.getElementById('profStudentPhone').value.trim();
+            const notice = document.getElementById('profSaveNotice');
+
+            if (!name) {
+                alert('कृपया अपना नाम दर्ज करें');
+                return;
+            }
+
+            notice.style.color = '#38bdf8';
+            notice.textContent = 'सेव हो रहा है...';
+
+            try {
+                const res = await fetch('/api/user/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, phone, token })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    notice.style.color = '#34d399';
+                    notice.textContent = 'सफलतापूर्वक सुरक्षित हो गया!';
+                    localStorage.setItem('bbcc_student_name', name);
+                    document.getElementById('displayUserName').textContent = `नमस्ते, ${name}!`;
+                    setTimeout(() => { notice.textContent = ''; }, 3000);
+                } else {
+                    notice.style.color = '#f87171';
+                    notice.textContent = data.message || 'त्रुटि आई';
+                }
+            } catch(e) {
+                notice.style.color = '#f87171';
+                notice.textContent = 'त्रुटि: ' + e.message;
+            }
+        }
+
+        function openPdfPreview(url, title) {
+            document.getElementById('previewPdfTitle').textContent = title;
+            document.getElementById('pdfPreviewIframe').src = url;
+            document.getElementById('pdfPreviewModal').style.display = 'flex';
+        }
+
+        function closePdfPreview() {
+            document.getElementById('pdfPreviewIframe').src = 'about:blank';
+            document.getElementById('pdfPreviewModal').style.display = 'none';
+        }
+
+        function logoutStudent() {
+            if (confirm('क्या आप सचमुच लॉग आउट करना चाहते हैं?')) {
+                localStorage.removeItem('bbcc_auth_token');
+                localStorage.removeItem('bbcc_user_email');
+                localStorage.removeItem('bbcc_user_role');
+                window.location.href = '/';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudentDashboard();
+        });
+    </script>
+</body>
+</html>
