@@ -98,11 +98,10 @@
   "admins": [
     {
       "_id": "admin_sky140052",
+      "name": "Santosh Kumar (Founder & Super Admin)",
       "email": "sky140052@gmail.com",
-      "role": "SuperAdmin",
-      "name": "Santosh Sir (Super Admin)",
-      "authType": "otp",
-      "createdAt": "2026-10-21T12:00:23.825Z"
+      "role": "superadmin",
+      "createdAt": "2026-01-01T00:00:00.000Z"
     }
   ],
   "centers": [
@@ -166,157 +165,9 @@
         }
       ],
       "createdAt": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "_id": "ctr_patna_super30",
-      "centerName": "Patna Super 30 Institute",
-      "directorName": "Er. Rajesh Verma (IIT Alumnus)",
-      "email": "rajesh.patna@gmail.com",
-      "contactNumber": "9835012345",
-      "whatsappNumber": "9835012345",
-      "address": "Boring Canal Road, Near Panchmukhi Mandir, Patna, Bihar - 800001",
-      "city": "Patna",
-      "regNumber": "BBCC-REG-847291",
-      "username": "patnasuper30",
-      "fromClass": "Class 11th",
-      "toClass": "IIT-JEE / NEET",
-      "admissionFee": 500,
-      "affiliationFee": 999,
-      "status": "Active",
-      "isBlocked": false,
-      "rating": 4.94,
-      "reviewsCount": 380,
-      "verifiedBadge": true,
-      "bannerImg": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
-      "courses": [
-        {
-          "name": "Target JEE Main + Advanced 2027",
-          "duration": "2 Years",
-          "fee": 18000
-        },
-        {
-          "name": "NEET Medical Dropper Batch",
-          "duration": "1 Year",
-          "fee": 15000
-        },
-        {
-          "name": "12th Board Booster Fast-Track",
-          "duration": "4 Months",
-          "fee": 4000
-        }
-      ],
-      "materials": [
-        {
-          "_id": "mat_patna_01",
-          "title": "Class 12th Physics Quick Revision & Derivations Handbook",
-          "price": 69,
-          "originalPrice": 399,
-          "fileType": "pdf"
-        }
-      ],
-      "createdAt": "2026-02-15T00:00:00.000Z"
-    },
-    {
-      "_id": "ctr_apex_muzaffarpur",
-      "centerName": "Apex Science & Commerce Academy",
-      "directorName": "Prof. Test Kumar (M.Com, B.Ed)",
-      "email": "testapex@gmail.com",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "address": "Kalyani Chowk, Club Road, Muzaffarpur, Bihar - 842001",
-      "city": "Muzaffarpur",
-      "regNumber": "BBCC-REG-207040",
-      "username": "testapexac45",
-      "fromClass": "Class 8th",
-      "toClass": "Class 12th Commerce & Science",
-      "admissionFee": 200,
-      "affiliationFee": 999,
-      "status": "Active",
-      "isBlocked": false,
-      "rating": 4.88,
-      "reviewsCount": 290,
-      "verifiedBadge": true,
-      "bannerImg": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80",
-      "courses": [
-        {
-          "name": "Class 11th & 12th Commerce (Accounts, BST, Eco)",
-          "duration": "1 Year",
-          "fee": 4500
-        },
-        {
-          "name": "CA Foundation Prep Batch",
-          "duration": "6 Months",
-          "fee": 8000
-        }
-      ],
-      "materials": [],
-      "createdAt": "2026-03-01T00:00:00.000Z"
-    },
-    {
-      "_id": "ctr_mithila_gaya",
-      "centerName": "Mithila Digital & Computer Academy",
-      "directorName": "Er. Amit Sharma",
-      "email": "mithila.computer@gmail.com",
-      "contactNumber": "9123456780",
-      "whatsappNumber": "9123456780",
-      "address": "Station Road, Near Gandhi Chowk, Gaya, Bihar - 823001",
-      "city": "Gaya",
-      "regNumber": "BBCC-REG-552190",
-      "username": "mithilagaya",
-      "fromClass": "Certificate",
-      "toClass": "ADCA / Web Dev",
-      "admissionFee": 150,
-      "affiliationFee": 999,
-      "status": "Active",
-      "isBlocked": false,
-      "rating": 4.91,
-      "reviewsCount": 195,
-      "verifiedBadge": true,
-      "bannerImg": "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
-      "courses": [
-        {
-          "name": "ADCA 1-Year Master Computer Diploma",
-          "duration": "1 Year",
-          "fee": 3200
-        },
-        {
-          "name": "Tally Prime + GST Filing Certified",
-          "duration": "3 Months",
-          "fee": 1800
-        },
-        {
-          "name": "Full Stack Web Development & Python",
-          "duration": "6 Months",
-          "fee": 6000
-        }
-      ],
-      "materials": [],
-      "createdAt": "2026-03-10T00:00:00.000Z"
     }
   ],
-  "students": [
-    {
-      "_id": "6ad8bab2efcb9d98f9e2eb39",
-      "name": "sky140052",
-      "email": "sky140052@gmail.com",
-      "phone": "",
-      "role": "student",
-      "enrolledAt": "2026-10-21T13:14:26.962Z",
-      "purchasedBooks": []
-    },
-    {
-      "_id": "6ad8d3ebbd161ed51d7a47c2",
-      "name": "Aman Kumar",
-      "email": "aman.kumar2026@gmail.com",
-      "phone": "9871122334",
-      "role": "student",
-      "admissionType": "direct",
-      "coachingId": "bbcc_visitor",
-      "centerName": "BBCC Direct Visitor",
-      "enrolledAt": "2026-10-21T15:02:03.659Z",
-      "purchasedBooks": []
-    }
-  ],
+  "students": [],
   "teachers": [],
   "studyMaterials": {
     "notes": [
@@ -448,17 +299,6 @@
           "Fluency"
         ],
         "targetCenterId": "all"
-      },
-      {
-        "_id": "book_mviau5xq3134d",
-        "title": "bbcc",
-        "category": "Class 10th",
-        "mrp": 299,
-        "price": 99,
-        "coverImage": "/data/materials/bbcc_cover_1792598457437_a32a9e.png",
-        "fileUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
-        "downloadUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
-        "createdAt": "2026-10-21T16:00:57.533Z"
       }
     ],
     "books": []
