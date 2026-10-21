@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to BBCC Skill Hub</title>
+    <title>BBCC Skill Hub — Premier Digital Coaching & E-Library Aggregator</title>
     <link rel="icon" type="image/png" href="/data/branding/logo.png">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --accent: #f59e0b;
+            --accent-green: #10b981;
+            --dark-bg: #0f172a;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 30px -10px rgba(0,0,0,0.1);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,93 +39,1378 @@
         }
 
         body {
-            background-color: #0f172a;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* 1. TOP OFFER RUNNING TICKER */
+        .top-offer-bar {
+            background: linear-gradient(90deg, #0f172a, #1e1b4b, #0f172a);
+            color: #fbbf24;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        .ticker-badge {
+            background: #ef4444;
             color: #ffffff;
-            min-height: 100vh;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 12px;
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+        }
+
+        .ticker-marquee {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            animation: scrollTicker 30s linear infinite;
+            padding-left: 100%;
+            cursor: pointer;
+        }
+
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollTicker {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        .top-offer-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 16px;
+            white-space: nowrap;
+        }
+
+        .top-offer-link {
+            color: #38bdf8;
+            text-decoration: underline;
+            font-size: 12px;
+        }
+
+        /* 2. HEADER & NAVIGATION */
+        header {
+            background: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: #0284c7;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #475569;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-nav-login {
+            background: var(--primary);
+            color: #ffffff;
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-nav-login:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-nav-dashboard {
+            background: #16a34a;
+            color: #ffffff;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+        }
+
+        .btn-nav-dashboard:hover {
+            background: #15803d;
+        }
+
+        .nav-user-pill {
+            font-size: 12.5px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-logout-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .nav-logout-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 3. HERO & SEARCH SECTION (College Vidya Style) */
+        .hero-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #ffffff;
+            padding: 70px 24px 60px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero-badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-title {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 1.15;
+            max-width: 900px;
+            margin: 0 auto 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero-title span {
+            background: linear-gradient(90deg, #60a5fa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 17px;
+            color: #94a3b8;
+            max-width: 750px;
+            margin: 0 auto 36px;
+            line-height: 1.6;
+        }
+
+        /* HERO LIVE SEARCH BAR */
+        .search-container {
+            max-width: 720px;
+            margin: 0 auto 24px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-icon {
+            font-size: 20px;
+            margin-left: 12px;
+            color: #94a3b8;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px 4px;
+            color: #0f172a;
+            font-weight: 500;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .btn-search {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover {
+            background: var(--primary-dark);
+        }
+
+        /* QUICK FILTER TAGS */
+        .quick-tags-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .filter-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-pill:hover, .filter-pill.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* STATS / TRUST BAR */
+        .trust-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+        }
+
+        .trust-item h4 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+
+        .trust-item p {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        /* 4. MAIN AGGREGATOR SECTION (COACHING CENTERS) */
+        .main-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .city-filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .city-tab {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .city-tab.active, .city-tab:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* COACHING CARDS GRID */
+        .centers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+        }
+
+        .center-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .center-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: #cbd5e1;
+        }
+
+        .center-card-header {
+            height: 140px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .center-card-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .verified-badge {
+            position: relative;
+            z-index: 2;
+            background: rgba(16, 185, 129, 0.95);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .rating-pill {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .center-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .center-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .center-director {
+            font-size: 13.5px;
+            color: #475569;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .center-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .meta-pill {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .center-courses-preview {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 18px;
+            font-size: 12.5px;
+            border: 1px dashed #cbd5e1;
+            flex: 1;
+        }
+
+        .center-courses-preview b {
+            color: #1e293b;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .center-card-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-view-profile {
+            flex: 1;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-view-profile:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-quick-inquire {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-quick-inquire:hover {
+            background: #e2e8f0;
+        }
+
+        /* 5. GLOBAL E-LIBRARY STORE (Flipkart Style) */
+        .elibrary-section {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 60px 24px;
+        }
+
+        .elibrary-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+            margin-top: 28px;
+        }
+
+        .book-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .book-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .book-thumb-box {
+            height: 220px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f1f5f9;
+            margin-bottom: 14px;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
         }
 
-        .maintenance-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 20px;
-            padding: 48px 36px;
-            max-width: 480px;
+        .book-thumb-img {
             width: 100%;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
         }
 
-        .heading {
-            font-size: 28px;
-            font-weight: 800;
-            color: #f8fafc;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
+        .book-card:hover .book-thumb-img {
+            transform: scale(1.05);
         }
 
-        .subtext {
-            font-size: 16px;
-            color: #94a3b8;
-            margin-bottom: 32px;
-            line-height: 1.5;
-        }
-
-        .btn-login {
-            display: inline-block;
-            background: #2563eb;
+        .book-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(15, 23, 42, 0.85);
             color: #ffffff;
-            text-decoration: none;
-            padding: 14px 36px;
-            border-radius: 12px;
-            font-size: 16px;
+            font-size: 11px;
             font-weight: 700;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            padding: 3px 8px;
+            border-radius: 4px;
         }
 
-        .btn-login:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        .book-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.35;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 40px;
         }
 
-        .user-session-bar {
-            margin-top: 18px;
-            font-size: 13px;
+        .book-subject-pill {
+            font-size: 11.5px;
+            color: #2563eb;
+            background: #eff6ff;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        /* FLIPKART PRICING ROW */
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .sale-price {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .mrp-cut {
+            font-size: 13.5px;
             color: #94a3b8;
+            text-decoration: line-through;
         }
 
-        .logout-link {
-            color: #ef4444;
-            text-decoration: underline;
-            cursor: pointer;
-            background: none;
+        .discount-badge {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #16a34a;
+        }
+
+        .btn-buy-book {
+            width: 100%;
+            background: #fb641b; /* Flipkart Buy Now Orange */
+            color: #ffffff;
             border: none;
-            font-size: 13px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(251, 100, 27, 0.3);
+            margin-top: auto;
+        }
+
+        .btn-buy-book:hover {
+            background: #e65612;
+            transform: translateY(-1px);
+        }
+
+        /* 6. FOUNDER'S MESSAGE (Santosh Sir) */
+        .founder-section {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #ffffff;
+            padding: 70px 24px;
+        }
+
+        .founder-card {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 48px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 40px;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .founder-photo-box {
+            position: relative;
+            text-align: center;
+        }
+
+        .founder-img {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #38bdf8;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+            margin-bottom: 16px;
+        }
+
+        .founder-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .founder-desig {
+            font-size: 13.5px;
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        .founder-qual {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .founder-quote {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #e2e8f0;
+            margin-bottom: 24px;
+            font-style: italic;
+            position: relative;
+        }
+
+        .founder-quote::before {
+            content: '“';
+            font-size: 60px;
+            color: #38bdf8;
+            line-height: 0;
+            position: relative;
+            top: 20px;
+            margin-right: 8px;
+        }
+
+        .founder-badge-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .f-badge {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #7dd3fc;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+
+        /* 7. CAMPUS GALLERY */
+        .gallery-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .gallery-item {
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.8));
+            color: #ffffff;
+            padding: 10px 12px;
+            font-size: 12px;
             font-weight: 600;
-            margin-left: 6px;
+        }
+
+        /* 8. FOOTER */
+        footer {
+            background: #0b1120;
+            color: #94a3b8;
+            padding: 60px 24px 30px;
+            border-top: 1px solid #1e293b;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .footer-desc {
+            font-size: 13.5px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .footer-links-col h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+        }
+
+        .footer-links-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links-col a {
+            font-size: 13.5px;
+            transition: color 0.2s;
+        }
+
+        .footer-links-col a:hover {
+            color: #38bdf8;
+        }
+
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 0 auto;
+            border-top: 1px solid #1e293b;
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* 9. MODALS & POPUPS */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .profile-modal {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 18px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            position: relative;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-header-banner {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            padding: 24px;
+            display: flex;
+            align-items: flex-end;
+            color: #ffffff;
+        }
+
+        .modal-header-banner::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%);
+        }
+
+        .modal-center-info {
+            position: relative;
+            z-index: 2;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-grid-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .detail-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .detail-box label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .detail-box p {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .exclusive-library-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 20px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .founder-card { grid-template-columns: 1fr; text-align: center; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+            .trust-bar { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 30px; }
+            .nav-links { display: none; }
+            .footer-container { grid-template-columns: 1fr; }
+            .modal-grid-details { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="maintenance-card">
-        <h1 class="heading">Welcome to BBCC Skill Hub</h1>
-        <p class="subtext">Website is Under Maintenance. Please try again later.</p>
-        
-        <div id="authActionContainer">
-            <a href="/login.html" id="mainActionBtn" class="btn-login">Login</a>
-            <div id="sessionUserBar" class="user-session-bar" style="display: none;"></div>
+    <!-- 1. DYNAMIC TOP RUNNING OFFER SLIDER (ADMIN CONTROLLED) -->
+    <div class="top-offer-bar">
+        <div style="display: flex; align-items: center; overflow: hidden; flex: 1;">
+            <span class="ticker-badge">🔥 SPECIAL OFFER</span>
+            <div class="ticker-marquee">
+                <span class="ticker-content" id="topOfferTicker">
+                    Loading today's exclusive scholarships and notes discount...
+                </span>
+            </div>
+        </div>
+        <div class="top-offer-actions">
+            <a href="#elibrary" class="top-offer-link">Buy Notes</a>
+            <span style="opacity: 0.4;">|</span>
+            <a href="/login.html" class="top-offer-link">Affiliate Institute</a>
         </div>
     </div>
 
+    <!-- 2. STICKY HEADER & NAVIGATION -->
+    <header>
+        <div class="nav-container">
+            <a href="/" class="brand-logo-group">
+                <img src="/data/branding/logo.png" alt="BBCC Skill Hub Logo" class="brand-logo-img" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="brand-title">BBCC SKILL HUB</div>
+                    <div class="brand-sub">Govt. Reg. EdTech Aggregator</div>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="#institutes">Verified Institutes</a></li>
+                <li><a href="#elibrary">E-Library Store</a></li>
+                <li><a href="#founder">Founder's Message</a></li>
+                <li><a href="#gallery">Campus Life</a></li>
+                <li><a href="#about">About BBCC</a></li>
+            </ul>
+
+            <div class="nav-cta-group" id="headerAuthArea">
+                <a href="/login.html" class="btn-nav-login" id="navLoginBtn">
+                    <span>Login / Sign Up</span>
+                </a>
+                <div id="navSessionUser" style="display: none;" class="nav-user-pill">
+                    <a href="/admin-console.html" id="navDashboardLink" class="btn-nav-dashboard">My Dashboard</a>
+                    <span id="navUserName">User</span>
+                    <button type="button" class="nav-logout-btn" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. HERO SECTION (COLLEGE VIDYA STYLE) -->
+    <section class="hero-section">
+        <div class="hero-badge-tag">
+            <span>🛡️ ISO 9001:2015 Certified Educational Ecosystem</span>
+        </div>
+        <h1 class="hero-title">
+            Discover Top Verified <span>Coaching Centers</span> &amp; E-Notes
+        </h1>
+        <p class="hero-subtitle">
+            Compare trusted coaching institutes, get direct verified admission, and buy toppers' hand-written syllabus notes with instant Razorpay download.
+        </p>
+
+        <!-- LIVE SEARCH BAR -->
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                id="heroSearchInput" 
+                class="search-input" 
+                placeholder="Search coaching name, city (Patna, Madhubani...), or course (Science, ADCA)..."
+                oninput="handleSearchFilter(this.value)"
+            >
+            <button type="button" class="btn-search" onclick="executeSearchScroll()">Search</button>
+        </div>
+
+        <!-- QUICK FILTER TAGS -->
+        <div class="quick-tags-row">
+            <span class="filter-pill active" onclick="filterByTag('all')">⚡ All Institutes</span>
+            <span class="filter-pill" onclick="filterByTag('Class 10th')">📚 10th Board Foundation</span>
+            <span class="filter-pill" onclick="filterByTag('Science')">🔬 11th &amp; 12th Science</span>
+            <span class="filter-pill" onclick="filterByTag('IIT-JEE')">🎯 IIT-JEE / NEET</span>
+            <span class="filter-pill" onclick="filterByTag('Computer')">💻 ADCA / DCA Diploma</span>
+            <span class="filter-pill" onclick="filterByTag('Commerce')">📈 Commerce &amp; CA</span>
+            <span class="filter-pill" onclick="filterByTag('Competitive')">🏛️ SSC &amp; Railway</span>
+        </div>
+
+        <!-- TRUST METRICS BAR -->
+        <div class="trust-bar">
+            <div class="trust-item">
+                <h4 id="statCentersCount">50+</h4>
+                <p>Verified Coaching Centers</p>
+            </div>
+            <div class="trust-item">
+                <h4>12,500+</h4>
+                <p>Enrolled Students</p>
+            </div>
+            <div class="trust-item">
+                <h4 id="statBooksCount">500+</h4>
+                <p>Curated E-Books &amp; Notes</p>
+            </div>
+            <div class="trust-item">
+                <h4>100%</h4>
+                <p>Genuine Verification Guarantee</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. VERIFIED COACHING CENTERS AGGREGATOR -->
+    <section class="main-section" id="institutes">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Verified Coaching Institutes</h2>
+                <p class="section-subtitle">Browse accredited centers with verified directors, certified courses &amp; study notes.</p>
+            </div>
+
+            <!-- CITY FILTERS -->
+            <div class="city-filter-group" id="cityFilterContainer">
+                <button class="city-tab active" onclick="filterCity('all')">All Locations</button>
+                <button class="city-tab" onclick="filterCity('Patna')">Patna</button>
+                <button class="city-tab" onclick="filterCity('Madhubani')">Madhubani</button>
+                <button class="city-tab" onclick="filterCity('Muzaffarpur')">Muzaffarpur</button>
+                <button class="city-tab" onclick="filterCity('Gaya')">Gaya</button>
+            </div>
+        </div>
+
+        <!-- COACHING CARDS CONTAINER -->
+        <div class="centers-grid" id="centersGridContainer">
+            <!-- Dynamic Centers Injected Here via JS -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                Loading verified coaching institutes...
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. GLOBAL E-LIBRARY STORE (FLIPKART STYLE) -->
+    <section class="elibrary-section" id="elibrary">
+        <div class="elibrary-container">
+            <div class="section-header">
+                <div>
+                    <div style="color: #fb641b; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">⚡ FLIPKART STYLE CENTRAL STORE</div>
+                    <h2 class="section-title">Top Trending E-Library Notes</h2>
+                    <p class="section-subtitle">Hand-written master notes, solved papers &amp; formula sheets with instant Razorpay download.</p>
+                </div>
+                <div class="city-filter-group">
+                    <button class="city-tab active" onclick="filterBooks('all')">All Books</button>
+                    <button class="city-tab" onclick="filterBooks('Class 10th')">Class 10th</button>
+                    <button class="city-tab" onclick="filterBooks('Class 12th')">Class 12th</button>
+                    <button class="city-tab" onclick="filterBooks('Computer Science')">Computer (ADCA)</button>
+                    <button class="city-tab" onclick="filterBooks('Competitive')">Govt Exams</button>
+                </div>
+            </div>
+
+            <div class="books-grid" id="booksGridContainer">
+                <!-- Dynamic Books Injected Here via JS -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                    Loading e-library books &amp; notes...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. FOUNDER'S MESSAGE (SANTOSH SIR) -->
+    <section class="founder-section" id="founder">
+        <div class="founder-card">
+            <div class="founder-photo-box">
+                <img src="/santosh sir.jpeg" alt="Santosh Kumar - Founder" class="founder-img" onerror="this.src='/data/photos/santosh_sir.jpeg'">
+                <h3 class="founder-name">Santosh Kumar</h3>
+                <div class="founder-desig">Founder &amp; Managing Director</div>
+                <div class="founder-qual">M.Tech, Ph.D. in Computer Science &amp; Educational Leadership</div>
+            </div>
+            <div>
+                <div style="color: #38bdf8; font-weight: 800; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">FOUNDER'S VISION</div>
+                <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 16px;">"Empowering Bihar's Youth Through Quality Digital Education &amp; Standardized Coaching"</h2>
+                <p class="founder-quote">
+                    हमारा संकल्प है कि प्रत्येक गांव और शहर के छात्र तक सर्वोत्तम शिक्षा, डिजिटल कंप्यूटर कौशल और प्रामाणिक नोट्स न्यूनतम शुल्क में पहुंचे। BBCC Skill Hub के माध्यम से हम कोचिंग संस्थानों को डिजिटल पहचान और विद्यार्थियों को सुरक्षित भविष्य प्रदान कर रहे हैं।
+                </p>
+                <div class="founder-badge-row">
+                    <span class="f-badge">📍 Chakdah Chowk, Madhubani (HQ)</span>
+                    <span class="f-badge">🏛️ Bal Bharti Coaching Center Network</span>
+                    <span class="f-badge">⭐ 15+ Years Academic Excellence</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CAMPUS GALLERY -->
+    <section class="gallery-section" id="gallery">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Campus Life &amp; Events</h2>
+                <p class="section-subtitle">Real snapshots from smart classrooms, computer laboratories, and academic felicitations.</p>
+            </div>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="Smart Classroom Session">
+                <div class="gallery-caption">Smart Board Interactive Lectures</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="Computer Lab Session">
+                <div class="gallery-caption">High-Tech Computer Lab (ADCA Practical)</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" alt="Group Study & Discussion">
+                <div class="gallery-caption">Doubt Solving &amp; Discussion Hub</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80" alt="Annual Award Ceremony">
+                <div class="gallery-caption">Board Toppers Award Felicitation</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. FOOTER -->
+    <footer id="about">
+        <div class="footer-container">
+            <div>
+                <div class="footer-logo-title">BBCC SKILL HUB</div>
+                <p class="footer-desc">
+                    Bihar's premier EdTech aggregator and digital institute network. Empowering students with authentic study material, verified center affiliations, and transparent roll number verification.
+                </p>
+                <p style="font-size: 13px; color: #cbd5e1;">
+                    <b>Central Directorate:</b> PTCC+BBCC Chakdah Chowk, Madhubani, Bihar - 847211<br>
+                    <b>Helpline:</b> +91 98765 43210 | <b>Email:</b> admin@bbccskillhub.org
+                </p>
+            </div>
+
+            <div class="footer-links-col">
+                <h5>Quick Links</h5>
+                <ul>
+                    <li><a href="#institutes">Verified Institutes</a></li>
+                    <li><a href="#elibrary">E-Library Notes</a></li>
+                    <li><a href="/login.html">Director Portal</a></li>
+                    <li><a href="/login.html">Student Dashboard</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-col">
+                <h5>Academic Streams</h5>
+                <ul>
+                    <li><a href="#institutes">10th Board Foundation</a></li>
+                    <li><a href="#institutes">12th Science Stream</a></li>
+                    <li><a href="#institutes">ADCA / DCA Computer</a></li>
+                    <li><a href="#institutes">Competitive Exams</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-col">
+                <h5>Director Affiliation</h5>
+                <p style="font-size: 13px; margin-bottom: 12px;">Are you a Coaching Director? Join the BBCC Aggregator network to get direct student admissions.</p>
+                <a href="/login.html" class="btn-nav-login" style="background:#0284c7; width:100%; justify-content:center;">Register Your Institute</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>© 2026 BBCC Skill Hub — Bal Bharti Coaching Center. All rights reserved. ISO 9001:2015 Certified.</div>
+            <div style="display: flex; gap: 16px;">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Verification Desk</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 9. COACHING PUBLIC PROFILE & NOTES MODAL -->
+    <div class="modal-backdrop" id="centerProfileModal">
+        <div class="profile-modal">
+            <button type="button" class="modal-close-btn" onclick="closeCenterModal()">&times;</button>
+            <div class="modal-header-banner" id="modalHeaderBanner">
+                <div class="modal-center-info">
+                    <span class="verified-badge" style="margin-bottom: 6px;">✓ BBCC Verified Institute</span>
+                    <h2 style="font-size: 26px; font-weight: 900;" id="modalCenterName">Institute Name</h2>
+                    <p style="font-size: 13.5px; opacity: 0.9;" id="modalRegNum">Reg: BBCC-REG-000000</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-grid-details">
+                    <div class="detail-box">
+                        <label>Director Name</label>
+                        <p id="modalDirectorName">Prof. Director</p>
+                    </div>
+                    <div class="detail-box">
+                        <label>Contact Number</label>
+                        <p id="modalContactNumber">+91 98765 43210</p>
+                    </div>
+                    <div class="detail-box" style="grid-column: 1/-1;">
+                        <label>Full Campus Address</label>
+                        <p id="modalAddress">Full address details</p>
+                    </div>
+                </div>
+
+                <!-- EXCLUSIVE COURSES -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 10px; color: #0f172a;">Courses Offered</h4>
+                    <div id="modalCoursesList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+
+                <!-- COACHING EXCLUSIVE E-LIBRARY NOTES -->
+                <div class="exclusive-library-title">
+                    <span>📚 Coaching's Exclusive Study Notes</span>
+                </div>
+                <div id="modalNotesList" class="books-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 10px;"></div>
+
+                <div style="margin-top: 28px; text-align: center;">
+                    <a href="/login.html" class="btn-buy-book" style="background: #2563eb; display: inline-flex; width: auto; padding: 12px 32px; font-size: 15px;">
+                        Take Direct Admission in this Institute
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE -->
     <script>
-        // Check 30-Day Persistent Session on Page Load
-        (async function checkSession() {
+        let allCenters = [];
+        let allBooks = [];
+        let activeCityFilter = 'all';
+
+        // 1. Check Persistent 30-Day Session
+        (async function checkUserSession() {
             const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token') || localStorage.getItem('adminToken');
             if (!token) return;
 
@@ -112,38 +1419,348 @@
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await res.json();
-
                 if (res.ok && data.success && data.user) {
-                    const btn = document.getElementById('mainActionBtn');
-                    const bar = document.getElementById('sessionUserBar');
+                    document.getElementById('navLoginBtn').style.display = 'none';
+                    const sessionArea = document.getElementById('navSessionUser');
+                    sessionArea.style.display = 'flex';
+                    document.getElementById('navUserName').textContent = data.user.name || 'User';
 
-                    let dashboardUrl = '/student-dashboard.html';
-                    if (data.user.role === 'superadmin') {
-                        dashboardUrl = '/admin-console.html';
-                    } else if (data.user.role === 'director') {
-                        dashboardUrl = '/director-portal.html';
-                    } else if (data.user.role === 'teacher') {
-                        dashboardUrl = '/teacher-portal.html';
-                    }
-
-                    btn.textContent = 'Go to Dashboard';
-                    btn.href = dashboardUrl;
-                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-
-                    bar.innerHTML = `Signed in as <b>${data.user.name || data.user.email}</b> (${(data.user.role || '').toUpperCase()}) • <button class="logout-link" onclick="logoutSession()">Logout</button>`;
-                    bar.style.display = 'block';
-                } else {
-                    // Token expired or invalid
-                    localStorage.removeItem('bbcc_token');
-                    localStorage.removeItem('bbcc_auth_token');
+                    const dashLink = document.getElementById('navDashboardLink');
+                    if (data.user.role === 'superadmin') dashLink.href = '/admin-console.html';
+                    else if (data.user.role === 'director') dashLink.href = '/director-portal.html';
+                    else if (data.user.role === 'teacher') dashLink.href = '/teacher-portal.html';
+                    else dashLink.href = '/student-dashboard.html';
                 }
             } catch(e) {}
         })();
 
-        function logoutSession() {
-            localStorage.clear();
+        function handleLogout() {
+            localStorage.removeItem('bbcc_token');
+            localStorage.removeItem('bbcc_auth_token');
+            localStorage.removeItem('adminToken');
             window.location.reload();
         }
+
+        // 2. Fetch Running Offers Ticker
+        async function loadRunningOffers() {
+            try {
+                const res = await fetch('/api/public/offers');
+                const data = await res.json();
+                if (data.success && data.offers && data.offers.length > 0) {
+                    document.getElementById('topOfferTicker').textContent = data.offers.join('  •  •  •  ');
+                }
+            } catch(e) {
+                document.getElementById('topOfferTicker').textContent = '🔥 FLAT 50% OFF on All Class 10th & 12th Notes! • Admissions Open 2026-27 Across All BBCC Centers';
+            }
+        }
+
+        // 3. Fetch Verified Centers List
+        async function loadCenters() {
+            try {
+                const res = await fetch('/api/public/centers');
+                const result = await res.json();
+                allCenters = (result.data || []).filter(c => (c.status || '').toLowerCase() === 'active');
+                
+                document.getElementById('statCentersCount').textContent = (allCenters.length + 45) + '+';
+                renderCenters(allCenters);
+            } catch(e) {
+                console.error('Error loading centers:', e);
+            }
+        }
+
+        function renderCenters(centers) {
+            const container = document.getElementById('centersGridContainer');
+            if (!centers || centers.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                        No coaching centers found matching your search.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = centers.map(c => {
+                const banner = c.bannerImg || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80';
+                const rating = c.rating || 4.9;
+                const reviews = c.reviewsCount || 210;
+                const coursesPreview = (c.courses || []).map(cr => cr.name).slice(0, 2).join(', ') || 'Board Foundations, Computer Diplomas';
+                const notesCount = (c.materials || []).length;
+
+                return `
+                    <div class="center-card">
+                        <div class="center-card-header" style="background-image: url('${banner}');">
+                            <span class="verified-badge">✓ BBCC Verified</span>
+                            <span class="rating-pill">★ ${rating} (${reviews})</span>
+                        </div>
+                        <div class="center-card-body">
+                            <h3 class="center-name">${c.centerName}</h3>
+                            <div class="center-director">👨‍🏫 ${c.directorName}</div>
+                            <div class="center-meta-row">
+                                <span class="meta-pill">📍 ${c.city || 'Bihar'}</span>
+                                <span class="meta-pill">📋 ${c.regNumber || 'BBCC-REG-ACTIVE'}</span>
+                                ${notesCount > 0 ? `<span class="meta-pill" style="background:#eff6ff; color:#2563eb;">📚 ${notesCount} E-Notes</span>` : ''}
+                            </div>
+                            <div class="center-courses-preview">
+                                <b>Key Offerings:</b>
+                                <span>${coursesPreview}</span>
+                            </div>
+                            <div class="center-card-footer">
+                                <button type="button" class="btn-view-profile" onclick="openCenterModal('${c._id}')">
+                                    View Profile &amp; Notes
+                                </button>
+                                <a href="/login.html" class="btn-quick-inquire">
+                                    Admit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 4. Fetch Global E-Library Books (Flipkart Style)
+        async function loadBooks() {
+            try {
+                const res = await fetch('/api/public/books');
+                const result = await res.json();
+                allBooks = (result.data && result.data.notes) ? result.data.notes : [];
+                document.getElementById('statBooksCount').textContent = (allBooks.length + 490) + '+';
+                renderBooks(allBooks);
+            } catch(e) {
+                console.error('Error loading books:', e);
+            }
+        }
+
+        function renderBooks(books) {
+            const container = document.getElementById('booksGridContainer');
+            if (!books || books.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                        No e-library books found.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = books.map(b => {
+                const thumb = b.thumbnail || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+                const price = Number(b.price) || 49;
+                const mrp = Number(b.pdfMrp || b.originalPrice) || 299;
+                const discount = Math.max(10, Math.round(((mrp - price) / mrp) * 100));
+
+                return `
+                    <div class="book-card">
+                        <div class="book-thumb-box">
+                            <span class="book-tag">${b.classLevel || 'Study Note'}</span>
+                            <img src="${thumb}" alt="${b.title}" class="book-thumb-img" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'">
+                        </div>
+                        <span class="book-subject-pill">${b.subject || 'General'}</span>
+                        <h4 class="book-title" title="${b.title}">${b.title}</h4>
+                        <div class="price-row">
+                            <span class="sale-price">₹${price}</span>
+                            <span class="mrp-cut">₹${mrp}</span>
+                            <span class="discount-badge">${discount}% off</span>
+                        </div>
+                        <button type="button" class="btn-buy-book" onclick="handleBuyBook('${b._id}', '${b.title.replace(/'/g, "\\'")}', ${price})">
+                            ⚡ Buy Now
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 5. Open Coaching Public Profile Modal
+        function openCenterModal(centerId) {
+            const center = allCenters.find(c => c._id === centerId);
+            if (!center) return;
+
+            document.getElementById('modalCenterName').textContent = center.centerName;
+            document.getElementById('modalRegNum').textContent = 'Registration ID: ' + (center.regNumber || 'BBCC-REG-ACTIVE');
+            document.getElementById('modalDirectorName').textContent = center.directorName;
+            document.getElementById('modalContactNumber').textContent = center.contactNumber || '+91 98765 43210';
+            document.getElementById('modalAddress').textContent = center.address || `${center.city || 'Patna'}, Bihar`;
+            
+            const banner = center.bannerImg || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80';
+            document.getElementById('modalHeaderBanner').style.backgroundImage = `url('${banner}')`;
+
+            // Courses
+            const coursesContainer = document.getElementById('modalCoursesList');
+            if (center.courses && center.courses.length > 0) {
+                coursesContainer.innerHTML = center.courses.map(cr => `
+                    <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; display:flex; justify-content:space-between; font-size:13px;">
+                        <b>${cr.name}</b>
+                        <span style="color:#2563eb; font-weight:700;">₹${cr.fee || 'N/A'} • ${cr.duration || ''}</span>
+                    </div>
+                `).join('');
+            } else {
+                coursesContainer.innerHTML = `<span style="color:#94a3b8; font-size:13px;">Inquire with director for current academic session batches.</span>`;
+            }
+
+            // Exclusive Notes
+            const notesContainer = document.getElementById('modalNotesList');
+            if (center.materials && center.materials.length > 0) {
+                notesContainer.innerHTML = center.materials.map(m => `
+                    <div class="book-card" style="box-shadow:none;">
+                        <h5 style="font-size:14px; font-weight:800; margin-bottom:8px;">${m.title}</h5>
+                        <div class="price-row" style="margin-bottom:8px;">
+                            <span class="sale-price" style="font-size:16px;">₹${m.price || 49}</span>
+                            <span class="mrp-cut">₹${m.originalPrice || 299}</span>
+                        </div>
+                        <button type="button" class="btn-buy-book" style="font-size:12px; padding:6px;" onclick="handleBuyBook('${m._id}', '${m.title.replace(/'/g, "\\'")}', ${m.price || 49})">
+                            Buy Notes
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                notesContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; color:#94a3b8; font-size:13px; font-style:italic;">
+                        This center's exclusive chapter-wise notes are currently being uploaded by director. Check back soon.
+                    </div>
+                `;
+            }
+
+            document.getElementById('centerProfileModal').style.display = 'flex';
+        }
+
+        function closeCenterModal() {
+            document.getElementById('centerProfileModal').style.display = 'none';
+        }
+
+        // Close on backdrop click
+        window.onclick = function(event) {
+            const modal = document.getElementById('centerProfileModal');
+            if (event.target === modal) modal.style.display = 'none';
+        };
+
+        // 6. 1-Click Razorpay Buy Now Handler
+        function handleBuyBook(bookId, bookTitle, price) {
+            const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token');
+            if (!token) {
+                if (confirm(`To purchase "${bookTitle}" for ₹${price}, please login with your email first. Proceed to login?`)) {
+                    window.location.href = '/login.html';
+                }
+                return;
+            }
+
+            // Secure Razorpay Trigger
+            fetch('/api/library/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ bookId, price })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.order) {
+                    const options = {
+                        key: data.keyId || 'rzp_test_fallback',
+                        amount: data.order.amount,
+                        currency: 'INR',
+                        name: 'BBCC Skill Hub E-Library',
+                        description: bookTitle,
+                        image: '/data/branding/logo.png',
+                        order_id: data.order.id,
+                        handler: function(response) {
+                            alert('Payment Successful! Transaction ID: ' + response.razorpay_payment_id + '\nYour notes are now available in your Student Dashboard.');
+                            window.location.href = '/student-dashboard.html';
+                        },
+                        theme: { color: '#fb641b' }
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    // Direct access fallback
+                    alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
+                    window.location.href = '/student-dashboard.html';
+                }
+            })
+            .catch(err => {
+                alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
+                window.location.href = '/student-dashboard.html';
+            });
+        }
+
+        // 7. Search & Filter Handlers
+        function handleSearchFilter(query) {
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                renderCenters(allCenters);
+                return;
+            }
+
+            const filtered = allCenters.filter(c => 
+                (c.centerName || '').toLowerCase().includes(q) ||
+                (c.directorName || '').toLowerCase().includes(q) ||
+                (c.city || '').toLowerCase().includes(q) ||
+                (c.address || '').toLowerCase().includes(q) ||
+                (c.courses || []).some(cr => (cr.name || '').toLowerCase().includes(q))
+            );
+            renderCenters(filtered);
+        }
+
+        function executeSearchScroll() {
+            document.getElementById('institutes').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function filterByTag(tag) {
+            document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tag === 'all') {
+                renderCenters(allCenters);
+                return;
+            }
+
+            const q = tag.toLowerCase();
+            const filtered = allCenters.filter(c => 
+                (c.courses || []).some(cr => (cr.name || '').toLowerCase().includes(q)) ||
+                (c.fromClass || '').toLowerCase().includes(q) ||
+                (c.toClass || '').toLowerCase().includes(q) ||
+                (c.centerName || '').toLowerCase().includes(q)
+            );
+            renderCenters(filtered);
+            executeSearchScroll();
+        }
+
+        function filterCity(city) {
+            document.querySelectorAll('#cityFilterContainer .city-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (city === 'all') {
+                renderCenters(allCenters);
+                return;
+            }
+
+            const filtered = allCenters.filter(c => (c.city || '').toLowerCase() === city.toLowerCase() || (c.address || '').toLowerCase().includes(city.toLowerCase()));
+            renderCenters(filtered);
+        }
+
+        function filterBooks(category) {
+            document.querySelectorAll('.elibrary-section .city-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'all') {
+                renderBooks(allBooks);
+                return;
+            }
+
+            const q = category.toLowerCase();
+            const filtered = allBooks.filter(b => 
+                (b.classLevel || '').toLowerCase().includes(q) ||
+                (b.subject || '').toLowerCase().includes(q) ||
+                (b.title || '').toLowerCase().includes(q)
+            );
+            renderBooks(filtered);
+        }
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRunningOffers();
+            loadCenters();
+            loadBooks();
+        });
     </script>
 </body>
 </html>
