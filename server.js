@@ -6145,12 +6145,8 @@ app.post('/api/auth/send-otp', async (req, res) => {
                     return res.status(200).json({ success: true, message: 'OTP sent successfully via HTTPS API!' });
                 } else {
                     const errTxt = await brevoRes.text();
-                    console.error(`❌ [Brevo API Error]: ${errTxt} | Key starts with: ${BREVO_KEY.substring(0, 10)}... (Length: ${BREVO_KEY.length})`);
-                    let hint = '';
-                    if (BREVO_KEY.startsWith('xsmtpsib-')) {
-                        hint = ' (Note: You entered an SMTP Key instead of an API Key. In Brevo, go to SMTP & API Keys -> click "API Keys" tab and generate an API key starting with xkeysib-)';
-                    }
-                    return res.status(500).json({ success: false, message: 'Brevo API error: ' + errTxt + hint });
+                    console.error(`❌ [Brevo API Error]: ${errTxt}`);
+                    return res.status(500).json({ success: false, message: 'Brevo API error: ' + errTxt });
                 }
             } catch (apiErr) {
                 console.error('❌ [Brevo Fetch Failed]:', apiErr.message);
@@ -6277,25 +6273,36 @@ app.post('/api/auth/verify-otp', async (req, res) => {
             currentAdminEmail = process.env.ADMIN_EMAIL.toLowerCase();
         }
         const isSuperAdmin = (email.toLowerCase() === currentAdminEmail || email.toLowerCase() === 'sky140052@gmail.com');
+        const matchedCenter = (pdb.centers || []).find(c => c.email && c.email.toLowerCase() === email);
+        const isDirector = Boolean(matchedCenter);
+        const matchedTeacher = (pdb.teachers || []).find(t => t.email && t.email.toLowerCase() === email);
+        const isTeacher = Boolean(matchedTeacher);
 
-        let effectiveRole = role || 'student';
-        const adminName = 'Santosh Sir (Super Admin)';
+        let effectiveRole = 'student';
+        let displayName = student ? (student.name || email.split('@')[0]) : email.split('@')[0];
         let redirectUrl = '/student-dashboard.html';
 
         if (isSuperAdmin) {
             effectiveRole = 'superadmin';
+            displayName = 'Santosh Sir (Super Admin)';
             redirectUrl = '/admin-console.html';
-        } else if (effectiveRole === 'director') {
+        } else if (isDirector) {
+            effectiveRole = 'director';
+            displayName = matchedCenter.directorName || matchedCenter.centerName;
             redirectUrl = '/director-portal.html';
+        } else if (isTeacher) {
+            effectiveRole = 'teacher';
+            displayName = matchedTeacher.name || 'Faculty Member';
+            redirectUrl = '/teacher-portal.html';
         }
 
-        // JWT Token (30 days validity for seamless long-time login like Flipkart/Meesho)
+        // JWT Token (30 days validity for seamless long-time login like Flipkart/College Vidya)
         const token = jwt.sign(
             { 
-                id: isSuperAdmin ? 'admin_sky140052' : student._id, 
+                id: isSuperAdmin ? 'admin_sky140052' : (matchedCenter ? matchedCenter._id : (matchedTeacher ? matchedTeacher._id : student._id)), 
                 email: email, 
                 role: effectiveRole, 
-                name: isSuperAdmin ? adminName : (student.name || email.split('@')[0]) 
+                name: displayName 
             }, 
             JWT_SECRET, 
             { expiresIn: '30d' }
@@ -6303,15 +6310,15 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
         return res.status(200).json({ 
             success: true, 
-            message: isSuperAdmin ? 'SuperAdmin Access Verified' : 'Login Success', 
+            message: `${effectiveRole.toUpperCase()} Access Verified`, 
             token: token,
             role: effectiveRole,
             redirectUrl: redirectUrl,
             user: {
-                id: isSuperAdmin ? 'admin_sky140052' : student._id,
-                name: isSuperAdmin ? adminName : student.name,
+                id: isSuperAdmin ? 'admin_sky140052' : (matchedCenter ? matchedCenter._id : (matchedTeacher ? matchedTeacher._id : student._id)),
+                name: displayName,
                 email: email,
-                phone: isSuperAdmin ? '+91 98765 43210' : student.phone,
+                phone: isSuperAdmin ? '+91 98765 43210' : (matchedCenter ? matchedCenter.contactNumber : (student ? student.phone : '')),
                 role: effectiveRole
             }
         });
@@ -6320,7 +6327,260 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     }
 });
 
-// 6.0C Session Check Endpoint (Maintains Persistent 30-Day Login on Frontend)
+// 6.0C Smart Check: Check if Email Exists in DB & Identify Role
+app.post('/api/auth/check-email', async (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ success: false, message: 'Valid email is required' });
+        }
+
+        const pdb = loadPortalDb();
+
+        // 1. Check SuperAdmin
+        let currentAdminEmail = 'sky140052@gmail.com';
+        if (pdb && pdb.admins && pdb.admins[0] && pdb.admins[0].email) {
+            currentAdminEmail = pdb.admins[0].email.toLowerCase();
+        } else if (process.env.ADMIN_EMAIL) {
+            currentAdminEmail = process.env.ADMIN_EMAIL.toLowerCase();
+        }
+        if (email === currentAdminEmail || email === 'sky140052@gmail.com') {
+            return res.json({ 
+                success: true, 
+                exists: true, 
+                role: 'superadmin', 
+                name: 'Santosh Sir (Super Admin)' 
+            });
+        }
+
+        // 2. Check Coaching Director
+        const center = (pdb.centers || []).find(c => c.email && c.email.toLowerCase() === email);
+        if (center) {
+            return res.json({ 
+                success: true, 
+                exists: true, 
+                role: 'director', 
+                name: center.directorName || center.centerName,
+                centerName: center.centerName,
+                status: center.status 
+            });
+        }
+
+        // 3. Check Teacher
+        const teacher = (pdb.teachers || []).find(t => t.email && t.email.toLowerCase() === email);
+        if (teacher) {
+            return res.json({ 
+                success: true, 
+                exists: true, 
+                role: 'teacher', 
+                name: teacher.name 
+            });
+        }
+
+        // 4. Check Student
+        const student = (pdb.students || []).find(s => s.email && s.email.toLowerCase() === email);
+        if (student) {
+            return res.json({ 
+                success: true, 
+                exists: true, 
+                role: 'student', 
+                name: student.name 
+            });
+        }
+
+        // Check MongoDB if connected
+        if (isMongoConnected) {
+            try {
+                const mStudent = await Student.findOne({ email });
+                if (mStudent) {
+                    return res.json({ success: true, exists: true, role: 'student', name: mStudent.name });
+                }
+                const mCenter = await Institute.findOne({ email });
+                if (mCenter) {
+                    return res.json({ success: true, exists: true, role: 'director', name: mCenter.directorName, status: mCenter.status });
+                }
+            } catch(e) {}
+        }
+
+        // Email NOT Found in system -> Prompt Smart Registration
+        return res.json({ 
+            success: true, 
+            exists: false, 
+            message: 'Email not registered. Proceed to account registration.' 
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Server check error: ' + err.message });
+    }
+});
+
+// 6.0D Public Approved Coaching Centers Dropdown (For Student Registration)
+app.get('/api/public/approved-centers', (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const activeCenters = (pdb.centers || [])
+            .filter(c => (c.status || '').toLowerCase() === 'active')
+            .map(c => ({
+                id: c._id,
+                name: c.centerName,
+                director: c.directorName,
+                address: c.address || '',
+                regNumber: c.regNumber || ''
+            }));
+        return res.json({ success: true, centers: activeCenters });
+    } catch(err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6.0E Coaching Director Self-Registration (Routes to Super Admin "Pending Approvals")
+app.post('/api/auth/register-coaching', async (req, res) => {
+    try {
+        const { directorName, centerName, email, phone, city, address } = req.body;
+        if (!directorName || !centerName || !email || !phone) {
+            return res.status(400).json({ success: false, message: 'Director name, center name, email, and phone are required' });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+        const pdb = loadPortalDb();
+        pdb.centers = pdb.centers || [];
+
+        const existing = pdb.centers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
+        if (existing) {
+            return res.status(400).json({ success: false, message: 'This email is already registered as a coaching center.' });
+        }
+
+        const newCenter = {
+            _id: 'ctr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+            centerName: centerName.trim(),
+            directorName: directorName.trim(),
+            email: cleanEmail,
+            contactNumber: phone.trim(),
+            address: `${address ? address.trim() + ', ' : ''}${city ? city.trim() : ''}`,
+            regNumber: 'BBCC-REG-' + Math.floor(100000 + Math.random() * 900000),
+            username: centerName.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(10 + Math.random() * 90),
+            status: 'Pending', // Sent to Santosh Sir's "Pending Approvals"
+            isBlocked: false,
+            admissionFee: 0,
+            affiliationFee: 999,
+            courses: [],
+            teachers: [],
+            materials: [],
+            createdAt: new Date()
+        };
+
+        pdb.centers.push(newCenter);
+        await savePortalDb(pdb);
+
+        console.log(`🏫 [New Coaching Application Submitted]: ${centerName} (${cleanEmail}) -> Status: Pending`);
+
+        return res.status(201).json({
+            success: true,
+            message: 'Application submitted successfully! Your center is currently in "Pending Approvals". Santosh Sir (Super Admin) will review and activate your portal shortly.',
+            center: {
+                id: newCenter._id,
+                name: newCenter.centerName,
+                status: newCenter.status
+            }
+        });
+    } catch(err) {
+        return res.status(500).json({ success: false, message: 'Coaching registration failed: ' + err.message });
+    }
+});
+
+// 6.0F Student Self-Registration (Option A: Approved Coaching OR Option B: BBCC Visitor)
+app.post('/api/auth/register-student', async (req, res) => {
+    try {
+        const { name, email, phone, admissionType, coachingId } = req.body;
+        if (!name || !email) {
+            return res.status(400).json({ success: false, message: 'Name and email are required' });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+        const pdb = loadPortalDb();
+        pdb.students = pdb.students || [];
+
+        let student = pdb.students.find(s => s.email && s.email.toLowerCase() === cleanEmail);
+        let centerName = 'BBCC Direct Visitor';
+        let targetCoachingId = 'bbcc_visitor';
+
+        if (admissionType === 'coaching' && coachingId && coachingId !== 'bbcc_visitor') {
+            const matchedCenter = (pdb.centers || []).find(c => c._id === coachingId);
+            if (matchedCenter) {
+                targetCoachingId = matchedCenter._id;
+                centerName = matchedCenter.centerName;
+            }
+        }
+
+        if (!student) {
+            student = {
+                _id: new mongoose.Types.ObjectId().toString(),
+                name: name.trim(),
+                email: cleanEmail,
+                phone: (phone || '').trim(),
+                role: 'student',
+                admissionType: targetCoachingId === 'bbcc_visitor' ? 'direct' : 'coaching',
+                coachingId: targetCoachingId,
+                centerName: centerName,
+                enrolledAt: new Date(),
+                purchasedBooks: []
+            };
+            pdb.students.push(student);
+        } else {
+            student.name = name.trim();
+            if (phone) student.phone = phone.trim();
+            student.admissionType = targetCoachingId === 'bbcc_visitor' ? 'direct' : 'coaching';
+            student.coachingId = targetCoachingId;
+            student.centerName = centerName;
+        }
+
+        await savePortalDb(pdb);
+
+        if (isMongoConnected) {
+            try {
+                await Student.findOneAndUpdate(
+                    { email: cleanEmail },
+                    { name: student.name, email: cleanEmail, phone: student.phone, status: 'active' },
+                    { upsert: true }
+                );
+            } catch(e) {}
+        }
+
+        // Instant 30-Day Session JWT Token
+        const token = jwt.sign(
+            {
+                id: student._id,
+                email: cleanEmail,
+                role: 'student',
+                name: student.name,
+                coachingId: student.coachingId,
+                centerName: student.centerName
+            },
+            JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
+        console.log(`🎓 [New Student Registered]: ${student.name} (${cleanEmail}) -> Center: ${centerName}`);
+
+        return res.status(201).json({
+            success: true,
+            token: token,
+            role: 'student',
+            redirectUrl: '/student-dashboard.html',
+            message: 'Student account created successfully! Welcome to BBCC Skill Hub.',
+            user: {
+                id: student._id,
+                name: student.name,
+                email: cleanEmail,
+                role: 'student',
+                centerName: student.centerName
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Student registration error: ' + err.message });
+    }
+});
+
+// 6.0G Session Check Endpoint (Maintains Persistent 30-Day Login on Frontend)
 app.get('/api/auth/me', async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
