@@ -339,6 +339,8 @@
         let resendTimer = null;
         let resendSeconds = 30;
         let currentEmail = '';
+        let isSignupFlow = false;
+        let pendingRegistration = null;
 
         // Check if user already has persistent 30-day session
         (async function checkExistingSession() {
@@ -353,7 +355,7 @@
                 if (res.ok && data.success && data.user) {
                     // Redirect immediately to their dashboard
                     if (data.user.role === 'superadmin') window.location.href = '/admin-console.html';
-                    else if (data.user.role === 'director') window.location.href = '/director-portal.html';
+                    else if (data.user.role === 'director' || data.user.role === 'coaching') window.location.href = '/director-dashboard.html';
                     else if (data.user.role === 'teacher') window.location.href = '/teacher-portal.html';
                     else window.location.href = '/student-dashboard.html';
                 }
@@ -445,7 +447,7 @@
             }
         }
 
-        // 2. OTP VERIFICATION FLOW
+        // 2. OTP VERIFICATION FLOW (HANDLES BOTH LOGIN AND SIGN-UP VALIDATION)
         async function handleVerifyOtp() {
             const otpInput = document.getElementById('otpInput');
             const otp = (otpInput?.value || '').trim();
@@ -459,9 +461,51 @@
 
             clearAlert();
             btn.disabled = true;
-            btn.textContent = 'Verifying Access...';
+            btn.textContent = 'Verifying Code...';
 
             try {
+                // CASE 1: SIGN-UP OTP VERIFICATION (NEW ACCOUNT CREATION)
+                if (isSignupFlow && pendingRegistration) {
+                    const res = await fetch('/api/auth/verify-signup-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: currentEmail,
+                            otp,
+                            registrationType: pendingRegistration.registrationType,
+                            data: pendingRegistration.data
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        if (pendingRegistration.registrationType === 'student') {
+                            localStorage.setItem('bbcc_token', data.token);
+                            localStorage.setItem('bbcc_auth_token', data.token);
+                            localStorage.setItem('bbcc_user_email', currentEmail);
+                            localStorage.setItem('bbcc_user_role', 'student');
+
+                            showAlert('Email verified! Account created successfully. Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.href = data.redirectUrl || '/student-dashboard.html';
+                            }, 600);
+                        } else {
+                            // Coaching Registration
+                            showAlert(data.message, 'success');
+                            document.getElementById('formRegCoaching').reset();
+                            btn.textContent = 'Submitted for Review';
+                            setTimeout(() => {
+                                alert('Email Verified!\nYour coaching application has been submitted to Super Admin (Santosh Sir) for approval.');
+                                window.location.href = '/';
+                            }, 1200);
+                        }
+                    } else {
+                        showAlert(data.message || 'Invalid or expired verification code.', 'error');
+                    }
+                    return;
+                }
+
+                // CASE 2: EXISTING USER LOGIN OTP VERIFICATION
                 const res = await fetch('/api/auth/verify-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -470,7 +514,6 @@
                 const data = await res.json();
 
                 if (res.ok && data.token) {
-                    // Save 30-day session token
                     localStorage.setItem('bbcc_token', data.token);
                     localStorage.setItem('bbcc_auth_token', data.token);
                     localStorage.setItem('adminToken', data.token);
@@ -488,7 +531,7 @@
                 showAlert('Verification failed: ' + e.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Verify & Log In';
+                btn.textContent = isSignupFlow ? 'Verify & Complete Registration' : 'Verify & Log In';
             }
         }
 
@@ -502,7 +545,6 @@
             document.getElementById('boxSubTitle').textContent = 'Account not found. Please choose account type.';
             document.getElementById('regEmailSpan').textContent = email;
 
-            // Load approved centers list for student dropdown
             loadApprovedCenters();
             showAlert('No account found with this email. Please register below.', 'info');
         }
@@ -544,7 +586,7 @@
             } catch(e) {}
         }
 
-        // Register Student
+        // Register Student Step 1: Send OTP to Verify Email First
         async function handleRegisterStudent(e) {
             e.preventDefault();
             const name = document.getElementById('regStuName').value.trim();
@@ -555,44 +597,50 @@
 
             clearAlert();
             btn.disabled = true;
-            btn.textContent = 'Creating Student Account...';
+            btn.textContent = 'Sending Verification OTP...';
 
             try {
-                const res = await fetch('/api/auth/register-student', {
+                // Stash pending registration data
+                pendingRegistration = {
+                    registrationType: 'student',
+                    data: { name, phone, admissionType, coachingId }
+                };
+
+                const res = await fetch('/api/auth/send-signup-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name,
-                        email: currentEmail,
-                        phone,
-                        admissionType,
-                        coachingId
-                    })
+                    body: JSON.stringify({ email: currentEmail })
                 });
                 const data = await res.json();
 
-                if (res.ok && data.success && data.token) {
-                    localStorage.setItem('bbcc_token', data.token);
-                    localStorage.setItem('bbcc_auth_token', data.token);
-                    localStorage.setItem('bbcc_user_email', currentEmail);
-                    localStorage.setItem('bbcc_user_role', 'student');
+                if (res.ok && data.success) {
+                    isSignupFlow = true;
 
-                    showAlert('Account created! Welcome to BBCC.', 'success');
-                    setTimeout(() => {
-                        window.location.href = data.redirectUrl || '/student-dashboard.html';
-                    }, 600);
+                    // Transition to OTP verification stage
+                    document.getElementById('stageRegister').style.display = 'none';
+                    document.getElementById('stageOtp').style.display = 'block';
+
+                    document.getElementById('boxTitle').textContent = 'Verify Email to Complete Sign Up';
+                    document.getElementById('boxSubTitle').textContent = '4-Digit code dispatched to your email';
+                    document.getElementById('otpEmailSpan').textContent = currentEmail;
+                    document.getElementById('otpInput').value = '';
+                    document.getElementById('otpInput').focus();
+                    document.getElementById('btnVerifyOtp').textContent = 'Verify & Complete Registration';
+
+                    showAlert('Verification OTP sent to ' + currentEmail + '. Enter code below to activate your account.', 'success');
+                    startResendCountdown();
                 } else {
-                    showAlert(data.message || 'Failed to create student account.', 'error');
+                    showAlert(data.message || 'Failed to send verification code.', 'error');
                 }
             } catch(err) {
-                showAlert('Error: ' + err.message, 'error');
+                showAlert('Error sending verification code: ' + err.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Complete Student Registration';
             }
         }
 
-        // Register Coaching Center
+        // Register Coaching Step 1: Send OTP to Verify Email First
         async function handleRegisterCoaching(e) {
             e.preventDefault();
             const directorName = document.getElementById('regDirName').value.trim();
@@ -603,30 +651,43 @@
 
             clearAlert();
             btn.disabled = true;
-            btn.textContent = 'Submitting Application...';
+            btn.textContent = 'Sending Verification OTP...';
 
             try {
-                const res = await fetch('/api/auth/register-coaching', {
+                // Stash pending registration data
+                pendingRegistration = {
+                    registrationType: 'coaching',
+                    data: { directorName, centerName, phone, city }
+                };
+
+                const res = await fetch('/api/auth/send-signup-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        directorName,
-                        centerName,
-                        email: currentEmail,
-                        phone,
-                        city
-                    })
+                    body: JSON.stringify({ email: currentEmail })
                 });
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    showAlert(data.message, 'success');
-                    document.getElementById('formRegCoaching').reset();
+                    isSignupFlow = true;
+
+                    // Transition to OTP verification stage
+                    document.getElementById('stageRegister').style.display = 'none';
+                    document.getElementById('stageOtp').style.display = 'block';
+
+                    document.getElementById('boxTitle').textContent = 'Verify Email for Institute Application';
+                    document.getElementById('boxSubTitle').textContent = '4-Digit code dispatched to your email';
+                    document.getElementById('otpEmailSpan').textContent = currentEmail;
+                    document.getElementById('otpInput').value = '';
+                    document.getElementById('otpInput').focus();
+                    document.getElementById('btnVerifyOtp').textContent = 'Verify & Submit for Approval';
+
+                    showAlert('Verification OTP sent to ' + currentEmail + '. Enter code below to confirm application.', 'success');
+                    startResendCountdown();
                 } else {
-                    showAlert(data.message || 'Registration failed.', 'error');
+                    showAlert(data.message || 'Failed to send verification code.', 'error');
                 }
             } catch(err) {
-                showAlert('Error: ' + err.message, 'error');
+                showAlert('Error sending verification code: ' + err.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Submit Institute for Approval';
@@ -635,11 +696,14 @@
 
         function handleBackToEmail() {
             clearAlert();
+            isSignupFlow = false;
+            pendingRegistration = null;
             document.getElementById('stageOtp').style.display = 'none';
             document.getElementById('stageRegister').style.display = 'none';
             document.getElementById('stageEmail').style.display = 'block';
             document.getElementById('boxTitle').textContent = 'BBCC Skill Hub Login';
             document.getElementById('boxSubTitle').textContent = 'Enter your email to continue';
+            document.getElementById('btnVerifyOtp').textContent = 'Verify & Log In';
             document.getElementById('emailInput').focus();
         }
 
