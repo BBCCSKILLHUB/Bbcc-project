@@ -1027,10 +1027,13 @@
             const rollNo = document.getElementById('chkRollNo').value.trim();
 
             const orderPayload = {
+                docId: currentCheckoutBook._id,
                 documentId: currentCheckoutBook._id,
                 orderType: currentOrderType,
                 studentName: name,
+                payerName: name,
                 mobile: mobile,
+                payerPhone: mobile,
                 studentQuery: rollNo,
                 voucherCode: activeVoucher ? activeVoucher.code : null
             };
