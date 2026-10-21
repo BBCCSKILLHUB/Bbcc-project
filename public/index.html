@@ -2768,8 +2768,18 @@
             <a href="#faculty-showcase" class="btn-aurora btn-aurora-outline">
                 <i class="fas fa-chalkboard-teacher"></i> Expert Faculty
             </a>
-            <a href="/login.html" class="btn-aurora btn-aurora-outline" style="border-color:rgba(251, 191, 36, 0.4); color:var(--aurora-gold);">
-                <i class="fas fa-right-to-bracket"></i> Login / प्रवेश
+            <div id="navUserAuthDock" style="display:inline-flex; align-items:center; gap:6px;">
+                <button type="button" onclick="openOtpLoginModal()" id="btnNavOtpLogin" class="btn-aurora btn-aurora-outline" style="border-color:rgba(251, 191, 36, 0.4); color:var(--aurora-gold); cursor:pointer;">
+                    <i class="fas fa-key"></i> Login with OTP
+                </button>
+                <div id="navUserLoggedInPill" style="display:none; align-items:center; gap:8px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.4); padding:6px 14px; border-radius:20px;">
+                    <i class="fas fa-circle-user" style="color:var(--aurora-gold);"></i>
+                    <span id="navUserName" style="font-size:12.5px; font-weight:800; color:#ffffff;">Student</span>
+                    <button type="button" onclick="logoutOtpUser()" style="background:none; border:none; color:#f87171; font-size:11px; cursor:pointer; padding:0 2px;" title="Logout"><i class="fas fa-arrow-right-from-bracket"></i></button>
+                </div>
+            </div>
+            <a href="/login.html" class="btn-aurora btn-aurora-outline" style="border-color:rgba(255, 255, 255, 0.2); color:#cbd5e1;" title="Admin & Center Portal Login">
+                <i class="fas fa-user-shield"></i> Staff Portal
             </a>
             <a href="/ai-counselor.html" class="btn-aurora btn-aurora-outline" style="border-color:rgba(168, 85, 247, 0.4); color:#c084fc;">
                 <i class="fas fa-robot"></i> AI Counselor
@@ -2870,26 +2880,66 @@
         </div>
     </aside>
 
-    <!-- 4. Hero Section -->
-    <section class="hero-universe">
+    <!-- 4. Hero Section (College Vidya EdTech Aggregator Style) -->
+    <section class="hero-universe" style="padding-top:40px; padding-bottom:50px;">
         <div class="hero-tag">
             <span class="live-pulse-dot"></span>
-            <i class="fas fa-shield-halved"></i> Officially Recognized Digital Institute Network
+            <i class="fas fa-shield-halved"></i> Officially Recognized EdTech &amp; Coaching Aggregator Network
         </div>
-        <h2 class="hero-title" id="heroTagline">Empowering Certified Learning & Partner Institutes</h2>
+        <h2 class="hero-title" id="heroTagline">Find, Compare &amp; Enroll in Top Certified Coaching Centers</h2>
         <p class="hero-desc" id="heroDescriptionDisplay">
-            Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, compare courses and fees, and take direct admissions online.
+            Explore authentic textbook syllabus notes, discover verified faculty, verify coaching institute credentials directly with registration number, compare courses and fees, and take direct admissions online.
         </p>
+
+        <!-- College Vidya Style Aggregator Live Search Bar -->
+        <div class="aggregator-search-container" style="max-width:880px; margin:24px auto 16px; background:rgba(15,23,42,0.85); border:2px solid rgba(251,191,36,0.5); border-radius:18px; padding:8px 12px; box-shadow:0 12px 35px rgba(0,0,0,0.5), 0 0 25px rgba(251,191,36,0.2); backdrop-filter:blur(12px);">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-magnifying-glass" style="font-size:20px; color:var(--aurora-gold); margin-left:8px;"></i>
+                <input type="text" id="aggregatorSearchInput" oninput="handleAggregatorLiveSearch(this.value)" placeholder="Search Top Coaching Centers, Colleges &amp; Courses (e.g. Patna Science, ADCA, Class 10th)..." style="flex:1; background:transparent; border:none; outline:none; color:#ffffff; font-size:15px; font-weight:600; padding:10px 4px;">
+                <button type="button" onclick="executeAggregatorSearch()" class="btn-aurora btn-aurora-gold" style="padding:10px 22px; font-size:14px; border-radius:12px; white-space:nowrap;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <!-- Aggregator Filter Chips -->
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Quick Filters:</span>
+                <button type="button" onclick="filterAggregatorCategory('all')" class="chip-filter active" id="chip_all">🔥 All Institutions</button>
+                <button type="button" onclick="filterAggregatorCategory('computer')" class="chip-filter" id="chip_computer">💻 Computer &amp; IT</button>
+                <button type="button" onclick="filterAggregatorCategory('science')" class="chip-filter" id="chip_science">🔬 Science &amp; Matric</button>
+                <button type="button" onclick="filterAggregatorCategory('teaching')" class="chip-filter" id="chip_teaching">🎓 B.Ed / CTET</button>
+                <button type="button" onclick="filterAggregatorCategory('books')" class="chip-filter" id="chip_books">📚 E-Library Books</button>
+            </div>
+        </div>
+
+        <!-- Coaching Center Registration Verification Bar -->
+        <div style="max-width:880px; margin:0 auto 24px; background:linear-gradient(135deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(56,189,248,0.35); border-radius:16px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:50%; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); color:var(--aurora-cyan); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div>
+                    <strong style="color:#ffffff; font-size:13.5px; display:block;">Verify Registered Coaching Center (BBCC Registration No)</strong>
+                    <span style="color:#94a3b8; font-size:11.5px;">मान्यता प्राप्त कोचिंग सेंटर का रजिस्ट्रेशन नंबर डालकर सत्यापन करें</span>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:420px; min-width:260px;">
+                <input type="text" id="centerVerifyRegInput" placeholder="Enter Center Reg No (e.g. BBCC-PAT-001)..." style="flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#ffffff; font-size:13px; padding:8px 12px; outline:none;">
+                <button type="button" onclick="verifyCenterByReg()" class="btn-aurora btn-aurora-cyan" style="padding:8px 16px; font-size:12.5px; border-radius:10px; white-space:nowrap;">
+                    <i class="fas fa-check-circle"></i> Verify
+                </button>
+            </div>
+        </div>
+        <div id="centerVerifyResultBox" style="display:none; max-width:880px; margin:-12px auto 20px;"></div>
 
         <div class="hero-cta-dock">
             <a href="#courses" class="btn-aurora btn-aurora-gold" style="padding:12px 24px; font-size:14px;">
-                <i class="fas fa-compass"></i> Explore Courses & Batches
+                <i class="fas fa-compass"></i> Explore Courses &amp; Batches
             </a>
             <button onclick="openDirectAdmissionModal()" class="btn-aurora btn-aurora-gold" style="padding:12px 24px; font-size:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; box-shadow:0 4px 16px rgba(16,185,129,0.35);">
                 <i class="fas fa-id-card"></i> Direct Student Self-Admission
             </button>
-            <a href="/classroom" class="btn-aurora btn-aurora-classroom" style="padding:12px 24px; font-size:14px;">
-                <i class="fas fa-desktop"></i> Student Classroom Login
+            <a href="#vault" class="btn-aurora btn-aurora-outline" style="padding:12px 22px; font-size:14px; border-color:var(--aurora-gold); color:var(--aurora-gold);">
+                <i class="fas fa-book-bookmark"></i> Top Study Materials (Flipkart Style)
             </a>
             <button onclick="openSelfRegistrationModal()" class="btn-aurora btn-aurora-outline" style="padding:12px 22px; font-size:14px;">
                 <i class="fas fa-school"></i> Register Coaching (<span id="btnHeroAffFee">₹999</span>)
@@ -2903,7 +2953,7 @@
             </div>
             <div class="stat-card-elite">
                 <h3 id="statCoursesCount">0+</h3>
-                <p>Active Courses & Batches</p>
+                <p>Active Courses &amp; Batches</p>
             </div>
             <div class="stat-card-elite">
                 <h3 id="statBooksCount">0+</h3>
@@ -2969,40 +3019,42 @@
     </section>
 
     <!-- ============================================================
-         5B. CENTRAL E-LIBRARY & DIGITAL BOOK VAULT (E-LOCKER)
+         5B. TOP STUDY MATERIALS & E-LIBRARY (FLIPKART / MEESHO STYLE)
          ============================================================ -->
-    <section class="universe-section" id="vault">
+    <section class="universe-section" id="vault" style="padding-top:20px; padding-bottom:50px;">
         <div class="section-header-elite">
             <span style="background:rgba(251,191,36,0.12); color:var(--aurora-gold); padding:4px 14px; border-radius:16px; font-size:12px; font-weight:800; text-transform:uppercase;">
-                <i class="fas fa-book-bookmark"></i> Study Material & Notes
+                <i class="fas fa-bolt"></i> Flipkart &amp; Meesho Style Store
             </span>
-            <h2 style="margin-top:10px;">Central Study Material & E-Library Vault (अध्ययन सामग्री)</h2>
-            <p>Curated syllabus notes, guides, and model question papers. Download authentic E-PDFs or order printed physical hard copies to pick up from coaching campus.</p>
+            <h2 style="margin-top:10px;">Top Study Materials &amp; E-Library Books (अध्ययन सामग्री)</h2>
+            <p>100% Authentic NCERT &amp; Board Exam Guides. Instant PDF download or home delivery with seamless OTP verification.</p>
         </div>
 
-        <div style="background:radial-gradient(circle at center, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.95) 100%); border:1px solid var(--border-glow); border-radius:24px; padding:44px 24px; text-align:center; max-width:850px; margin:0 auto; box-shadow:0 16px 40px rgba(0,0,0,0.6), 0 0 30px rgba(251,191,36,0.15);">
-            <div style="width:72px; height:72px; border-radius:50%; background:rgba(251,191,36,0.15); border:2px solid var(--border-glow); color:var(--aurora-gold); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:30px; box-shadow:0 0 24px rgba(251,191,36,0.3);">
-                <i class="fas fa-book-open-reader"></i>
+        <!-- Voucher Bar -->
+        <div style="max-width:820px; margin:0 auto 24px; background:rgba(255,255,255,0.03); border:1px solid rgba(251,191,36,0.3); border-radius:16px; padding:12px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+            <i class="fas fa-tag" style="color:var(--aurora-gold); font-size:18px;"></i>
+            <span style="font-size:13px; color:#cbd5e1; font-weight:700;">Have a Discount Coupon?</span>
+            <div style="display:flex; gap:8px; flex:1; min-width:240px;">
+                <input type="text" id="vaultVoucherInput" placeholder="e.g. BBCC10, FLAT50, SCHOLAR100" style="flex:1; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; font-size:13px; padding:8px 12px; text-transform:uppercase; outline:none;">
+                <button type="button" onclick="applyVaultVoucher()" class="btn-aurora btn-aurora-gold" style="padding:8px 18px; font-size:13px; border-radius:10px;">Apply</button>
             </div>
-            
-            <h3 style="font-family:'Cinzel',serif; font-size:24px; font-weight:800; color:#f8fafc; margin-bottom:12px;">
-                Explore Dedicated Central E-Library
-            </h3>
-            <p style="font-size:14px; color:var(--text-dim); max-width:580px; margin:0 auto 24px; line-height:1.6;">
-                सभी कक्षाओं (Class 10th, 12th, IT, CTET) के सम्पूर्ण स्टडी नोट्स, मॉडल पेपर्स, और किताबें अब हमारे अलग समर्पित ई-लाइब्रेरी पोर्टल पर उपलब्ध हैं।
-            </p>
+        </div>
+        <div id="voucherNoticeBox" style="display:none; max-width:820px; margin:-14px auto 24px; padding:10px 14px; border-radius:10px; font-size:13px;"></div>
 
-            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:28px;">
-                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-file-pdf" style="color:var(--aurora-cyan);"></i> Free &amp; Paid PDFs</span>
-                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-box-open" style="color:var(--aurora-gold);"></i> Printed Hard Copy Delivery</span>
-                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-ticket-simple" style="color:#c084fc;"></i> Up to 100% Scholarship Coupons</span>
-                <span style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); padding:6px 14px; border-radius:20px; font-size:12px; color:#cbd5e1;"><i class="fas fa-graduation-cap" style="color:#34d399;"></i> Enrolled Student Pass</span>
+        <!-- Flipkart / Meesho Style Product Grid -->
+        <div class="vault-grid" id="booksGrid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-slate);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top:12px;">Loading verified study materials from cloud vault...</p>
             </div>
+        </div>
 
-            <a href="/e-library" class="btn-aurora btn-aurora-gold" style="padding:14px 34px; font-size:16px; font-weight:800; border-radius:14px; display:inline-flex; align-items:center; gap:10px; text-decoration:none; box-shadow:0 8px 28px rgba(245,158,11,0.45);">
-                <i class="fas fa-book-open"></i> Open Central E-Library (ई-लाइब्रेरी खोलें) <i class="fas fa-arrow-right"></i>
+        <div style="text-align:center; margin-top:32px;">
+            <a href="/e-library" class="btn-aurora btn-aurora-outline" style="border-color:var(--aurora-gold); color:var(--aurora-gold); padding:12px 28px; font-size:14px; border-radius:12px;">
+                <i class="fas fa-book-open"></i> Open Central E-Library Portal (सभी पुस्तकें देखें) <i class="fas fa-arrow-right"></i>
             </a>
         </div>
+    </section>
     </section>
 
     <!-- ============================================================
@@ -3794,6 +3846,93 @@
                             <i class="fas fa-print"></i> Print Receipt
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 7: COLLEGE VIDYA & FLIPKART STYLE OTP LOGIN SYSTEM
+         ============================================================ -->
+    <div class="aurora-modal-dock" id="otpLoginModalDock" style="display:none; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:10005;">
+        <div class="modal-body-panel" style="max-width:440px; background:#070d1d; border:1px solid rgba(251,191,36,0.4); border-radius:20px; box-shadow:0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(251,191,36,0.25); overflow:hidden; animation:scaleUpModal 0.3s cubic-bezier(0.16,1,0.3,1);">
+            <div class="modal-head-bar" style="background:linear-gradient(90deg, #1e1b4b 0%, #0d172e 100%); padding:18px 22px; border-bottom:1px solid rgba(251,191,36,0.2); display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.4); color:var(--aurora-gold); display:flex; align-items:center; justify-content:center; font-size:16px;">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family:'Cinzel',serif; font-size:16px; margin:0; color:#ffffff;">One-Click OTP Login</h3>
+                        <span style="font-size:11px; color:#94a3b8;">BBCC Aggregator &amp; Student Portal</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeOtpLoginModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer; padding:4px;" title="Close">✕</button>
+            </div>
+
+            <div style="padding:24px 22px;">
+                <div id="otpStatusAlert" style="display:none; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:16px; font-weight:600;"></div>
+
+                <!-- STEP 1: Enter Email / Mobile -->
+                <div id="otpStep1Box">
+                    <p style="font-size:13px; color:#cbd5e1; margin-bottom:16px; line-height:1.5;">
+                        College Vidya &amp; Flipkart की तरह बिना पासवर्ड तुरंत OTP से सुरक्षित लॉग-इन करें और 30 दिनों तक लगातार ई-लाइब्रेरी, स्टडी नोट्स व कोर्सेज एक्सेस करें।
+                    </p>
+
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block; font-size:12px; font-weight:700; color:var(--aurora-gold); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">
+                            <i class="fas fa-envelope"></i> Email Address / Mobile
+                        </label>
+                        <input type="email" id="otpUserEmail" placeholder="e.g. student@gmail.com" class="modal-input-field" style="width:100%; box-sizing:border-box; padding:12px 14px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.18); border-radius:12px; color:#ffffff; font-size:14px; outline:none;" onkeydown="if(event.key==='Enter'){submitSendOtp();}">
+                    </div>
+
+                    <div style="margin-bottom:18px;">
+                        <label style="display:block; font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">
+                            <i class="fas fa-user-tag"></i> Login As
+                        </label>
+                        <select id="otpUserRole" class="modal-input-field" style="width:100%; box-sizing:border-box; padding:10px 14px; background:#0d172e; border:1px solid rgba(255,255,255,0.18); border-radius:12px; color:#ffffff; font-size:13px; outline:none;">
+                            <option value="student">Student / Learner (अध्येता)</option>
+                            <option value="director">Coaching Director / Center Head</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="btnSubmitSendOtp" onclick="submitSendOtp()" class="btn-aurora btn-aurora-gold" style="width:100%; padding:13px 18px; font-size:14px; font-weight:800; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fas fa-paper-plane"></i> 4-Digit OTP भेजें
+                    </button>
+                </div>
+
+                <!-- STEP 2: Enter 4-digit OTP -->
+                <div id="otpStep2Box" style="display:none;">
+                    <div style="text-align:center; margin-bottom:18px;">
+                        <div style="width:52px; height:52px; border-radius:50%; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h4 style="font-size:15px; color:#ffffff; margin-bottom:4px;">Enter Verification OTP</h4>
+                        <p style="font-size:12.5px; color:#94a3b8; margin:0;">
+                            OTP sent to: <strong id="otpTargetEmailDisplay" style="color:var(--aurora-gold);"></strong>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom:18px;">
+                        <input type="text" id="otpVerificationCode" maxlength="4" placeholder="••••" style="width:100%; box-sizing:border-box; padding:12px; text-align:center; font-size:28px; font-family:'Space Grotesk',monospace; letter-spacing:14px; font-weight:800; background:rgba(0,0,0,0.6); border:2px solid var(--aurora-gold); border-radius:14px; color:#fbbf24; outline:none;" onkeydown="if(event.key==='Enter'){submitVerifyOtp();}">
+                        <span style="font-size:11px; color:#94a3b8; display:block; text-align:center; margin-top:6px;">मान्यता समय: 10 मिनट</span>
+                    </div>
+
+                    <button type="button" id="btnSubmitVerifyOtp" onclick="submitVerifyOtp()" class="btn-aurora btn-aurora-gold" style="width:100%; padding:13px 18px; font-size:14px; font-weight:800; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fas fa-circle-check"></i> Verify &amp; Continue
+                    </button>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-size:12px;">
+                        <button type="button" onclick="resetOtpStep1()" style="background:none; border:none; color:#94a3b8; cursor:pointer; text-decoration:underline;">
+                            <i class="fas fa-arrow-left"></i> Change Email
+                        </button>
+                        <button type="button" id="btnResendOtp" onclick="submitSendOtp()" style="background:none; border:none; color:var(--aurora-gold); cursor:pointer; font-weight:700;">
+                            <i class="fas fa-rotate"></i> Resend OTP
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); text-align:center; font-size:11px; color:#64748b;">
+                    <i class="fas fa-lock" style="color:#10b981;"></i> 256-Bit SSL Secured • BBCC Skill Hub Central Authentication
                 </div>
             </div>
         </div>
@@ -5404,6 +5543,14 @@
         }
 
         function openCheckout(docId, orderType) {
+            const token = localStorage.getItem('bbcc_auth_token');
+            if (!token) {
+                openOtpLoginModal(() => {
+                    openCheckout(docId, orderType);
+                });
+                return;
+            }
+
             if (!allBooks || allBooks.length === 0) return;
             const book = allBooks.find(b => (b._id || '').toString() === (docId || '').toString());
             if (!book) return;
@@ -5768,18 +5915,33 @@
         }
 
         async function downloadFreeDirect(docId, encTitle) {
+            const token = localStorage.getItem('bbcc_auth_token');
+            if (!token) {
+                openOtpLoginModal(() => {
+                    downloadFreeDirect(docId, encTitle);
+                });
+                return;
+            }
+
             try {
                 const res = await fetch('/api/pay/create-document-order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ docId, orderType: 'pdf' })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ docId, orderType: 'pdf', token })
                 });
                 const data = await res.json();
                 if (data.success && (data.downloadUrl || data.file)) {
-                    const dl = data.downloadUrl || data.file;
+                    let dl = data.downloadUrl || data.file;
+                    if (dl.startsWith('/') && !dl.includes('token=')) {
+                        dl += (dl.includes('?') ? '&' : '?') + `token=${encodeURIComponent(token)}`;
+                    }
                     triggerDownload(dl, data.fileName || 'study_document.pdf');
                 } else {
-                    alert(data.message || 'Document unavailable');
+                    // Direct stream download fallback
+                    triggerDownload(`/api/pay/download-file?docId=${encodeURIComponent(docId)}&token=${encodeURIComponent(token)}`, 'study_document.pdf');
                 }
             } catch(e) {
                 alert('Download connection error: ' + e.message);
@@ -6491,11 +6653,409 @@
             setInterval(checkDbVersionAndSync, 15000);
         }
 
+        /* ============================================================
+           BBCC EDTECH AGGREGATOR & OTP AUTHENTICATION ENGINE
+           ============================================================ */
+        let pendingLoginCallback = null;
+
+        function openOtpLoginModal(callback) {
+            if (typeof callback === 'function') {
+                pendingLoginCallback = callback;
+            } else {
+                pendingLoginCallback = null;
+            }
+            const modal = document.getElementById('otpLoginModalDock');
+            if (modal) {
+                modal.style.display = 'flex';
+                resetOtpStep1();
+                setTimeout(() => {
+                    const inp = document.getElementById('otpUserEmail');
+                    if (inp) inp.focus();
+                }, 150);
+            }
+        }
+
+        function closeOtpLoginModal() {
+            const modal = document.getElementById('otpLoginModalDock');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function resetOtpStep1() {
+            const s1 = document.getElementById('otpStep1Box');
+            const s2 = document.getElementById('otpStep2Box');
+            const alertBox = document.getElementById('otpStatusAlert');
+            if (s1) s1.style.display = 'block';
+            if (s2) s2.style.display = 'none';
+            if (alertBox) alertBox.style.display = 'none';
+            const btn = document.getElementById('btnSubmitSendOtp');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> 4-Digit OTP भेजें';
+            }
+        }
+
+        async function submitSendOtp() {
+            const emailInp = document.getElementById('otpUserEmail');
+            const email = (emailInp ? emailInp.value : '').trim();
+            const btn = document.getElementById('btnSubmitSendOtp');
+            const resendBtn = document.getElementById('btnResendOtp');
+
+            if (!email) {
+                showOtpAlert('कृपया अपना मान्य ईमेल दर्ज करें (उदा. student@gmail.com)', 'error');
+                if (emailInp) emailInp.focus();
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> OTP भेजा जा रहा है...';
+            }
+            if (resendBtn) resendBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (res.ok && (data.success || data.message)) {
+                    document.getElementById('otpStep1Box').style.display = 'none';
+                    document.getElementById('otpStep2Box').style.display = 'block';
+                    document.getElementById('otpTargetEmailDisplay').textContent = email;
+                    showOtpAlert('सफलता! 4-Digit OTP आपके ईमेल पर भेज दिया गया है।', 'success');
+                    const codeInp = document.getElementById('otpVerificationCode');
+                    if (codeInp) {
+                        codeInp.value = '';
+                        setTimeout(() => codeInp.focus(), 150);
+                    }
+                } else {
+                    showOtpAlert(data.message || 'OTP भेजने में त्रुटि आई। कृपया पुनः प्रयास करें।', 'error');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> 4-Digit OTP भेजें';
+                    }
+                }
+            } catch (err) {
+                showOtpAlert('सर्वर से कनेक्ट करने में त्रुटि: ' + err.message, 'error');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> 4-Digit OTP भेजें';
+                }
+            } finally {
+                if (resendBtn) resendBtn.disabled = false;
+            }
+        }
+
+        async function submitVerifyOtp() {
+            const email = (document.getElementById('otpUserEmail') ? document.getElementById('otpUserEmail').value : '').trim();
+            const otpInp = document.getElementById('otpVerificationCode');
+            const otp = (otpInp ? otpInp.value : '').trim();
+            const role = (document.getElementById('otpUserRole') ? document.getElementById('otpUserRole').value : 'student');
+            const btn = document.getElementById('btnSubmitVerifyOtp');
+
+            if (!otp || otp.length < 4) {
+                showOtpAlert('कृपया प्राप्त 4-Digit OTP दर्ज करें।', 'error');
+                if (otpInp) otpInp.focus();
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> वेरीफाई हो रहा है...';
+            }
+
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, role })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    localStorage.setItem('bbcc_auth_token', data.token);
+                    localStorage.setItem('bbcc_user_email', email);
+                    localStorage.setItem('bbcc_user_role', data.role || role || 'student');
+                    if (data.student && data.student.name) {
+                        localStorage.setItem('bbcc_student_name', data.student.name);
+                    }
+                    showOtpAlert('लॉग-इन सफल! 30 दिनों के लिए सत्र सक्रिय है।', 'success');
+                    updateNavAuthDisplay(true, email);
+                    setTimeout(() => {
+                        closeOtpLoginModal();
+                        if (typeof pendingLoginCallback === 'function') {
+                            const cb = pendingLoginCallback;
+                            pendingLoginCallback = null;
+                            cb();
+                        }
+                    }, 500);
+                } else {
+                    showOtpAlert(data.message || 'अमान्य OTP! कृपया सही 4-अंकीय कोड दर्ज करें।', 'error');
+                }
+            } catch (err) {
+                showOtpAlert('वेरिफिकेशन में त्रुटि: ' + err.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-circle-check"></i> Verify &amp; Continue';
+                }
+            }
+        }
+
+        function showOtpAlert(msg, type) {
+            const el = document.getElementById('otpStatusAlert');
+            if (!el) return;
+            el.style.display = 'block';
+            if (type === 'success') {
+                el.style.background = 'rgba(16,185,129,0.15)';
+                el.style.border = '1px solid #10b981';
+                el.style.color = '#34d399';
+                el.innerHTML = `<i class="fas fa-circle-check"></i> ${msg}`;
+            } else {
+                el.style.background = 'rgba(239,68,68,0.15)';
+                el.style.border = '1px solid #ef4444';
+                el.style.color = '#fca5a5';
+                el.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${msg}`;
+            }
+        }
+
+        function updateNavAuthDisplay(isLoggedIn, email) {
+            const loginBtn = document.getElementById('btnNavOtpLogin');
+            const pill = document.getElementById('navUserLoggedInPill');
+            const nameEl = document.getElementById('navUserName');
+            if (isLoggedIn) {
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (pill) pill.style.display = 'inline-flex';
+                if (nameEl) {
+                    const displayName = localStorage.getItem('bbcc_student_name') || (email ? email.split('@')[0] : 'Learner');
+                    nameEl.textContent = displayName;
+                }
+            } else {
+                if (loginBtn) loginBtn.style.display = 'inline-flex';
+                if (pill) pill.style.display = 'none';
+            }
+        }
+
+        function logoutOtpUser() {
+            localStorage.removeItem('bbcc_auth_token');
+            localStorage.removeItem('bbcc_user_email');
+            localStorage.removeItem('bbcc_user_role');
+            updateNavAuthDisplay(false, '');
+            alert('आप सफलतापूर्वक लॉग आउट हो गए हैं।');
+        }
+
+        async function checkUserSession() {
+            const token = localStorage.getItem('bbcc_auth_token');
+            if (!token) {
+                updateNavAuthDisplay(false, '');
+                return;
+            }
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.user) {
+                        updateNavAuthDisplay(true, data.user.email);
+                        if (data.user.name) localStorage.setItem('bbcc_student_name', data.user.name);
+                    } else {
+                        updateNavAuthDisplay(false, '');
+                    }
+                } else {
+                    localStorage.removeItem('bbcc_auth_token');
+                    updateNavAuthDisplay(false, '');
+                }
+            } catch (e) {
+                const email = localStorage.getItem('bbcc_user_email') || 'Student';
+                updateNavAuthDisplay(true, email);
+            }
+        }
+
+        /* Coaching Center Verification by Registration No */
+        async function verifyCenterByReg() {
+            const input = document.getElementById('centerVerifyRegInput');
+            const box = document.getElementById('centerVerifyResultBox');
+            const query = (input ? input.value : '').trim();
+
+            if (!query) {
+                alert('कृपया कोचिंग सेंटर का BBCC रजिस्ट्रेशन नंबर दर्ज करें (उदा. BBCC-PAT-001)');
+                if (input) input.focus();
+                return;
+            }
+
+            if (box) {
+                box.style.display = 'block';
+                box.innerHTML = `
+                    <div style="background:rgba(15,23,42,0.95); border:1px solid rgba(56,189,248,0.4); border-radius:14px; padding:16px 20px; text-align:center; color:#38bdf8;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:22px; margin-bottom:8px;"></i>
+                        <div style="font-size:13.5px; font-weight:700;">सत्यापन किया जा रहा है... (Verifying with Central ISO Registry)</div>
+                    </div>
+                `;
+            }
+
+            try {
+                const res = await fetch(`/api/public/verify-center/${encodeURIComponent(query)}?_t=${Date.now()}`);
+                const data = await res.json();
+
+                if (data.success && data.center) {
+                    const c = data.center;
+                    box.innerHTML = `
+                        <div style="background:linear-gradient(135deg, rgba(6,78,59,0.9) 0%, rgba(15,23,42,0.98) 100%); border:2px solid #10b981; border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(16,185,129,0.3); animation:slideUpBanner 0.35s ease;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid rgba(16,185,129,0.3); padding-bottom:12px; margin-bottom:14px;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:44px; height:44px; border-radius:12px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:22px; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px; color:#34d399; font-weight:800; text-transform:uppercase; letter-spacing:1px;">
+                                            <i class="fas fa-circle-check"></i> 100% VERIFIED &amp; ACCREDITED CENTER
+                                        </div>
+                                        <h3 style="font-size:17px; color:#ffffff; margin:2px 0 0; font-family:'Cinzel',serif;">${c.centerName || 'Verified Institute'}</h3>
+                                    </div>
+                                </div>
+                                <span style="background:rgba(251,191,36,0.15); border:1px solid var(--aurora-gold); color:var(--aurora-gold); font-size:12px; font-weight:800; padding:5px 12px; border-radius:20px; font-family:monospace;">
+                                    Reg: ${c.registrationNo || query}
+                                </span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; font-size:12.5px; color:#cbd5e1; margin-bottom:14px;">
+                                <div><strong style="color:var(--aurora-gold);">Director / Principal:</strong> ${c.directorName || 'Certified Head'}</div>
+                                <div><strong style="color:var(--aurora-gold);">Accreditation:</strong> ${c.accreditation || 'ISO 9001:2015'}</div>
+                                <div><strong style="color:var(--aurora-gold);">Contact:</strong> ${c.contact || 'Verified'}</div>
+                                <div><strong style="color:var(--aurora-gold);">Location:</strong> ${c.address || 'Patna, Bihar'}</div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="font-size:11px; color:#94a3b8;"><i class="fas fa-clock"></i> Affiliation Valid through 2026-2027 Academic Session</span>
+                                <a href="#courses" onclick="handleAggregatorLiveSearch('${c.centerName}')" class="btn-aurora btn-aurora-gold" style="padding:6px 16px; font-size:12px; font-weight:700;">
+                                    <i class="fas fa-graduation-cap"></i> View Available Batches
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    box.innerHTML = `
+                        <div style="background:rgba(239,68,68,0.12); border:1px solid #ef4444; border-radius:14px; padding:16px 20px; color:#fca5a5; font-size:13px; animation:slideUpBanner 0.35s ease;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                                <i class="fas fa-triangle-exclamation" style="font-size:18px; color:#ef4444;"></i>
+                                <strong style="color:#ffffff;">सत्यापन असफल (No Record Found)</strong>
+                            </div>
+                            <p style="margin:0; font-size:12px; line-height:1.5;">
+                                रजिस्ट्रेशन नंबर '<b>${query}</b>' से कोई मान्यता प्राप्त संस्थान नहीं मिला। कृपया सही रजिस्ट्रेशन नंबर चेक करें या संस्थान को BBCC से संबद्धता (Affiliation) प्राप्त करने को कहें।
+                            </p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                box.innerHTML = `
+                    <div style="background:rgba(239,68,68,0.12); border:1px solid #ef4444; border-radius:14px; padding:14px; color:#fca5a5; font-size:12.5px;">
+                        सत्यापन में त्रुटि आई: ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        /* Aggregator Live Search Filter */
+        function handleAggregatorLiveSearch(query) {
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                renderCenters(allCenters);
+                renderCourses(allCourses);
+                renderBooks(allBooks);
+                return;
+            }
+
+            // Filter Centers
+            const matchedCenters = allCenters.filter(c => 
+                (c.centerName || '').toLowerCase().includes(q) ||
+                (c.username || '').toLowerCase().includes(q) ||
+                (c.directorName || '').toLowerCase().includes(q) ||
+                (c.address || '').toLowerCase().includes(q) ||
+                (c.registrationNo || '').toLowerCase().includes(q)
+            );
+            renderCenters(matchedCenters);
+
+            // Filter Courses
+            const matchedCourses = allCourses.filter(cr => 
+                (cr.name || '').toLowerCase().includes(q) ||
+                (cr.category || '').toLowerCase().includes(q) ||
+                (cr.targetCenterName || '').toLowerCase().includes(q) ||
+                (cr.description || '').toLowerCase().includes(q)
+            );
+            renderCourses(matchedCourses);
+
+            // Filter Books
+            const matchedBooks = allBooks.filter(b => 
+                (b.title || '').toLowerCase().includes(q) ||
+                (b.subject || '').toLowerCase().includes(q) ||
+                (b.classLevel || '').toLowerCase().includes(q) ||
+                (b.targetCenterName || '').toLowerCase().includes(q)
+            );
+            renderBooks(matchedBooks);
+        }
+
+        function executeAggregatorSearch() {
+            const inp = document.getElementById('aggregatorSearchInput');
+            const q = (inp ? inp.value : '').trim();
+            handleAggregatorLiveSearch(q);
+            const target = document.getElementById('institutes') || document.getElementById('courses') || document.getElementById('vault');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function filterAggregatorCategory(cat) {
+            ['chip_all', 'chip_computer', 'chip_science', 'chip_teaching', 'chip_books'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            const activeChip = document.getElementById('chip_' + cat);
+            if (activeChip) activeChip.classList.add('active');
+
+            if (cat === 'all') {
+                renderCenters(allCenters);
+                renderCourses(allCourses);
+                renderBooks(allBooks);
+                return;
+            }
+
+            if (cat === 'computer') {
+                const matched = allCourses.filter(c => {
+                    const str = `${c.name || ''} ${c.category || ''} ${c.description || ''}`.toLowerCase();
+                    return str.includes('computer') || str.includes('adca') || str.includes('dca') || str.includes('it') || str.includes('coding');
+                });
+                renderCourses(matched);
+                const el = document.getElementById('courses');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            } else if (cat === 'science') {
+                const matched = allCourses.filter(c => {
+                    const str = `${c.name || ''} ${c.category || ''} ${c.description || ''}`.toLowerCase();
+                    return str.includes('science') || str.includes('math') || str.includes('matric') || str.includes('class 10') || str.includes('class 12');
+                });
+                renderCourses(matched);
+                const el = document.getElementById('courses');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            } else if (cat === 'teaching') {
+                const matched = allCourses.filter(c => {
+                    const str = `${c.name || ''} ${c.category || ''} ${c.description || ''}`.toLowerCase();
+                    return str.includes('b.ed') || str.includes('ctet') || str.includes('deled') || str.includes('tet') || str.includes('teaching');
+                });
+                renderCourses(matched);
+                const el = document.getElementById('courses');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            } else if (cat === 'books') {
+                const el = document.getElementById('vault');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             initSplashScreenAnimation();
             initPushNotificationPrompt();
             initPortal();
             initRealtimeSync();
+            checkUserSession();
         });
     </script>
 
