@@ -3220,8 +3220,8 @@
 
     <!-- Client Script -->
     <script>
-        const token = localStorage.getItem('bbcc_token');
-        if (!token) window.location.replace('/login');
+        const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token');
+        if (!token) window.location.replace('/login.html');
 
         function openAdminManualModal() {
             const m = document.getElementById('adminManualModal');
