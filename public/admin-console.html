@@ -246,6 +246,9 @@
             <button class="admin-nav-btn" id="navBtn-founder-settings" onclick="switchAdminTab('founder-settings')">
                 <i class="fas fa-user-gear" style="color:#ec4899;"></i> 6. Founder & Settings
             </button>
+            <button class="admin-nav-btn" id="navBtn-students" onclick="switchAdminTab('students')">
+                <i class="fas fa-user-graduate" style="color:#10b981;"></i> 7. Master Student List
+            </button>
 
             <!-- Category Title: DIRECTORATE TOOLS & STUDIO -->
             <div style="margin-top:16px; padding:6px 12px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
@@ -399,6 +402,39 @@
                             </button>
                             <button type="button" onclick="loadCoachingManagement()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">
                                 <i class="fas fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coaching Registration Fee Controller (Santosh Sir Admin Setting) -->
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(245,158,11,0.4); background:linear-gradient(135deg, rgba(245,158,11,0.08), rgba(15,23,42,0.95));">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:20px; color:#fbbf24;"><i class="fas fa-hand-holding-dollar"></i></span>
+                                <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0; color:#f8fafc;">Coaching Registration Fee Controller</h3>
+                                <span id="currentFeeBadge" style="background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px;">LOADING...</span>
+                            </div>
+                            <p style="color:#cbd5e1; font-size:12.5px; margin:6px 0 0 0;">
+                                Santosh Sir Control: Decide whether new partner coachings register for <b>FREE</b> or pay a <b>REGISTRATION FEE</b> during onboarding.
+                            </p>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.3); padding:6px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);">
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:700; color:#10b981;">
+                                    <input type="radio" name="coachingFeeMode" id="feModeFree" value="FREE" onchange="toggleFeeInputMode(this.value)"> FREE
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:700; color:#fbbf24; margin-left:8px;">
+                                    <input type="radio" name="coachingFeeMode" id="feModePaid" value="PAID" onchange="toggleFeeInputMode(this.value)" checked> PAID
+                                </label>
+                            </div>
+                            <div id="feeAmountWrapper" style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-weight:700; color:#94a3b8; font-size:14px;">₹</span>
+                                <input type="number" id="coachingFeeAmountInput" value="999" min="0" step="50" class="console-input" style="width:110px; margin:0; padding:8px 10px; font-weight:800; text-align:center; color:#fbbf24; font-size:15px;">
+                            </div>
+                            <button type="button" onclick="saveCoachingFeeSetting()" class="btn-aurora btn-gold" style="padding:9px 18px; font-weight:800;">
+                                <i class="fas fa-floppy-disk"></i> Save Fee Setting
                             </button>
                         </div>
                     </div>
@@ -1312,24 +1348,76 @@
             </div>
 
             <!-- TAB 3: STUDENT ENROLMENT ROSTER -->
+            <!-- TAB 7: MASTER STUDENT LIST -->
             <div class="admin-tab" id="tab-students">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(16,185,129,0.35); background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(15,23,42,0.95));">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#10b981;"><i class="fas fa-user-graduate"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Master Student Roster &amp; Direct Visitors</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Complete database of all students enrolled in affiliated coaching centers or browsing directly as BBCC Visitors.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="loadStudents()" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Roster
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Row -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-top:20px;">
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Total Students</div>
+                            <div id="statTotalStudents" style="font-size:24px; font-weight:900; color:#38bdf8; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Coaching Enrolled</div>
+                            <div id="statCoachingStudents" style="font-size:24px; font-weight:900; color:#10b981; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">BBCC Direct Visitors</div>
+                            <div id="statDirectStudents" style="font-size:24px; font-weight:900; color:#c084fc; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Blocked Accounts</div>
+                            <div id="statBlockedStudents" style="font-size:24px; font-weight:900; color:#ef4444; margin-top:4px;">0</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:18px; margin-bottom:16px;">All Enrolled Students Across Centers</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0;">All Students Database</h3>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <input type="text" id="studentSearchInput" onkeyup="filterStudentsMaster()" placeholder="Search by name, email, roll..." class="console-input" style="max-width:240px; margin:0;">
+                            <select id="studentTypeFilter" onchange="filterStudentsMaster()" class="console-input" style="max-width:180px; margin:0;">
+                                <option value="all">All Registrations</option>
+                                <option value="coaching">Coaching Enrolled Only</option>
+                                <option value="direct">Direct BBCC Visitors Only</option>
+                                <option value="blocked">Blocked Only</option>
+                            </select>
+                        </div>
+                    </div>
                     <div style="overflow-x:auto;">
                         <table class="console-table">
                             <thead>
                                 <tr>
-                                    <th>Roll Number</th>
-                                    <th>Student Name</th>
-                                    <th>Father Name</th>
-                                    <th>Course / Class</th>
-                                    <th>Grade</th>
-                                    <th>Center Name</th>
+                                    <th>Roll / ID</th>
+                                    <th>Student Name &amp; Email</th>
+                                    <th>Contact</th>
+                                    <th>Admission Type</th>
+                                    <th>Center / Institute</th>
                                     <th>Status</th>
+                                    <th>Registered On</th>
+                                    <th>1-Click Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="studentsTbody">
-                                <tr><td colspan="7" style="text-align:center; padding:20px;">Loading student records...</td></tr>
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Loading student records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -4734,6 +4822,7 @@ Provide authentic information and direct escalation links to leadership or cente
                 } else {
                     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#ef4444;">Failed to load coaching list</td></tr>';
                 }
+                loadCoachingFeeSetting();
             } catch (err) {
                 console.error('loadCoachingManagement error:', err);
             }
@@ -8797,33 +8886,230 @@ Provide authentic information and direct escalation links to leadership or cente
         }
 
         // ============================================
-        // ALL STUDENTS VIEW
+        // ALL STUDENTS VIEW (Master Student List)
         // ============================================
+        let cachedAllStudents = [];
+
         async function loadStudents() {
             try {
-                const res = await fetch('/api/admin/students', {
+                const tbody = document.getElementById('studentsTbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Fetching student records...</td></tr>';
+
+                const res = await fetch('/api/admin/students?_t=' + Date.now(), {
                     headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                 });
                 const data = await res.json();
-                const tbody = document.getElementById('studentsTbody');
-                if (data.success && data.data) {
-                    if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No students enrolled yet.</td></tr>';
-                        return;
-                    }
-                    tbody.innerHTML = data.data.map(s => `
-                        <tr>
-                            <td><strong style="color:var(--admin-gold); font-family:monospace;">${s.rollNo}</strong></td>
-                            <td>${s.name}</td>
-                            <td>${s.fatherName || '-'}</td>
-                            <td>${s.course} (${s.classLevel})</td>
-                            <td><span style="color:#10b981; font-weight:700;">${s.marksGrade}</span></td>
-                            <td>${s.centerName}</td>
-                            <td><span style="color:#10b981;">${s.status}</span></td>
-                        </tr>
-                    `).join('');
+                if (data.success && Array.isArray(data.data)) {
+                    cachedAllStudents = data.data;
+
+                    // Update metrics
+                    const total = cachedAllStudents.length;
+                    const coachingCount = cachedAllStudents.filter(s => s.admissionType === 'coaching').length;
+                    const directCount = cachedAllStudents.filter(s => s.admissionType === 'direct').length;
+                    const blockedCount = cachedAllStudents.filter(s => s.isBlocked).length;
+
+                    if (document.getElementById('statTotalStudents')) document.getElementById('statTotalStudents').textContent = total;
+                    if (document.getElementById('statCoachingStudents')) document.getElementById('statCoachingStudents').textContent = coachingCount;
+                    if (document.getElementById('statDirectStudents')) document.getElementById('statDirectStudents').textContent = directCount;
+                    if (document.getElementById('statBlockedStudents')) document.getElementById('statBlockedStudents').textContent = blockedCount;
+
+                    renderStudentsTable(cachedAllStudents);
+                } else {
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#ef4444;">Failed to load student records: ' + (data.message || 'Unknown error') + '</td></tr>';
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('loadStudents error:', e);
+            }
+        }
+
+        function filterStudentsMaster() {
+            const query = (document.getElementById('studentSearchInput') ? document.getElementById('studentSearchInput').value : '').toLowerCase().trim();
+            const filterType = document.getElementById('studentTypeFilter') ? document.getElementById('studentTypeFilter').value : 'all';
+
+            let filtered = cachedAllStudents.filter(s => {
+                const matchesQuery = !query || 
+                    (s.name && s.name.toLowerCase().includes(query)) ||
+                    (s.email && s.email.toLowerCase().includes(query)) ||
+                    (s.phone && s.phone.includes(query)) ||
+                    (s.rollNo && s.rollNo.toLowerCase().includes(query)) ||
+                    (s.centerName && s.centerName.toLowerCase().includes(query));
+
+                let matchesType = true;
+                if (filterType === 'coaching') matchesType = (s.admissionType === 'coaching');
+                else if (filterType === 'direct') matchesType = (s.admissionType === 'direct');
+                else if (filterType === 'blocked') matchesType = !!s.isBlocked;
+
+                return matchesQuery && matchesType;
+            });
+
+            renderStudentsTable(filtered);
+        }
+
+        function renderStudentsTable(list) {
+            const tbody = document.getElementById('studentsTbody');
+            if (!tbody) return;
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:#94a3b8;">No matching student records found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(s => {
+                const isBlocked = !!s.isBlocked;
+                const isCoaching = s.admissionType === 'coaching';
+                const dateStr = s.enrolledAt ? new Date(s.enrolledAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '-';
+
+                return `
+                    <tr style="${isBlocked ? 'background:rgba(239,68,68,0.06);' : ''}">
+                        <td><strong style="color:var(--admin-gold); font-family:monospace; font-size:12px;">${s.rollNo || s._id}</strong></td>
+                        <td>
+                            <div style="font-weight:700; color:#f8fafc;">${s.name || 'Student'}</div>
+                            <div style="font-size:12px; color:#94a3b8;"><i class="fas fa-envelope"></i> ${s.email}</div>
+                        </td>
+                        <td style="font-size:12.5px; color:#cbd5e1;">${s.phone ? '+91 ' + s.phone : '<span style="color:#64748b;">Not provided</span>'}</td>
+                        <td>
+                            ${isCoaching 
+                                ? '<span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid #38bdf8; font-size:11px; font-weight:800; padding:3px 8px; border-radius:12px;"><i class="fas fa-building-columns"></i> Enrolled</span>' 
+                                : '<span style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid #a855f7; font-size:11px; font-weight:800; padding:3px 8px; border-radius:12px;"><i class="fas fa-globe"></i> BBCC Visitor</span>'}
+                        </td>
+                        <td style="font-size:12.5px; color:#cbd5e1;">${s.centerName || 'BBCC Skill Hub'}</td>
+                        <td>
+                            ${isBlocked 
+                                ? '<span style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px;">🔴 Blocked</span>' 
+                                : '<span style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid #10b981; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px;">🟢 Active</span>'}
+                        </td>
+                        <td style="font-size:12px; color:#94a3b8;">${dateStr}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" onclick="toggleBlockStudent('${s._id}', '${s.email}', ${!isBlocked})" class="btn-aurora" style="padding:4px 8px; font-size:11px; ${isBlocked ? 'background:rgba(16,185,129,0.2); border-color:#10b981; color:#6ee7b7;' : 'background:rgba(239,68,68,0.15); border-color:#ef4444; color:#fca5a5;'}">
+                                    <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-ban'}"></i> ${isBlocked ? 'Unblock' : 'Block'}
+                                </button>
+                                <button type="button" onclick="deleteStudentMaster('${s._id}', '${(s.name || '').replace(/'/g, "\\'")}')" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(239,68,68,0.25); border:1px solid #ef4444; color:#fca5a5;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function toggleBlockStudent(studentId, email, shouldBlock) {
+            if (!confirm(`Are you sure you want to ${shouldBlock ? 'BLOCK' : 'UNBLOCK'} this student account?`)) return;
+            try {
+                const res = await fetch('/api/admin/student/status', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${getAdminToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ studentId, email, isBlocked: shouldBlock })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (typeof showAdminToast === 'function') showAdminToast(data.message || 'Status updated', 'success');
+                    else alert(data.message || 'Status updated');
+                    loadStudents();
+                } else {
+                    alert(data.message || 'Failed to update student status');
+                }
+            } catch(e) {
+                alert('Error updating status: ' + e.message);
+            }
+        }
+
+        async function deleteStudentMaster(studentId, studentName) {
+            if (!confirm(`CAUTION: Are you sure you want to completely DELETE student "${studentName}" from BBCC Skill Hub? This action cannot be undone.`)) return;
+            try {
+                const res = await fetch(`/api/admin/student/${encodeURIComponent(studentId)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (typeof showAdminToast === 'function') showAdminToast(data.message || 'Student removed successfully', 'success');
+                    else alert(data.message || 'Student removed successfully');
+                    loadStudents();
+                } else {
+                    alert(data.message || 'Failed to delete student');
+                }
+            } catch(e) {
+                alert('Error deleting student: ' + e.message);
+            }
+        }
+
+        // Coaching Registration Fee Controller Handlers
+        async function loadCoachingFeeSetting() {
+            try {
+                const res = await fetch('/api/admin/settings/coaching-fee?_t=' + Date.now(), {
+                    headers: { 'Authorization': `Bearer ${getAdminToken()}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const feeType = data.feeType || 'PAID';
+                    const feeAmount = data.feeAmount !== undefined ? data.feeAmount : 999;
+
+                    const freeRadio = document.getElementById('feModeFree');
+                    const paidRadio = document.getElementById('feModePaid');
+                    const amountInput = document.getElementById('coachingFeeAmountInput');
+                    const badge = document.getElementById('currentFeeBadge');
+
+                    if (feeType === 'FREE') {
+                        if (freeRadio) freeRadio.checked = true;
+                        if (amountInput) amountInput.disabled = true;
+                        if (badge) {
+                            badge.textContent = 'MODE: FREE ONBOARDING';
+                            badge.style.background = '#10b981';
+                        }
+                    } else {
+                        if (paidRadio) paidRadio.checked = true;
+                        if (amountInput) {
+                            amountInput.disabled = false;
+                            amountInput.value = feeAmount;
+                        }
+                        if (badge) {
+                            badge.textContent = `MODE: PAID (₹${feeAmount})`;
+                            badge.style.background = '#f59e0b';
+                        }
+                    }
+                }
+            } catch(e) {
+                console.error('loadCoachingFeeSetting error:', e);
+            }
+        }
+
+        function toggleFeeInputMode(mode) {
+            const amountInput = document.getElementById('coachingFeeAmountInput');
+            if (amountInput) {
+                amountInput.disabled = (mode === 'FREE');
+            }
+        }
+
+        async function saveCoachingFeeSetting() {
+            const isFree = document.getElementById('feModeFree') && document.getElementById('feModeFree').checked;
+            const feeType = isFree ? 'FREE' : 'PAID';
+            const feeAmount = isFree ? 0 : Number(document.getElementById('coachingFeeAmountInput').value) || 0;
+
+            try {
+                const res = await fetch('/api/admin/settings/coaching-fee', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAdminToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ feeType, feeAmount })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (typeof showAdminToast === 'function') showAdminToast(data.message, 'success');
+                    else alert(data.message);
+                    loadCoachingFeeSetting();
+                } else {
+                    alert(data.message || 'Failed to save fee setting');
+                }
+            } catch(e) {
+                alert('Error saving fee: ' + e.message);
+            }
         }
 
         async function loadAffiliations() {
