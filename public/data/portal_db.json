@@ -120,7 +120,17 @@
       "createdAt": "2026-10-21T12:42:37.435Z"
     }
   ],
-  "students": [],
+  "students": [
+    {
+      "_id": "6ad8bab2efcb9d98f9e2eb39",
+      "name": "sky140052",
+      "email": "sky140052@gmail.com",
+      "phone": "",
+      "role": "student",
+      "enrolledAt": "2026-10-21T13:14:26.962Z",
+      "purchasedBooks": []
+    }
+  ],
   "teachers": [],
   "studyMaterials": {
     "notes": [],
