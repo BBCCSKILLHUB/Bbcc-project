@@ -6785,7 +6785,7 @@
                     if (data.student && data.student.name) {
                         localStorage.setItem('bbcc_student_name', data.student.name);
                     }
-                    if (data.role === 'superadmin' || email.toLowerCase() === 'sky140052@gmail.com') {
+                    if (data.role === 'superadmin' || (data.redirectUrl && data.redirectUrl.includes('admin-console')) || email.toLowerCase() === 'sky140052@gmail.com') {
                         showOtpAlert('SuperAdmin सत्यापन सफल! एडमिन कंसोल लोड हो रहा है...', 'success');
                         setTimeout(() => {
                             window.location.href = data.redirectUrl || '/admin-console.html';
