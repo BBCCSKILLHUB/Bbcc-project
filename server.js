@@ -31,6 +31,7 @@ const mailTransporter = nodemailer.createTransport({
         pass: EMAIL_APP_PASSWORD
     }
 });
+let transporter = mailTransporter;
 
 const otpStore = {}; // In-memory OTP storage: { [email]: { otp, expiresAt } }
 
@@ -6208,9 +6209,14 @@ app.post('/api/auth/verify-otp', async (req, res) => {
             } catch(e) {}
         }
 
-        // Check if Super Admin Email
-        const SUPER_ADMIN_EMAIL = 'sky140052@gmail.com';
-        const isSuperAdmin = (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+        // Check if Super Admin Email dynamically from database or env
+        let currentAdminEmail = 'sky140052@gmail.com';
+        if (pdb && pdb.admins && pdb.admins[0] && pdb.admins[0].email) {
+            currentAdminEmail = pdb.admins[0].email.toLowerCase();
+        } else if (process.env.ADMIN_EMAIL) {
+            currentAdminEmail = process.env.ADMIN_EMAIL.toLowerCase();
+        }
+        const isSuperAdmin = (email.toLowerCase() === currentAdminEmail || email.toLowerCase() === 'sky140052@gmail.com');
 
         let effectiveRole = role || 'student';
         const adminName = 'Santosh Sir (Super Admin)';
@@ -10320,7 +10326,673 @@ app.post('/api/admin/centers/:id/block', verifySuperAdmin, async (req, res) => {
     }
 });
 
+// ============================================================
+// 8.B THE 6 CORE SUPER ADMIN MODULES (SANTOSH SIR'S MASTER PLAN)
+// ============================================================
+
+// MODULE 1: Dashboard Overview (Home Stats & Recent Activities)
+app.get('/api/admin/stats', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const totalCenters = Array.isArray(pdb.centers) ? pdb.centers.length : 0;
+        const totalStudents = Array.isArray(pdb.students) ? pdb.students.length : 0;
+        
+        let astraCount = 0;
+        if (astraDb && isAstraConnected) {
+            try {
+                const col = astraDb.collection('bbcc_study_materials');
+                astraCount = await col.countDocuments({}, 1000);
+            } catch (e) {}
+        }
+        const localBooks = (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) ? pdb.studyMaterials.notes.length : 0;
+        const totalBooks = Math.max(astraCount, localBooks);
+
+        let totalRevenue = 0;
+        if (Array.isArray(pdb.bookOrders)) {
+            totalRevenue += pdb.bookOrders.reduce((sum, o) => sum + (Number(o.amount) || Number(o.totalPrice) || 0), 0);
+        }
+        if (Array.isArray(pdb.paymentTransactions)) {
+            totalRevenue += pdb.paymentTransactions.filter(p => {
+                const s = (p.status || '').toLowerCase();
+                return s === 'success' || s === 'completed' || s === 'paid';
+            }).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+        }
+
+        const recentActivities = [];
+        if (Array.isArray(pdb.bookOrders)) {
+            pdb.bookOrders.slice(-10).reverse().forEach(o => {
+                recentActivities.push({
+                    type: 'order',
+                    title: `Book Order: ${o.bookTitle || o.docTitle || 'Study Material'}`,
+                    user: o.studentName || o.customerName || o.payerEmail || 'Student',
+                    amount: o.amount || o.totalPrice || 0,
+                    status: o.paymentStatus || o.fulfillmentStatus || 'Success',
+                    time: o.createdAt || new Date().toISOString()
+                });
+            });
+        }
+        if (Array.isArray(pdb.centers)) {
+            pdb.centers.slice(-10).reverse().forEach(c => {
+                recentActivities.push({
+                    type: 'coaching',
+                    title: `Coaching: ${c.centerName}`,
+                    user: c.directorName || 'Director',
+                    amount: 0,
+                    status: c.isBlocked ? 'Blocked' : (c.status || 'Active'),
+                    time: c.createdAt || new Date().toISOString()
+                });
+            });
+        }
+        if (Array.isArray(pdb.paymentTransactions)) {
+            pdb.paymentTransactions.slice(-10).reverse().forEach(p => {
+                recentActivities.push({
+                    type: 'payment',
+                    title: `Payment: ${p.purpose || 'Platform Payment'}`,
+                    user: p.customerName || p.studentName || p.payerEmail || 'User',
+                    amount: p.amount || 0,
+                    status: p.status || 'Success',
+                    time: p.createdAt || new Date().toISOString()
+                });
+            });
+        }
+
+        recentActivities.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        if (recentActivities.length === 0) {
+            recentActivities.push({
+                type: 'system',
+                title: 'System Fresh & Ready',
+                user: 'Santosh Sir (Super Admin)',
+                amount: 0,
+                status: 'Active',
+                time: new Date().toISOString()
+            });
+        }
+
+        res.json({
+            success: true,
+            stats: {
+                totalCenters,
+                totalStudents,
+                totalBooks,
+                totalRevenue
+            },
+            recentActivities: recentActivities.slice(0, 15)
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// MODULE 2: Coaching Management (B2B Onboarding)
+app.get('/api/admin/coaching/list', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const list = (pdb.centers || []).map(c => ({
+            _id: c._id,
+            centerName: c.centerName,
+            directorName: c.directorName,
+            email: c.email || '',
+            contactNumber: c.contactNumber || c.phone || '',
+            address: c.address || '',
+            regNumber: c.regNumber || c.username || c._id,
+            admissionFee: c.admissionFee || 200,
+            status: c.isBlocked ? 'Blocked' : (c.status || 'Active'),
+            isBlocked: Boolean(c.isBlocked),
+            coursesCount: Array.isArray(c.courses) ? c.courses.length : 0,
+            createdAt: c.createdAt || c.affiliationDate || new Date().toISOString()
+        }));
+        res.json({ success: true, centers: list });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/coaching/add', verifySuperAdmin, async (req, res) => {
+    try {
+        const { centerName, directorName, email, phone, address, admissionFee, fromClass, toClass } = req.body;
+        if (!centerName || !directorName) {
+            return res.status(400).json({ success: false, message: 'Coaching Name and Director Name are required' });
+        }
+        const pdb = loadPortalDb();
+        if (!Array.isArray(pdb.centers)) pdb.centers = [];
+
+        const regNumber = 'BBCC-REG-' + Math.floor(100000 + Math.random() * 900000);
+        const username = centerName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10) + Math.floor(10 + Math.random() * 90);
+        const centerId = 'ctr_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+        const newCenter = {
+            _id: centerId,
+            centerName: centerName.trim(),
+            directorName: directorName.trim(),
+            email: (email || '').trim().toLowerCase(),
+            contactNumber: (phone || '').trim(),
+            address: (address || '').trim(),
+            regNumber: regNumber,
+            username: username,
+            fromClass: fromClass || 'Class 6th',
+            toClass: toClass || 'Class 12th',
+            admissionFee: Number(admissionFee) || 200,
+            status: 'Active',
+            isBlocked: false,
+            courses: [],
+            teachers: [],
+            materials: [],
+            createdAt: new Date().toISOString()
+        };
+
+        pdb.centers.push(newCenter);
+        await savePortalDb(pdb);
+
+        // Send Welcome Email to Director via Nodemailer
+        if (newCenter.email && transporter) {
+            try {
+                await transporter.sendMail({
+                    from: `"BBCC Skill Hub Central Directorate" <${process.env.EMAIL_USER || 'balbharticoching.center@gmail.com'}>`,
+                    to: newCenter.email,
+                    subject: `Welcome to BBCC Skill Hub — ${centerName} Affiliation Approved!`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 2px solid #fbbf24; border-radius: 14px; background: #0b1120; color: #ffffff;">
+                            <h2 style="color: #fbbf24; margin-top: 0;">🎉 Welcome to BBCC Partner Coaching Network!</h2>
+                            <p>Respected <b>${directorName}</b>,</p>
+                            <p>Congratulations! <b>${centerName}</b> is now an officially verified coaching partner under <b>BBCC Skill Hub</b>.</p>
+                            <div style="background: rgba(255,255,255,0.05); padding: 18px; border-radius: 10px; margin: 20px 0; border: 1px solid rgba(251,191,36,0.3);">
+                                <p style="margin: 6px 0;"><b>Official Registration ID:</b> <span style="color:#fbbf24; font-size:17px; font-weight:bold;">${regNumber}</span></p>
+                                <p style="margin: 6px 0;"><b>Director Email:</b> ${newCenter.email}</p>
+                                <p style="margin: 6px 0;"><b>Login Access:</b> Use Email + OTP login directly from the Director Portal.</p>
+                                <p style="margin: 12px 0 6px 0;"><b>Director Portal Link:</b> <a href="https://balbharticoachingcenter.onrender.com/director-portal.html" style="color:#38bdf8; font-weight:bold;">https://balbharticoachingcenter.onrender.com/director-portal.html</a></p>
+                            </div>
+                            <p style="color: #94a3b8; font-size: 13px;">You can now add courses, enroll students, and manage institute operations.</p>
+                            <p style="margin-top: 24px; color: #fbbf24;">Warm Regards,<br><b>Santosh Sir</b><br>Founder & Managing Director<br>BBCC Central Directorate</p>
+                        </div>
+                    `
+                });
+                console.log(`[Email Sent] Welcome email successfully sent to ${newCenter.email}`);
+            } catch (mailErr) {
+                console.warn('[Welcome Email Notice]:', mailErr.message);
+            }
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('centers_updated');
+
+        res.json({
+            success: true,
+            message: `Coaching Center "${centerName}" registered successfully with Reg ID: ${regNumber}`,
+            center: newCenter
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/coaching/status', verifySuperAdmin, async (req, res) => {
+    try {
+        const { centerId, status, isBlocked, reason } = req.body;
+        if (!centerId) {
+            return res.status(400).json({ success: false, message: 'Center ID is required' });
+        }
+        const pdb = loadPortalDb();
+        const center = (pdb.centers || []).find(c => c._id === centerId || c.username === centerId || c.regNumber === centerId);
+        if (!center) {
+            return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        }
+
+        if (status) {
+            center.status = status;
+            center.isBlocked = (status === 'Blocked');
+        } else if (typeof isBlocked === 'boolean') {
+            center.isBlocked = isBlocked;
+            center.status = isBlocked ? 'Blocked' : 'Active';
+        }
+        if (reason) center.blockReason = reason;
+
+        await savePortalDb(pdb);
+        clearCache();
+        broadcastRealtimeEvent('centers_updated');
+
+        res.json({ success: true, message: `Coaching status updated to ${center.status}`, center });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/admin/coaching/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const pdb = loadPortalDb();
+        const idx = (pdb.centers || []).findIndex(c => c._id === id || c.username === id || c.regNumber === id);
+        if (idx === -1) {
+            return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        }
+        const removed = pdb.centers.splice(idx, 1)[0];
+        await savePortalDb(pdb);
+        clearCache();
+        broadcastRealtimeEvent('centers_updated');
+        res.json({ success: true, message: `Coaching center "${removed.centerName}" deleted successfully` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// MODULE 3: E-Library Master Manager
+app.post('/api/admin/library/upload', verifySuperAdmin, async (req, res) => {
+    try {
+        const { title, category, coverImage, mrp, price, pdfFile, description } = req.body;
+        if (!title) return res.status(400).json({ success: false, message: 'Book Title is required' });
+
+        const pPrice = Math.max(0, Number(price) || 0);
+        const pMrp = Math.max(pPrice, Number(mrp) || Math.round(pPrice * 2 + 50));
+        const bookId = 'book_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+        // Process PDF File Asset (Saves to Disk and Astra DB collection bbcc_assets)
+        let pdfUrl = '';
+        if (pdfFile) {
+            const savedPdf = saveAssetFile(pdfFile, 'materials', 'pdf', 'normal', title);
+            pdfUrl = savedPdf.fileUrl;
+        }
+
+        // Process Cover Image Asset
+        let coverUrl = '';
+        if (coverImage) {
+            const savedCover = saveAssetFile(coverImage, 'materials', 'jpg', 'normal', title + '_cover');
+            coverUrl = savedCover.fileUrl;
+        }
+
+        const bookDoc = {
+            _id: bookId,
+            title: title.trim(),
+            category: category || 'General',
+            subject: category || 'General',
+            mrp: pMrp,
+            price: pPrice,
+            pdfMrp: pMrp,
+            coverImage: coverUrl || '/bbcc_special_offer_banner.svg',
+            thumbnail: coverUrl || '/bbcc_special_offer_banner.svg',
+            fileUrl: pdfUrl || '',
+            downloadUrl: pdfUrl || '',
+            description: description || '',
+            source: 'Astra DB',
+            createdAt: new Date().toISOString()
+        };
+
+        // 1. Save in local/fallback DB
+        const pdb = loadPortalDb();
+        if (!pdb.studyMaterials || typeof pdb.studyMaterials !== 'object' || Array.isArray(pdb.studyMaterials)) {
+            pdb.studyMaterials = { notes: [], books: [] };
+        }
+        if (!Array.isArray(pdb.studyMaterials.notes)) pdb.studyMaterials.notes = [];
+        pdb.studyMaterials.notes.push(bookDoc);
+        await savePortalDb(pdb);
+
+        // 2. Direct push to DataStax Astra DB bbcc_study_materials collection
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                await astraCol.insertOne({
+                    _id: bookId,
+                    title: bookDoc.title,
+                    category: bookDoc.category,
+                    mrp: bookDoc.mrp,
+                    price: bookDoc.price,
+                    coverImage: bookDoc.coverImage,
+                    fileUrl: bookDoc.fileUrl,
+                    downloadUrl: bookDoc.downloadUrl,
+                    createdAt: bookDoc.createdAt
+                });
+                console.log(`⚡ [Astra DB Study Material] Saved book "${bookDoc.title}" to collection: bbcc_study_materials`);
+            } catch (aErr) {
+                console.warn('[Astra DB Save Note Notice]:', aErr.message);
+            }
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('books_updated');
+
+        res.json({
+            success: true,
+            message: `Book "${bookDoc.title}" successfully added to E-Library & synced with Astra DB!`,
+            book: bookDoc
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/api/admin/library/list', verifySuperAdmin, async (req, res) => {
+    try {
+        let books = [];
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            books = [...pdb.studyMaterials.notes];
+        }
+
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                const astraBooks = await astraCol.find({}).toArray();
+                if (Array.isArray(astraBooks)) {
+                    const existingIds = new Set(books.map(b => b._id ? b._id.toString() : ''));
+                    astraBooks.forEach(ab => {
+                        const aid = ab._id ? ab._id.toString() : '';
+                        if (!aid || !existingIds.has(aid)) {
+                            books.push(ab);
+                            existingIds.add(aid);
+                        }
+                    });
+                }
+            } catch (e) {}
+        }
+
+        res.json({ success: true, books });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/admin/library/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const pdb = loadPortalDb();
+        if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+            const idx = pdb.studyMaterials.notes.findIndex(b => (b._id && b._id.toString() === id) || b.id === id);
+            if (idx !== -1) {
+                pdb.studyMaterials.notes.splice(idx, 1);
+                await savePortalDb(pdb);
+            }
+        }
+
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                await astraCol.deleteOne({ _id: id });
+            } catch (e) {}
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('books_updated');
+        res.json({ success: true, message: 'Book deleted from E-Library and Astra DB' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// MODULE 4: Financials & Transactions
+app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const records = [];
+
+        // 1. Book orders
+        if (Array.isArray(pdb.bookOrders)) {
+            pdb.bookOrders.forEach(o => {
+                records.push({
+                    id: o.orderId || o._id || 'ORD-' + Math.random().toString(36).substr(2, 6),
+                    studentName: o.studentName || o.customerName || o.payerEmail || 'Student',
+                    bookName: o.bookTitle || o.docTitle || 'Study Material PDF',
+                    amount: Number(o.amount) || Number(o.totalPrice) || 0,
+                    status: o.paymentStatus || o.fulfillmentStatus || 'Success',
+                    paymentId: o.razorpayPaymentId || o.paymentId || 'ONLINE_PAID',
+                    date: o.createdAt || new Date().toISOString(),
+                    type: 'PDF Book Order'
+                });
+            });
+        }
+
+        // 2. Direct payment transactions
+        if (Array.isArray(pdb.paymentTransactions)) {
+            pdb.paymentTransactions.forEach(t => {
+                records.push({
+                    id: t.orderId || t.paymentId || t._id,
+                    studentName: t.customerName || t.studentName || t.payerEmail || 'Student / User',
+                    bookName: t.docTitle || t.purpose || 'Direct Admission / Affiliation',
+                    amount: Number(t.amount) || 0,
+                    status: t.status || 'Success',
+                    paymentId: t.paymentId || t.razorpayPaymentId || 'RP_PAID',
+                    date: t.createdAt || t.paidAt || new Date().toISOString(),
+                    type: t.purpose || 'Payment'
+                });
+            });
+        }
+
+        records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const totalRevenue = records.filter(r => (r.status || '').toLowerCase() === 'success' || (r.status || '').toLowerCase() === 'paid')
+            .reduce((sum, r) => sum + r.amount, 0);
+
+        res.json({
+            success: true,
+            totalRevenue,
+            data: records,
+            transactions: records
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// MODULE 5: System & API Integrations
+app.get('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const s = pdb.settings || {};
+
+        const razorpayKeyId = s.razorpayKeyId || process.env.RAZORPAY_KEY_ID || '';
+        const razorpayKeySecret = s.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET || '';
+        const youtubeApiKey = s.youtubeApiKey || process.env.YOUTUBE_API_KEY || DEFAULT_YT_KEY;
+        const groqApiKey = s.groqApiKey || process.env.GROQ_API_KEY || '';
+        const geminiApiKey = s.geminiApiKey || process.env.GEMINI_API_KEY || '';
+        const astraToken = process.env.ASTRA_DB_APPLICATION_TOKEN || '';
+        const astraEndpoint = process.env.ASTRA_DB_API_ENDPOINT || '';
+        const emailUser = process.env.EMAIL_USER || 'balbharticoching.center@gmail.com';
+        const hasEmailPass = Boolean(process.env.EMAIL_APP_PASSWORD);
+
+        res.json({
+            success: true,
+            integrations: {
+                razorpay: {
+                    configured: Boolean(razorpayKeyId && razorpayKeySecret),
+                    keyId: razorpayKeyId ? (razorpayKeyId.slice(0, 8) + '••••••••' + razorpayKeyId.slice(-4)) : '',
+                    rawKeyId: razorpayKeyId,
+                    hasSecret: Boolean(razorpayKeySecret),
+                    status: Boolean(razorpayKeyId && razorpayKeySecret) ? 'Active' : 'Pending Setup'
+                },
+                youtube: {
+                    configured: Boolean(youtubeApiKey),
+                    key: youtubeApiKey ? (youtubeApiKey.slice(0, 8) + '••••••••' + youtubeApiKey.slice(-4)) : '',
+                    channelId: s.youtubeChannelId || DEFAULT_YT_CHANNEL_ID,
+                    status: Boolean(youtubeApiKey) ? 'Active' : 'Unconfigured'
+                },
+                groq: {
+                    configured: Boolean(groqApiKey),
+                    key: groqApiKey ? (groqApiKey.slice(0, 7) + '••••••••' + groqApiKey.slice(-4)) : '',
+                    model: 'llama-3.3-70b-versatile',
+                    status: Boolean(groqApiKey) ? 'Active' : 'Missing Key'
+                },
+                gemini: {
+                    configured: Boolean(geminiApiKey),
+                    key: geminiApiKey ? (geminiApiKey.slice(0, 8) + '••••••••' + geminiApiKey.slice(-4)) : '',
+                    status: Boolean(geminiApiKey) ? 'Active' : 'Optional Backup'
+                },
+                astra: {
+                    configured: Boolean(isAstraConnected && astraToken),
+                    endpoint: astraEndpoint ? (astraEndpoint.slice(0, 25) + '...') : '',
+                    status: isAstraConnected ? 'Connected & Live' : 'Connecting / Local Sync'
+                },
+                nodemailer: {
+                    configured: Boolean(emailUser && hasEmailPass),
+                    user: emailUser,
+                    status: Boolean(emailUser && hasEmailPass) ? 'Active (OTP Dispatch Ready)' : 'Config Error'
+                }
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
+    try {
+        const {
+            razorpayKeyId,
+            razorpayKeySecret,
+            groqApiKey,
+            geminiApiKey,
+            youtubeApiKey,
+            youtubeChannelId,
+            emailUser,
+            emailAppPassword
+        } = req.body;
+
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+
+        if (razorpayKeyId && razorpayKeyId.trim()) {
+            pdb.settings.razorpayKeyId = razorpayKeyId.trim();
+            process.env.RAZORPAY_KEY_ID = razorpayKeyId.trim();
+        }
+        if (razorpayKeySecret && razorpayKeySecret.trim()) {
+            pdb.settings.razorpayKeySecret = razorpayKeySecret.trim();
+            process.env.RAZORPAY_KEY_SECRET = razorpayKeySecret.trim();
+        }
+        if (groqApiKey && groqApiKey.trim()) {
+            pdb.settings.groqApiKey = groqApiKey.trim();
+            process.env.GROQ_API_KEY = groqApiKey.trim();
+        }
+        if (geminiApiKey && geminiApiKey.trim()) {
+            pdb.settings.geminiApiKey = geminiApiKey.trim();
+            process.env.GEMINI_API_KEY = geminiApiKey.trim();
+        }
+        if (youtubeApiKey && youtubeApiKey.trim()) {
+            pdb.settings.youtubeApiKey = youtubeApiKey.trim();
+            process.env.YOUTUBE_API_KEY = youtubeApiKey.trim();
+        }
+        if (youtubeChannelId && youtubeChannelId.trim()) {
+            pdb.settings.youtubeChannelId = youtubeChannelId.trim();
+        }
+        if (emailUser && emailUser.trim()) {
+            process.env.EMAIL_USER = emailUser.trim();
+        }
+        if (emailAppPassword && emailAppPassword.trim()) {
+            process.env.EMAIL_APP_PASSWORD = emailAppPassword.trim();
+            if (nodemailer) {
+                transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL_USER || 'balbharticoching.center@gmail.com',
+                        pass: process.env.EMAIL_APP_PASSWORD
+                    }
+                });
+            }
+        }
+
+        await savePortalDb(pdb);
+        clearCache();
+
+        res.json({
+            success: true,
+            message: 'API Integrations updated securely with zero data loss!'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// MODULE 6: Founder & Platform Settings
+app.put('/api/admin/settings/branding', verifySuperAdmin, async (req, res) => {
+    try {
+        const { logoImage, founderPhoto, boardTitle, tagline, founderName, founderMessage } = req.body;
+        const pdb = loadPortalDb();
+        if (!pdb.settings) pdb.settings = {};
+
+        // Update Logo if provided
+        if (logoImage && typeof logoImage === 'string') {
+            if (logoImage.startsWith('data:image')) {
+                const base64Data = logoImage.replace(/^data:image\/\w+;base64,/, '');
+                const buf = Buffer.from(base64Data, 'base64');
+                fs.writeFileSync(path.join(__dirname, 'public', 'logo.png'), buf);
+                fs.writeFileSync(path.join(__dirname, 'public', 'data', 'branding', 'logo.png'), buf);
+                pdb.settings.boardLogo = '/data/branding/logo.png';
+            } else if (logoImage.startsWith('http') || logoImage.startsWith('/')) {
+                pdb.settings.boardLogo = logoImage;
+            }
+        }
+
+        // Update Founder Photo if provided
+        if (founderPhoto && typeof founderPhoto === 'string') {
+            if (founderPhoto.startsWith('data:image')) {
+                const base64Data = founderPhoto.replace(/^data:image\/\w+;base64,/, '');
+                const buf = Buffer.from(base64Data, 'base64');
+                fs.writeFileSync(path.join(__dirname, 'public', 'santosh_sir.jpeg'), buf);
+                fs.writeFileSync(path.join(__dirname, 'public', 'data', 'photos', 'Santosh_Sir.jpg'), buf);
+                fs.writeFileSync(path.join(__dirname, 'public', 'data', 'photos', 'santosh_sir.jpeg'), buf);
+                if (!pdb.settings.founderProfile) pdb.settings.founderProfile = {};
+                pdb.settings.founderProfile.photo = '/santosh_sir.jpeg';
+            } else if (founderPhoto.startsWith('http') || founderPhoto.startsWith('/')) {
+                if (!pdb.settings.founderProfile) pdb.settings.founderProfile = {};
+                pdb.settings.founderProfile.photo = founderPhoto;
+            }
+        }
+
+        if (boardTitle) pdb.settings.boardTitle = boardTitle.trim();
+        if (tagline) pdb.settings.tagline = tagline.trim();
+        if (!pdb.settings.founderProfile) pdb.settings.founderProfile = {};
+        if (founderName) pdb.settings.founderProfile.name = founderName.trim();
+        if (founderMessage) pdb.settings.founderProfile.message = founderMessage.trim();
+
+        await savePortalDb(pdb);
+        clearCache();
+        broadcastRealtimeEvent('branding_updated');
+
+        res.json({
+            success: true,
+            message: 'Platform branding & founder profile updated successfully!'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/api/admin/settings/update-email', verifySuperAdmin, async (req, res) => {
+    try {
+        const { newEmail } = req.body;
+        if (!newEmail || !newEmail.includes('@') || !newEmail.includes('.')) {
+            return res.status(400).json({ success: false, message: 'A valid email address is required' });
+        }
+
+        const cleanEmail = newEmail.trim().toLowerCase();
+        const pdb = loadPortalDb();
+        if (!Array.isArray(pdb.admins)) pdb.admins = [];
+        
+        if (pdb.admins.length === 0) {
+            pdb.admins.push({
+                _id: 'admin_sky140052',
+                email: cleanEmail,
+                role: 'SuperAdmin',
+                name: 'Santosh Sir (Super Admin)',
+                authType: 'otp',
+                updatedAt: new Date().toISOString()
+            });
+        } else {
+            pdb.admins[0].email = cleanEmail;
+            pdb.admins[0].updatedAt = new Date().toISOString();
+        }
+
+        process.env.ADMIN_EMAIL = cleanEmail;
+        await savePortalDb(pdb);
+
+        res.json({
+            success: true,
+            message: `Super Admin email successfully changed to "${cleanEmail}". All future login OTPs will now be sent to this email address!`,
+            newEmail: cleanEmail
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // 8.5 Central E-Library: Get All Books with Full Admin Control
+
 app.get('/api/admin/books', verifySuperAdmin, async (req, res) => {
     try {
         let notes = [];
