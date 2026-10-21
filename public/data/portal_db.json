@@ -319,9 +319,9 @@
   "students": [
     {
       "_id": "6ad89f64a0182b1be9c2a237",
-      "name": "Test Student",
+      "name": "Rohan Kumar Sharma",
       "email": "student.test@bbccskillhub.org",
-      "phone": "",
+      "phone": "9876543210",
       "role": "student",
       "enrolledAt": "2026-10-21T11:17:56.663Z",
       "purchasedBooks": []
@@ -404,6 +404,44 @@
       "pickupAddress": "",
       "fulfillmentStatus": "none",
       "paidAt": "2026-10-21T11:32:58.726Z"
+    },
+    {
+      "_id": "6ad8a70498679e430ce1d152",
+      "createdAt": "2026-10-21T11:50:28.324Z",
+      "updatedAt": "2026-10-21T11:50:28.324Z",
+      "orderId": "FREE_1792583428322_a2faeeea",
+      "paymentId": "FREE_ACCESS",
+      "purpose": "document_purchase",
+      "amount": 0,
+      "status": "paid",
+      "payerName": "Rohan Sharma",
+      "payerPhone": "",
+      "payerEmail": "student.test@bbccskillhub.org",
+      "docId": "mat_c9_hist_01",
+      "docTitle": "Class 9th History",
+      "orderType": "pdf",
+      "pickupAddress": "",
+      "fulfillmentStatus": "none",
+      "paidAt": "2026-10-21T11:50:28.322Z"
+    },
+    {
+      "_id": "6ad8a72198679e430ce1d153",
+      "createdAt": "2026-10-21T11:50:57.545Z",
+      "updatedAt": "2026-10-21T11:50:57.545Z",
+      "orderId": "FREE_1792583457542_01557975",
+      "paymentId": "FREE_ACCESS",
+      "purpose": "document_purchase",
+      "amount": 0,
+      "status": "paid",
+      "payerName": "Rohan Sharma",
+      "payerPhone": "",
+      "payerEmail": "student.test@bbccskillhub.org",
+      "docId": "mat_c9_hist_01",
+      "docTitle": "Class 9th History",
+      "orderType": "pdf",
+      "pickupAddress": "",
+      "fulfillmentStatus": "none",
+      "paidAt": "2026-10-21T11:50:57.542Z"
     }
   ],
   "bharti_auto_push_log": {
