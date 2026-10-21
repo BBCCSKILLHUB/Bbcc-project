@@ -6139,10 +6139,47 @@ app.post('/api/auth/send-otp', async (req, res) => {
             console.log(`✅ [BBCC OTP Delivered] Email successfully sent to: ${email} | ID: ${sendInfo.messageId}`);
             return res.status(200).json({ success: true, message: 'OTP sent to your email successfully!' });
         } catch (mailErr) {
-            console.error('❌ [OTP Email Send Failure]:', mailErr.message);
+            console.error('❌ [OTP SMTP Failed]:', mailErr.message);
+
+            // If Render Free tier blocks SMTP (Ports 587/465), fallback to HTTPS Email API (Port 443)
+            if (process.env.RESEND_API_KEY) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const https = require('https');
+                        const postData = JSON.stringify({
+                            from: 'BBCC Skill Hub <onboarding@resend.dev>',
+                            to: [email],
+                            subject: 'Login Verification Code - BBCC Skill Hub',
+                            html: `<div style="font-family:sans-serif;padding:20px;background:#0f172a;color:#fff;border-radius:12px;text-align:center;"><h2>BBCC SKILL HUB</h2><p>Your verification code is:</p><h1 style="color:#fbbf24;letter-spacing:8px;">${otp}</h1><p>Valid for 10 minutes.</p></div>`
+                        });
+                        const hreq = https.request({
+                            hostname: 'api.resend.com',
+                            path: '/emails',
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Content-Length': Buffer.byteLength(postData)
+                            }
+                        }, hr => {
+                            let d = '';
+                            hr.on('data', c => d += c);
+                            hr.on('end', () => hr.statusCode < 300 ? resolve(d) : reject(new Error(d)));
+                        });
+                        hreq.on('error', reject);
+                        hreq.write(postData);
+                        hreq.end();
+                    });
+                    console.log(`✅ [BBCC OTP Delivered via HTTPS API] Email sent to: ${email}`);
+                    return res.status(200).json({ success: true, message: 'OTP sent to your email successfully!' });
+                } catch (apiErr) {
+                    console.error('❌ [HTTPS API Failed]:', apiErr.message);
+                }
+            }
+
             return res.status(500).json({ 
                 success: false, 
-                message: `Failed to deliver OTP email: ${mailErr.message}. Please check SMTP credentials or connection.` 
+                message: `Failed to deliver OTP email: ${mailErr.message}. (Render Free Tier blocks outbound SMTP ports 25, 465, 587).` 
             });
         }
     } catch (error) {
