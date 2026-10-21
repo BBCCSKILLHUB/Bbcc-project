@@ -1,6 +1,6 @@
 {
   "name": "bbcc-skill-hub",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "BBCC Skill Hub - Advanced Academic Platform & Digital Institute Network",
   "main": "server.js",
   "scripts": {
