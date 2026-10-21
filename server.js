@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * BBCC SKILL HUB — CORE BACKEND ENGINE (v3.1 ENTERPRISE)
+ * BBCC SKILL HUB — CORE BACKEND ENGINE (v3.2 - SMART LOGIN & ONBOARDING ENGINE)
  * ============================================================
  * Clean, High-Performance REST API & Digital Board Engine
  * MongoDB Atlas & Render Ready
