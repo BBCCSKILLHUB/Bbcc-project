@@ -1,431 +1,251 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure OTP Login | BBCC SKILL HUB</title>
+    <title>BBCC Skill Hub Login</title>
     <link rel="icon" type="image/png" href="/data/branding/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-dark: #030712;
-            --card-bg: rgba(15, 23, 42, 0.95);
-            --gold: #fbbf24;
-            --emerald: #10b981;
-            --cyan: #38bdf8;
-            --border-glow: rgba(245, 158, 11, 0.35);
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 50%);
-            color: #f8fafc;
+            background-color: #f1f5f9;
+            color: #0f172a;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 24px 16px;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .login-card {
-            max-width: 440px;
+        .login-box {
+            background: #ffffff;
             width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 36px 30px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #f59e0b, #10b981, #38bdf8);
-        }
-
-        .brand-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .brand-logo {
-            width: 72px;
-            height: 72px;
-            object-fit: contain;
-            margin-bottom: 14px;
+            max-width: 400px;
+            padding: 40px 32px;
             border-radius: 16px;
-            border: 1px solid var(--border-glow);
-            background: rgba(3, 7, 18, 0.8);
-            padding: 6px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
         }
 
-        .brand-title {
-            font-family: 'Cinzel', serif;
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: 1.5px;
-        }
-
-        .brand-sub {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 6px;
+        .login-heading {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
         }
 
         .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 18px;
         }
 
         .form-input {
             width: 100%;
-            background: rgba(3, 7, 18, 0.85);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            color: #f8fafc;
-            padding: 14px 16px;
+            padding: 13px 16px;
             font-size: 15px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            color: #0f172a;
+            background: #ffffff;
             outline: none;
-            transition: all 0.25s;
+            transition: all 0.2s ease;
         }
 
         .form-input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
-            background: rgba(3, 7, 18, 0.95);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
-        .btn-submit {
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .otp-input {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 8px;
+        }
+
+        .btn-action {
             width: 100%;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #030712;
-            border: none;
-            border-radius: 14px;
-            padding: 14px;
+            padding: 13px;
             font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 6px;
-            transition: all 0.25s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-verify {
-            background: linear-gradient(135deg, #10b981, #059669);
+            font-weight: 700;
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+            background: #2563eb;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .btn-verify:hover {
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        .btn-action:hover {
+            background: #1d4ed8;
         }
 
-        .status-msg {
+        .btn-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-alert {
             padding: 12px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            margin-bottom: 18px;
             display: none;
-            align-items: center;
-            gap: 10px;
             line-height: 1.4;
         }
 
-        .status-msg.error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
+        .status-alert.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
         }
 
-        .status-msg.success {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid #10b981;
-            color: #6ee7b7;
+        .status-alert.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
-        .otp-input-box {
-            text-align: center;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 12px;
-            border-color: #10b981;
-            padding: 12px 8px;
-        }
-
-        .email-badge {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            font-size: 13px;
-        }
-
-        .email-badge b {
-            color: var(--gold);
-        }
-
-        .edit-email-btn {
-            background: transparent;
-            border: none;
-            color: var(--cyan);
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        .edit-email-btn:hover {
-            background: rgba(56, 189, 248, 0.1);
-            text-decoration: underline;
-        }
-
-        .timer-row {
+        .sub-action-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 14px;
-            font-size: 12.5px;
-            color: #94a3b8;
+            font-size: 13px;
         }
 
-        .resend-btn {
+        .text-link {
             background: none;
             border: none;
-            color: var(--gold);
-            font-size: 12.5px;
-            font-weight: 700;
+            color: #2563eb;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 0;
         }
 
-        .resend-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            color: #64748b;
-        }
-
-        .resend-btn:not(:disabled):hover {
+        .text-link:hover {
             text-decoration: underline;
         }
 
-        .footer-bar {
-            text-align: center;
-            margin-top: 24px;
-            padding-top: 18px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 12.5px;
-            color: #64748b;
-        }
-
-        .footer-bar a {
+        .text-link:disabled {
             color: #94a3b8;
+            cursor: not-allowed;
             text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .footer-bar a:hover {
-            color: var(--gold);
         }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <!-- Brand Header -->
-        <div class="brand-header">
-            <a href="/">
-                <img src="/data/branding/logo.png" alt="BBCC Logo" class="brand-logo" onerror="this.src='/logo.png'">
-            </a>
-            <h1 class="brand-title">BBCC SKILL HUB</h1>
-            <p class="brand-sub">Unified Fast OTP Login Portal</p>
-        </div>
+    <div class="login-box">
+        <h1 class="login-heading">BBCC Skill Hub Login</h1>
 
-        <!-- Status Message Banner -->
-        <div class="status-msg" id="statusBox">
-            <i class="fas fa-circle-info" id="statusIcon"></i>
-            <span id="statusText">Status message</span>
-        </div>
+        <div id="statusAlert" class="status-alert"></div>
 
-        <!-- STEP 1: ENTER EMAIL -->
-        <div id="stepEmailContainer">
+        <!-- STEP 1: EMAIL INPUT -->
+        <div id="stepEmail">
             <div class="form-group">
-                <label class="form-label" for="emailInput">
-                    <i class="fas fa-envelope" style="color:var(--gold); margin-right:4px;"></i> Enter Registered Email
-                </label>
                 <input 
                     type="email" 
                     id="emailInput" 
                     class="form-input" 
-                    placeholder="Enter email (e.g. sky140052@gmail.com)" 
-                    value="sky140052@gmail.com" 
+                    placeholder="Enter your email" 
                     autocomplete="email"
                     required
                 >
-                <small style="color:#94a3b8; font-size:11.5px; margin-top:6px; display:block;">
-                    ⚡ Passwordless Login • We will send a 4-Digit OTP to this email.
-                </small>
             </div>
-
-            <button type="button" id="btnSendOtp" class="btn-submit" onclick="sendOtp()">
-                <i class="fas fa-paper-plane"></i>
-                <span>Send Verification OTP</span>
+            <button type="button" id="btnSendOtp" class="btn-action" onclick="handleSendOtp()">
+                Send OTP
             </button>
         </div>
 
-        <!-- STEP 2: ENTER OTP (Hidden until OTP is sent) -->
-        <div id="stepOtpContainer" style="display:none;">
-            <div class="email-badge">
-                <span>Code sent to: <b id="displayEmail">email@example.com</b></span>
-                <button type="button" class="edit-email-btn" onclick="editEmail()">
-                    <i class="fas fa-pen"></i> Change
-                </button>
-            </div>
-
+        <!-- STEP 2: OTP INPUT -->
+        <div id="stepOtp" style="display: none;">
             <div class="form-group">
-                <label class="form-label" for="otpInput">
-                    <i class="fas fa-key" style="color:var(--emerald); margin-right:4px;"></i> Enter 4-Digit OTP Code
-                </label>
                 <input 
                     type="text" 
                     id="otpInput" 
-                    class="form-input otp-input-box" 
+                    class="form-input otp-input" 
                     maxlength="4" 
                     placeholder="••••" 
                     autocomplete="one-time-code"
                 >
             </div>
-
-            <button type="button" id="btnVerifyOtp" class="btn-submit btn-verify" onclick="verifyOtp()">
-                <i class="fas fa-shield-check"></i>
-                <span>Verify &amp; Log In</span>
+            <button type="button" id="btnVerifyOtp" class="btn-action" onclick="handleVerifyOtp()">
+                Verify &amp; Log In
             </button>
-
-            <div class="timer-row">
-                <span id="timerText">OTP valid for 10 minutes</span>
-                <button type="button" id="btnResend" class="resend-btn" onclick="sendOtp(true)" disabled>
-                    <i class="fas fa-rotate"></i> Resend (<span id="resendCountdown">30</span>s)
-                </button>
+            <div class="sub-action-row">
+                <button type="button" class="text-link" onclick="handleChangeEmail()">Change Email</button>
+                <button type="button" id="btnResend" class="text-link" onclick="handleSendOtp(true)">Resend OTP</button>
             </div>
-        </div>
-
-        <!-- Footer Bar -->
-        <div class="footer-bar">
-            <a href="/"><i class="fas fa-arrow-left"></i> Back to Main Portal</a>
-            <span style="margin: 0 8px;">•</span>
-            <span>Directorate of BBCC</span>
         </div>
     </div>
 
     <script>
-        let countdownTimer = null;
-        let countdownSeconds = 30;
+        let resendTimer = null;
+        let resendSeconds = 30;
 
-        function showStatus(text, type = 'error') {
-            const box = document.getElementById('statusBox');
-            const icon = document.getElementById('statusIcon');
-            const span = document.getElementById('statusText');
-
-            box.className = 'status-msg ' + type;
-            icon.className = type === 'error' ? 'fas fa-triangle-exclamation' : 'fas fa-circle-check';
-            span.textContent = text;
-            box.style.display = 'flex';
+        function showAlert(msg, isError = true) {
+            const el = document.getElementById('statusAlert');
+            el.className = 'status-alert ' + (isError ? 'error' : 'success');
+            el.textContent = msg;
+            el.style.display = 'block';
         }
 
-        function hideStatus() {
-            document.getElementById('statusBox').style.display = 'none';
+        function clearAlert() {
+            const el = document.getElementById('statusAlert');
+            el.style.display = 'none';
+            el.textContent = '';
         }
 
-        function startResendTimer() {
-            clearInterval(countdownTimer);
-            countdownSeconds = 30;
+        function startResendCountdown() {
+            clearInterval(resendTimer);
+            resendSeconds = 30;
             const resendBtn = document.getElementById('btnResend');
-            const cdSpan = document.getElementById('resendCountdown');
             resendBtn.disabled = true;
+            resendBtn.textContent = `Resend (${resendSeconds}s)`;
 
-            countdownTimer = setInterval(() => {
-                countdownSeconds--;
-                if (countdownSeconds <= 0) {
-                    clearInterval(countdownTimer);
+            resendTimer = setInterval(() => {
+                resendSeconds--;
+                if (resendSeconds <= 0) {
+                    clearInterval(resendTimer);
                     resendBtn.disabled = false;
-                    resendBtn.innerHTML = '<i class="fas fa-rotate"></i> Resend OTP';
+                    resendBtn.textContent = 'Resend OTP';
                 } else {
-                    resendBtn.innerHTML = `<i class="fas fa-rotate"></i> Resend (${countdownSeconds}s)`;
+                    resendBtn.textContent = `Resend (${resendSeconds}s)`;
                 }
             }, 1000);
         }
 
-        async function sendOtp(isResend = false) {
+        async function handleSendOtp(isResend = false) {
             const emailInput = document.getElementById('emailInput');
             const email = (emailInput?.value || '').trim().toLowerCase();
             const btn = document.getElementById('btnSendOtp');
 
             if (!email || !email.includes('@')) {
-                showStatus('Please enter a valid email address.', 'error');
+                showAlert('Please enter a valid email address.', true);
                 emailInput?.focus();
                 return;
             }
 
-            hideStatus();
+            clearAlert();
             if (!isResend) {
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Dispatching OTP to Email...';
+                btn.textContent = 'Sending OTP...';
             }
 
             try {
@@ -438,47 +258,45 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    document.getElementById('displayEmail').textContent = email;
-                    document.getElementById('stepEmailContainer').style.display = 'none';
-                    document.getElementById('stepOtpContainer').style.display = 'block';
+                    document.getElementById('stepEmail').style.display = 'none';
+                    document.getElementById('stepOtp').style.display = 'block';
                     document.getElementById('otpInput').value = '';
                     document.getElementById('otpInput').focus();
-
-                    showStatus(`Verification code sent to ${email}. Please check your inbox or spam folder.`, 'success');
-                    startResendTimer();
+                    showAlert('OTP has been sent to ' + email, false);
+                    startResendCountdown();
                 } else {
-                    showStatus(data.message || 'Failed to send OTP email. Please try again.', 'error');
+                    showAlert(data.message || 'Failed to send OTP. Please try again.', true);
                 }
             } catch (err) {
-                showStatus('Network connection error: ' + err.message, 'error');
+                showAlert('Network error: ' + err.message, true);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Send Verification OTP</span>';
+                btn.textContent = 'Send OTP';
             }
         }
 
-        function editEmail() {
-            document.getElementById('stepOtpContainer').style.display = 'none';
-            document.getElementById('stepEmailContainer').style.display = 'block';
+        function handleChangeEmail() {
+            document.getElementById('stepOtp').style.display = 'none';
+            document.getElementById('stepEmail').style.display = 'block';
             document.getElementById('emailInput').focus();
-            hideStatus();
+            clearAlert();
         }
 
-        async function verifyOtp() {
+        async function handleVerifyOtp() {
             const email = (document.getElementById('emailInput')?.value || '').trim().toLowerCase();
             const otpInput = document.getElementById('otpInput');
             const otp = (otpInput?.value || '').trim();
             const btn = document.getElementById('btnVerifyOtp');
 
             if (!otp || otp.length < 4) {
-                showStatus('Please enter the 4-digit code sent to your email.', 'error');
+                showAlert('Please enter the 4-digit OTP.', true);
                 otpInput?.focus();
                 return;
             }
 
-            hideStatus();
+            clearAlert();
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Access...';
+            btn.textContent = 'Verifying...';
 
             try {
                 const res = await fetch('/api/auth/verify-otp', {
@@ -490,49 +308,39 @@
                 const data = await res.json();
 
                 if (res.ok && data.token) {
-                    // Save tokens for 30-day session
                     localStorage.setItem('bbcc_token', data.token);
                     localStorage.setItem('bbcc_auth_token', data.token);
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('bbcc_user_email', email);
-                    localStorage.setItem('bbcc_user_role', data.role || 'student');
+                    localStorage.setItem('bbcc_user_role', data.role || 'user');
 
-                    showStatus('Access Verified! Redirecting...', 'success');
+                    showAlert('Login successful! Redirecting...', false);
 
-                    // Immediate smart redirection based on role
                     setTimeout(() => {
-                        if (data.role === 'superadmin' || email === 'sky140052@gmail.com') {
-                            window.location.href = '/admin-console.html';
-                        } else if (data.role === 'director') {
-                            window.location.href = data.redirectUrl || '/director-portal.html';
-                        } else {
-                            window.location.href = data.redirectUrl || '/student-dashboard.html';
-                        }
-                    }, 800);
+                        window.location.href = data.redirectUrl || '/admin-console.html';
+                    }, 500);
                 } else {
-                    showStatus(data.message || 'Invalid or expired OTP code.', 'error');
+                    showAlert(data.message || 'Invalid or expired OTP.', true);
                 }
             } catch (err) {
-                showStatus('Verification error: ' + err.message, 'error');
+                showAlert('Verification error: ' + err.message, true);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-shield-check"></i> <span>Verify &amp; Log In</span>';
+                btn.textContent = 'Verify & Log In';
             }
         }
 
-        // Allow pressing Enter in Email input
         document.getElementById('emailInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                sendOtp();
+                handleSendOtp();
             }
         });
 
-        // Allow pressing Enter in OTP input
         document.getElementById('otpInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                verifyOtp();
+                handleVerifyOtp();
             }
         });
     </script>
