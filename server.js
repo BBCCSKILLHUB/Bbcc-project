@@ -19,6 +19,9 @@ const jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
 const webpush = require('web-push');
 const nodemailer = require('nodemailer');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 
 // Official Gmail OTP Transporter Configuration (Santosh Sir / BBCC Credentials)
 const EMAIL_USER = process.env.EMAIL_USER || 'balbharticoching.center@gmail.com';
@@ -322,7 +325,16 @@ function saveBase64ToFile(dataUriOrBase64, subDir = 'materials', defaultExt = 'p
     return res.fileUrl;
 }
 
-// Security Headers Middleware
+// Trust reverse proxy (Render / Cloudflare) for accurate rate limiting and IP detection
+app.set('trust proxy', 1);
+
+// 1. Military-Grade Security Headers (Helmet)
+app.use(helmet({
+    contentSecurityPolicy: false, // Prevents blocking Google Fonts, FontAwesome, or embedded PDF viewers
+    crossOriginEmbedderPolicy: false
+}));
+
+// Additional HTTP Security & Anti-Sniff Headers
 app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -336,8 +348,58 @@ app.use(cors());
 app.use(express.json({ limit: '80mb' }));
 app.use(express.urlencoded({ extended: true, limit: '80mb' }));
 
+// 2. NoSQL & SQL Injection Sanitization
+app.use(mongoSanitize({
+    replaceWith: '_'
+}));
+
+// 3. XSS Protection Middleware: Strips dangerous scripts from request body
+function sanitizeInput(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    for (const key of Object.keys(obj)) {
+        if (typeof obj[key] === 'string') {
+            obj[key] = obj[key]
+                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                .replace(/javascript:/gi, '');
+        } else if (typeof obj[key] === 'object') {
+            sanitizeInput(obj[key]);
+        }
+    }
+    return obj;
+}
+
+app.use((req, res, next) => {
+    if (req.body && typeof req.body === 'object') {
+        sanitizeInput(req.body);
+    }
+    next();
+});
+
+// 4. Rate Limiting Protection (Anti-Brute Force & Anti-Spam)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes window
+    max: 20, // 20 requests per IP per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many authentication attempts from this IP. Please wait 15 minutes.' }
+});
+
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 500, // 500 requests per IP per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many API requests from this IP. Please slow down.' }
+});
+
+app.use('/api/auth/send-otp', authLimiter);
+app.use('/api/auth/send-signup-otp', authLimiter);
+app.use('/api/auth/verify-otp', authLimiter);
+app.use('/api/auth/verify-signup-otp', authLimiter);
+app.use('/api/auth/check-email', authLimiter);
+app.use('/api', apiLimiter);
+
 // Global Zero-Stale HTTP Cache-Busting Headers for all API routes:
-// Ensures browsers never serve stale cached JSON for any database entity or upload!
 app.use('/api', (req, res, next) => {
     res.set({
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -371,8 +433,34 @@ app.get(['/santosh%20sir.jpeg', '/santosh sir.jpeg', '/data/photos/Santosh_Sir.j
     res.redirect('/favicon.ico');
 });
 
-// High-performance static caching for static assets
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
+// 5. Clean URLs (Redirect legacy .html requests cleanly to extensionless routes)
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html') && req.path !== '/index.html') {
+        const cleanPath = req.path.slice(0, -5);
+        const query = req.url.slice(req.path.length);
+        return res.redirect(301, cleanPath + query);
+    }
+    next();
+});
+
+// Explicit Clean URL Page Routes
+const cleanPages = [
+    { route: '/login', file: 'login.html' },
+    { route: '/student-dashboard', file: 'student-dashboard.html' },
+    { route: '/director-dashboard', file: 'director-dashboard.html' },
+    { route: '/director-portal', file: 'director-dashboard.html' },
+    { route: '/admin-console', file: 'admin-console.html' },
+    { route: '/e-library', file: 'e-library.html' },
+    { route: '/courses', file: 'courses.html' },
+    { route: '/teacher-portal', file: 'teacher-portal.html' }
+];
+
+cleanPages.forEach(p => {
+    app.get(p.route, (req, res) => res.sendFile(path.join(__dirname, 'public', p.file)));
+});
+
+// High-performance static caching for static assets with automatic .html extension resolution
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true, extensions: ['html'] }));
 
 // Dynamic DataStax Astra DB Heavy Asset Streaming & Local Caching Middleware
 // Dynamic DataStax Astra DB Heavy Asset Streaming & Local Caching Middleware
@@ -6304,20 +6392,20 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
         let effectiveRole = 'student';
         let displayName = student ? (student.name || email.split('@')[0]) : email.split('@')[0];
-        let redirectUrl = '/student-dashboard.html';
+        let redirectUrl = '/student-dashboard';
 
         if (isSuperAdmin) {
             effectiveRole = 'superadmin';
             displayName = 'Santosh Sir (Super Admin)';
-            redirectUrl = '/admin-console.html';
+            redirectUrl = '/admin-console';
         } else if (isDirector) {
             effectiveRole = 'director';
             displayName = matchedCenter.directorName || matchedCenter.centerName;
-            redirectUrl = '/director-dashboard.html';
+            redirectUrl = '/director-dashboard';
         } else if (isTeacher) {
             effectiveRole = 'teacher';
             displayName = matchedTeacher.name || 'Faculty Member';
-            redirectUrl = '/teacher-portal.html';
+            redirectUrl = '/teacher-portal';
         }
 
         // JWT Token (30 days validity for seamless long-time login like Flipkart/College Vidya)
@@ -6589,7 +6677,7 @@ app.post('/api/auth/register-student', async (req, res) => {
             success: true,
             token: token,
             role: 'student',
-            redirectUrl: '/student-dashboard.html',
+            redirectUrl: '/student-dashboard',
             message: 'Student account created successfully! Welcome to BBCC Skill Hub.',
             user: {
                 id: student._id,
@@ -6788,7 +6876,7 @@ app.post('/api/auth/verify-signup-otp', async (req, res) => {
                 success: true,
                 token: token,
                 role: 'student',
-                redirectUrl: '/student-dashboard.html',
+                redirectUrl: '/student-dashboard',
                 message: 'Email verified successfully! Welcome to BBCC Skill Hub.',
                 user: {
                     id: student._id,
