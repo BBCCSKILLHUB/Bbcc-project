@@ -6092,7 +6092,7 @@ app.post('/api/pay/verify-coaching-unblock', verifyDirector, async (req, res) =>
 // 6. AUTHENTICATION & LOGIN APIS
 // ============================================================
 
-// 6.0A Send Login OTP via Official BBCC Gmail Transporter (Flipkart / College Vidya Style)
+// 6.0A Send Login OTP via Brevo HTTPS REST API (Port 443 - Bypasses Render SMTP Block)
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         const email = (req.body.email || '').trim().toLowerCase();
@@ -6108,78 +6108,89 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
         console.log(`🔑 [BBCC OTP Generated] Target: ${email} | Code: ${otp}`);
 
+        const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim();
+
+        // 1. Direct Brevo HTTPS REST API (Port 443)
+        if (BREVO_KEY) {
+            try {
+                const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'api-key': BREVO_KEY,
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: { name: "BBCC Skill Hub", email: "balbharticoching.center@gmail.com" },
+                        to: [{ email: email }],
+                        subject: "BBCC Skill Hub - Login Verification Code",
+                        htmlContent: `
+                            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #0f172a; color: #ffffff; padding: 28px; border-radius: 16px; text-align: center; border: 1px solid rgba(251,191,36,0.3);">
+                                <h2 style="color: #fbbf24; margin: 0 0 10px; font-size: 24px;">BBCC SKILL HUB</h2>
+                                <p style="color: #94a3b8; font-size: 13px; margin: 0 0 20px;">Affiliated EdTech Platform</p>
+                                <div style="background: rgba(255,255,255,0.06); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                                    <p style="font-size: 15px; color: #e2e8f0; margin-bottom: 12px;">Your One-Time Login Verification Code is:</p>
+                                    <div style="font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #fbbf24; background: #030712; padding: 12px 24px; border-radius: 8px; display: inline-block; border: 2px dashed #fbbf24;">
+                                        ${otp}
+                                    </div>
+                                    <p style="font-size: 12px; color: #94a3b8; margin-top: 14px;">Valid for 10 minutes. Do not share this code.</p>
+                                </div>
+                                <p style="font-size: 11px; color: #64748b; margin: 0;">Verified & Secured by BBCC Directorate</p>
+                            </div>`
+                    })
+                });
+
+                if (brevoRes.ok) {
+                    console.log(`✅ [Brevo HTTPS API Delivered] OTP sent to: ${email}`);
+                    return res.status(200).json({ success: true, message: 'OTP sent successfully via HTTPS API!' });
+                } else {
+                    const errTxt = await brevoRes.text();
+                    console.error('❌ [Brevo API Error]:', errTxt);
+                    return res.status(500).json({ success: false, message: 'Brevo API error: ' + errTxt });
+                }
+            } catch (apiErr) {
+                console.error('❌ [Brevo Fetch Failed]:', apiErr.message);
+            }
+        }
+
+        // 2. Fallback to Resend HTTPS API if configured
+        if (process.env.RESEND_API_KEY) {
+            try {
+                const resendRes = await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        from: 'BBCC Skill Hub <onboarding@resend.dev>',
+                        to: [email],
+                        subject: 'Login Verification Code - BBCC Skill Hub',
+                        html: `<h3>Your BBCC Verification Code is: <b>${otp}</b></h3>`
+                    })
+                });
+                if (resendRes.ok) {
+                    console.log(`✅ [Resend HTTPS API Delivered] OTP sent to: ${email}`);
+                    return res.status(200).json({ success: true, message: 'OTP sent successfully via HTTPS API!' });
+                }
+            } catch (e) {}
+        }
+
+        // 3. Fallback for localhost testing (SMTP)
         try {
-            const sendInfo = await mailTransporter.sendMail({
+            await mailTransporter.sendMail({
                 from: `"BBCC Skill Hub" <${EMAIL_USER}>`,
                 to: email,
                 subject: 'Login Verification Code - BBCC Skill Hub',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #0f172a; color: #f8fafc; padding: 28px; border-radius: 16px; border: 1px solid rgba(251,191,36,0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                        <div style="text-align: center; margin-bottom: 24px;">
-                            <h2 style="color: #fbbf24; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1px;">BBCC SKILL HUB</h2>
-                            <p style="color: #94a3b8; font-size: 13px; margin: 6px 0 0;">Affiliated Coaching Institute & EdTech Aggregator</p>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.08);">
-                            <p style="font-size: 15px; color: #e2e8f0; margin-bottom: 14px;">Your One-Time Login Verification Code is:</p>
-                            <div style="font-size: 34px; font-weight: 900; letter-spacing: 10px; color: #fbbf24; padding: 14px 24px; background: rgba(0,0,0,0.5); border: 2px dashed #fbbf24; border-radius: 8px; display: inline-block;">
-                                ${otp}
-                            </div>
-                            <p style="font-size: 12.5px; color: #94a3b8; margin-top: 16px; line-height: 1.5;">
-                                ⏱️ Valid for <b>10 minutes</b>. Do not share this code with anyone.
-                            </p>
-                        </div>
-                        <div style="margin-top: 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-                            <p style="font-size: 11.5px; color: #64748b; margin: 0;">
-                                Verified & Secured by BBCC Directorate • ISO 9001:2015 Standards
-                            </p>
-                        </div>
-                    </div>
-                `
+                html: `<h3>BBCC Skill Hub Verification Code: <b>${otp}</b></h3>`
             });
-            console.log(`✅ [BBCC OTP Delivered] Email successfully sent to: ${email} | ID: ${sendInfo.messageId}`);
+            console.log(`✅ [SMTP Local Delivered] OTP sent to: ${email}`);
             return res.status(200).json({ success: true, message: 'OTP sent to your email successfully!' });
-        } catch (mailErr) {
-            console.error('❌ [OTP SMTP Failed]:', mailErr.message);
-
-            // If Render Free tier blocks SMTP (Ports 587/465), fallback to HTTPS Email API (Port 443)
-            if (process.env.RESEND_API_KEY) {
-                try {
-                    await new Promise((resolve, reject) => {
-                        const https = require('https');
-                        const postData = JSON.stringify({
-                            from: 'BBCC Skill Hub <onboarding@resend.dev>',
-                            to: [email],
-                            subject: 'Login Verification Code - BBCC Skill Hub',
-                            html: `<div style="font-family:sans-serif;padding:20px;background:#0f172a;color:#fff;border-radius:12px;text-align:center;"><h2>BBCC SKILL HUB</h2><p>Your verification code is:</p><h1 style="color:#fbbf24;letter-spacing:8px;">${otp}</h1><p>Valid for 10 minutes.</p></div>`
-                        });
-                        const hreq = https.request({
-                            hostname: 'api.resend.com',
-                            path: '/emails',
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-                                'Content-Type': 'application/json',
-                                'Content-Length': Buffer.byteLength(postData)
-                            }
-                        }, hr => {
-                            let d = '';
-                            hr.on('data', c => d += c);
-                            hr.on('end', () => hr.statusCode < 300 ? resolve(d) : reject(new Error(d)));
-                        });
-                        hreq.on('error', reject);
-                        hreq.write(postData);
-                        hreq.end();
-                    });
-                    console.log(`✅ [BBCC OTP Delivered via HTTPS API] Email sent to: ${email}`);
-                    return res.status(200).json({ success: true, message: 'OTP sent to your email successfully!' });
-                } catch (apiErr) {
-                    console.error('❌ [HTTPS API Failed]:', apiErr.message);
-                }
-            }
-
-            return res.status(500).json({ 
-                success: false, 
-                message: `Failed to deliver OTP email: ${mailErr.message}. (Render Free Tier blocks outbound SMTP ports 25, 465, 587).` 
+        } catch (smtpErr) {
+            console.error('❌ [Local SMTP Failed]:', smtpErr.message);
+            return res.status(500).json({
+                success: false,
+                message: 'EMAIL_API_KEY is required in Render Environment Variables. Please set EMAIL_API_KEY (from Brevo) in Render.'
             });
         }
     } catch (error) {
