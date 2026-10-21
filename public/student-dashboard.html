@@ -688,7 +688,7 @@
             const token = localStorage.getItem('bbcc_auth_token');
             if (!token) {
                 alert('Session expired or not logged in. Please log in with OTP.');
-                window.location.href = '/login.html';
+                window.location.href = '/login';
                 return false;
             }
             return token;
@@ -707,7 +707,7 @@
                 if (!res.ok || !data.success) {
                     alert(data.message || 'Session expired. Please log in again.');
                     localStorage.removeItem('bbcc_auth_token');
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
