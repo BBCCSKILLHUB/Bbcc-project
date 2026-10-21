@@ -2772,9 +2772,12 @@
                 <button type="button" onclick="openOtpLoginModal()" id="btnNavOtpLogin" class="btn-aurora btn-aurora-outline" style="border-color:rgba(251, 191, 36, 0.4); color:var(--aurora-gold); cursor:pointer;">
                     <i class="fas fa-key"></i> Login with OTP
                 </button>
-                <div id="navUserLoggedInPill" style="display:none; align-items:center; gap:8px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.4); padding:6px 14px; border-radius:20px;">
-                    <i class="fas fa-circle-user" style="color:var(--aurora-gold);"></i>
-                    <span id="navUserName" style="font-size:12.5px; font-weight:800; color:#ffffff;">Student</span>
+                <div id="navUserLoggedInPill" style="display:none; align-items:center; gap:8px; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.45); padding:5px 12px; border-radius:20px;">
+                    <a href="/student-dashboard.html" style="text-decoration:none; display:flex; align-items:center; gap:6px; color:#ffffff;" title="Open Student Dashboard & My Library">
+                        <i class="fas fa-circle-user" style="color:var(--aurora-gold);"></i>
+                        <span id="navUserName" style="font-size:12.5px; font-weight:800; color:#ffffff;">Student</span>
+                        <span style="font-size:10px; background:rgba(251,191,36,0.25); color:var(--aurora-gold); padding:2px 7px; border-radius:10px; font-weight:700;">My Library</span>
+                    </a>
                     <button type="button" onclick="logoutOtpUser()" style="background:none; border:none; color:#f87171; font-size:11px; cursor:pointer; padding:0 2px;" title="Logout"><i class="fas fa-arrow-right-from-bracket"></i></button>
                 </div>
             </div>
