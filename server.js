@@ -25,11 +25,17 @@ const EMAIL_USER = process.env.EMAIL_USER || 'balbharticoching.center@gmail.com'
 const EMAIL_APP_PASSWORD = (process.env.EMAIL_APP_PASSWORD || 'zlmm lguv ruaa wzod').replace(/\s+/g, '');
 
 const mailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: EMAIL_USER,
         pass: EMAIL_APP_PASSWORD
-    }
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    family: 4
 });
 let transporter = mailTransporter;
 
@@ -6103,10 +6109,10 @@ app.post('/api/auth/send-otp', async (req, res) => {
         console.log(`🔑 [BBCC OTP Generated] Target: ${email} | Code: ${otp}`);
 
         try {
-            await mailTransporter.sendMail({
+            const sendInfo = await mailTransporter.sendMail({
                 from: `"BBCC Skill Hub" <${EMAIL_USER}>`,
                 to: email,
-                subject: 'Login Verification - BBCC Skill Hub',
+                subject: 'Login Verification Code - BBCC Skill Hub',
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #0f172a; color: #f8fafc; padding: 28px; border-radius: 16px; border: 1px solid rgba(251,191,36,0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                         <div style="text-align: center; margin-bottom: 24px;">
@@ -6130,12 +6136,14 @@ app.post('/api/auth/send-otp', async (req, res) => {
                     </div>
                 `
             });
-            console.log(`✅ [BBCC OTP Delivered] Email successfully sent to: ${email}`);
-            return res.status(200).json({ success: true, message: 'OTP sent!' });
+            console.log(`✅ [BBCC OTP Delivered] Email successfully sent to: ${email} | ID: ${sendInfo.messageId}`);
+            return res.status(200).json({ success: true, message: 'OTP sent to your email successfully!' });
         } catch (mailErr) {
-            console.warn('⚠️ [OTP Email Send Notice]:', mailErr.message);
-            // OTP remains valid in memory for testing/verification even if network delays
-            return res.status(200).json({ success: true, message: 'OTP sent!' });
+            console.error('❌ [OTP Email Send Failure]:', mailErr.message);
+            return res.status(500).json({ 
+                success: false, 
+                message: `Failed to deliver OTP email: ${mailErr.message}. Please check SMTP credentials or connection.` 
+            });
         }
     } catch (error) {
         console.error('Error sending OTP:', error);
