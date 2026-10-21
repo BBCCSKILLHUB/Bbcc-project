@@ -6250,6 +6250,200 @@ app.get('/api/auth/me', async (req, res) => {
     }
 });
 
+// 6.0D Student Dashboard "My Library" Endpoint (Persistent Lifetime Access from Astra DB & MongoDB)
+app.get('/api/user/my-library', async (req, res) => {
+    try {
+        const token = (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, '') : '') || req.query.token;
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Authentication required' });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, JWT_SECRET);
+        } catch(e) {
+            return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+        }
+
+        const userEmail = (decoded.email || '').trim().toLowerCase();
+        const userPhone = (decoded.phone || '').trim();
+        const pdb = loadPortalDb();
+
+        // Find or build student record
+        const student = (pdb.students || []).find(s => 
+            (s.email && s.email.toLowerCase() === userEmail) || 
+            (userPhone && s.phone && s.phone === userPhone)
+        ) || { email: userEmail, name: decoded.name || userEmail.split('@')[0], purchasedBooks: [] };
+
+        // 1. Gather all purchased/unlocked docs from MongoDB PaymentTransaction
+        let paidTxs = [];
+        if (isMongoConnected) {
+            try {
+                paidTxs = await PaymentTransaction.find({
+                    status: 'paid',
+                    $or: [
+                        { payerEmail: userEmail },
+                        { payerPhone: userPhone || '___no_phone___' }
+                    ]
+                }).sort({ createdAt: -1 }).lean();
+            } catch(e) {}
+        }
+
+        // 2. Also check portal_db.json payment transactions
+        const pdbTxs = (pdb.paymentTransactions || []).filter(tx => 
+            tx.status === 'paid' && 
+            ((tx.payerEmail && tx.payerEmail.toLowerCase() === userEmail) || (userPhone && tx.payerPhone === userPhone))
+        );
+
+        // Merge all transactions (by orderId or docId)
+        const combinedTxs = [...paidTxs, ...pdbTxs];
+        const purchasedMap = new Map();
+
+        // Seed with student.purchasedBooks
+        if (Array.isArray(student.purchasedBooks)) {
+            student.purchasedBooks.forEach(pb => {
+                const k = pb.docId || pb.title;
+                if (k) {
+                    purchasedMap.set(k, {
+                        docId: pb.docId,
+                        title: pb.title,
+                        orderId: pb.orderId || 'FREE_ACCESS',
+                        orderType: pb.orderType || 'pdf',
+                        purchasedAt: pb.purchasedAt || new Date().toISOString(),
+                        amount: 0
+                    });
+                }
+            });
+        }
+
+        combinedTxs.forEach(tx => {
+            const key = tx.docId || tx.docTitle;
+            if (key && !purchasedMap.has(key)) {
+                purchasedMap.set(key, {
+                    docId: tx.docId,
+                    title: tx.docTitle || 'Study Document',
+                    orderId: tx.orderId,
+                    orderType: tx.orderType || 'pdf',
+                    purchasedAt: tx.paidAt || tx.createdAt || new Date().toISOString(),
+                    amount: tx.amount || 0,
+                    pickupAddress: tx.pickupAddress || ''
+                });
+            }
+        });
+
+        // 3. For each purchased item, enrich with current metadata (thumbnail, fileType, subject, classLevel, live download URL)
+        const libraryItems = [];
+        for (const [key, item] of purchasedMap.entries()) {
+            let noteMeta = null;
+
+            // Search in portal_db.json notes
+            if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
+                noteMeta = pdb.studyMaterials.notes.find(n => (n._id || '').toString() === (item.docId || '').toString() || (n.title && n.title.trim().toLowerCase() === (item.title || '').trim().toLowerCase()));
+            }
+
+            // Search in MongoDB StudyMaterial
+            if (!noteMeta && isMongoConnected) {
+                try {
+                    const sm = await StudyMaterial.findOne();
+                    if (sm && sm.notes) {
+                        noteMeta = sm.notes.find(n => n._id.toString() === (item.docId || '').toString() || (n.title && n.title.trim().toLowerCase() === (item.title || '').trim().toLowerCase()));
+                    }
+                } catch(e) {}
+            }
+
+            // Search in Astra DB
+            if (!noteMeta && astraDb && isAstraConnected) {
+                try {
+                    const col = astraDb.collection('bbcc_study_materials');
+                    if (item.docId) noteMeta = await col.findOne({ _id: item.docId });
+                    if (!noteMeta && item.title) noteMeta = await col.findOne({ title: item.title });
+                } catch(e) {}
+            }
+
+            const docId = (noteMeta && noteMeta._id) ? noteMeta._id.toString() : (item.docId || key);
+            const title = (noteMeta && noteMeta.title) ? noteMeta.title : (item.title || 'Academic Study Material');
+            const subject = (noteMeta && noteMeta.subject) ? noteMeta.subject : 'General Curriculum';
+            const classLevel = (noteMeta && noteMeta.classLevel) ? noteMeta.classLevel : 'All Classes';
+            const fileType = (noteMeta && noteMeta.fileType) ? noteMeta.fileType.toLowerCase() : 'pdf';
+            const thumbnail = (noteMeta && noteMeta.thumbnail) ? noteMeta.thumbnail : '';
+            const downloadUrl = `/api/pay/download-file?docId=${encodeURIComponent(docId)}&token=${encodeURIComponent(token)}`;
+
+            libraryItems.push({
+                docId: docId,
+                title: title,
+                subject: subject,
+                classLevel: classLevel,
+                fileType: fileType,
+                thumbnail: thumbnail,
+                orderId: item.orderId,
+                orderType: item.orderType,
+                pickupAddress: item.pickupAddress,
+                purchasedAt: item.purchasedAt,
+                amount: item.amount,
+                downloadUrl: downloadUrl
+            });
+        }
+
+        return res.json({
+            success: true,
+            user: {
+                id: student._id || decoded.id,
+                name: student.name || decoded.name || userEmail.split('@')[0],
+                email: userEmail,
+                phone: student.phone || userPhone,
+                role: decoded.role || 'student',
+                enrolledAt: student.enrolledAt || student.createdAt || '2026-01-01'
+            },
+            library: libraryItems,
+            stats: {
+                totalBooks: libraryItems.length,
+                pdfCount: libraryItems.filter(i => i.orderType !== 'physical').length,
+                physicalCount: libraryItems.filter(i => i.orderType === 'physical').length
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Failed to fetch student library: ' + err.message });
+    }
+});
+
+// 6.0E Student Profile Update Endpoint
+app.post('/api/user/update-profile', async (req, res) => {
+    try {
+        const token = (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, '') : '') || req.body.token;
+        if (!token) return res.status(401).json({ success: false, message: 'Authentication required' });
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const { name, phone } = req.body;
+        const email = decoded.email.toLowerCase();
+
+        const pdb = loadPortalDb();
+        pdb.students = pdb.students || [];
+        let s = pdb.students.find(st => st.email && st.email.toLowerCase() === email);
+        if (s) {
+            if (name) s.name = name.trim();
+            if (phone) s.phone = phone.trim();
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try {
+                await Student.findOneAndUpdate({ email }, { name, phone });
+            } catch(e) {}
+        }
+
+        return res.json({ 
+            success: true, 
+            message: 'Profile updated successfully', 
+            user: { 
+                name: s ? s.name : name, 
+                phone: s ? s.phone : phone, 
+                email 
+            } 
+        });
+    } catch(err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // 6.1 Single Unified Multi-Role Login (Auto-detects Super Admin vs Coaching Director)
 app.post('/api/auth/login', async (req, res) => {
     try {
