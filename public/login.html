@@ -281,6 +281,10 @@
 
             <!-- SUB-FORM A: STUDENT REGISTRATION -->
             <form id="formRegStudent" onsubmit="handleRegisterStudent(event)">
+                <div class="form-group" id="regStuEmailGroup" style="display: none;">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" id="regStuEmail" placeholder="Enter student email (e.g. student@gmail.com)" class="form-input">
+                </div>
                 <div class="form-group">
                     <label class="form-label">Full Name *</label>
                     <input type="text" id="regStuName" required placeholder="Enter student name" class="form-input">
@@ -309,6 +313,10 @@
 
             <!-- SUB-FORM B: COACHING DIRECTOR REGISTRATION -->
             <form id="formRegCoaching" style="display: none;" onsubmit="handleRegisterCoaching(event)">
+                <div class="form-group" id="regDirEmailGroup" style="display: none;">
+                    <label class="form-label">Official Director / Coaching Email *</label>
+                    <input type="email" id="regDirEmail" placeholder="Enter director email (e.g. director@gmail.com)" class="form-input">
+                </div>
                 <div class="form-group">
                     <label class="form-label">Director / Owner Name *</label>
                     <input type="text" id="regDirName" required placeholder="e.g. Prof. R. K. Sharma" class="form-input">
@@ -354,10 +362,10 @@
                 const data = await res.json();
                 if (res.ok && data.success && data.user) {
                     // Redirect immediately to their dashboard
-                    if (data.user.role === 'superadmin') window.location.href = '/admin-console.html';
-                    else if (data.user.role === 'director' || data.user.role === 'coaching') window.location.href = '/director-dashboard.html';
-                    else if (data.user.role === 'teacher') window.location.href = '/teacher-portal.html';
-                    else window.location.href = '/student-dashboard.html';
+                    if (data.user.role === 'superadmin') window.location.href = '/admin-console';
+                    else if (data.user.role === 'director' || data.user.role === 'coaching') window.location.href = '/director-dashboard';
+                    else if (data.user.role === 'teacher') window.location.href = '/teacher-portal';
+                    else window.location.href = '/student-dashboard';
                 }
             } catch(e) {}
         })();
@@ -487,7 +495,7 @@
 
                             showAlert('Email verified! Account created successfully. Redirecting...', 'success');
                             setTimeout(() => {
-                                window.location.href = data.redirectUrl || '/student-dashboard.html';
+                                window.location.href = data.redirectUrl || '/student-dashboard';
                             }, 600);
                         } else {
                             // Coaching Registration
@@ -522,7 +530,7 @@
 
                     showAlert('Verified successfully! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = data.redirectUrl || '/student-dashboard.html';
+                        window.location.href = data.redirectUrl || '/student-dashboard';
                     }, 500);
                 } else {
                     showAlert(data.message || 'Invalid or expired OTP.', 'error');
@@ -537,16 +545,28 @@
 
         // 3. REGISTRATION ONBOARDING FLOW
         async function showRegistrationFlow(email) {
+            currentEmail = (email || '').trim().toLowerCase();
             document.getElementById('stageEmail').style.display = 'none';
             document.getElementById('stageOtp').style.display = 'none';
             document.getElementById('stageRegister').style.display = 'block';
 
             document.getElementById('boxTitle').textContent = 'Create BBCC Account';
-            document.getElementById('boxSubTitle').textContent = 'Account not found. Please choose account type.';
-            document.getElementById('regEmailSpan').textContent = email;
+            document.getElementById('boxSubTitle').textContent = currentEmail ? 'Account not found. Please choose account type.' : 'Direct Account Registration';
+            document.getElementById('regEmailSpan').textContent = currentEmail || 'Direct Sign Up';
+
+            const emailPill = document.querySelector('.email-display-pill');
+            if (currentEmail) {
+                if (emailPill) emailPill.style.display = 'flex';
+                if (document.getElementById('regStuEmailGroup')) document.getElementById('regStuEmailGroup').style.display = 'none';
+                if (document.getElementById('regDirEmailGroup')) document.getElementById('regDirEmailGroup').style.display = 'none';
+                showAlert('No account found with this email. Please complete registration below.', 'info');
+            } else {
+                if (emailPill) emailPill.style.display = 'none';
+                if (document.getElementById('regStuEmailGroup')) document.getElementById('regStuEmailGroup').style.display = 'block';
+                if (document.getElementById('regDirEmailGroup')) document.getElementById('regDirEmailGroup').style.display = 'block';
+            }
 
             loadApprovedCenters();
-            showAlert('No account found with this email. Please register below.', 'info');
         }
 
         function switchRegType(type) {
@@ -589,6 +609,15 @@
         // Register Student Step 1: Send OTP to Verify Email First
         async function handleRegisterStudent(e) {
             e.preventDefault();
+            if (!currentEmail) {
+                const emInput = document.getElementById('regStuEmail');
+                if (emInput && emInput.value) currentEmail = emInput.value.trim().toLowerCase();
+            }
+            if (!currentEmail || !currentEmail.includes('@')) {
+                showAlert('Please enter a valid email address to receive OTP.', 'error');
+                return;
+            }
+
             const name = document.getElementById('regStuName').value.trim();
             const phone = document.getElementById('regStuPhone').value.trim();
             const admissionType = document.getElementById('regStuAdmissionType').value;
@@ -643,6 +672,15 @@
         // Register Coaching Step 1: Send OTP to Verify Email First
         async function handleRegisterCoaching(e) {
             e.preventDefault();
+            if (!currentEmail) {
+                const emInput = document.getElementById('regDirEmail');
+                if (emInput && emInput.value) currentEmail = emInput.value.trim().toLowerCase();
+            }
+            if (!currentEmail || !currentEmail.includes('@')) {
+                showAlert('Please enter a valid official email address to receive OTP.', 'error');
+                return;
+            }
+
             const directorName = document.getElementById('regDirName').value.trim();
             const centerName = document.getElementById('regCenterName').value.trim();
             const phone = document.getElementById('regDirPhone').value.trim();
@@ -742,6 +780,21 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 handleVerifyOtp();
+            }
+        });
+
+        // Direct Registration URL Support (?mode=signup&role=coaching / student)
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode');
+            const role = params.get('role');
+            if (mode === 'signup' || role) {
+                showRegistrationFlow('');
+                if (role === 'coaching' || role === 'director') {
+                    switchRegType('coaching');
+                } else {
+                    switchRegType('student');
+                }
             }
         });
     </script>
