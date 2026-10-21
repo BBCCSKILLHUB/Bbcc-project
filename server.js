@@ -2033,12 +2033,36 @@ app.get('/api/public/config', async (req, res) => {
                 aiAssistantRole: settings.aiAssistantRole || 'Chief Academic Counselor & Senior Student Advisor',
                 aiDataScope: settings.aiDataScope || ['courses', 'fees', 'centers', 'founder', 'books', 'syllabus', 'admissions']
             },
+            runningOffers: settings.runningOffers || [
+                '🔥 FLAT 50% OFF on All Class 10th & 12th Master Notes! Use Code: BBCC50',
+                '📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply Online with 1-Click Verification',
+                '💻 ADCA & DCA Computer Diplomas: ISO 9001:2015 Central Enrollment Certificate Included',
+                '⚡ Coaching Centers: Join BBCC Aggregator Network & Get Direct Online Admissions Today!'
+            ],
             razorpayKeyId: keyId || '',
             razorpayConfigured: !!keyId
         };
         setCache('public_config', payload, 3000);
         res.json({ success: true, data: payload });
     } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4.1A Public Running Offers Ticker (Admin Controlled)
+app.get('/api/public/offers', (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const offers = (pdb.settings && pdb.settings.runningOffers && pdb.settings.runningOffers.length > 0)
+            ? pdb.settings.runningOffers
+            : [
+                '🔥 FLAT 50% OFF on All Class 10th & 12th Master Notes! Use Code: BBCC50',
+                '📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply Online with 1-Click Verification',
+                '💻 ADCA & DCA Computer Diplomas: ISO 9001:2015 Central Enrollment Certificate Included',
+                '⚡ Coaching Centers: Join BBCC Aggregator Network & Get Direct Online Admissions Today!'
+            ];
+        res.json({ success: true, offers });
+    } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
