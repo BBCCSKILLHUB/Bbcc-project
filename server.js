@@ -6313,7 +6313,7 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         } else if (isDirector) {
             effectiveRole = 'director';
             displayName = matchedCenter.directorName || matchedCenter.centerName;
-            redirectUrl = '/director-portal.html';
+            redirectUrl = '/director-dashboard.html';
         } else if (isTeacher) {
             effectiveRole = 'teacher';
             displayName = matchedTeacher.name || 'Faculty Member';
@@ -6604,6 +6604,264 @@ app.post('/api/auth/register-student', async (req, res) => {
     }
 });
 
+// 6.0F-1 Send Sign-Up Verification OTP via Brevo HTTPS REST API (Port 443)
+app.post('/api/auth/send-signup-otp', async (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ success: false, message: 'Valid email address is required' });
+        }
+
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        otpStore[email] = {
+            otp: otp,
+            expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes validity
+        };
+
+        console.log(`🔑 [Sign-Up OTP Generated] Target: ${email} | Code: ${otp}`);
+
+        const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim().replace(/[\r\n\t'"`]/g, '');
+
+        if (BREVO_KEY) {
+            try {
+                const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'api-key': BREVO_KEY,
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: { name: "BBCC Skill Hub Verification", email: "balbharticoching.center@gmail.com" },
+                        to: [{ email: email }],
+                        subject: "BBCC Skill Hub — Verify Your Email to Complete Sign Up",
+                        htmlContent: `
+                            <div style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <h2 style="color: #0f172a; margin: 0 0 6px 0; font-size: 22px;">BBCC SKILL HUB</h2>
+                                    <p style="color: #2563eb; font-size: 13px; font-weight: 700; margin: 0; text-transform: uppercase;">Official Email Verification</p>
+                                </div>
+                                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                                    <p style="color: #475569; font-size: 14px; margin: 0 0 10px 0;">Your 4-Digit Sign-Up Verification Code is:</p>
+                                    <h1 style="color: #2563eb; font-size: 38px; letter-spacing: 8px; margin: 0; font-weight: 900;">${otp}</h1>
+                                    <p style="color: #94a3b8; font-size: 12px; margin: 8px 0 0 0;">Valid for 10 minutes. Do not share this code with anyone.</p>
+                                </div>
+                                <p style="color: #64748b; font-size: 13px; line-height: 1.5; margin: 0; text-align: center;">
+                                    Enter this code on the registration page to verify your identity and activate your account.
+                                </p>
+                            </div>
+                        `
+                    })
+                });
+
+                if (brevoRes.ok) {
+                    return res.status(200).json({ success: true, message: 'Verification code sent to your email successfully!' });
+                }
+            } catch(e) {
+                console.error('Brevo API send error:', e.message);
+            }
+        }
+
+        // Local SMTP fallback
+        if (mailTransporter) {
+            try {
+                await mailTransporter.sendMail({
+                    from: '"BBCC Skill Hub" <balbharticoching.center@gmail.com>',
+                    to: email,
+                    subject: 'BBCC Skill Hub — Sign-Up Verification Code',
+                    html: `<h2>Your BBCC Sign-Up Code is: <b>${otp}</b></h2>`
+                });
+                return res.status(200).json({ success: true, message: 'Verification code sent to your email successfully!' });
+            } catch (err) {
+                console.error('SMTP send error:', err.message);
+            }
+        }
+
+        // Return success with development fallback
+        return res.status(200).json({ success: true, message: 'Verification code generated.', otpHint: otp });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Failed to send OTP: ' + err.message });
+    }
+});
+
+// 6.0F-2 Verify Sign-Up OTP & Save Account to Database
+app.post('/api/auth/verify-signup-otp', async (req, res) => {
+    try {
+        const { email, otp, registrationType, data } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: 'Email and verification code are required' });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+        const stored = otpStore[cleanEmail];
+
+        if (!stored) {
+            return res.status(400).json({ success: false, message: 'No verification code found. Please request a new OTP.' });
+        }
+
+        if (Date.now() > stored.expiresAt) {
+            delete otpStore[cleanEmail];
+            return res.status(400).json({ success: false, message: 'Verification code has expired. Please request a new OTP.' });
+        }
+
+        if (stored.otp !== otp.trim()) {
+            return res.status(400).json({ success: false, message: 'Invalid verification code. Please check and try again.' });
+        }
+
+        // OTP IS 100% VALID! Clean up OTP store
+        delete otpStore[cleanEmail];
+
+        const pdb = loadPortalDb();
+
+        // CASE A: STUDENT REGISTRATION
+        if (registrationType === 'student') {
+            pdb.students = pdb.students || [];
+            let student = pdb.students.find(s => s.email && s.email.toLowerCase() === cleanEmail);
+
+            const studentName = (data && data.name) ? data.name.trim() : 'Student';
+            const studentPhone = (data && data.phone) ? data.phone.trim() : '';
+            const admissionType = (data && data.admissionType) || 'direct';
+            const coachingId = (data && data.coachingId) || 'bbcc_visitor';
+
+            let centerName = 'BBCC Direct Visitor';
+            let targetCoachingId = 'bbcc_visitor';
+
+            if (admissionType === 'coaching' && coachingId && coachingId !== 'bbcc_visitor') {
+                const matchedCenter = (pdb.centers || []).find(c => c._id === coachingId);
+                if (matchedCenter) {
+                    targetCoachingId = matchedCenter._id;
+                    centerName = matchedCenter.centerName;
+                }
+            }
+
+            if (!student) {
+                student = {
+                    _id: new mongoose.Types.ObjectId().toString(),
+                    name: studentName,
+                    email: cleanEmail,
+                    phone: studentPhone,
+                    role: 'student',
+                    admissionType: targetCoachingId === 'bbcc_visitor' ? 'direct' : 'coaching',
+                    coachingId: targetCoachingId,
+                    centerName: centerName,
+                    isBlocked: false,
+                    enrolledAt: new Date(),
+                    purchasedBooks: []
+                };
+                pdb.students.push(student);
+            } else {
+                student.name = studentName;
+                if (studentPhone) student.phone = studentPhone;
+                student.admissionType = targetCoachingId === 'bbcc_visitor' ? 'direct' : 'coaching';
+                student.coachingId = targetCoachingId;
+                student.centerName = centerName;
+            }
+
+            await savePortalDb(pdb);
+
+            if (isMongoConnected) {
+                try {
+                    await Student.findOneAndUpdate(
+                        { email: cleanEmail },
+                        { name: student.name, email: cleanEmail, phone: student.phone, status: 'active', isBlocked: false },
+                        { upsert: true }
+                    );
+                } catch(e) {}
+            }
+
+            const token = jwt.sign(
+                {
+                    id: student._id,
+                    email: cleanEmail,
+                    role: 'student',
+                    name: student.name,
+                    coachingId: student.coachingId,
+                    centerName: student.centerName
+                },
+                JWT_SECRET,
+                { expiresIn: '30d' }
+            );
+
+            console.log(`✅ [Student Verified & Created]: ${student.name} (${cleanEmail}) -> Center: ${centerName}`);
+
+            return res.status(201).json({
+                success: true,
+                token: token,
+                role: 'student',
+                redirectUrl: '/student-dashboard.html',
+                message: 'Email verified successfully! Welcome to BBCC Skill Hub.',
+                user: {
+                    id: student._id,
+                    name: student.name,
+                    email: cleanEmail,
+                    role: 'student',
+                    centerName: student.centerName
+                }
+            });
+        }
+
+        // CASE B: COACHING REGISTRATION
+        if (registrationType === 'coaching') {
+            pdb.centers = pdb.centers || [];
+            const existing = pdb.centers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
+            if (existing) {
+                return res.status(400).json({ success: false, message: 'This email is already registered as a coaching center.' });
+            }
+
+            const directorName = (data && data.directorName) ? data.directorName.trim() : 'Director';
+            const centerName = (data && data.centerName) ? data.centerName.trim() : 'Coaching Institute';
+            const phone = (data && data.phone) ? data.phone.trim() : '';
+            const city = (data && data.city) ? data.city.trim() : '';
+
+            // Read current affiliation fee setting from admin console
+            const feeType = (pdb.settings && pdb.settings.coachingRegistrationFeeType) || 'PAID';
+            const feeAmount = (feeType === 'FREE') ? 0 : ((pdb.settings && pdb.settings.affiliationFee !== undefined) ? pdb.settings.affiliationFee : 999);
+
+            const newCenter = {
+                _id: 'ctr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+                centerName: centerName,
+                directorName: directorName,
+                email: cleanEmail,
+                contactNumber: phone,
+                whatsappNumber: phone,
+                address: city ? `${city}, Bihar` : 'Bihar, India',
+                city: city || 'Patna',
+                regNumber: 'BBCC-REG-' + Math.floor(100000 + Math.random() * 900000),
+                username: centerName.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(10 + Math.random() * 90),
+                status: 'Pending', // Sent to Santosh Sir's "Pending Approvals"
+                isBlocked: false,
+                admissionFee: 0,
+                affiliationFee: feeAmount,
+                affiliationFeeType: feeType,
+                courses: [],
+                teachers: [],
+                materials: [],
+                createdAt: new Date()
+            };
+
+            pdb.centers.push(newCenter);
+            await savePortalDb(pdb);
+
+            console.log(`🏫 [Verified Coaching Application Submitted]: ${centerName} (${cleanEmail}) -> Status: Pending Approvals`);
+
+            return res.status(201).json({
+                success: true,
+                message: 'Email verified successfully! Your application for "' + centerName + '" has been submitted for Super Admin review. Santosh Sir will approve your portal shortly.',
+                center: {
+                    id: newCenter._id,
+                    name: newCenter.centerName,
+                    regNumber: newCenter.regNumber,
+                    status: newCenter.status
+                }
+            });
+        }
+
+        return res.status(400).json({ success: false, message: 'Invalid registration type.' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Sign-up verification error: ' + err.message });
+    }
+});
+
 // 6.0G Session Check Endpoint (Maintains Persistent 30-Day Login on Frontend)
 app.get('/api/auth/me', async (req, res) => {
     try {
@@ -6753,6 +7011,26 @@ app.get('/api/user/my-library', async (req, res) => {
             });
         }
 
+        // Coaching details if enrolled
+        let enrolledCoaching = null;
+        const isCoachingEnrolled = (student.admissionType === 'coaching' || (student.coachingId && student.coachingId !== 'bbcc_visitor'));
+        if (isCoachingEnrolled) {
+            const foundCenter = (pdb.centers || []).find(c => c._id === student.coachingId || c.centerName === student.centerName);
+            if (foundCenter) {
+                enrolledCoaching = {
+                    id: foundCenter._id,
+                    centerName: foundCenter.centerName,
+                    directorName: foundCenter.directorName,
+                    contactNumber: foundCenter.contactNumber,
+                    whatsappNumber: foundCenter.whatsappNumber,
+                    address: foundCenter.address,
+                    city: foundCenter.city,
+                    batchTiming: 'Morning (8:00 AM - 11:30 AM) & Evening (4:00 PM - 7:30 PM)',
+                    courses: foundCenter.courses || []
+                };
+            }
+        }
+
         return res.json({
             success: true,
             user: {
@@ -6761,6 +7039,11 @@ app.get('/api/user/my-library', async (req, res) => {
                 email: userEmail,
                 phone: student.phone || userPhone,
                 role: decoded.role || 'student',
+                rollNo: student.rollNo || (student._id ? 'BBCC-' + student._id.toString().slice(-6).toUpperCase() : 'BBCC-STU-' + Math.floor(1000 + Math.random() * 9000)),
+                admissionType: isCoachingEnrolled ? 'coaching' : 'direct',
+                centerName: student.centerName || (isCoachingEnrolled ? 'Affiliated Institute' : 'BBCC Direct Visitor'),
+                coachingId: student.coachingId || (isCoachingEnrolled ? 'affiliated' : 'bbcc_visitor'),
+                enrolledCoaching: enrolledCoaching,
                 enrolledAt: student.enrolledAt || student.createdAt || '2026-01-01'
             },
             library: libraryItems,
@@ -10882,6 +11165,8 @@ app.put('/api/admin/coaching/status', verifySuperAdmin, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Coaching center not found' });
         }
 
+        const wasPending = (center.status === 'Pending');
+
         if (status) {
             center.status = status;
             center.isBlocked = (status === 'Blocked');
@@ -10895,11 +11180,93 @@ app.put('/api/admin/coaching/status', verifySuperAdmin, async (req, res) => {
         clearCache();
         broadcastRealtimeEvent('centers_updated');
 
+        // Automated Welcome & Guide Email when Super Admin Approves Coaching Center
+        if (center.status === 'Active' && wasPending && center.email) {
+            sendDirectorWelcomeGuideEmail(center).catch(e => console.error('Welcome email dispatch notice:', e.message));
+        }
+
         res.json({ success: true, message: `Coaching status updated to ${center.status}`, center });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+// Automated Welcome & Guide Email Helper Function via Brevo HTTPS REST API
+async function sendDirectorWelcomeGuideEmail(center) {
+    if (!center || !center.email) return;
+    const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim().replace(/[\r\n\t'"`]/g, '');
+    if (!BREVO_KEY) {
+        console.warn('Brevo API key not configured. Skipping welcome email.');
+        return;
+    }
+
+    const portalUrl = 'https://balbharticoachingcenter.onrender.com/login.html';
+    const htmlContent = `
+        <div style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 14px; background: #ffffff;">
+            <div style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff; padding: 22px; border-radius: 10px; text-align: center; margin-bottom: 22px;">
+                <h1 style="margin: 0 0 6px 0; font-size: 24px; color: #fbbf24; font-family: serif;">BBCC SKILL HUB</h1>
+                <p style="margin: 0; font-size: 13px; color: #38bdf8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Central Directorate &bull; Partner Institute Network</p>
+            </div>
+
+            <div style="padding: 0 6px;">
+                <h2 style="color: #0f172a; font-size: 20px; margin-bottom: 12px;">🎉 Congratulations, ${center.directorName || 'Director'}!</h2>
+                <p style="color: #334155; font-size: 14.5px; line-height: 1.6; margin-bottom: 16px;">
+                    We are pleased to inform you that your coaching institute <b>"${center.centerName}"</b> has been officially <b>APPROVED &amp; ACTIVATED</b> on the BBCC Skill Hub platform by Super Admin (Santosh Sir).
+                </p>
+
+                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 14px 18px; border-radius: 8px; margin-bottom: 22px;">
+                    <p style="margin: 0 0 6px 0; font-size: 13.5px; color: #1e40af;"><b>Institute Name:</b> ${center.centerName}</p>
+                    <p style="margin: 0 0 6px 0; font-size: 13.5px; color: #1e40af;"><b>Director Name:</b> ${center.directorName}</p>
+                    <p style="margin: 0 0 6px 0; font-size: 13.5px; color: #1e40af;"><b>Official Registration ID:</b> <span style="background:#dbeafe; padding:2px 8px; border-radius:4px; font-weight:800;">${center.regNumber || 'BBCC-REG-ACTIVE'}</span></p>
+                    <p style="margin: 0; font-size: 13.5px; color: #1e40af;"><b>Portal Status:</b> <span style="color:#16a34a; font-weight:800;">ACTIVE (Live on BBCC Home Page)</span></p>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 26px;">
+                    <a href="${portalUrl}" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 13px 30px; border-radius: 8px; font-size: 15px; font-weight: 700; display: inline-block; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                        Access Your Director Portal ➔
+                    </a>
+                </div>
+
+                <h3 style="color: #0f172a; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 14px;">
+                    📋 Director's Quick-Start Guide: How to Use Your Dashboard
+                </h3>
+
+                <ol style="color: #475569; font-size: 13.5px; line-height: 1.8; padding-left: 20px; margin-bottom: 24px;">
+                    <li><b>Login with OTP:</b> Open the login link above and enter your registered email (<b>${center.email}</b>). Verify the 4-digit code to enter.</li>
+                    <li><b>Add Faculty &amp; Mentors:</b> Navigate to the <i>Add Mentors</i> tab and enter your teachers' emails to give them teaching access.</li>
+                    <li><b>Upload Chapter-wise Notes:</b> Upload your syllabus PDFs. You can toggle each note as <b>FREE</b> for your enrolled students or set a <b>PAID</b> price.</li>
+                    <li><b>Configure Courses &amp; Admission Fees:</b> Publish your batch timings and fees so students can apply directly from the home page.</li>
+                    <li><b>Manage Wallet &amp; Ledger:</b> Track your revenue from notes sales and student admissions, and request instant bank withdrawals.</li>
+                </ol>
+
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 12px; color: #94a3b8; text-align: center;">
+                    <p style="margin: 0 0 4px 0;">BBCC Central Directorate &bull; Chakdah Chowk, Madhubani, Bihar - 847211</p>
+                    <p style="margin: 0;">24/7 Digital Helpline: +91 98765 43210 &bull; Email: admin@bbccskillhub.org</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    try {
+        await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': BREVO_KEY,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: { name: "Santosh Sir — BBCC Skill Hub", email: "balbharticoching.center@gmail.com" },
+                to: [{ email: center.email }],
+                subject: `🎉 Congratulations! Your Institute "${center.centerName}" is Approved on BBCC Skill Hub`,
+                htmlContent: htmlContent
+            })
+        });
+        console.log(`✉️ [Brevo Welcome Guide Delivered] Sent to Director: ${center.email} (${center.centerName})`);
+    } catch(err) {
+        console.error('Brevo welcome email send failed:', err.message);
+    }
+}
 
 app.delete('/api/admin/coaching/:id', verifySuperAdmin, async (req, res) => {
     try {
@@ -12187,12 +12554,139 @@ app.put('/api/admin/book-orders/:orderId/status', verifySuperAdmin, async (req, 
     }
 });
 
-// 8.13 All Students View for Super Admin
+// 8.13 Master Student List for Super Admin (Merging Portal DB + MongoDB)
 app.get('/api/admin/students', verifySuperAdmin, async (req, res) => {
     try {
-        const students = await Student.find().sort({ createdAt: -1 });
-        res.json({ success: true, data: students });
+        const pdb = loadPortalDb();
+        const jsonStudents = pdb.students || [];
+        let mongoStudents = [];
+        if (isMongoConnected) {
+            try { mongoStudents = await Student.find().lean(); } catch(e) {}
+        }
+
+        // Deduplicate by email
+        const studentMap = new Map();
+        jsonStudents.forEach(s => studentMap.set((s.email || '').toLowerCase(), s));
+        mongoStudents.forEach(s => {
+            const em = (s.email || '').toLowerCase();
+            if (!studentMap.has(em)) studentMap.set(em, s);
+        });
+
+        const allStudentsList = Array.from(studentMap.values()).map(s => {
+            const isCoaching = (s.admissionType === 'coaching' || (s.coachingId && s.coachingId !== 'bbcc_visitor'));
+            return {
+                _id: s._id ? s._id.toString() : 'stu_' + Math.random().toString(36).substring(2, 8),
+                name: s.name || 'Enrolled Student',
+                email: s.email,
+                phone: s.phone || '',
+                admissionType: isCoaching ? 'coaching' : 'direct',
+                centerName: s.centerName || (isCoaching ? 'Affiliated Institute' : 'BBCC Direct Visitor'),
+                coachingId: s.coachingId || (isCoaching ? 'affiliated' : 'bbcc_visitor'),
+                isBlocked: !!s.isBlocked,
+                enrolledAt: s.enrolledAt || s.createdAt || new Date()
+            };
+        });
+
+        res.json({ 
+            success: true, 
+            data: allStudentsList,
+            meta: {
+                total: allStudentsList.length,
+                coachingEnrolled: allStudentsList.filter(s => s.admissionType === 'coaching').length,
+                directVisitors: allStudentsList.filter(s => s.admissionType === 'direct').length
+            }
+        });
     } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.13A Block / Unblock Student
+app.put('/api/admin/student/status', verifySuperAdmin, async (req, res) => {
+    try {
+        const { studentId, email, isBlocked } = req.body;
+        const pdb = loadPortalDb();
+        pdb.students = pdb.students || [];
+
+        const student = pdb.students.find(s => s._id === studentId || (s.email && s.email.toLowerCase() === (email || '').toLowerCase()));
+        if (student) {
+            student.isBlocked = !!isBlocked;
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try {
+                await Student.updateOne(
+                    { $or: [{ _id: studentId }, { email: (email || '').toLowerCase() }] },
+                    { $set: { isBlocked: !!isBlocked, status: isBlocked ? 'blocked' : 'active' } }
+                );
+            } catch(e) {}
+        }
+
+        res.json({ success: true, message: `Student status updated to ${isBlocked ? 'Blocked' : 'Active'}` });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.13B Delete Student from System
+app.delete('/api/admin/student/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const pdb = loadPortalDb();
+        pdb.students = pdb.students || [];
+
+        const idx = pdb.students.findIndex(s => s._id === id || s.email === id);
+        let removedName = 'Student';
+        if (idx !== -1) {
+            removedName = pdb.students[idx].name || removedName;
+            pdb.students.splice(idx, 1);
+            await savePortalDb(pdb);
+        }
+
+        if (isMongoConnected) {
+            try { await Student.deleteOne({ $or: [{ _id: id }, { email: id }] }); } catch(e) {}
+        }
+
+        res.json({ success: true, message: `Student "${removedName}" deleted successfully` });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8.13C Coaching Registration Fee Controller (Free vs Paid Setting)
+app.post('/api/admin/settings/coaching-fee', verifySuperAdmin, async (req, res) => {
+    try {
+        const { feeType, feeAmount } = req.body;
+        const pdb = loadPortalDb();
+        pdb.settings = pdb.settings || {};
+
+        pdb.settings.coachingRegistrationFeeType = (feeType === 'FREE') ? 'FREE' : 'PAID';
+        pdb.settings.affiliationFee = (feeType === 'FREE') ? 0 : (Number(feeAmount) || 999);
+
+        await savePortalDb(pdb);
+        clearCache();
+
+        console.log(`⚙️ [Admin Setting Updated] Coaching Registration Fee: ${pdb.settings.coachingRegistrationFeeType} (₹${pdb.settings.affiliationFee})`);
+
+        res.json({ 
+            success: true, 
+            message: `Coaching registration fee set to ${pdb.settings.coachingRegistrationFeeType} (₹${pdb.settings.affiliationFee})`,
+            feeType: pdb.settings.coachingRegistrationFeeType,
+            feeAmount: pdb.settings.affiliationFee
+        });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/api/admin/settings/coaching-fee', verifySuperAdmin, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const feeType = (pdb.settings && pdb.settings.coachingRegistrationFeeType) || 'PAID';
+        const feeAmount = (feeType === 'FREE') ? 0 : ((pdb.settings && pdb.settings.affiliationFee !== undefined) ? pdb.settings.affiliationFee : 999);
+        res.json({ success: true, feeType, feeAmount });
+    } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
