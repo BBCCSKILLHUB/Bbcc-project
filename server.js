@@ -1754,7 +1754,9 @@ function verifySuperAdmin(req, res, next) {
     }
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.role !== 'superadmin') {
+        const role = (decoded.role || '').toLowerCase();
+        const email = (decoded.email || '').toLowerCase();
+        if (role !== 'superadmin' && email !== 'sky140052@gmail.com') {
             return res.status(403).json({ success: false, message: 'Super Admin access required' });
         }
         req.admin = decoded;
@@ -6206,13 +6208,28 @@ app.post('/api/auth/verify-otp', async (req, res) => {
             } catch(e) {}
         }
 
+        // Check if Super Admin Email
+        const SUPER_ADMIN_EMAIL = 'sky140052@gmail.com';
+        const isSuperAdmin = (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+
+        let effectiveRole = role || 'student';
+        const adminName = 'Santosh Sir (Super Admin)';
+        let redirectUrl = '/student-dashboard.html';
+
+        if (isSuperAdmin) {
+            effectiveRole = 'superadmin';
+            redirectUrl = '/admin-console.html';
+        } else if (effectiveRole === 'director') {
+            redirectUrl = '/director-portal.html';
+        }
+
         // JWT Token (30 days validity for seamless long-time login like Flipkart/Meesho)
         const token = jwt.sign(
             { 
-                id: student._id, 
+                id: isSuperAdmin ? 'admin_sky140052' : student._id, 
                 email: email, 
-                role: role, 
-                name: student.name || email.split('@')[0] 
+                role: effectiveRole, 
+                name: isSuperAdmin ? adminName : (student.name || email.split('@')[0]) 
             }, 
             JWT_SECRET, 
             { expiresIn: '30d' }
@@ -6220,14 +6237,16 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
         return res.status(200).json({ 
             success: true, 
-            message: 'Login Success', 
+            message: isSuperAdmin ? 'SuperAdmin Access Verified' : 'Login Success', 
             token: token,
+            role: effectiveRole,
+            redirectUrl: redirectUrl,
             user: {
-                id: student._id,
-                name: student.name,
-                email: student.email,
-                phone: student.phone,
-                role: role
+                id: isSuperAdmin ? 'admin_sky140052' : student._id,
+                name: isSuperAdmin ? adminName : student.name,
+                email: email,
+                phone: isSuperAdmin ? '+91 98765 43210' : student.phone,
+                role: effectiveRole
             }
         });
     } catch (err) {
