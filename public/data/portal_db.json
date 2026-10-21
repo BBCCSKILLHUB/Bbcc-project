@@ -87,6 +87,12 @@
         "description": "100% Full Scholarship Fee Waiver",
         "active": true
       }
+    ],
+    "runningOffers": [
+      "🔥 FLAT 50% OFF on All Class 10th & 12th Master Notes! Use Code: BBCC50",
+      "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply Online with 1-Click Verification",
+      "💻 ADCA & DCA Computer Diplomas: ISO 9001:2015 Central Enrollment Certificate Included",
+      "⚡ Coaching Centers: Join BBCC Aggregator Network & Get Direct Online Admissions Today!"
     ]
   },
   "admins": [
@@ -101,23 +107,191 @@
   ],
   "centers": [
     {
-      "_id": "ctr_mvi3r3zv5mkj9",
-      "centerName": "Test Apex Academy",
-      "directorName": "Prof. Test Kumar",
-      "email": "testapex@gmail.com",
+      "_id": "ctr_bbcc_hq_001",
+      "centerName": "Bal Bharti Coaching Center (Central Campus)",
+      "directorName": "Santosh Kumar (Founder & MD)",
+      "email": "sky140052@gmail.com",
       "contactNumber": "9876543210",
-      "address": "",
-      "regNumber": "BBCC-REG-207040",
-      "username": "testapexac45",
+      "whatsappNumber": "9876543210",
+      "address": "PTCC+BBCC Chakdah Chowk, Madhubani, Bihar - 847211",
+      "city": "Madhubani",
+      "regNumber": "BBCC-HQ-100001",
+      "username": "bbcc_hq",
       "fromClass": "Class 6th",
-      "toClass": "Class 12th",
-      "admissionFee": 200,
+      "toClass": "ADCA / Competitive",
+      "admissionFee": 0,
+      "affiliationFee": 999,
       "status": "Active",
       "isBlocked": false,
-      "courses": [],
-      "teachers": [],
+      "rating": 4.98,
+      "reviewsCount": 520,
+      "verifiedBadge": true,
+      "bannerImg": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
+      "courses": [
+        {
+          "name": "Class 9th & 10th Board Foundation (BSEB/CBSE)",
+          "duration": "1 Year",
+          "fee": 3500
+        },
+        {
+          "name": "Class 11th & 12th Science Stream",
+          "duration": "1 Year",
+          "fee": 5500
+        },
+        {
+          "name": "ADCA / DCA Computer Diploma (Certified)",
+          "duration": "6-12 Months",
+          "fee": 2500
+        },
+        {
+          "name": "General Competition (SSC, Railway, Police)",
+          "duration": "6 Months",
+          "fee": 3000
+        }
+      ],
+      "materials": [
+        {
+          "_id": "mat_bbcc_01",
+          "title": "Class 10th Science Master Notes (Official)",
+          "price": 49,
+          "originalPrice": 299,
+          "fileType": "pdf"
+        },
+        {
+          "_id": "mat_bbcc_02",
+          "title": "ADCA Diploma Practical Hands-on Handbook",
+          "price": 99,
+          "originalPrice": 499,
+          "fileType": "pdf"
+        }
+      ],
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "_id": "ctr_patna_super30",
+      "centerName": "Patna Super 30 Institute",
+      "directorName": "Er. Rajesh Verma (IIT Alumnus)",
+      "email": "rajesh.patna@gmail.com",
+      "contactNumber": "9835012345",
+      "whatsappNumber": "9835012345",
+      "address": "Boring Canal Road, Near Panchmukhi Mandir, Patna, Bihar - 800001",
+      "city": "Patna",
+      "regNumber": "BBCC-REG-847291",
+      "username": "patnasuper30",
+      "fromClass": "Class 11th",
+      "toClass": "IIT-JEE / NEET",
+      "admissionFee": 500,
+      "affiliationFee": 999,
+      "status": "Active",
+      "isBlocked": false,
+      "rating": 4.94,
+      "reviewsCount": 380,
+      "verifiedBadge": true,
+      "bannerImg": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80",
+      "courses": [
+        {
+          "name": "Target JEE Main + Advanced 2027",
+          "duration": "2 Years",
+          "fee": 18000
+        },
+        {
+          "name": "NEET Medical Dropper Batch",
+          "duration": "1 Year",
+          "fee": 15000
+        },
+        {
+          "name": "12th Board Booster Fast-Track",
+          "duration": "4 Months",
+          "fee": 4000
+        }
+      ],
+      "materials": [
+        {
+          "_id": "mat_patna_01",
+          "title": "Class 12th Physics Quick Revision & Derivations Handbook",
+          "price": 69,
+          "originalPrice": 399,
+          "fileType": "pdf"
+        }
+      ],
+      "createdAt": "2026-02-15T00:00:00.000Z"
+    },
+    {
+      "_id": "ctr_apex_muzaffarpur",
+      "centerName": "Apex Science & Commerce Academy",
+      "directorName": "Prof. Test Kumar (M.Com, B.Ed)",
+      "email": "testapex@gmail.com",
+      "contactNumber": "9876543210",
+      "whatsappNumber": "9876543210",
+      "address": "Kalyani Chowk, Club Road, Muzaffarpur, Bihar - 842001",
+      "city": "Muzaffarpur",
+      "regNumber": "BBCC-REG-207040",
+      "username": "testapexac45",
+      "fromClass": "Class 8th",
+      "toClass": "Class 12th Commerce & Science",
+      "admissionFee": 200,
+      "affiliationFee": 999,
+      "status": "Active",
+      "isBlocked": false,
+      "rating": 4.88,
+      "reviewsCount": 290,
+      "verifiedBadge": true,
+      "bannerImg": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80",
+      "courses": [
+        {
+          "name": "Class 11th & 12th Commerce (Accounts, BST, Eco)",
+          "duration": "1 Year",
+          "fee": 4500
+        },
+        {
+          "name": "CA Foundation Prep Batch",
+          "duration": "6 Months",
+          "fee": 8000
+        }
+      ],
       "materials": [],
-      "createdAt": "2026-10-21T12:42:37.435Z"
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "_id": "ctr_mithila_gaya",
+      "centerName": "Mithila Digital & Computer Academy",
+      "directorName": "Er. Amit Sharma",
+      "email": "mithila.computer@gmail.com",
+      "contactNumber": "9123456780",
+      "whatsappNumber": "9123456780",
+      "address": "Station Road, Near Gandhi Chowk, Gaya, Bihar - 823001",
+      "city": "Gaya",
+      "regNumber": "BBCC-REG-552190",
+      "username": "mithilagaya",
+      "fromClass": "Certificate",
+      "toClass": "ADCA / Web Dev",
+      "admissionFee": 150,
+      "affiliationFee": 999,
+      "status": "Active",
+      "isBlocked": false,
+      "rating": 4.91,
+      "reviewsCount": 195,
+      "verifiedBadge": true,
+      "bannerImg": "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+      "courses": [
+        {
+          "name": "ADCA 1-Year Master Computer Diploma",
+          "duration": "1 Year",
+          "fee": 3200
+        },
+        {
+          "name": "Tally Prime + GST Filing Certified",
+          "duration": "3 Months",
+          "fee": 1800
+        },
+        {
+          "name": "Full Stack Web Development & Python",
+          "duration": "6 Months",
+          "fee": 6000
+        }
+      ],
+      "materials": [],
+      "createdAt": "2026-03-10T00:00:00.000Z"
     }
   ],
   "students": [
@@ -129,11 +303,153 @@
       "role": "student",
       "enrolledAt": "2026-10-21T13:14:26.962Z",
       "purchasedBooks": []
+    },
+    {
+      "_id": "6ad8d3ebbd161ed51d7a47c2",
+      "name": "Aman Kumar",
+      "email": "aman.kumar2026@gmail.com",
+      "phone": "9871122334",
+      "role": "student",
+      "admissionType": "direct",
+      "coachingId": "bbcc_visitor",
+      "centerName": "BBCC Direct Visitor",
+      "enrolledAt": "2026-10-21T15:02:03.659Z",
+      "purchasedBooks": []
     }
   ],
   "teachers": [],
   "studyMaterials": {
-    "notes": [],
+    "notes": [
+      {
+        "_id": "book_sci10_master_2026",
+        "title": "Class 10th Science Master Notes (NCERT & CBSE/BSEB)",
+        "subject": "Science",
+        "classLevel": "Class 10th",
+        "author": "Prof. Santosh Kumar & Board Advisory Panel",
+        "description": "Comprehensive chapter-wise formula sheets, solved exemplar questions, and 100% guaranteed board exam toppers answers.",
+        "thumbnail": "/data/materials/Class_10_Science_Master_Notes__1792586639397_6e52af.jpg",
+        "price": 49,
+        "originalPrice": 49,
+        "pdfMrp": 299,
+        "rating": 4.9,
+        "reviewsCount": 342,
+        "downloadsCount": 1420,
+        "tags": [
+          "Class 10th",
+          "Science",
+          "Board Topper",
+          "Bestseller"
+        ],
+        "targetCenterId": "all"
+      },
+      {
+        "_id": "book_phy12_formula_2026",
+        "title": "Class 12th Physics Quick Revision & Derivations Handbook",
+        "subject": "Physics",
+        "classLevel": "Class 12th",
+        "author": "Er. Rajesh Verma (M.Tech)",
+        "description": "All 14 chapters electrostatics to optics derivations, mindmaps, and 10-year previous questions with step-by-step marking scheme.",
+        "thumbnail": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&w=600&q=80",
+        "price": 69,
+        "originalPrice": 69,
+        "pdfMrp": 399,
+        "rating": 4.85,
+        "reviewsCount": 289,
+        "downloadsCount": 980,
+        "tags": [
+          "Class 12th",
+          "Physics",
+          "Board & JEE",
+          "Trending"
+        ],
+        "targetCenterId": "all"
+      },
+      {
+        "_id": "book_adca_diploma_2026",
+        "title": "ADCA & DCA Computer Diploma Full Practical Syllabus Guide",
+        "subject": "Computer Science",
+        "classLevel": "Diploma",
+        "author": "BBCC Skill Hub Tech Division",
+        "description": "Windows 11, MS Office 365, Tally Prime with GST, HTML/CSS, Photoshop, Internet fundamentals with shortcut keys cheat sheets.",
+        "thumbnail": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
+        "price": 99,
+        "originalPrice": 99,
+        "pdfMrp": 499,
+        "rating": 4.95,
+        "reviewsCount": 512,
+        "downloadsCount": 2310,
+        "tags": [
+          "Computer",
+          "ADCA",
+          "Job Ready",
+          "Govt Verified"
+        ],
+        "targetCenterId": "all"
+      },
+      {
+        "_id": "book_math10_shortcuts_2026",
+        "title": "Class 10th Mathematics 100/100 Scoring Blueprint",
+        "subject": "Mathematics",
+        "classLevel": "Class 10th",
+        "author": "Santosh Sir (Director BBCC)",
+        "description": "Trigonometry tricks, coordinate geometry shortcuts, and theorem proofs with zero error strategies.",
+        "thumbnail": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80",
+        "price": 49,
+        "originalPrice": 49,
+        "pdfMrp": 249,
+        "rating": 4.92,
+        "reviewsCount": 418,
+        "downloadsCount": 1850,
+        "tags": [
+          "Mathematics",
+          "Class 10th",
+          "Top Rated"
+        ],
+        "targetCenterId": "all"
+      },
+      {
+        "_id": "book_reasoning_ssc_2026",
+        "title": "General Competition Reasoning & Math Shortcuts Master Guide",
+        "subject": "Competitive",
+        "classLevel": "All Exams",
+        "author": "Competitive Exam Cell, Patna",
+        "description": "Essential for SSC CGL/CHSL, Railway RRB, Bihar Police, BPSC TRE. 5000+ speed practice questions with video QR hints.",
+        "thumbnail": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80",
+        "price": 79,
+        "originalPrice": 79,
+        "pdfMrp": 349,
+        "rating": 4.88,
+        "reviewsCount": 376,
+        "downloadsCount": 1640,
+        "tags": [
+          "SSC & Railway",
+          "Govt Exams",
+          "Hot Pick"
+        ],
+        "targetCenterId": "all"
+      },
+      {
+        "_id": "book_english_speaking_2026",
+        "title": "Spoken English & Daily Vocabulary 30-Day Fluency Book",
+        "subject": "English",
+        "classLevel": "All Levels",
+        "author": "Dr. M. Roy (English Faculty)",
+        "description": "Hindi-to-English practical conversations, 1000 daily action words, common errors elimination, and interview mastery.",
+        "thumbnail": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=600&q=80",
+        "price": 59,
+        "originalPrice": 59,
+        "pdfMrp": 299,
+        "rating": 4.9,
+        "reviewsCount": 220,
+        "downloadsCount": 1120,
+        "tags": [
+          "Spoken English",
+          "Interview",
+          "Fluency"
+        ],
+        "targetCenterId": "all"
+      }
+    ],
     "books": []
   },
   "paymentTransactions": [],
