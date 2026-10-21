@@ -448,6 +448,17 @@
           "Fluency"
         ],
         "targetCenterId": "all"
+      },
+      {
+        "_id": "book_mviau5xq3134d",
+        "title": "bbcc",
+        "category": "Class 10th",
+        "mrp": 299,
+        "price": 99,
+        "coverImage": "/data/materials/bbcc_cover_1792598457437_a32a9e.png",
+        "fileUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
+        "downloadUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
+        "createdAt": "2026-10-21T16:00:57.533Z"
       }
     ],
     "books": []
