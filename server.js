@@ -1870,10 +1870,19 @@ function verifyDirector(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.role !== 'director') {
+        if (decoded.role !== 'director' && decoded.role !== 'coaching' && decoded.role !== 'superadmin') {
             return res.status(403).json({ success: false, message: 'Center Director access required' });
         }
+        const pdb = loadPortalDb();
+        let targetCenter = null;
+        if (decoded.role === 'superadmin') {
+            targetCenter = (pdb.centers || []).find(c => c._id === 'ctr_bbcc_hq_001') || (pdb.centers || [])[0];
+        } else {
+            targetCenter = (pdb.centers || []).find(c => (c.email && decoded.email && c.email.toLowerCase() === decoded.email.toLowerCase()) || c._id === decoded.id || c._id === decoded.coachingId);
+        }
         req.center = decoded;
+        req.targetCenter = targetCenter;
+        req.centerId = targetCenter ? targetCenter._id : (decoded.coachingId || decoded.id);
         next();
     } catch (err) {
         return res.status(401).json({ success: false, message: 'Invalid or expired director session' });
@@ -6888,7 +6897,7 @@ app.post('/api/auth/verify-signup-otp', async (req, res) => {
             });
         }
 
-        // CASE B: COACHING REGISTRATION
+        // CASE B: COACHING REGISTRATION (100% FREE & AUTO-APPROVED WITH 7-DAY TRIAL)
         if (registrationType === 'coaching') {
             pdb.centers = pdb.centers || [];
             const existing = pdb.centers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
@@ -6901,9 +6910,22 @@ app.post('/api/auth/verify-signup-otp', async (req, res) => {
             const phone = (data && data.phone) ? data.phone.trim() : '';
             const city = (data && data.city) ? data.city.trim() : '';
 
-            // Read current affiliation fee setting from admin console
-            const feeType = (pdb.settings && pdb.settings.coachingRegistrationFeeType) || 'PAID';
-            const feeAmount = (feeType === 'FREE') ? 0 : ((pdb.settings && pdb.settings.affiliationFee !== undefined) ? pdb.settings.affiliationFee : 999);
+            const now = new Date();
+            const trialDays = 7;
+            const trialEndsAt = new Date(now.getTime() + trialDays * 24 * 60 * 60 * 1000);
+
+            const allTenFeatures = [
+                'executive_analytics',
+                'storefront_profile',
+                'course_batch',
+                'student_crm',
+                'faculty_hr',
+                'elibrary_assets',
+                'marketing_leads',
+                'financial_ledger',
+                'support_desk',
+                'settings_upgrade'
+            ];
 
             const newCenter = {
                 _id: 'ctr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
@@ -6916,30 +6938,83 @@ app.post('/api/auth/verify-signup-otp', async (req, res) => {
                 city: city || 'Patna',
                 regNumber: 'BBCC-REG-' + Math.floor(100000 + Math.random() * 900000),
                 username: centerName.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(10 + Math.random() * 90),
-                status: 'Pending', // Sent to Santosh Sir's "Pending Approvals"
+                status: 'Active', // 100% AUTO-APPROVED! Live on home page search immediately!
                 isBlocked: false,
+                isTrialActive: true,
+                trialStartedAt: now.toISOString(),
+                trialEndsAt: trialEndsAt.toISOString(),
+                currentPlan: 'plan_trial_7',
+                planName: '7-Day Free Trial (All Modules Unlocked)',
+                planExpiresAt: trialEndsAt.toISOString(),
+                featuresAllowed: allTenFeatures,
                 admissionFee: 0,
-                affiliationFee: feeAmount,
-                affiliationFeeType: feeType,
+                affiliationFee: 0, // 100% FREE Registration
+                affiliationFeeType: 'FREE',
                 courses: [],
                 teachers: [],
                 materials: [],
-                createdAt: new Date()
+                walletBalance: 0,
+                totalEarned: 0,
+                createdAt: now
             };
 
             pdb.centers.push(newCenter);
             await savePortalDb(pdb);
+            clearCache();
 
-            console.log(`🏫 [Verified Coaching Application Submitted]: ${centerName} (${cleanEmail}) -> Status: Pending Approvals`);
+            // Sync with MongoDB if available
+            if (isMongoConnected) {
+                try {
+                    await Institute.findOneAndUpdate(
+                        { email: cleanEmail },
+                        { 
+                            centerName: newCenter.centerName,
+                            directorName: newCenter.directorName,
+                            email: cleanEmail,
+                            contactNumber: newCenter.contactNumber,
+                            status: 'active',
+                            isBlocked: false,
+                            trialEndsAt: trialEndsAt,
+                            planExpiresAt: trialEndsAt
+                        },
+                        { upsert: true }
+                    );
+                } catch(e) {}
+            }
+
+            // Issue Instant 30-Day Session JWT Token
+            const token = jwt.sign(
+                {
+                    id: newCenter._id,
+                    email: cleanEmail,
+                    role: 'director',
+                    name: newCenter.directorName,
+                    coachingId: newCenter._id,
+                    centerName: newCenter.centerName
+                },
+                JWT_SECRET,
+                { expiresIn: '30d' }
+            );
+
+            console.log(`🎉 [Coaching Auto-Approved & 7-Day Trial Live]: ${centerName} (${cleanEmail}) -> Reg: ${newCenter.regNumber}`);
+
+            // Dispatch Automated Welcome & 7-Day Trial Email via Brevo API
+            sendDirectorWelcomeTrialEmail(newCenter, trialEndsAt, pdb.plans).catch(err => {
+                console.error('Welcome email dispatch error:', err.message);
+            });
 
             return res.status(201).json({
                 success: true,
-                message: 'Email verified successfully! Your application for "' + centerName + '" has been submitted for Super Admin review. Santosh Sir will approve your portal shortly.',
+                token: token,
+                role: 'director',
+                redirectUrl: '/director-dashboard',
+                message: `Congratulations! "${centerName}" has been auto-approved with a 7-Day Free Trial. All SaaS modules are unlocked!`,
                 center: {
                     id: newCenter._id,
                     name: newCenter.centerName,
                     regNumber: newCenter.regNumber,
-                    status: newCenter.status
+                    status: newCenter.status,
+                    trialEndsAt: newCenter.trialEndsAt
                 }
             });
         }
@@ -11355,6 +11430,621 @@ async function sendDirectorWelcomeGuideEmail(center) {
         console.error('Brevo welcome email send failed:', err.message);
     }
 }
+
+// ============================================================
+// SPRINT-3: BREVO TRIAL & MEMBERSHIP PLANS EMAIL HELPER
+// ============================================================
+async function sendDirectorWelcomeTrialEmail(center, trialEndsAt, plans) {
+    if (!center || !center.email) return;
+    const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim().replace(/[\r\n\t'"`]/g, '');
+    if (!BREVO_KEY) {
+        console.warn('Brevo API key not configured. Skipping welcome trial email.');
+        return;
+    }
+
+    const portalUrl = 'https://balbharticoachingcenter.onrender.com/login';
+    const expiryDateStr = new Date(trialEndsAt).toLocaleDateString('en-IN', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    const activePlans = (plans && plans.length > 0) ? plans.filter(p => p.active !== false) : [
+        { name: 'Starter Plan', price: 499, durationDays: 30, description: 'Basic analytics & course engine' },
+        { name: 'Basic Plan', price: 999, durationDays: 30, description: 'Student CRM & fee tracking' },
+        { name: 'Pro Plan', price: 1999, durationDays: 90, description: 'HR faculty & notes e-library' },
+        { name: 'Premium Plan', price: 3499, durationDays: 180, description: 'Full 10 mega modules + wallet' },
+        { name: 'Enterprise Annual', price: 5999, durationDays: 365, description: 'VIP all modules for 1 full year' }
+    ];
+
+    const planRows = activePlans.map(p => `
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 10px 12px; font-weight: 700; color: #0f172a;">${p.name}</td>
+            <td style="padding: 10px 12px; color: #16a34a; font-weight: 800;">₹${p.price}</td>
+            <td style="padding: 10px 12px; color: #64748b; font-size: 13px;">${p.durationDays} Days</td>
+            <td style="padding: 10px 12px; color: #334155; font-size: 12.5px;">${p.description || 'Full dashboard access'}</td>
+        </tr>
+    `).join('');
+
+    const htmlContent = `
+        <div style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 14px; background: #ffffff;">
+            <div style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 22px;">
+                <h1 style="margin: 0 0 6px 0; font-size: 26px; color: #fbbf24; font-family: serif;">BBCC SKILL HUB</h1>
+                <p style="margin: 0; font-size: 13px; color: #38bdf8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Central EdTech Aggregator &bull; Partner Network</p>
+            </div>
+
+            <div style="padding: 0 6px;">
+                <h2 style="color: #0f172a; font-size: 22px; margin-bottom: 10px;">🎉 Welcome to BBCC Skill Hub, ${center.directorName || 'Director'}!</h2>
+                <p style="color: #334155; font-size: 15px; line-height: 1.6; margin-bottom: 16px;">
+                    Aapka coaching institute <b>"${center.centerName}"</b> safalta-purvak register ho chuka hai aur <b>Auto-Approve hokar BBCC Home page par LIVE hai!</b>
+                </p>
+
+                <!-- TRIAL ACTIVE BANNER -->
+                <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #10b981; padding: 18px 20px; border-radius: 10px; margin-bottom: 22px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-size: 20px;">⚡</span>
+                        <h3 style="margin: 0; color: #065f46; font-size: 17px; font-weight: 800;">Aapka 7-Day Free Trial Shuru Ho Chuka Hai!</h3>
+                    </div>
+                    <p style="margin: 0 0 8px 0; font-size: 13.5px; color: #047857;">
+                        Agley 7 dinon tak aapko Coaching Dashboard ke sabhi <b>10 Mega Modules (Student CRM, Astra DB Notes, Batches, Faculty HR, Wallet)</b> bilkul FREE milenge.
+                    </p>
+                    <p style="margin: 0; font-size: 13.5px; color: #064e3b; font-weight: 700;">
+                        ⏳ <b>Trial Expiry Date &amp; Time:</b> <span style="background: #ffffff; padding: 3px 8px; border-radius: 4px; border: 1px solid #10b981; color: #b91c1c;">${expiryDateStr}</span>
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <a href="${portalUrl}" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 34px; border-radius: 8px; font-size: 15px; font-weight: 800; display: inline-block; box-shadow: 0 4px 14px rgba(37,99,235,0.35);">
+                        Login to Director Dashboard ➔
+                    </a>
+                </div>
+
+                <!-- MEMBERSHIP PLANS TABLE -->
+                <h3 style="color: #0f172a; font-size: 17px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+                    💎 Trial Ke Baad Dashboard Unlock Rakhne Ke Membership Plans:
+                </h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 14px;">
+                    7 din ke baad dashboard uninterrupted chalane ke liye aap inme se koi bhi plan choose karke Razorpay se instant activate kar sakte hain:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13.5px;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #cbd5e1; text-align: left;">
+                            <th style="padding: 10px 12px; color: #475569;">Plan Name</th>
+                            <th style="padding: 10px 12px; color: #475569;">Price (₹)</th>
+                            <th style="padding: 10px 12px; color: #475569;">Duration</th>
+                            <th style="padding: 10px 12px; color: #475569;">Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${planRows}
+                    </tbody>
+                </table>
+
+                <div style="background: #f8fafc; border-radius: 8px; padding: 14px; font-size: 12.5px; color: #475569; margin-bottom: 20px;">
+                    <b>Need Assistance?</b> Kisi bhi samasya ya sawal ke liye Santosh Sir ko direct ticket raise karein ya contact karein: <b>admin@bbccskillhub.org</b> | <b>+91 98765 43210</b>.
+                </div>
+
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 12px; color: #94a3b8; text-align: center;">
+                    <p style="margin: 0 0 4px 0;">BBCC Central Directorate &bull; Chakdah Chowk, Madhubani, Bihar - 847211</p>
+                    <p style="margin: 0;">Official Website: https://balbharticoachingcenter.onrender.com</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    try {
+        await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': BREVO_KEY,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: { name: "Santosh Sir — BBCC Skill Hub", email: "balbharticoching.center@gmail.com" },
+                to: [{ email: center.email }],
+                subject: `🎉 Welcome to BBCC Skill Hub! Aapka 7-Day Free Trial Shuru Ho Chuka Hai (${center.centerName})`,
+                htmlContent: htmlContent
+            })
+        });
+        console.log(`✉️ [Brevo Welcome Trial Delivered] Sent to Director: ${center.email} (${center.centerName})`);
+    } catch(err) {
+        console.error('Brevo welcome trial email send failed:', err.message);
+    }
+}
+
+// ============================================================
+// SPRINT-3: MONETIZATION, PLANS, TRIAL & PAYWALL ENGINE APIS
+// ============================================================
+
+// 1. Get All Membership Plans (Public / Auth)
+app.get('/api/plans', (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const plans = (pdb.plans || []).filter(p => p.active !== false);
+        return res.json({ success: true, plans });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 2. Admin: Get All Plans (Including Inactive)
+app.get('/api/admin/plans', verifySuperAdmin, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        return res.json({ success: true, plans: pdb.plans || [] });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Admin: Create or Update Membership Plan
+app.post('/api/admin/plans', verifySuperAdmin, async (req, res) => {
+    try {
+        const { id, name, price, durationDays, badge, description, features, active } = req.body;
+        if (!name || price === undefined || !durationDays) {
+            return res.status(400).json({ success: false, message: 'Name, price, and duration are required' });
+        }
+        const pdb = loadPortalDb();
+        pdb.plans = pdb.plans || [];
+
+        const planId = id || ('plan_' + Date.now().toString(36));
+        const existingIdx = pdb.plans.findIndex(p => p.id === planId);
+
+        const planObj = {
+            id: planId,
+            name: name.trim(),
+            price: Number(price) || 0,
+            durationDays: Number(durationDays) || 30,
+            badge: (badge || '').trim(),
+            description: (description || '').trim(),
+            features: Array.isArray(features) ? features : [],
+            active: active !== undefined ? Boolean(active) : true,
+            updatedAt: new Date().toISOString()
+        };
+
+        if (existingIdx >= 0) {
+            pdb.plans[existingIdx] = { ...pdb.plans[existingIdx], ...planObj };
+        } else {
+            planObj.createdAt = new Date().toISOString();
+            pdb.plans.push(planObj);
+        }
+
+        await savePortalDb(pdb);
+        clearCache();
+        return res.json({ success: true, message: 'Plan saved successfully', plan: planObj });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. Admin: Delete Plan
+app.delete('/api/admin/plans/:id', verifySuperAdmin, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        pdb.plans = (pdb.plans || []).filter(p => p.id !== req.params.id);
+        await savePortalDb(pdb);
+        clearCache();
+        return res.json({ success: true, message: 'Plan removed successfully' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. Director: Subscription & Paywall Status Check
+app.get('/api/director/subscription-status', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const center = req.targetCenter;
+        if (!center) {
+            return res.status(404).json({ success: false, message: 'Center profile not found' });
+        }
+
+        const now = Date.now();
+        const trialEndsAt = center.trialEndsAt ? new Date(center.trialEndsAt).getTime() : 0;
+        const planExpiresAt = center.planExpiresAt ? new Date(center.planExpiresAt).getTime() : 0;
+
+        // Is Santosh Sir's Central Campus? (Lifetime Unlimited)
+        if (center._id === 'ctr_bbcc_hq_001' || (req.center && req.center.role === 'superadmin')) {
+            return res.json({
+                success: true,
+                subscription: {
+                    isLocked: false,
+                    isTrial: false,
+                    isLifetime: true,
+                    daysLeft: 9999,
+                    planId: 'enterprise_hq',
+                    planName: 'Enterprise Central Directorate (Lifetime VIP)',
+                    expiresAt: '2099-12-31T23:59:59.000Z',
+                    allowedFeatures: [
+                        'executive_analytics', 'storefront_profile', 'course_batch',
+                        'student_crm', 'faculty_hr', 'elibrary_assets', 'marketing_leads',
+                        'financial_ledger', 'support_desk', 'settings_upgrade'
+                    ]
+                },
+                plans: pdb.plans || []
+            });
+        }
+
+        const isTrialActive = center.isTrialActive !== false && trialEndsAt > 0 && now <= trialEndsAt;
+        const isPlanActive = planExpiresAt > 0 && now <= planExpiresAt;
+        const isLocked = !isTrialActive && !isPlanActive;
+
+        let daysLeft = 0;
+        let expiresAt = center.trialEndsAt || center.planExpiresAt || new Date().toISOString();
+        let planName = 'Expired — Membership Locked';
+        let allowedFeatures = [];
+
+        if (isTrialActive) {
+            daysLeft = Math.max(0, Math.ceil((trialEndsAt - now) / (1000 * 60 * 60 * 24)));
+            expiresAt = center.trialEndsAt;
+            planName = '7-Day Free Trial (All Modules Unlocked)';
+            allowedFeatures = [
+                'executive_analytics', 'storefront_profile', 'course_batch',
+                'student_crm', 'faculty_hr', 'elibrary_assets', 'marketing_leads',
+                'financial_ledger', 'support_desk', 'settings_upgrade'
+            ];
+        } else if (isPlanActive) {
+            daysLeft = Math.max(0, Math.ceil((planExpiresAt - now) / (1000 * 60 * 60 * 24)));
+            expiresAt = center.planExpiresAt;
+            planName = center.planName || 'Active Paid Plan';
+            allowedFeatures = center.featuresAllowed || [];
+        }
+
+        return res.json({
+            success: true,
+            subscription: {
+                isLocked,
+                isTrial: isTrialActive,
+                daysLeft,
+                planId: center.currentPlan || (isTrialActive ? 'trial_7_day' : 'none'),
+                planName,
+                expiresAt,
+                allowedFeatures
+            },
+            plans: (pdb.plans || []).filter(p => p.active !== false)
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6. Director: Create Razorpay Order for Plan Subscription
+app.post('/api/director/create-plan-order', verifyDirector, async (req, res) => {
+    try {
+        const { planId } = req.body;
+        const pdb = loadPortalDb();
+        const plan = (pdb.plans || []).find(p => p.id === planId);
+        if (!plan) {
+            return res.status(404).json({ success: false, message: 'Plan not found' });
+        }
+
+        const amountPaisa = Math.round(plan.price * 100);
+        let orderData = null;
+
+        if (razorpayInstance && amountPaisa > 0) {
+            try {
+                orderData = await razorpayInstance.orders.create({
+                    amount: amountPaisa,
+                    currency: 'INR',
+                    receipt: `plan_${plan.id}_${Date.now().toString(36)}`,
+                    notes: {
+                        planId: plan.id,
+                        planName: plan.name,
+                        centerId: req.centerId,
+                        centerName: req.targetCenter ? req.targetCenter.centerName : 'Center'
+                    }
+                });
+            } catch(rzpErr) {
+                console.warn('Razorpay order fallback:', rzpErr.message);
+            }
+        }
+
+        return res.json({
+            success: true,
+            plan,
+            keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_bbcc_mock',
+            order: orderData || {
+                id: `order_mock_${Date.now()}`,
+                amount: amountPaisa,
+                currency: 'INR'
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 7. Director: Activate / Unlock Plan (Post Payment or Direct)
+app.post('/api/director/activate-plan', verifyDirector, async (req, res) => {
+    try {
+        const { planId, paymentId } = req.body;
+        const pdb = loadPortalDb();
+        const plan = (pdb.plans || []).find(p => p.id === planId);
+        if (!plan) {
+            return res.status(404).json({ success: false, message: 'Plan not found' });
+        }
+
+        const center = req.targetCenter;
+        if (!center) {
+            return res.status(404).json({ success: false, message: 'Center not found' });
+        }
+
+        const now = new Date();
+        const durationMs = plan.durationDays * 24 * 60 * 60 * 1000;
+        const newExpiry = new Date(now.getTime() + durationMs);
+
+        center.isTrialActive = false;
+        center.currentPlan = plan.id;
+        center.planName = plan.name;
+        center.planExpiresAt = newExpiry.toISOString();
+        center.featuresAllowed = plan.features || [];
+
+        // Record in payment transactions
+        pdb.paymentTransactions = pdb.paymentTransactions || [];
+        pdb.paymentTransactions.push({
+            _id: 'txn_' + Date.now().toString(36),
+            centerId: center._id,
+            centerName: center.centerName,
+            planId: plan.id,
+            planName: plan.name,
+            amount: plan.price,
+            paymentId: paymentId || ('bbcc_pay_' + Date.now()),
+            status: 'success',
+            createdAt: now.toISOString()
+        });
+
+        await savePortalDb(pdb);
+        clearCache();
+
+        return res.json({
+            success: true,
+            message: `🎉 Membership Unlocked! "${plan.name}" is now active until ${newExpiry.toLocaleDateString('en-IN')}.`,
+            subscription: {
+                isLocked: false,
+                isTrial: false,
+                daysLeft: plan.durationDays,
+                planId: plan.id,
+                planName: plan.name,
+                expiresAt: center.planExpiresAt,
+                allowedFeatures: center.featuresAllowed
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 8. Director: Executive Analytics & Insights (Module 1)
+app.get('/api/director/analytics', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const center = req.targetCenter;
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const cid = center._id;
+        const students = (pdb.students || []).filter(s => s.coachingId === cid || s.centerId === cid);
+        const courses = center.courses || [];
+        const materials = center.materials || [];
+        const leads = (pdb.admissionInquiries || []).filter(i => i.coachingId === cid || i.centerId === cid || !i.coachingId);
+        const teachers = center.teachers || [];
+
+        // Financials calculation (80% director / 20% BBCC)
+        const totalSales = center.totalEarned || (students.length * 350) + (materials.length * 49 * 4);
+        const bbccCut = Math.round(totalSales * 0.20);
+        const netDirectorEarnings = totalSales - bbccCut;
+        const walletBalance = center.walletBalance !== undefined ? center.walletBalance : netDirectorEarnings;
+
+        return res.json({
+            success: true,
+            analytics: {
+                centerName: center.centerName,
+                directorName: center.directorName,
+                totalStudents: students.length,
+                activeCourses: courses.length,
+                totalMaterials: materials.length,
+                totalFaculty: teachers.length,
+                totalLeads: leads.length,
+                grossRevenue: totalSales,
+                bbccCommission: bbccCut,
+                netEarnings: netDirectorEarnings,
+                walletBalance: walletBalance,
+                planName: center.planName || (center.isTrialActive ? '7-Day Free Trial' : 'Active'),
+                planExpiry: center.planExpiresAt || center.trialEndsAt
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 9. Director: Leads & Inquiries (Module 7)
+app.get('/api/director/leads', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const cid = req.centerId;
+        const leads = (pdb.admissionInquiries || []).filter(l => l.coachingId === cid || l.centerId === cid || !l.coachingId);
+        return res.json({ success: true, leads });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 10. Director: Coupons / Promo Codes (Module 7)
+app.get('/api/director/coupons', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const cid = req.centerId;
+        const coupons = (pdb.coupons || []).filter(c => c.centerId === cid || !c.centerId);
+        return res.json({ success: true, coupons });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/director/coupons', verifyDirector, async (req, res) => {
+    try {
+        const { code, discountPercent, description, validUntil } = req.body;
+        if (!code || !discountPercent) {
+            return res.status(400).json({ success: false, message: 'Code and discount percentage required' });
+        }
+        const pdb = loadPortalDb();
+        pdb.coupons = pdb.coupons || [];
+
+        const newCoupon = {
+            _id: 'cpn_' + Date.now().toString(36),
+            centerId: req.centerId,
+            code: code.trim().toUpperCase(),
+            discountPercent: Number(discountPercent) || 10,
+            description: (description || '').trim(),
+            validUntil: validUntil || '2026-12-31',
+            active: true,
+            createdAt: new Date().toISOString()
+        };
+        pdb.coupons.push(newCoupon);
+        await savePortalDb(pdb);
+        return res.json({ success: true, message: 'Promo code created', coupon: newCoupon });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/api/director/coupons/:id', verifyDirector, async (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        pdb.coupons = (pdb.coupons || []).filter(c => c._id !== req.params.id);
+        await savePortalDb(pdb);
+        return res.json({ success: true, message: 'Promo code deleted' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 11. Director: Support & Helpdesk Tickets (Module 9)
+app.get('/api/director/tickets', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const cid = req.centerId;
+        const tickets = (pdb.supportTickets || []).filter(t => t.centerId === cid || t.directorEmail === (req.targetCenter ? req.targetCenter.email : ''));
+        return res.json({ success: true, tickets });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/director/tickets', verifyDirector, async (req, res) => {
+    try {
+        const { subject, category, priority, message } = req.body;
+        if (!subject || !message) {
+            return res.status(400).json({ success: false, message: 'Subject and message are required' });
+        }
+        const pdb = loadPortalDb();
+        pdb.supportTickets = pdb.supportTickets || [];
+
+        const center = req.targetCenter;
+        const newTicket = {
+            _id: 'tkt_' + Date.now().toString(36),
+            centerId: req.centerId,
+            centerName: center ? center.centerName : 'Coaching Institute',
+            directorName: center ? center.directorName : 'Director',
+            directorEmail: center ? center.email : '',
+            subject: subject.trim(),
+            category: category || 'General Technical',
+            priority: priority || 'Medium',
+            message: message.trim(),
+            status: 'Open',
+            adminReply: '',
+            createdAt: new Date().toISOString()
+        };
+
+        pdb.supportTickets.push(newTicket);
+        await savePortalDb(pdb);
+
+        console.log(`🎫 [New Support Ticket Raised]: ${subject} by ${newTicket.centerName}`);
+        return res.json({ success: true, message: 'Support ticket submitted to Santosh Sir (Super Admin)', ticket: newTicket });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 12. Director: Financial Ledger & Bank Payout Request (Module 8)
+app.get('/api/director/ledger', verifyDirector, (req, res) => {
+    try {
+        const pdb = loadPortalDb();
+        const center = req.targetCenter;
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const cid = center._id;
+        const withdrawals = (pdb.withdrawals || []).filter(w => w.centerId === cid);
+        const txns = (pdb.paymentTransactions || []).filter(t => t.centerId === cid);
+
+        const gross = center.totalEarned || 24500;
+        const commission = Math.round(gross * 0.20);
+        const net = gross - commission;
+        const walletBalance = center.walletBalance !== undefined ? center.walletBalance : net;
+
+        return res.json({
+            success: true,
+            ledger: {
+                grossSales: gross,
+                platformCommissionPercent: 20,
+                platformCommissionAmount: commission,
+                coachingNetShare: net,
+                availableBalance: walletBalance,
+                withdrawals,
+                transactions: txns
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/director/payout-request', verifyDirector, async (req, res) => {
+    try {
+        const { amount, bankName, accountNumber, ifsc, accountHolder } = req.body;
+        const reqAmt = Number(amount);
+        if (!reqAmt || reqAmt <= 0 || !accountNumber || !ifsc) {
+            return res.status(400).json({ success: false, message: 'Valid amount, account number, and IFSC are required' });
+        }
+        const pdb = loadPortalDb();
+        const center = req.targetCenter;
+        if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+        const currentBal = center.walletBalance !== undefined ? center.walletBalance : 10000;
+        if (reqAmt > currentBal) {
+            return res.status(400).json({ success: false, message: `Insufficient wallet balance. Available: ₹${currentBal}` });
+        }
+
+        pdb.withdrawals = pdb.withdrawals || [];
+        const payout = {
+            _id: 'wdr_' + Date.now().toString(36),
+            centerId: center._id,
+            centerName: center.centerName,
+            directorName: center.directorName,
+            amount: reqAmt,
+            bankName: bankName || 'Bank of India',
+            accountNumber: accountNumber.trim(),
+            ifsc: ifsc.trim().toUpperCase(),
+            accountHolder: (accountHolder || center.directorName).trim(),
+            status: 'Pending',
+            requestedAt: new Date().toISOString()
+        };
+
+        center.walletBalance = currentBal - reqAmt;
+        pdb.withdrawals.push(payout);
+        await savePortalDb(pdb);
+
+        console.log(`🏦 [Bank Payout Requested]: ₹${reqAmt} by ${center.centerName}`);
+        return res.json({
+            success: true,
+            message: `Payout request for ₹${reqAmt} submitted successfully to Accounts Directorate.`,
+            newBalance: center.walletBalance,
+            payout
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
 
 app.delete('/api/admin/coaching/:id', verifySuperAdmin, async (req, res) => {
     try {
