@@ -1427,7 +1427,7 @@
 
                     const dashLink = document.getElementById('navDashboardLink');
                     if (data.user.role === 'superadmin') dashLink.href = '/admin-console.html';
-                    else if (data.user.role === 'director') dashLink.href = '/director-portal.html';
+                    else if (data.user.role === 'director' || data.user.role === 'coaching') dashLink.href = '/director-dashboard.html';
                     else if (data.user.role === 'teacher') dashLink.href = '/teacher-portal.html';
                     else dashLink.href = '/student-dashboard.html';
                 }
