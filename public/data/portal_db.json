@@ -299,6 +299,17 @@
           "Fluency"
         ],
         "targetCenterId": "all"
+      },
+      {
+        "_id": "book_mviau5xq3134d",
+        "title": "bbcc",
+        "category": "Class 10th",
+        "mrp": 299,
+        "price": 99,
+        "coverImage": "/data/materials/bbcc_cover_1792598457437_a32a9e.png",
+        "fileUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
+        "downloadUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
+        "createdAt": "2026-10-21T16:00:57.533Z"
       }
     ],
     "books": []
@@ -310,5 +321,103 @@
   "admissionInquiries": [],
   "affiliationApplications": [],
   "liveSessions": [],
-  "bharti_auto_push_log": []
+  "bharti_auto_push_log": [],
+  "coupons": [],
+  "plans": [
+    {
+      "id": "plan_starter",
+      "name": "Starter Plan",
+      "price": 499,
+      "durationDays": 30,
+      "badge": "Entry Level",
+      "description": "Essential tools for small local tuition centers & independent teachers.",
+      "features": [
+        "executive_analytics",
+        "storefront_profile",
+        "course_batch",
+        "support_desk",
+        "settings_upgrade"
+      ],
+      "active": true
+    },
+    {
+      "id": "plan_basic",
+      "name": "Basic Plan",
+      "price": 999,
+      "durationDays": 30,
+      "badge": "Popular",
+      "description": "Perfect for growing coaching institutes needing Student CRM & Fee tracking.",
+      "features": [
+        "executive_analytics",
+        "storefront_profile",
+        "course_batch",
+        "student_crm",
+        "support_desk",
+        "settings_upgrade"
+      ],
+      "active": true
+    },
+    {
+      "id": "plan_pro",
+      "name": "Pro Plan",
+      "price": 1999,
+      "durationDays": 90,
+      "badge": "Best Value (3 Months)",
+      "description": "Complete operations suite with Faculty HR, Notes E-Library & Lead Generation.",
+      "features": [
+        "executive_analytics",
+        "storefront_profile",
+        "course_batch",
+        "student_crm",
+        "faculty_hr",
+        "elibrary_assets",
+        "marketing_leads",
+        "support_desk",
+        "settings_upgrade"
+      ],
+      "active": true
+    },
+    {
+      "id": "plan_premium",
+      "name": "Premium Plan",
+      "price": 3499,
+      "durationDays": 180,
+      "badge": "Full SaaS Power (6 Months)",
+      "description": "Unlocks all 10 Mega Modules including Financial Ledger, Wallet & Bank Payouts.",
+      "features": [
+        "executive_analytics",
+        "storefront_profile",
+        "course_batch",
+        "student_crm",
+        "faculty_hr",
+        "elibrary_assets",
+        "marketing_leads",
+        "financial_ledger",
+        "support_desk",
+        "settings_upgrade"
+      ],
+      "active": true
+    },
+    {
+      "id": "plan_enterprise",
+      "name": "Enterprise Annual Plan",
+      "price": 5999,
+      "durationDays": 365,
+      "badge": "VIP Unlimited (1 Year)",
+      "description": "Unrestricted all-module access for 1 full year with VIP Priority Support by Santosh Sir.",
+      "features": [
+        "executive_analytics",
+        "storefront_profile",
+        "course_batch",
+        "student_crm",
+        "faculty_hr",
+        "elibrary_assets",
+        "marketing_leads",
+        "financial_ledger",
+        "support_desk",
+        "settings_upgrade"
+      ],
+      "active": true
+    }
+  ]
 }
