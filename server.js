@@ -26,16 +26,16 @@ const EMAIL_APP_PASSWORD = (process.env.EMAIL_APP_PASSWORD || 'zlmm lguv ruaa wz
 
 const mailTransporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587, // Use 587 instead of 465 to avoid Render IPv6 hangup
+    secure: false, // false for port 587 (uses STARTTLS)
     auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_APP_PASSWORD
+        user: 'balbharticoching.center@gmail.com',
+        pass: 'zlmmlguvruaawzod' // Check ki app password me space na ho
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-    family: 4
+    tls: {
+        rejectUnauthorized: false // Helps bypass strict SSL block on Render
+    },
+    connectionTimeout: 10000
 });
 let transporter = mailTransporter;
 
