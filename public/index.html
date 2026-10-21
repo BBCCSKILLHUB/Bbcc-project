@@ -230,6 +230,43 @@
             background: #15803d;
         }
 
+        .btn-nav-reg {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-reg-student {
+            background: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-reg-student:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+
+        .btn-reg-coaching {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+        }
+
+        .btn-reg-coaching:hover {
+            background: #6d28d9;
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+
         .nav-user-pill {
             font-size: 12.5px;
             color: #64748b;
@@ -349,6 +386,85 @@
 
         .btn-search:hover {
             background: var(--primary-dark);
+        }
+
+        /* DIRECT REGISTRATION CARDS (HERO) */
+        .hero-reg-action-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 0 auto 30px;
+            max-width: 760px;
+            flex-wrap: wrap;
+        }
+
+        .hero-reg-card {
+            flex: 1;
+            min-width: 290px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.25s;
+            backdrop-filter: blur(6px);
+        }
+
+        .hero-reg-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-reg-card.student-card {
+            border-left: 4px solid #38bdf8;
+        }
+
+        .hero-reg-card.student-card:hover {
+            background: rgba(2, 132, 199, 0.25);
+            border-color: #38bdf8;
+        }
+
+        .hero-reg-card.coaching-card {
+            border-left: 4px solid #c084fc;
+        }
+
+        .hero-reg-card.coaching-card:hover {
+            background: rgba(124, 58, 237, 0.25);
+            border-color: #c084fc;
+        }
+
+        .hero-reg-icon {
+            font-size: 28px;
+            margin-right: 14px;
+        }
+
+        .hero-reg-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .hero-reg-info h4 {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+
+        .hero-reg-info p {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin: 0;
+        }
+
+        .hero-reg-arrow {
+            font-size: 16px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-left: 10px;
         }
 
         /* QUICK FILTER TAGS */
@@ -1105,7 +1221,7 @@
         <div class="top-offer-actions">
             <a href="#elibrary" class="top-offer-link">Buy Notes</a>
             <span style="opacity: 0.4;">|</span>
-            <a href="/login.html" class="top-offer-link">Affiliate Institute</a>
+            <a href="/login?mode=signup&role=coaching" class="top-offer-link">Affiliate Institute</a>
         </div>
     </div>
 
@@ -1129,11 +1245,17 @@
             </ul>
 
             <div class="nav-cta-group" id="headerAuthArea">
-                <a href="/login.html" class="btn-nav-login" id="navLoginBtn">
-                    <span>Login / Sign Up</span>
+                <a href="/login?mode=signup&role=student" class="btn-nav-reg btn-reg-student">
+                    🎓 Student Registration
+                </a>
+                <a href="/login?mode=signup&role=coaching" class="btn-nav-reg btn-reg-coaching">
+                    🏛️ Coaching Registration
+                </a>
+                <a href="/login" class="btn-nav-login" id="navLoginBtn">
+                    <span>Login</span>
                 </a>
                 <div id="navSessionUser" style="display: none;" class="nav-user-pill">
-                    <a href="/admin-console.html" id="navDashboardLink" class="btn-nav-dashboard">My Dashboard</a>
+                    <a href="/student-dashboard" id="navDashboardLink" class="btn-nav-dashboard">My Dashboard</a>
                     <span id="navUserName">User</span>
                     <button type="button" class="nav-logout-btn" onclick="handleLogout()">Logout</button>
                 </div>
@@ -1164,6 +1286,30 @@
                 oninput="handleSearchFilter(this.value)"
             >
             <button type="button" class="btn-search" onclick="executeSearchScroll()">Search</button>
+        </div>
+
+        <!-- DIRECT REGISTRATION CARDS -->
+        <div class="hero-reg-action-row">
+            <a href="/login?mode=signup&role=student" class="hero-reg-card student-card">
+                <div style="display:flex; align-items:center;">
+                    <span class="hero-reg-icon">🎓</span>
+                    <div class="hero-reg-info">
+                        <h4>Student Registration</h4>
+                        <p>Join BBCC Direct or Enroll in Verified Coaching</p>
+                    </div>
+                </div>
+                <span class="hero-reg-arrow">➔</span>
+            </a>
+            <a href="/login?mode=signup&role=coaching" class="hero-reg-card coaching-card">
+                <div style="display:flex; align-items:center;">
+                    <span class="hero-reg-icon">🏛️</span>
+                    <div class="hero-reg-info">
+                        <h4>Coaching Registration</h4>
+                        <p>Register Your Institute &amp; Sell Notes Online</p>
+                    </div>
+                </div>
+                <span class="hero-reg-arrow">➔</span>
+            </a>
         </div>
 
         <!-- QUICK FILTER TAGS -->
@@ -1323,8 +1469,8 @@
                 <ul>
                     <li><a href="#institutes">Verified Institutes</a></li>
                     <li><a href="#elibrary">E-Library Notes</a></li>
-                    <li><a href="/login.html">Director Portal</a></li>
-                    <li><a href="/login.html">Student Dashboard</a></li>
+                    <li><a href="/login?mode=signup&role=coaching">Director Portal</a></li>
+                    <li><a href="/login?mode=signup&role=student">Student Registration</a></li>
                 </ul>
             </div>
 
@@ -1341,7 +1487,7 @@
             <div class="footer-links-col">
                 <h5>Director Affiliation</h5>
                 <p style="font-size: 13px; margin-bottom: 12px;">Are you a Coaching Director? Join the BBCC Aggregator network to get direct student admissions.</p>
-                <a href="/login.html" class="btn-nav-login" style="background:#0284c7; width:100%; justify-content:center;">Register Your Institute</a>
+                <a href="/login?mode=signup&role=coaching" class="btn-nav-login" style="background:#0284c7; width:100%; justify-content:center;">Register Your Institute</a>
             </div>
         </div>
 
@@ -1395,7 +1541,7 @@
                 <div id="modalNotesList" class="books-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 10px;"></div>
 
                 <div style="margin-top: 28px; text-align: center;">
-                    <a href="/login.html" class="btn-buy-book" style="background: #2563eb; display: inline-flex; width: auto; padding: 12px 32px; font-size: 15px;">
+                    <a href="/login?mode=signup&role=student" class="btn-buy-book" style="background: #2563eb; display: inline-flex; width: auto; padding: 12px 32px; font-size: 15px;">
                         Take Direct Admission in this Institute
                     </a>
                 </div>
@@ -1426,10 +1572,10 @@
                     document.getElementById('navUserName').textContent = data.user.name || 'User';
 
                     const dashLink = document.getElementById('navDashboardLink');
-                    if (data.user.role === 'superadmin') dashLink.href = '/admin-console.html';
-                    else if (data.user.role === 'director' || data.user.role === 'coaching') dashLink.href = '/director-dashboard.html';
-                    else if (data.user.role === 'teacher') dashLink.href = '/teacher-portal.html';
-                    else dashLink.href = '/student-dashboard.html';
+                    if (data.user.role === 'superadmin') dashLink.href = '/admin-console';
+                    else if (data.user.role === 'director' || data.user.role === 'coaching') dashLink.href = '/director-dashboard';
+                    else if (data.user.role === 'teacher') dashLink.href = '/teacher-portal';
+                    else dashLink.href = '/student-dashboard';
                 }
             } catch(e) {}
         })();
@@ -1508,7 +1654,7 @@
                                 <button type="button" class="btn-view-profile" onclick="openCenterModal('${c._id}')">
                                     View Profile &amp; Notes
                                 </button>
-                                <a href="/login.html" class="btn-quick-inquire">
+                                <a href="/login?mode=signup&role=student" class="btn-quick-inquire">
                                     Admit
                                 </a>
                             </div>
@@ -1637,7 +1783,7 @@
             const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token');
             if (!token) {
                 if (confirm(`To purchase "${bookTitle}" for ₹${price}, please login with your email first. Proceed to login?`)) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 }
                 return;
             }
@@ -1664,7 +1810,7 @@
                         order_id: data.order.id,
                         handler: function(response) {
                             alert('Payment Successful! Transaction ID: ' + response.razorpay_payment_id + '\nYour notes are now available in your Student Dashboard.');
-                            window.location.href = '/student-dashboard.html';
+                            window.location.href = '/student-dashboard';
                         },
                         theme: { color: '#fb641b' }
                     };
@@ -1673,12 +1819,12 @@
                 } else {
                     // Direct access fallback
                     alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
-                    window.location.href = '/student-dashboard.html';
+                    window.location.href = '/student-dashboard';
                 }
             })
             .catch(err => {
                 alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
-                window.location.href = '/student-dashboard.html';
+                window.location.href = '/student-dashboard';
             });
         }
 
