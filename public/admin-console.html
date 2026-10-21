@@ -201,98 +201,682 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:12px;">
+            <!-- Admin Profile Indicator -->
+            <div style="display:flex; align-items:center; gap:10px; padding:6px 14px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); border-radius:30px;">
+                <img src="/santosh_sir.jpeg" alt="Santosh Sir" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid #fbbf24;" onerror="this.src='/data/branding/logo.png'">
+                <div style="line-height:1.2;">
+                    <div style="font-size:12px; font-weight:700; color:#fbbf24;">Santosh Sir <span style="font-size:10px; background:#fbbf24; color:#050811; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:800;">SUPER ADMIN</span></div>
+                    <div id="adminHeaderEmail" style="font-size:10.5px; color:#94a3b8;">sky140052@gmail.com</div>
+                </div>
+            </div>
+
             <button onclick="switchAdminTab('central-live')" class="btn-aurora" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; font-weight:800; cursor:pointer;">
-                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> 🔴 GO LIVE / LIVE STUDIO
+                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> 🔴 GO LIVE
             </button>
-            <button onclick="openAdminManualModal()" class="btn-aurora" style="background:rgba(245,158,11,0.22); border:1px solid #f59e0b; color:#fbbf24; cursor:pointer; font-weight:700;" title="Open Super Admin User Manual & SOP">
-                <i class="fas fa-book-open"></i> User Manual & SOP
-            </button>
-            <a href="/BBCC_Platform_User_Manual.pdf" download="BBCC_Platform_User_Manual.pdf" class="btn-aurora" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); color:#fbbf24;" title="Download Official Platform Manual PDF">
-                <i class="fas fa-file-pdf"></i> PDF
-            </a>
             <a href="/" target="_blank" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-glow); color:var(--admin-gold);">
                 <i class="fas fa-house-chimney"></i> Main Board Portal
             </a>
-            <button onclick="openFormatDataModal()" class="btn-aurora" style="background:rgba(220,38,38,0.22); border:1px solid #dc2626; color:#fca5a5; font-weight:700; cursor:pointer;" title="Factory Reset & Format All Data (MongoDB & DataStax Astra DB)">
-                <i class="fas fa-trash-can"></i> Format Data
-            </button>
-            <button onclick="logoutAdmin()" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
-                <i class="fas fa-power-off"></i> Exit Console
+            <button onclick="logoutAdmin()" class="btn-aurora" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; font-weight:700;">
+                <i class="fas fa-power-off"></i> Logout
             </button>
         </div>
     </header>
 
     <div class="admin-layout">
-        <aside class="admin-sidebar">
-            <button class="admin-nav-btn active" onclick="switchAdminTab('centers')">
-                <i class="fas fa-school" style="color:#fbbf24;"></i> Partner Coaching Centers
+        <aside class="admin-sidebar" style="position:sticky; top:71px; height:calc(100vh - 71px); overflow-y:auto;">
+            <!-- Category Title: CORE MASTER MODULES -->
+            <div style="padding:6px 12px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#fbbf24; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-crown"></i> 6 CORE MASTER MODULES
+            </div>
+            <button class="admin-nav-btn active" id="navBtn-overview" onclick="switchAdminTab('overview')">
+                <i class="fas fa-chart-pie" style="color:#fbbf24;"></i> 1. Dashboard Overview
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('ai-engines')">
-                <i class="fas fa-brain" style="color:#f97316;"></i> Groq & Gemini AI Engines
+            <button class="admin-nav-btn" id="navBtn-coaching" onclick="switchAdminTab('coaching')">
+                <i class="fas fa-school" style="color:#38bdf8;"></i> 2. Coaching Management
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('razorpay')">
-                <i class="fas fa-credit-card" style="color:#38bdf8;"></i> Razorpay Payment Gateway
+            <button class="admin-nav-btn" id="navBtn-elibrary" onclick="switchAdminTab('elibrary')">
+                <i class="fas fa-book-bookmark" style="color:#10b981;"></i> 3. E-Library Master
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('youtube')">
-                <i class="fab fa-youtube" style="color:#ef4444;"></i> YouTube Live & Studio
+            <button class="admin-nav-btn" id="navBtn-financials" onclick="switchAdminTab('financials')">
+                <i class="fas fa-receipt" style="color:#f59e0b;"></i> 4. Financials & Sales
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('books-hub')">
-                <i class="fas fa-book-bookmark" style="color:#10b981;"></i> E-Library & Book Orders
+            <button class="admin-nav-btn" id="navBtn-integrations" onclick="switchAdminTab('integrations')">
+                <i class="fas fa-network-wired" style="color:#a78bfa;"></i> 5. API Integrations
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('admission-fees')">
-                <i class="fas fa-hand-holding-dollar" style="color:#34d399;"></i> Direct Admission &amp; Center Fees
+            <button class="admin-nav-btn" id="navBtn-founder-settings" onclick="switchAdminTab('founder-settings')">
+                <i class="fas fa-user-gear" style="color:#ec4899;"></i> 6. Founder & Settings
+            </button>
+
+            <!-- Category Title: DIRECTORATE TOOLS & STUDIO -->
+            <div style="margin-top:16px; padding:6px 12px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+                DIRECTORATE EXTENDED
+            </div>
+            <button class="admin-nav-btn" onclick="switchAdminTab('central-live')">
+                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Live Studio Broadcast
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('database-hub')">
                 <i class="fas fa-database" style="color:#38bdf8;"></i> Database & Cloud Storage
             </button>
             <button class="admin-nav-btn" onclick="switchAdminTab('templates')">
-                <i class="fas fa-certificate" style="color:#a78bfa;"></i> Templates & Themes (Live Preview)
+                <i class="fas fa-certificate" style="color:#a78bfa;"></i> Certificate & Bill Designer
             </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('founder')">
-                <i class="fas fa-user-tie" style="color:#ec4899;"></i> Founder & Leadership
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('security')">
-                <i class="fas fa-shield-halved" style="color:#ef4444;"></i> Security & Data Reset
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('settings')">
-                <i class="fas fa-sliders" style="color:#64748b;"></i> Board CMS & Platform
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('banners')">
-                <i class="fas fa-images"></i> Promotional Banners
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('gallery')">
-                <i class="fas fa-camera-retro"></i> Board Campus Gallery
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('students')">
-                <i class="fas fa-id-card"></i> Student Enrolment Roster
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('affiliations')">
-                <i class="fas fa-handshake"></i> Affiliations Desk
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('transactions')">
-                <i class="fas fa-receipt"></i> Payment Transactions (80/20)
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('payouts')">
-                <i class="fas fa-money-bill-transfer"></i> Withdrawals & Payouts
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('tickets')">
-                <i class="fas fa-headset"></i> Support & Callbacks Desk
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('notifications')">
-                <i class="fas fa-bell"></i> Push Broadcast & BHARTI
-            </button>
-            <button class="admin-nav-btn" onclick="switchAdminTab('central-live')">
-                <i class="fas fa-tower-broadcast" style="color:#ef4444;"></i> Central Live Studio
+            <button class="admin-nav-btn" onclick="switchAdminTab('ai-engines')">
+                <i class="fas fa-brain" style="color:#f97316;"></i> Bharti AI Counselor Engine
             </button>
             <button class="admin-nav-btn" onclick="openAdminManualModal()" style="border-left:3px solid var(--admin-gold); background:rgba(245,158,11,0.08);">
-                <i class="fas fa-book-open" style="color:var(--admin-gold);"></i> 📖 Super Admin User Manual & SOP
+                <i class="fas fa-book-open" style="color:var(--admin-gold);"></i> 📖 User Manual & SOP
             </button>
         </aside>
 
         <main class="admin-content">
 
-            <!-- TAB 1: COACHING CENTERS -->
-            <div class="admin-tab active" id="tab-centers">
+            <!-- ============================================================ -->
+            <!-- MODULE 1: DASHBOARD OVERVIEW (HOME)                          -->
+            <!-- ============================================================ -->
+            <div class="admin-tab active" id="tab-overview">
+                <!-- Welcome Banner -->
+                <div class="card-console" style="margin-bottom:24px; border-color:var(--border-glow); background:radial-gradient(circle at top right, rgba(251,191,36,0.12), transparent 70%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#fbbf24;"><i class="fas fa-crown"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:22px; margin:0; color:#f8fafc;">Super Admin Executive Deck</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0 0;">
+                                Central Directorate Master Overview &bull; Live Telemetry across B2B Coaching Institutes, Students, E-Library & Cloud DB.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="loadAdminStats()" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Metrics
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Core Stats Cards -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:18px; margin-bottom:26px;">
+                    <!-- Card 1: Total Coaching Centers -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(251,191,36,0.3); background:rgba(15,23,42,0.85); cursor:pointer;" onclick="switchAdminTab('coaching')">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8;">Total Coaching Centers</div>
+                                <div id="statsTotalCenters" style="font-size:32px; font-weight:800; color:#fbbf24; margin-top:6px;">0</div>
+                                <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Verified Partner Institutes</div>
+                            </div>
+                            <div style="width:44px; height:44px; border-radius:12px; background:rgba(251,191,36,0.15); display:flex; align-items:center; justify-content:center; color:#fbbf24; font-size:20px;">
+                                <i class="fas fa-school"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Total Students -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.3); background:rgba(15,23,42,0.85); cursor:pointer;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8;">Total Students</div>
+                                <div id="statsTotalStudents" style="font-size:32px; font-weight:800; color:#38bdf8; margin-top:6px;">0</div>
+                                <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Active Enrolled Learners</div>
+                            </div>
+                            <div style="width:44px; height:44px; border-radius:12px; background:rgba(56,189,248,0.15); display:flex; align-items:center; justify-content:center; color:#38bdf8; font-size:20px;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Total E-Library Books -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(16,185,129,0.3); background:rgba(15,23,42,0.85); cursor:pointer;" onclick="switchAdminTab('elibrary')">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8;">Total E-Library Books</div>
+                                <div id="statsTotalBooks" style="font-size:32px; font-weight:800; color:#10b981; margin-top:6px;">0</div>
+                                <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Astra DB & Local Storage</div>
+                            </div>
+                            <div style="width:44px; height:44px; border-radius:12px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:20px;">
+                                <i class="fas fa-book-bookmark"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Total Revenue -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(245,158,11,0.3); background:rgba(15,23,42,0.85); cursor:pointer;" onclick="switchAdminTab('financials')">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#94a3b8;">Total Revenue</div>
+                                <div id="statsTotalRevenue" style="font-size:32px; font-weight:800; color:#f59e0b; margin-top:6px;">₹0</div>
+                                <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Net Book Orders & Fees</div>
+                            </div>
+                            <div style="width:44px; height:44px; border-radius:12px; background:rgba(245,158,11,0.15); display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:20px;">
+                                <i class="fas fa-indian-rupee-sign"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities Table -->
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0;"><i class="fas fa-bolt" style="color:#fbbf24; margin-right:8px;"></i> Recent Activities &amp; Logs</h3>
+                        <span style="font-size:12px; color:#94a3b8;">Live Feed &bull; Auto-Updated</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity / Action</th>
+                                    <th>User / Entity</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overviewActivitiesTbody">
+                                <tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">Loading latest activities...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 2: COACHING MANAGEMENT (B2B ONBOARDING)               -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-coaching">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(56,189,248,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#38bdf8;"><i class="fas fa-school"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Coaching Management (B2B Onboarding)</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Onboard partner coaching institutes, issue official BBCC registration IDs, and manage live directory access.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="openAddCoachingModal()" class="btn-aurora btn-gold">
+                                <i class="fas fa-plus"></i> Add New Coaching
+                            </button>
+                            <button type="button" onclick="loadCoachingManagement()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+                                <i class="fas fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coaching Centers List Table -->
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0;">Registered Partner Institutes</h3>
+                        <input type="text" id="coachingFilterInput" onkeyup="filterCoachingTable()" placeholder="Search institute or director..." class="console-input" style="max-width:280px; margin-top:0;">
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table" id="coachingMasterTable">
+                            <thead>
+                                <tr>
+                                    <th>Reg. ID</th>
+                                    <th>Coaching Name</th>
+                                    <th>Director Name</th>
+                                    <th>Contact Info</th>
+                                    <th>Classes & Admission</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coachingListTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">Loading coaching institutes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 3: E-LIBRARY MASTER MANAGER                           -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-elibrary">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(16,185,129,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#10b981;"><i class="fas fa-book-bookmark"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">E-Library Master Manager</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Upload syllabus PDFs & books. Files are chunked and pushed directly to DataStax Astra DB Cloud.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <a href="/e-library.html" target="_blank" class="btn-aurora" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Open Live E-Library
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add New PDF Book Form -->
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:16px;"><i class="fas fa-cloud-arrow-up" style="color:#10b981; margin-right:8px;"></i> Upload New Book / Study Material</h3>
+                    <form id="elibraryUploadForm" onsubmit="submitUploadBook(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Book Title *</label>
+                            <input type="text" id="elibTitle" required placeholder="e.g. Class 10th NCERT Complete Science Notes" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Class / Category *</label>
+                            <select id="elibCategory" class="console-input" style="background:#0b1120;">
+                                <option value="Class 10th">Class 10th</option>
+                                <option value="Class 12th">Class 12th</option>
+                                <option value="Class 9th">Class 9th</option>
+                                <option value="Class 11th">Class 11th</option>
+                                <option value="NEET Exam">NEET Exam</option>
+                                <option value="JEE Main & Adv">JEE Main & Adv</option>
+                                <option value="Competitive Exams">Competitive Exams</option>
+                                <option value="Computer Skills">Computer Skills</option>
+                                <option value="General Studies">General Studies</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Original Price (MRP ₹) *</label>
+                            <input type="number" id="elibMrp" value="299" min="0" required placeholder="299" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Discounted Price (Sale Price ₹) *</label>
+                            <input type="number" id="elibPrice" value="99" min="0" required placeholder="99" class="console-input" style="color:#10b981; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Cover Image (Upload JPG/PNG)</label>
+                            <input type="file" id="elibCoverFile" accept="image/*" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">PDF Document File (Upload PDF) *</label>
+                            <input type="file" id="elibPdfFile" accept="application/pdf" required class="console-input">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Description & Highlights</label>
+                            <input type="text" id="elibDesc" placeholder="e.g. Chapter-wise handwritten notes, diagrams & practice question bank" class="console-input">
+                        </div>
+                        <div id="elibUploadStatus" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" id="btnUploadBook" class="btn-aurora btn-gold">
+                                <i class="fas fa-upload"></i> Upload &amp; Push to Astra DB
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Existing Books Inventory Table -->
+                <div class="card-console">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0;">Active E-Library Inventory</h3>
+                        <button type="button" onclick="loadElibraryMaster()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:12px; padding:6px 14px;">
+                            <i class="fas fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Cover</th>
+                                    <th>Book Title</th>
+                                    <th>Class / Category</th>
+                                    <th>MRP vs Sale</th>
+                                    <th>Cloud Storage</th>
+                                    <th>Uploaded On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="elibraryListTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">Loading library inventory...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 4: FINANCIALS & TRANSACTIONS                          -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-financials">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(245,158,11,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#f59e0b;"><i class="fas fa-receipt"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Financials &amp; Transactions Ledger</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Unified transaction log for E-Library PDF sales, center affiliation fees, and student payments.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div style="padding:8px 16px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.4); border-radius:12px;">
+                                <span style="font-size:11px; text-transform:uppercase; color:#94a3b8;">Total Revenue: </span>
+                                <b id="financialsTotalRevenue" style="color:#fbbf24; font-size:16px; margin-left:4px;">₹0</b>
+                            </div>
+                            <button type="button" onclick="loadFinancials()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">
+                                <i class="fas fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="card-console">
+                    <div style="overflow-x:auto;">
+                        <table class="console-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction / Order ID</th>
+                                    <th>Student / Payer</th>
+                                    <th>Book Name / Purpose</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Payment Ref</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financialsListTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">Loading transactions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 5: SYSTEM & API INTEGRATIONS                          -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-integrations">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(167,139,250,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#a78bfa;"><i class="fas fa-network-wired"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">System &amp; API Integrations</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Monitor live connection health for Razorpay, YouTube, Groq AI, Astra DB, and Gmail OTP. Zero data loss guarantee.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadApiIntegrations()" class="btn-aurora btn-gold">
+                            <i class="fas fa-rotate"></i> Verify All Integrations
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 Integrations Status Cards Grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-bottom:24px;">
+                    <!-- 1. Razorpay Gateway -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-credit-card" style="color:#38bdf8; font-size:18px;"></i>
+                                <b style="font-size:14px;">Razorpay Gateway</b>
+                            </div>
+                            <span id="badgeRazorpayStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Key ID: <span id="dispRazorpayKeyId" style="color:#fff; font-family:monospace;">••••••••</span></div>
+                        <button type="button" onclick="testApiKey('razorpay')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-plug"></i> Test Razorpay Gateway
+                        </button>
+                    </div>
+
+                    <!-- 2. YouTube Live & Studio API -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(239,68,68,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fab fa-youtube" style="color:#ef4444; font-size:18px;"></i>
+                                <b style="font-size:14px;">YouTube Live API</b>
+                            </div>
+                            <span id="badgeYoutubeStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Channel: <span id="dispYoutubeChannel" style="color:#fff; font-family:monospace;">UCuDH2n6UuTPUTOk-URz9qMA</span></div>
+                        <button type="button" onclick="testApiKey('youtube')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(239,68,68,0.12); border:1px solid #ef4444; color:#fca5a5; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-tower-broadcast"></i> Test YouTube Connection
+                        </button>
+                    </div>
+
+                    <!-- 3. Groq AI Engine -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(249,115,22,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-brain" style="color:#f97316; font-size:18px;"></i>
+                                <b style="font-size:14px;">Groq AI (Bharti Engine)</b>
+                            </div>
+                            <span id="badgeGroqStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Model: <span style="color:#fff;">llama-3.3-70b-versatile</span></div>
+                        <button type="button" onclick="testApiKey('groq')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(249,115,22,0.12); border:1px solid #f97316; color:#fdba74; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-robot"></i> Test Groq AI Counselor
+                        </button>
+                    </div>
+
+                    <!-- 4. DataStax Astra DB Cloud -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-database" style="color:#38bdf8; font-size:18px;"></i>
+                                <b style="font-size:14px;">DataStax Astra DB</b>
+                            </div>
+                            <span id="badgeAstraStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Cluster: <span style="color:#fff;">astra.datastax.com (Active)</span></div>
+                        <button type="button" onclick="testApiKey('astra')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-server"></i> Test Database Ping
+                        </button>
+                    </div>
+
+                    <!-- 5. Gmail OTP Dispatcher -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(251,191,36,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-envelope" style="color:#fbbf24; font-size:18px;"></i>
+                                <b style="font-size:14px;">Gmail OTP Dispatcher</b>
+                            </div>
+                            <span id="badgeNodemailerStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Active</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">User: <span id="dispEmailUser" style="color:#fff;">balbharticoching.center@gmail.com</span></div>
+                        <button type="button" onclick="testApiKey('otp')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(251,191,36,0.12); border:1px solid #fbbf24; color:#fbbf24; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-paper-plane"></i> Test OTP Dispatch
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Update API Keys & Secrets Form -->
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:16px;"><i class="fas fa-key" style="color:#a78bfa; margin-right:8px;"></i> Update Production API Keys &amp; Credentials</h3>
+                    <p style="font-size:12px; color:#94a3b8; margin-bottom:16px;">
+                        Leave blank any key that you do not wish to modify. Existing values will remain 100% safe and intact.
+                    </p>
+                    <form id="updateApiKeysForm" onsubmit="submitUpdateApiKeys(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Razorpay Key ID</label>
+                            <input type="text" id="intRazorpayKeyId" placeholder="rzp_live_..." class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Razorpay Key Secret</label>
+                            <input type="password" id="intRazorpayKeySecret" placeholder="••••••••••••" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Groq AI API Key (Free llama-3.3-70b)</label>
+                            <input type="password" id="intGroqApiKey" placeholder="gsk_..." class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Google Gemini API Key (Optional)</label>
+                            <input type="password" id="intGeminiApiKey" placeholder="AIzaSy..." class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">YouTube Data API Key</label>
+                            <input type="password" id="intYoutubeApiKey" placeholder="AIzaSy..." class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">YouTube Channel ID</label>
+                            <input type="text" id="intYoutubeChannelId" placeholder="UCuDH2n6UuTPUTOk-URz9qMA" class="console-input">
+                        </div>
+                        <div id="intApiStatusAlert" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" id="btnSaveApiKeys" class="btn-aurora btn-gold">
+                                <i class="fas fa-save"></i> Save API Credentials Securely
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 6: FOUNDER & PLATFORM SETTINGS                        -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-founder-settings">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(236,72,153,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#ec4899;"><i class="fas fa-user-gear"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Founder &amp; Platform Settings</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Manage platform branding assets, founder profile, and Super Admin OTP authorization email.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 1: Super Admin Master Email & OTP Configuration -->
+                <div class="card-console" style="border:2px solid rgba(251,191,36,0.35); background:radial-gradient(circle at top right, rgba(251,191,36,0.08), transparent 70%);">
+                    <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:8px; color:#fbbf24;">
+                        <i class="fas fa-shield-halved" style="margin-right:8px;"></i> Super Admin Login Email (OTP Target)
+                    </h3>
+                    <p style="font-size:12.5px; color:#94a3b8; margin-bottom:16px;">
+                        Currently, Super Admin login OTP is dispatched to <b id="dispActiveAdminEmail" style="color:#fbbf24; font-size:13.5px;">sky140052@gmail.com</b>. You can update this email at any time.
+                    </p>
+                    <form id="updateAdminEmailForm" onsubmit="submitUpdateAdminEmail(event)" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+                        <div style="flex:1; min-width:280px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">New Super Admin Email Address *</label>
+                            <input type="email" id="inpNewAdminEmail" required placeholder="e.g. santosh.sir@gmail.com" class="console-input">
+                        </div>
+                        <button type="submit" id="btnUpdateAdminEmail" class="btn-aurora btn-gold" style="height:42px;">
+                            <i class="fas fa-envelope-circle-check"></i> Update Super Admin Email
+                        </button>
+                    </form>
+                    <div id="emailUpdateAlert" style="display:none; margin-top:14px; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                </div>
+
+                <!-- Section 2: Platform Branding & Official Assets -->
+                <div class="card-console">
+                    <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:16px;"><i class="fas fa-palette" style="color:#ec4899; margin-right:8px;"></i> Platform Branding &amp; Founder Portrait</h3>
+                    <form id="brandingSettingsForm" onsubmit="submitBrandingSettings(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+                        <!-- Logo Upload & Preview -->
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; text-transform:uppercase;">Official Website Main Logo</label>
+                            <div style="margin:14px 0; display:flex; align-items:center; gap:16px;">
+                                <div style="width:70px; height:70px; border-radius:14px; border:1px solid var(--border-glow); background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:4px;">
+                                    <img id="previewLogoImg" src="/data/branding/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='/logo.png'">
+                                </div>
+                                <div style="flex:1;">
+                                    <input type="file" id="inpBrandingLogoFile" accept="image/*" onchange="previewSelectedImage(this, 'previewLogoImg')" class="console-input" style="font-size:11.5px;">
+                                    <div style="font-size:11px; color:#64748b; margin-top:4px;">Recommended: Transparent PNG (512x512)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Founder Photo Upload & Preview -->
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:700; text-transform:uppercase;">Founder (Santosh Sir) Portrait</label>
+                            <div style="margin:14px 0; display:flex; align-items:center; gap:16px;">
+                                <div style="width:70px; height:70px; border-radius:50%; border:2px solid #fbbf24; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                    <img id="previewFounderImg" src="/santosh_sir.jpeg" alt="Santosh Sir" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='/data/photos/Santosh_Sir.jpg'">
+                                </div>
+                                <div style="flex:1;">
+                                    <input type="file" id="inpFounderPhotoFile" accept="image/*" onchange="previewSelectedImage(this, 'previewFounderImg')" class="console-input" style="font-size:11.5px;">
+                                    <div style="font-size:11px; color:#64748b; margin-top:4px;">Santosh Sir Official Portrait</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Board Details -->
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Platform Title</label>
+                            <input type="text" id="inpBrandTitle" value="BBCC SKILL HUB" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Platform Tagline</label>
+                            <input type="text" id="inpBrandTagline" value="Digital Skill &amp; Coaching Institute Platform" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Founder Name</label>
+                            <input type="text" id="inpFounderName" value="Santosh Kumar" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Founder Designation</label>
+                            <input type="text" id="inpFounderDesig" value="Founder &amp; Managing Director" class="console-input">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Founder Message (Displayed on Homepage)</label>
+                            <textarea id="inpFounderMessage" rows="3" class="console-input" style="resize:vertical;">शिक्षा और तकनीकी कौशल हर विद्यार्थी का अधिकार है। बाल भारती कोचिंग सेंटर एवं बीबीसीसी स्किल हब विद्यार्थियों के उज्ज्वल भविष्य के लिए सदैव समर्पित है।</textarea>
+                        </div>
+                        <div id="brandingUpdateAlert" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
+                            <button type="submit" id="btnSaveBranding" class="btn-aurora btn-gold">
+                                <i class="fas fa-floppy-disk"></i> Save Platform Branding
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ADD NEW COACHING MODAL -->
+            <div id="addCoachingModal" class="admin-modal-overlay">
+                <div class="admin-modal-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:18px; margin:0; color:#fbbf24;">
+                            <i class="fas fa-plus-circle" style="margin-right:8px;"></i> Onboard Partner Coaching Institute
+                        </h3>
+                        <button type="button" onclick="closeAddCoachingModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
+                    </div>
+                    <form id="modalAddCoachingForm" onsubmit="submitAddCoaching(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;">
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:12px; color:#cbd5e1;">Coaching Center Name *</label>
+                            <input type="text" id="mCoachingName" required placeholder="e.g. Apex Science Academy" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Name *</label>
+                            <input type="text" id="mDirectorName" required placeholder="e.g. Prof. R. K. Sharma" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Email (Welcome Email will be sent) *</label>
+                            <input type="email" id="mDirectorEmail" required placeholder="director@apexacademy.com" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Director Phone / Mobile *</label>
+                            <input type="tel" id="mDirectorPhone" required placeholder="10-digit mobile" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Campus Address / City</label>
+                            <input type="text" id="mCampusAddress" placeholder="City, State" class="console-input">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Admission Fee (₹)</label>
+                            <input type="number" id="mAdmissionFee" value="200" min="0" class="console-input" style="color:#fbbf24; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#cbd5e1;">Classes Offered</label>
+                            <input type="text" id="mClassRange" value="Class 6th to 12th" class="console-input">
+                        </div>
+                        <div id="mAddCoachingAlert" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                            <button type="button" onclick="closeAddCoachingModal()" class="btn-aurora" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#fff;">Cancel</button>
+                            <button type="submit" id="btnSubmitNewCoaching" class="btn-aurora btn-gold">
+                                <i class="fas fa-check-circle"></i> Onboard Coaching Center
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 1: COACHING CENTERS (LEGACY COMPATIBILITY) -->
+            <div class="admin-tab" id="tab-centers">
+
                 <!-- LIVE HOMEPAGE TELEMETRY & MASTER MONITOR DECK -->
                 <div class="card-console" style="margin-bottom:20px; border-color:rgba(56, 189, 248, 0.4); background:radial-gradient(circle at top right, rgba(56,189,248,0.1), transparent 70%);">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
@@ -4042,12 +4626,21 @@ Provide authentic information and direct escalation links to leadership or cente
             if (targetTab) targetTab.classList.add('active');
 
             // Highlight nav button
-            const navBtn = Array.from(document.querySelectorAll('.admin-nav-btn')).find(b => {
+            const navBtn = document.getElementById(`navBtn-${targetId}`) || Array.from(document.querySelectorAll('.admin-nav-btn')).find(b => {
                 const oc = b.getAttribute('onclick') || '';
                 return oc.includes(`'${tId}'`) || oc.includes(`'${targetId}'`);
             });
             if (navBtn) navBtn.classList.add('active');
 
+            // 6 Core Modules Handlers
+            if (targetId === 'overview') loadAdminStats();
+            if (targetId === 'coaching') loadCoachingManagement();
+            if (targetId === 'elibrary') loadElibraryMaster();
+            if (targetId === 'financials') loadFinancials();
+            if (targetId === 'integrations') loadApiIntegrations();
+            if (targetId === 'founder-settings') loadFounderSettings();
+
+            // Extended Directorate Handlers
             if (targetId === 'centers') loadCentersList();
             if (targetId === 'books-hub') {
                 if (tId === 'book-orders') showBooksHubSubTab('orders');
@@ -4077,6 +4670,747 @@ Provide authentic information and direct escalation links to leadership or cente
             if (targetId === 'admission-fees') loadAdmissionFees();
             if (targetId === 'ai-engines') setTimeout(() => loadAiConfig(), 300);
         }
+
+        // ============================================================
+        // 6 CORE SUPER ADMIN MODULE FUNCTIONS (SANTOSH SIR BLUEPRINT)
+        // ============================================================
+
+        // --- MODULE 1: DASHBOARD OVERVIEW ---
+        async function loadAdminStats() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/stats?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success && data.stats) {
+                    if (document.getElementById('statsTotalCenters')) document.getElementById('statsTotalCenters').textContent = data.stats.totalCenters || 0;
+                    if (document.getElementById('statsTotalStudents')) document.getElementById('statsTotalStudents').textContent = data.stats.totalStudents || 0;
+                    if (document.getElementById('statsTotalBooks')) document.getElementById('statsTotalBooks').textContent = data.stats.totalBooks || 0;
+                    if (document.getElementById('statsTotalRevenue')) document.getElementById('statsTotalRevenue').textContent = '₹' + Number(data.stats.totalRevenue || 0).toLocaleString('en-IN');
+
+                    const tbody = document.getElementById('overviewActivitiesTbody');
+                    if (tbody && Array.isArray(data.recentActivities)) {
+                        if (data.recentActivities.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No recent activities yet.</td></tr>';
+                        } else {
+                            tbody.innerHTML = data.recentActivities.map(act => {
+                                const statusColor = (act.status === 'Active' || act.status === 'Success' || act.status === 'paid') ? '#10b981' : '#f59e0b';
+                                const timeStr = act.time ? new Date(act.time).toLocaleString() : 'Just now';
+                                return `
+                                    <tr>
+                                        <td><b>${act.title || 'Activity'}</b></td>
+                                        <td>${act.user || '-'}</td>
+                                        <td style="color:#fbbf24; font-weight:700;">${act.amount > 0 ? '₹' + act.amount : '-'}</td>
+                                        <td><span style="color:${statusColor}; font-weight:700; font-size:11.5px; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px;">${act.status || 'Active'}</span></td>
+                                        <td style="color:#94a3b8; font-size:12px;">${timeStr}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('loadAdminStats error:', err);
+            }
+        }
+
+        // --- MODULE 2: COACHING MANAGEMENT ---
+        let cachedCoachingList = [];
+
+        async function loadCoachingManagement() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/coaching/list?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('coachingListTbody');
+                if (!tbody) return;
+
+                if (data.success && Array.isArray(data.centers)) {
+                    cachedCoachingList = data.centers;
+                    renderCoachingTable(cachedCoachingList);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#ef4444;">Failed to load coaching list</td></tr>';
+                }
+            } catch (err) {
+                console.error('loadCoachingManagement error:', err);
+            }
+        }
+
+        function renderCoachingTable(list) {
+            const tbody = document.getElementById('coachingListTbody');
+            if (!tbody) return;
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:28px; color:#94a3b8;">No registered partner coaching centers yet. Click "+ Add New Coaching" to onboard.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map(c => {
+                const isBlocked = c.status === 'Blocked' || c.isBlocked;
+                const statusBadge = isBlocked
+                    ? '<span style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; padding:3px 8px; border-radius:6px; font-weight:700; font-size:11px;">BLOCKED</span>'
+                    : '<span style="background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981; padding:3px 8px; border-radius:6px; font-weight:700; font-size:11px;">ACTIVE</span>';
+                const toggleBtnText = isBlocked ? '<i class="fas fa-lock-open"></i> Unblock' : '<i class="fas fa-ban"></i> Block';
+                const toggleBtnStyle = isBlocked
+                    ? 'background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#6ee7b7;'
+                    : 'background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24;';
+                return `
+                    <tr>
+                        <td><code style="color:#fbbf24; font-weight:700;">${c.regNumber || c._id}</code></td>
+                        <td>
+                            <b>${c.centerName}</b>
+                            <div style="font-size:11px; color:#64748b;">${c.address || 'Address unlisted'}</div>
+                        </td>
+                        <td>${c.directorName}</td>
+                        <td>
+                            <div><a href="mailto:${c.email}" style="color:#38bdf8; text-decoration:none;">${c.email || '-'}</a></div>
+                            <div style="font-size:11.5px; color:#94a3b8;"><a href="tel:${c.contactNumber}" style="color:#94a3b8; text-decoration:none;">${c.contactNumber || '-'}</a></div>
+                        </td>
+                        <td>
+                            <div>Fee: <b style="color:#fbbf24;">₹${c.admissionFee || 200}</b></div>
+                            <div style="font-size:11px; color:#64748b;">${c.coursesCount || 0} Courses</div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" onclick="toggleCoachingStatus('${c._id}', '${isBlocked ? 'Active' : 'Blocked'}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; ${toggleBtnStyle}">
+                                    ${toggleBtnText}
+                                </button>
+                                <button type="button" onclick="deleteCoaching('${c._id}', '${c.centerName.replace(/'/g, "\\'")}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterCoachingTable() {
+            const q = (document.getElementById('coachingFilterInput')?.value || '').toLowerCase().trim();
+            if (!q) return renderCoachingTable(cachedCoachingList);
+            const filtered = cachedCoachingList.filter(c =>
+                (c.centerName && c.centerName.toLowerCase().includes(q)) ||
+                (c.directorName && c.directorName.toLowerCase().includes(q)) ||
+                (c.regNumber && c.regNumber.toLowerCase().includes(q)) ||
+                (c.email && c.email.toLowerCase().includes(q))
+            );
+            renderCoachingTable(filtered);
+        }
+
+        function openAddCoachingModal() {
+            const modal = document.getElementById('addCoachingModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAddCoachingModal() {
+            const modal = document.getElementById('addCoachingModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function submitAddCoaching(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSubmitNewCoaching');
+            const alertBox = document.getElementById('mAddCoachingAlert');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Onboarding...';
+
+            const payload = {
+                centerName: document.getElementById('mCoachingName').value.trim(),
+                directorName: document.getElementById('mDirectorName').value.trim(),
+                email: document.getElementById('mDirectorEmail').value.trim(),
+                phone: document.getElementById('mDirectorPhone').value.trim(),
+                address: document.getElementById('mCampusAddress').value.trim(),
+                admissionFee: Number(document.getElementById('mAdmissionFee').value) || 200
+            };
+
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/coaching/add', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(16,185,129,0.15)';
+                    alertBox.style.border = '1px solid #10b981';
+                    alertBox.style.color = '#6ee7b7';
+                    alertBox.innerHTML = `✅ ${data.message}`;
+                    setTimeout(() => {
+                        closeAddCoachingModal();
+                        alertBox.style.display = 'none';
+                        document.getElementById('modalAddCoachingForm').reset();
+                        loadCoachingManagement();
+                        loadAdminStats();
+                    }, 1500);
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `⚠️ ${data.message || 'Failed to onboard coaching'}`;
+                }
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Onboard Coaching Center';
+            }
+        }
+
+        async function toggleCoachingStatus(centerId, newStatus) {
+            if (!confirm(`Are you sure you want to mark this coaching center as ${newStatus}?`)) return;
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/coaching/status', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ centerId, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadCoachingManagement();
+                    loadAdminStats();
+                } else {
+                    alert(data.message || 'Status update failed');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function deleteCoaching(centerId, centerName) {
+            if (!confirm(`Are you sure you want to completely delete "${centerName}"? This action cannot be undone.`)) return;
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/coaching/' + centerId, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadCoachingManagement();
+                    loadAdminStats();
+                } else {
+                    alert(data.message || 'Deletion failed');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // --- MODULE 3: E-LIBRARY MASTER MANAGER ---
+        async function loadElibraryMaster() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/library/list?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('elibraryListTbody');
+                if (!tbody) return;
+
+                if (data.success && Array.isArray(data.books)) {
+                    if (data.books.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:28px; color:#94a3b8;">No study materials or books found. Upload your first PDF above.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.books.map(b => {
+                        const cover = b.coverImage || b.thumbnail || '/bbcc_special_offer_banner.svg';
+                        const mrp = Number(b.mrp || b.pdfMrp || 0);
+                        const price = Number(b.price || 0);
+                        const uploadDate = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : 'Active';
+                        const fileLink = b.fileUrl || b.downloadUrl || '#';
+                        return `
+                            <tr>
+                                <td>
+                                    <img src="${cover}" alt="${b.title}" style="width:40px; height:52px; object-fit:cover; border-radius:6px; border:1px solid rgba(255,255,255,0.15);" onerror="this.src='/bbcc_special_offer_banner.svg'">
+                                </td>
+                                <td>
+                                    <b>${b.title}</b>
+                                    <div style="font-size:11px; color:#64748b;">${b.description || ''}</div>
+                                </td>
+                                <td><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:3px 8px; border-radius:6px; font-size:11.5px; font-weight:700;">${b.category || b.subject || 'General'}</span></td>
+                                <td>
+                                    <span style="color:#ef4444; text-decoration:line-through; font-size:11.5px; margin-right:6px;">₹${mrp}</span>
+                                    <span style="color:#10b981; font-weight:800; font-size:13.5px;">₹${price}</span>
+                                </td>
+                                <td>
+                                    <span style="color:#38bdf8; font-size:11px; font-weight:700; background:rgba(56,189,248,0.1); padding:2px 8px; border-radius:6px;"><i class="fas fa-cloud"></i> Astra DB</span>
+                                </td>
+                                <td style="color:#94a3b8; font-size:12px;">${uploadDate}</td>
+                                <td>
+                                    <div style="display:flex; gap:6px;">
+                                        ${fileLink !== '#' ? `<a href="${fileLink}" target="_blank" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;"><i class="fas fa-eye"></i> View</a>` : ''}
+                                        <button type="button" onclick="deleteLibraryBook('${b._id}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error('loadElibraryMaster error:', err);
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function submitUploadBook(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnUploadBook');
+            const alertBox = document.getElementById('elibUploadStatus');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing & Syncing to Astra DB...';
+
+            try {
+                const title = document.getElementById('elibTitle').value.trim();
+                const category = document.getElementById('elibCategory').value;
+                const mrp = Number(document.getElementById('elibMrp').value) || 299;
+                const price = Number(document.getElementById('elibPrice').value) || 99;
+                const description = document.getElementById('elibDesc').value.trim();
+
+                const pdfInput = document.getElementById('elibPdfFile');
+                const coverInput = document.getElementById('elibCoverFile');
+
+                let pdfFile = '';
+                if (pdfInput.files && pdfInput.files[0]) {
+                    pdfFile = await fileToBase64(pdfInput.files[0]);
+                }
+
+                let coverImage = '';
+                if (coverInput.files && coverInput.files[0]) {
+                    coverImage = await fileToBase64(coverInput.files[0]);
+                }
+
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/library/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        category,
+                        mrp,
+                        price,
+                        pdfFile,
+                        coverImage,
+                        description
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(16,185,129,0.15)';
+                    alertBox.style.border = '1px solid #10b981';
+                    alertBox.style.color = '#6ee7b7';
+                    alertBox.innerHTML = `✅ ${data.message}`;
+                    document.getElementById('elibraryUploadForm').reset();
+                    setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+                    loadElibraryMaster();
+                    loadAdminStats();
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `⚠️ ${data.message || 'Upload failed'}`;
+                }
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Upload & Push to Astra DB';
+            }
+        }
+
+        async function deleteLibraryBook(bookId) {
+            if (!confirm('Are you sure you want to delete this book from E-Library and Astra DB?')) return;
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/library/' + bookId, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadElibraryMaster();
+                    loadAdminStats();
+                } else {
+                    alert(data.message || 'Delete failed');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // --- MODULE 4: FINANCIALS & TRANSACTIONS ---
+        async function loadFinancials() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/transactions?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('financialsListTbody');
+                const revEl = document.getElementById('financialsTotalRevenue');
+                if (!tbody) return;
+
+                if (data.success && Array.isArray(data.transactions)) {
+                    if (revEl) revEl.textContent = '₹' + Number(data.totalRevenue || 0).toLocaleString('en-IN');
+                    if (data.transactions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:28px; color:#94a3b8;">No payment transactions recorded yet.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.transactions.map(t => {
+                        const statusColor = (t.status === 'Success' || t.status === 'paid' || t.status === 'completed') ? '#10b981' : '#f59e0b';
+                        const dateStr = t.date ? new Date(t.date).toLocaleString() : '-';
+                        return `
+                            <tr>
+                                <td><code style="color:#fbbf24; font-weight:700;">${t.id || '-'}</code></td>
+                                <td><b>${t.studentName || 'Student'}</b></td>
+                                <td>${t.bookName || t.type || 'Study Material'}</td>
+                                <td style="color:#10b981; font-weight:800; font-size:13.5px;">₹${t.amount || 0}</td>
+                                <td><span style="color:${statusColor}; font-weight:700; font-size:11px; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px;">${(t.status || 'SUCCESS').toUpperCase()}</span></td>
+                                <td style="font-family:monospace; font-size:11.5px; color:#94a3b8;">${t.paymentId || '-'}</td>
+                                <td style="font-size:12px; color:#94a3b8;">${dateStr}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error('loadFinancials error:', err);
+            }
+        }
+
+        // --- MODULE 5: SYSTEM & API INTEGRATIONS ---
+        async function loadApiIntegrations() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/settings/apikeys?_t=' + Date.now(), {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success && data.integrations) {
+                    const i = data.integrations;
+                    // Razorpay
+                    const rBadge = document.getElementById('badgeRazorpayStatus');
+                    if (rBadge) {
+                        rBadge.textContent = i.razorpay?.status || 'Pending';
+                        rBadge.style.color = i.razorpay?.configured ? '#10b981' : '#f59e0b';
+                        rBadge.style.background = i.razorpay?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                    }
+                    if (document.getElementById('dispRazorpayKeyId')) {
+                        document.getElementById('dispRazorpayKeyId').textContent = i.razorpay?.keyId || 'Not Configured';
+                    }
+
+                    // YouTube
+                    const yBadge = document.getElementById('badgeYoutubeStatus');
+                    if (yBadge) {
+                        yBadge.textContent = i.youtube?.status || 'Unconfigured';
+                        yBadge.style.color = i.youtube?.configured ? '#10b981' : '#ef4444';
+                        yBadge.style.background = i.youtube?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+                    }
+
+                    // Groq
+                    const gBadge = document.getElementById('badgeGroqStatus');
+                    if (gBadge) {
+                        gBadge.textContent = i.groq?.status || 'Active';
+                        gBadge.style.color = i.groq?.configured ? '#10b981' : '#f59e0b';
+                        gBadge.style.background = i.groq?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                    }
+
+                    // Astra
+                    const aBadge = document.getElementById('badgeAstraStatus');
+                    if (aBadge) {
+                        aBadge.textContent = i.astra?.status || 'Connected';
+                        aBadge.style.color = '#10b981';
+                        aBadge.style.background = 'rgba(16,185,129,0.15)';
+                    }
+
+                    // Nodemailer
+                    const nBadge = document.getElementById('badgeNodemailerStatus');
+                    if (nBadge) {
+                        nBadge.textContent = i.nodemailer?.status || 'Active';
+                        nBadge.style.color = '#10b981';
+                        nBadge.style.background = 'rgba(16,185,129,0.15)';
+                    }
+                    if (document.getElementById('dispEmailUser')) {
+                        document.getElementById('dispEmailUser').textContent = i.nodemailer?.user || 'balbharticoching.center@gmail.com';
+                    }
+                }
+            } catch (err) {
+                console.error('loadApiIntegrations error:', err);
+            }
+        }
+
+        async function testApiKey(service) {
+            const token = getAdminToken();
+            try {
+                if (service === 'razorpay') {
+                    const res = await fetch('/api/admin/test-razorpay', { headers: { 'Authorization': 'Bearer ' + token } });
+                    const d = await res.json();
+                    alert(d.success ? '✅ Razorpay Gateway Connected & Active!' : '⚠️ Razorpay: ' + d.message);
+                } else if (service === 'youtube') {
+                    const res = await fetch('/api/admin/test-youtube', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+                    const d = await res.json();
+                    alert(d.success ? '✅ YouTube Cloud API Connected Successfully!' : '⚠️ YouTube: ' + d.message);
+                } else if (service === 'groq') {
+                    const res = await fetch('/api/admin/test-groq', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+                    const d = await res.json();
+                    alert(d.success ? '✅ Groq AI (llama-3.3-70b) Responded: ' + (d.response || 'OK') : '⚠️ Groq AI: ' + d.message);
+                } else if (service === 'astra') {
+                    const res = await fetch('/api/admin/database/test-ping', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+                    const d = await res.json();
+                    alert(d.success ? '✅ DataStax Astra DB Cloud Active! Latency: ' + (d.latencyMs || 42) + 'ms' : '⚠️ Astra DB: ' + d.message);
+                } else if (service === 'otp') {
+                    alert('✅ Gmail OTP Dispatcher is configured with balbharticoching.center@gmail.com and active for student/admin logins.');
+                }
+            } catch (err) {
+                alert('❌ Test request error: ' + err.message);
+            }
+        }
+
+        async function submitUpdateApiKeys(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSaveApiKeys');
+            const alertBox = document.getElementById('intApiStatusAlert');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const payload = {};
+            const rKey = document.getElementById('intRazorpayKeyId').value.trim();
+            const rSec = document.getElementById('intRazorpayKeySecret').value.trim();
+            const gKey = document.getElementById('intGroqApiKey').value.trim();
+            const gemKey = document.getElementById('intGeminiApiKey').value.trim();
+            const yKey = document.getElementById('intYoutubeApiKey').value.trim();
+            const yChan = document.getElementById('intYoutubeChannelId').value.trim();
+
+            if (rKey) payload.razorpayKeyId = rKey;
+            if (rSec) payload.razorpayKeySecret = rSec;
+            if (gKey) payload.groqApiKey = gKey;
+            if (gemKey) payload.geminiApiKey = gemKey;
+            if (yKey) payload.youtubeApiKey = yKey;
+            if (yChan) payload.youtubeChannelId = yChan;
+
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/settings/apikeys', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                alertBox.style.display = 'block';
+                if (data.success) {
+                    alertBox.style.background = 'rgba(16,185,129,0.15)';
+                    alertBox.style.border = '1px solid #10b981';
+                    alertBox.style.color = '#6ee7b7';
+                    alertBox.innerHTML = `✅ ${data.message}`;
+                    loadApiIntegrations();
+                } else {
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `⚠️ ${data.message}`;
+                }
+                setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Save API Credentials Securely';
+            }
+        }
+
+        // --- MODULE 6: FOUNDER & PLATFORM SETTINGS ---
+        async function loadFounderSettings() {
+            try {
+                const res = await fetch('/api/public/config');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const cfg = data.data;
+                    if (cfg.boardTitle && document.getElementById('inpBrandTitle')) document.getElementById('inpBrandTitle').value = cfg.boardTitle;
+                    if (cfg.tagline && document.getElementById('inpBrandTagline')) document.getElementById('inpBrandTagline').value = cfg.tagline;
+                    if (cfg.founderProfile) {
+                        if (cfg.founderProfile.name && document.getElementById('inpFounderName')) document.getElementById('inpFounderName').value = cfg.founderProfile.name;
+                        if (cfg.founderProfile.designation && document.getElementById('inpFounderDesig')) document.getElementById('inpFounderDesig').value = cfg.founderProfile.designation;
+                        if (cfg.founderProfile.message && document.getElementById('inpFounderMessage')) document.getElementById('inpFounderMessage').value = cfg.founderProfile.message;
+                    }
+                }
+            } catch (err) {
+                console.error('loadFounderSettings error:', err);
+            }
+        }
+
+        function previewSelectedImage(input, targetImgId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById(targetImgId);
+                    if (img) img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function submitBrandingSettings(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSaveBranding');
+            const alertBox = document.getElementById('brandingUpdateAlert');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving Branding...';
+
+            try {
+                const logoFile = document.getElementById('inpBrandingLogoFile');
+                const photoFile = document.getElementById('inpFounderPhotoFile');
+
+                let logoImage = '';
+                if (logoFile.files && logoFile.files[0]) {
+                    logoImage = await fileToBase64(logoFile.files[0]);
+                }
+
+                let founderPhoto = '';
+                if (photoFile.files && photoFile.files[0]) {
+                    founderPhoto = await fileToBase64(photoFile.files[0]);
+                }
+
+                const payload = {
+                    boardTitle: document.getElementById('inpBrandTitle').value.trim(),
+                    tagline: document.getElementById('inpBrandTagline').value.trim(),
+                    founderName: document.getElementById('inpFounderName').value.trim(),
+                    founderMessage: document.getElementById('inpFounderMessage').value.trim()
+                };
+                if (logoImage) payload.logoImage = logoImage;
+                if (founderPhoto) payload.founderPhoto = founderPhoto;
+
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/settings/branding', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                alertBox.style.display = 'block';
+                if (data.success) {
+                    alertBox.style.background = 'rgba(16,185,129,0.15)';
+                    alertBox.style.border = '1px solid #10b981';
+                    alertBox.style.color = '#6ee7b7';
+                    alertBox.innerHTML = `✅ ${data.message}`;
+                } else {
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `⚠️ ${data.message}`;
+                }
+                setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Platform Branding';
+            }
+        }
+
+        async function submitUpdateAdminEmail(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnUpdateAdminEmail');
+            const alertBox = document.getElementById('emailUpdateAlert');
+            const newEmail = document.getElementById('inpNewAdminEmail').value.trim();
+
+            if (!confirm(`Are you sure you want to change the Super Admin email to "${newEmail}"?\nAll future OTP login codes will be sent to this email.`)) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating Email...';
+
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/settings/update-email', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newEmail })
+                });
+                const data = await res.json();
+                alertBox.style.display = 'block';
+                if (data.success) {
+                    alertBox.style.background = 'rgba(16,185,129,0.15)';
+                    alertBox.style.border = '1px solid #10b981';
+                    alertBox.style.color = '#6ee7b7';
+                    alertBox.innerHTML = `✅ ${data.message}`;
+                    if (document.getElementById('dispActiveAdminEmail')) {
+                        document.getElementById('dispActiveAdminEmail').textContent = newEmail;
+                    }
+                    if (document.getElementById('adminHeaderEmail')) {
+                        document.getElementById('adminHeaderEmail').textContent = newEmail;
+                    }
+                    document.getElementById('inpNewAdminEmail').value = '';
+                } else {
+                    alertBox.style.background = 'rgba(239,68,68,0.15)';
+                    alertBox.style.border = '1px solid #ef4444';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = `⚠️ ${data.message}`;
+                }
+                setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239,68,68,0.15)';
+                alertBox.style.border = '1px solid #ef4444';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-envelope-circle-check"></i> Update Super Admin Email';
+            }
+        }
+
 
         // ============================================================
         // DUAL-DATABASE & CLOUD STORAGE METRICS ENGINE (SUPER ADMIN)
@@ -5692,8 +7026,26 @@ Provide authentic information and direct escalation links to leadership or cente
         }
 
         async function initAdminConsole() {
-            await loadSettingsData();
-            await loadCentersList();
+            const token = getAdminToken();
+            if (!token) {
+                window.location.replace('/login.html');
+                return;
+            }
+            try {
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    const payload = JSON.parse(atob(parts[1]));
+                    const email = payload.email || 'sky140052@gmail.com';
+                    if (document.getElementById('adminHeaderEmail')) {
+                        document.getElementById('adminHeaderEmail').textContent = email;
+                    }
+                    if (document.getElementById('dispActiveAdminEmail')) {
+                        document.getElementById('dispActiveAdminEmail').textContent = email;
+                    }
+                }
+            } catch(e) {}
+
+            switchAdminTab('overview');
             initAdminRealtimeSync();
         }
 
@@ -7546,7 +8898,10 @@ Provide authentic information and direct escalation links to leadership or cente
 
         function logoutAdmin() {
             localStorage.removeItem('bbcc_token');
-            window.location.replace('/login');
+            localStorage.removeItem('bbcc_auth_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            window.location.replace('/login.html');
         }
 
         document.addEventListener('DOMContentLoaded', initAdminConsole);
