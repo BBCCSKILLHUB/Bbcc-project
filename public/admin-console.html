@@ -249,6 +249,9 @@
             <button class="admin-nav-btn" id="navBtn-students" onclick="switchAdminTab('students')">
                 <i class="fas fa-user-graduate" style="color:#10b981;"></i> 7. Master Student List
             </button>
+            <button class="admin-nav-btn" id="navBtn-plans" onclick="switchAdminTab('plans')">
+                <i class="fas fa-gem" style="color:#c084fc;"></i> 8. Membership Plan Setup
+            </button>
 
             <!-- Category Title: DIRECTORATE TOOLS & STUDIO -->
             <div style="margin-top:16px; padding:6px 12px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
@@ -1420,6 +1423,159 @@
                                 <tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Loading student records...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- TAB 8: MEMBERSHIP PLAN SETUP & MONETIZATION CONTROLLER       -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-plans">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(192,132,252,0.4); background:linear-gradient(135deg, rgba(192,132,252,0.1), rgba(15,23,42,0.95));">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:24px; color:#c084fc;"><i class="fas fa-crown"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Membership Plan Setup &amp; Monetization Controller</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Configure coaching subscription tiers, prices (₹), validity durations, and assign permissions across the 10 Mega Modules.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="loadAdminPlans()" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Plans
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Row -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-top:20px;">
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Total Plans</div>
+                            <div id="statTotalPlans" style="font-size:24px; font-weight:900; color:#c084fc; margin-top:4px;">5</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Trial Centers (7-Day)</div>
+                            <div id="statTrialCenters" style="font-size:24px; font-weight:900; color:#10b981; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Paid Subscribed</div>
+                            <div id="statPaidCenters" style="font-size:24px; font-weight:900; color:#38bdf8; margin-top:4px;">0</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; text-align:center;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700;">Paywall Locked</div>
+                            <div id="statLockedCenters" style="font-size:24px; font-weight:900; color:#ef4444; margin-top:4px;">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Form & Live Cards Split -->
+                <div style="display:grid; grid-template-columns: 400px 1fr; gap:20px;">
+                    <!-- Plan Editor Form -->
+                    <div class="card-console" style="border-color:rgba(192,132,252,0.3);">
+                        <h3 style="font-family:'Cinzel',serif; font-size:16px; margin-bottom:14px; color:#c084fc;" id="planFormTitle">
+                            <i class="fas fa-plus-circle"></i> Create / Edit Plan
+                        </h3>
+                        <form id="adminPlanForm" onsubmit="saveAdminPlan(event)">
+                            <input type="hidden" id="planFormId" value="">
+                            
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Plan Name *</label>
+                                <input type="text" id="planFormName" required placeholder="e.g. Pro Plan, Premium Plan" class="console-input" style="margin:0;">
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Price (₹) *</label>
+                                    <input type="number" id="planFormPrice" required min="0" placeholder="1999" class="console-input" style="margin:0;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Duration (Days) *</label>
+                                    <input type="number" id="planFormDuration" required min="1" placeholder="90" class="console-input" style="margin:0;">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Badge Tag</label>
+                                <input type="text" id="planFormBadge" placeholder="e.g. Most Popular, Best Value" class="console-input" style="margin:0;">
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Description</label>
+                                <textarea id="planFormDesc" rows="2" placeholder="Brief overview of who this plan is best suited for" class="console-input" style="margin:0; resize:none;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-size:12px; font-weight:800; color:#fbbf24; margin-bottom:8px;">
+                                    <i class="fas fa-list-check"></i> Assign Module Access (10 Mega Modules):
+                                </label>
+                                <div style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;">
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_executive_analytics" value="executive_analytics" checked>
+                                        <span>1. Executive Analytics &amp; Insights</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_storefront_profile" value="storefront_profile" checked>
+                                        <span>2. Branded Storefront &amp; Profile</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_course_batch" value="course_batch" checked>
+                                        <span>3. Advanced Course &amp; Batch Engine</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_student_crm" value="student_crm" checked>
+                                        <span>4. Smart Student CRM (ID Cards &amp; Dues)</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_faculty_hr" value="faculty_hr" checked>
+                                        <span>5. HR &amp; Faculty Management</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_elibrary_assets" value="elibrary_assets" checked>
+                                        <span>6. Digital Asset &amp; Notes Hub (Astra DB)</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_marketing_leads" value="marketing_leads" checked>
+                                        <span>7. Marketing, Leads &amp; Promo Codes</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_financial_ledger" value="financial_ledger" checked>
+                                        <span>8. Financial Ledger, Wallet &amp; Payouts</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_support_desk" value="support_desk" checked>
+                                        <span>9. Support &amp; Helpdesk (Direct Tickets)</span>
+                                    </label>
+                                    <label style="font-size:12.5px; color:#f1f5f9; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                        <input type="checkbox" id="feat_settings_upgrade" value="settings_upgrade" checked>
+                                        <span>10. Settings &amp; Upgrades</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; gap:10px;">
+                                <button type="submit" class="btn-aurora btn-gold" style="flex:1; justify-content:center;">
+                                    <i class="fas fa-floppy-disk"></i> Save Plan
+                                </button>
+                                <button type="button" onclick="resetAdminPlanForm()" class="btn-aurora" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15);">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Active Plans Cards Grid -->
+                    <div class="card-console">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="font-family:'Cinzel',serif; font-size:16px; margin:0; color:#f8fafc;">
+                                Active Membership Tiers
+                            </h3>
+                            <span style="font-size:12px; color:#94a3b8;">Syncs with Coaching Paywall</span>
+                        </div>
+                        <div id="adminPlansContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;">
+                            <!-- Injected dynamically via loadAdminPlans() -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4756,7 +4912,212 @@ Provide authentic information and direct escalation links to leadership or cente
             if (targetId === 'notifications') loadPushNotificationStatus();
             if (targetId === 'central-live') initAdminCentralLive();
             if (targetId === 'admission-fees') loadAdmissionFees();
+            if (targetId === 'plans') loadAdminPlans();
             if (targetId === 'ai-engines') setTimeout(() => loadAiConfig(), 300);
+        }
+
+        // ============================================================
+        // MODULE 8: MEMBERSHIP PLAN SETUP & MONETIZATION
+        // ============================================================
+        let globalAdminPlans = [];
+
+        const MEGA_MODULE_LABELS = {
+            executive_analytics: 'Executive Analytics & Insights',
+            storefront_profile: 'Branded Storefront & Profile',
+            course_batch: 'Course & Batch Engine',
+            student_crm: 'Smart Student CRM (ID Cards)',
+            faculty_hr: 'HR & Faculty Management',
+            elibrary_assets: 'Digital Asset & Notes (Astra DB)',
+            marketing_leads: 'Marketing, Leads & Promo Codes',
+            financial_ledger: 'Financial Ledger & Wallet',
+            support_desk: 'Support & Helpdesk Tickets',
+            settings_upgrade: 'Settings & Upgrades'
+        };
+
+        async function loadAdminPlans() {
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('bbcc_auth_token');
+            try {
+                const res = await fetch('/api/admin/plans', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    globalAdminPlans = data.plans || [];
+                    renderAdminPlans(globalAdminPlans);
+                    const stPlans = document.getElementById('statTotalPlans');
+                    if (stPlans) stPlans.textContent = globalAdminPlans.length;
+                }
+
+                // Also fetch centers to compute telemetry
+                const cRes = await fetch('/api/public/centers');
+                const cData = await cRes.json();
+                if (cData.data) {
+                    const centers = cData.data;
+                    const now = Date.now();
+                    let trials = 0, paid = 0, locked = 0;
+                    centers.forEach(c => {
+                        const tEnd = c.trialEndsAt ? new Date(c.trialEndsAt).getTime() : 0;
+                        const pEnd = c.planExpiresAt ? new Date(c.planExpiresAt).getTime() : 0;
+                        if (c._id === 'ctr_bbcc_hq_001') {
+                            paid++;
+                        } else if (c.isTrialActive !== false && tEnd > 0 && now <= tEnd) {
+                            trials++;
+                        } else if (pEnd > 0 && now <= pEnd) {
+                            paid++;
+                        } else {
+                            locked++;
+                        }
+                    });
+                    const stTr = document.getElementById('statTrialCenters');
+                    const stPd = document.getElementById('statPaidCenters');
+                    const stLk = document.getElementById('statLockedCenters');
+                    if (stTr) stTr.textContent = trials;
+                    if (stPd) stPd.textContent = paid;
+                    if (stLk) stLk.textContent = locked;
+                }
+            } catch (err) {
+                console.error('Error loading admin plans:', err);
+            }
+        }
+
+        function renderAdminPlans(plans) {
+            const container = document.getElementById('adminPlansContainer');
+            if (!container) return;
+            if (!plans || plans.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">No membership plans configured. Use the form on the left to add one.</div>';
+                return;
+            }
+
+            container.innerHTML = plans.map(p => {
+                const feats = p.features || [];
+                const featureList = Object.keys(MEGA_MODULE_LABELS).map(key => {
+                    const has = feats.includes(key);
+                    return `
+                        <div style="font-size:12px; display:flex; align-items:center; gap:6px; color:${has ? '#10b981' : '#64748b'}; opacity:${has ? 1 : 0.6};">
+                            <i class="fas ${has ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                            <span>${MEGA_MODULE_LABELS[key]}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid ${p.active !== false ? 'rgba(192,132,252,0.3)' : 'rgba(239,68,68,0.3)'}; border-radius:12px; padding:18px; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+                        ${p.badge ? `<span style="position:absolute; top:12px; right:12px; background:rgba(192,132,252,0.2); border:1px solid #c084fc; color:#e9d5ff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">${p.badge}</span>` : ''}
+                        
+                        <div>
+                            <h4 style="font-size:17px; font-weight:800; color:#f8fafc; margin-bottom:4px;">${p.name}</h4>
+                            <div style="font-size:24px; font-weight:900; color:#38bdf8; margin:8px 0 4px;">
+                                ₹${p.price} <span style="font-size:12px; color:#94a3b8; font-weight:600;">/ ${p.durationDays} Days</span>
+                            </div>
+                            <p style="font-size:12px; color:#94a3b8; margin-bottom:14px; min-height:32px;">${p.description || 'Full dashboard access suite'}</p>
+                            
+                            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; margin-bottom:16px;">
+                                <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#fbbf24; margin-bottom:8px;">Included Modules (${feats.length}/10):</div>
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    ${featureList}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+                            <button type="button" onclick="editAdminPlan('${p.id}')" class="btn-aurora" style="flex:1; justify-content:center; font-size:12px; padding:7px;">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button type="button" onclick="deleteAdminPlan('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#fca5a5; font-size:12px; padding:7px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editAdminPlan(id) {
+            const plan = globalAdminPlans.find(p => p.id === id);
+            if (!plan) return;
+
+            document.getElementById('planFormTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Plan: ' + plan.name;
+            document.getElementById('planFormId').value = plan.id;
+            document.getElementById('planFormName').value = plan.name;
+            document.getElementById('planFormPrice').value = plan.price;
+            document.getElementById('planFormDuration').value = plan.durationDays;
+            document.getElementById('planFormBadge').value = plan.badge || '';
+            document.getElementById('planFormDesc').value = plan.description || '';
+
+            const feats = plan.features || [];
+            Object.keys(MEGA_MODULE_LABELS).forEach(k => {
+                const el = document.getElementById('feat_' + k);
+                if (el) el.checked = feats.includes(k);
+            });
+            document.getElementById('adminPlanForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetAdminPlanForm() {
+            document.getElementById('planFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Create / Edit Plan';
+            document.getElementById('adminPlanForm').reset();
+            document.getElementById('planFormId').value = '';
+            Object.keys(MEGA_MODULE_LABELS).forEach(k => {
+                const el = document.getElementById('feat_' + k);
+                if (el) el.checked = true;
+            });
+        }
+
+        async function saveAdminPlan(e) {
+            e.preventDefault();
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('bbcc_auth_token');
+            const id = document.getElementById('planFormId').value;
+            const name = document.getElementById('planFormName').value.trim();
+            const price = Number(document.getElementById('planFormPrice').value);
+            const durationDays = Number(document.getElementById('planFormDuration').value);
+            const badge = document.getElementById('planFormBadge').value.trim();
+            const description = document.getElementById('planFormDesc').value.trim();
+
+            const features = [];
+            Object.keys(MEGA_MODULE_LABELS).forEach(k => {
+                const el = document.getElementById('feat_' + k);
+                if (el && el.checked) features.push(k);
+            });
+
+            try {
+                const res = await fetch('/api/admin/plans', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ id, name, price, durationDays, badge, description, features, active: true })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Plan saved successfully!');
+                    resetAdminPlanForm();
+                    loadAdminPlans();
+                } else {
+                    alert('Error saving plan: ' + data.message);
+                }
+            } catch (err) {
+                alert('Request failed: ' + err.message);
+            }
+        }
+
+        async function deleteAdminPlan(id, name) {
+            if (!confirm(`Are you sure you want to remove "${name}"?`)) return;
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('bbcc_auth_token');
+            try {
+                const res = await fetch('/api/admin/plans/' + encodeURIComponent(id), {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Plan removed successfully');
+                    loadAdminPlans();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Request failed: ' + err.message);
+            }
         }
 
         // ============================================================
