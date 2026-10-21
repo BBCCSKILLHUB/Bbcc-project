@@ -70,6 +70,23 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
         }
+
+        .user-session-bar {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .logout-link {
+            color: #ef4444;
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
     </style>
 </head>
 <body>
@@ -77,8 +94,56 @@
     <div class="maintenance-card">
         <h1 class="heading">Welcome to BBCC Skill Hub</h1>
         <p class="subtext">Website is Under Maintenance. Please try again later.</p>
-        <a href="/login.html" class="btn-login">Login</a>
+        
+        <div id="authActionContainer">
+            <a href="/login.html" id="mainActionBtn" class="btn-login">Login</a>
+            <div id="sessionUserBar" class="user-session-bar" style="display: none;"></div>
+        </div>
     </div>
 
+    <script>
+        // Check 30-Day Persistent Session on Page Load
+        (async function checkSession() {
+            const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token') || localStorage.getItem('adminToken');
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success && data.user) {
+                    const btn = document.getElementById('mainActionBtn');
+                    const bar = document.getElementById('sessionUserBar');
+
+                    let dashboardUrl = '/student-dashboard.html';
+                    if (data.user.role === 'superadmin') {
+                        dashboardUrl = '/admin-console.html';
+                    } else if (data.user.role === 'director') {
+                        dashboardUrl = '/director-portal.html';
+                    } else if (data.user.role === 'teacher') {
+                        dashboardUrl = '/teacher-portal.html';
+                    }
+
+                    btn.textContent = 'Go to Dashboard';
+                    btn.href = dashboardUrl;
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+
+                    bar.innerHTML = `Signed in as <b>${data.user.name || data.user.email}</b> (${(data.user.role || '').toUpperCase()}) • <button class="logout-link" onclick="logoutSession()">Logout</button>`;
+                    bar.style.display = 'block';
+                } else {
+                    // Token expired or invalid
+                    localStorage.removeItem('bbcc_token');
+                    localStorage.removeItem('bbcc_auth_token');
+                }
+            } catch(e) {}
+        })();
+
+        function logoutSession() {
+            localStorage.clear();
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>
