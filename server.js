@@ -6108,7 +6108,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
         console.log(`🔑 [BBCC OTP Generated] Target: ${email} | Code: ${otp}`);
 
-        const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim();
+        const BREVO_KEY = (process.env.EMAIL_API_KEY || process.env.BREVO_API_KEY || '').trim().replace(/[\r\n\t'"`]/g, '');
 
         // 1. Direct Brevo HTTPS REST API (Port 443)
         if (BREVO_KEY) {
@@ -6145,8 +6145,12 @@ app.post('/api/auth/send-otp', async (req, res) => {
                     return res.status(200).json({ success: true, message: 'OTP sent successfully via HTTPS API!' });
                 } else {
                     const errTxt = await brevoRes.text();
-                    console.error('❌ [Brevo API Error]:', errTxt);
-                    return res.status(500).json({ success: false, message: 'Brevo API error: ' + errTxt });
+                    console.error(`❌ [Brevo API Error]: ${errTxt} | Key starts with: ${BREVO_KEY.substring(0, 10)}... (Length: ${BREVO_KEY.length})`);
+                    let hint = '';
+                    if (BREVO_KEY.startsWith('xsmtpsib-')) {
+                        hint = ' (Note: You entered an SMTP Key instead of an API Key. In Brevo, go to SMTP & API Keys -> click "API Keys" tab and generate an API key starting with xkeysib-)';
+                    }
+                    return res.status(500).json({ success: false, message: 'Brevo API error: ' + errTxt + hint });
                 }
             } catch (apiErr) {
                 console.error('❌ [Brevo Fetch Failed]:', apiErr.message);
