@@ -29,11 +29,12 @@
         .login-box {
             background: #ffffff;
             width: 100%;
-            max-width: 400px;
-            padding: 40px 32px;
-            border-radius: 16px;
+            max-width: 440px;
+            padding: 36px 30px;
+            border-radius: 18px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
             border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
 
         .login-heading {
@@ -41,18 +42,36 @@
             font-weight: 800;
             color: #0f172a;
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             letter-spacing: -0.5px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
+        .login-sub {
+            font-size: 13.5px;
+            color: #64748b;
+            text-align: center;
+            margin-top: -14px;
+            margin-bottom: 20px;
         }
 
-        .form-input {
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
             width: 100%;
-            padding: 13px 16px;
-            font-size: 15px;
+            padding: 12px 14px;
+            font-size: 14.5px;
             border: 1.5px solid #cbd5e1;
             border-radius: 10px;
             color: #0f172a;
@@ -61,7 +80,7 @@
             transition: all 0.2s ease;
         }
 
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
@@ -72,9 +91,10 @@
 
         .otp-input {
             text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 8px;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 10px;
+            padding: 12px 6px;
         }
 
         .btn-action {
@@ -88,6 +108,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
+            margin-top: 6px;
         }
 
         .btn-action:hover {
@@ -101,9 +122,9 @@
 
         .status-alert {
             padding: 12px 14px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 13.5px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             display: none;
             line-height: 1.4;
         }
@@ -118,6 +139,12 @@
             background: #f0fdf4;
             color: #15803d;
             border: 1px solid #bbf7d0;
+        }
+
+        .status-alert.info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
 
         .sub-action-row {
@@ -142,22 +169,59 @@
             text-decoration: underline;
         }
 
-        .text-link:disabled {
-            color: #94a3b8;
-            cursor: not-allowed;
-            text-decoration: none;
+        .role-selector-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .role-card-opt {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #475569;
+            background: #f8fafc;
+        }
+
+        .role-card-opt.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .email-display-pill {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .email-display-pill b {
+            color: #0f172a;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-box">
-        <h1 class="login-heading">BBCC Skill Hub Login</h1>
+    <div class="login-box" id="mainLoginBox">
+        <h1 class="login-heading" id="boxTitle">BBCC Skill Hub Login</h1>
+        <p class="login-sub" id="boxSubTitle">Enter your email to continue</p>
 
         <div id="statusAlert" class="status-alert"></div>
 
-        <!-- STEP 1: EMAIL INPUT -->
-        <div id="stepEmail">
+        <!-- STAGE 1: EMAIL INPUT -->
+        <div id="stageEmail">
             <div class="form-group">
                 <input 
                     type="email" 
@@ -168,13 +232,17 @@
                     required
                 >
             </div>
-            <button type="button" id="btnSendOtp" class="btn-action" onclick="handleSendOtp()">
-                Send OTP
+            <button type="button" id="btnContinue" class="btn-action" onclick="handleContinueEmail()">
+                Continue
             </button>
         </div>
 
-        <!-- STEP 2: OTP INPUT -->
-        <div id="stepOtp" style="display: none;">
+        <!-- STAGE 2: OTP VERIFICATION (For Registered Users) -->
+        <div id="stageOtp" style="display: none;">
+            <div class="email-display-pill">
+                <span>Code sent to: <b id="otpEmailSpan">user@example.com</b></span>
+                <button type="button" class="text-link" onclick="handleBackToEmail()">Change</button>
+            </div>
             <div class="form-group">
                 <input 
                     type="text" 
@@ -189,19 +257,112 @@
                 Verify &amp; Log In
             </button>
             <div class="sub-action-row">
-                <button type="button" class="text-link" onclick="handleChangeEmail()">Change Email</button>
-                <button type="button" id="btnResend" class="text-link" onclick="handleSendOtp(true)">Resend OTP</button>
+                <span style="color:#64748b; font-size:12.5px;" id="otpTimerText">Valid for 10m</span>
+                <button type="button" id="btnResend" class="text-link" onclick="handleResendOtp()">Resend OTP</button>
             </div>
+        </div>
+
+        <!-- STAGE 3: SMART ONBOARDING / SIGN-UP (For New Emails) -->
+        <div id="stageRegister" style="display: none;">
+            <div class="email-display-pill">
+                <span>Registering: <b id="regEmailSpan">new@example.com</b></span>
+                <button type="button" class="text-link" onclick="handleBackToEmail()">Change</button>
+            </div>
+
+            <label class="form-label" style="text-align: center; margin-bottom: 10px;">Select Account Type:</label>
+            <div class="role-selector-row">
+                <div class="role-card-opt active" id="optStudent" onclick="switchRegType('student')">
+                    🎓 Student
+                </div>
+                <div class="role-card-opt" id="optCoaching" onclick="switchRegType('coaching')">
+                    🏫 Coaching Director
+                </div>
+            </div>
+
+            <!-- SUB-FORM A: STUDENT REGISTRATION -->
+            <form id="formRegStudent" onsubmit="handleRegisterStudent(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" id="regStuName" required placeholder="Enter student name" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mobile Number *</label>
+                    <input type="tel" id="regStuPhone" required placeholder="10-digit mobile number" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Admission Choice *</label>
+                    <select id="regStuAdmissionType" class="form-select" onchange="toggleCoachingDropdown(this.value)">
+                        <option value="direct">BBCC Visitor (Direct Student - Independent)</option>
+                        <option value="coaching">Enroll in an Approved Coaching Center</option>
+                    </select>
+                </div>
+                <div class="form-group" id="coachingDropdownGroup" style="display: none;">
+                    <label class="form-label">Choose Coaching Center *</label>
+                    <select id="regStuCoachingSelect" class="form-select">
+                        <option value="">Loading approved centers...</option>
+                    </select>
+                </div>
+                <button type="submit" id="btnSubmitStudent" class="btn-action">
+                    Complete Student Registration
+                </button>
+            </form>
+
+            <!-- SUB-FORM B: COACHING DIRECTOR REGISTRATION -->
+            <form id="formRegCoaching" style="display: none;" onsubmit="handleRegisterCoaching(event)">
+                <div class="form-group">
+                    <label class="form-label">Director / Owner Name *</label>
+                    <input type="text" id="regDirName" required placeholder="e.g. Prof. R. K. Sharma" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Coaching Center Name *</label>
+                    <input type="text" id="regCenterName" required placeholder="e.g. Apex Science Academy" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contact Mobile *</label>
+                    <input type="tel" id="regDirPhone" required placeholder="10-digit mobile number" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">City / Town *</label>
+                    <input type="text" id="regDirCity" required placeholder="e.g. Patna, Muzaffarpur, Gaya" class="form-input">
+                </div>
+                <button type="submit" id="btnSubmitCoaching" class="btn-action" style="background:#0284c7;">
+                    Submit Institute for Approval
+                </button>
+                <small style="color:#64748b; font-size:12px; margin-top:10px; display:block; text-align:center;">
+                    Application will be reviewed &amp; approved by Super Admin.
+                </small>
+            </form>
         </div>
     </div>
 
     <script>
         let resendTimer = null;
         let resendSeconds = 30;
+        let currentEmail = '';
 
-        function showAlert(msg, isError = true) {
+        // Check if user already has persistent 30-day session
+        (async function checkExistingSession() {
+            const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token') || localStorage.getItem('adminToken');
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (res.ok && data.success && data.user) {
+                    // Redirect immediately to their dashboard
+                    if (data.user.role === 'superadmin') window.location.href = '/admin-console.html';
+                    else if (data.user.role === 'director') window.location.href = '/director-portal.html';
+                    else if (data.user.role === 'teacher') window.location.href = '/teacher-portal.html';
+                    else window.location.href = '/student-dashboard.html';
+                }
+            } catch(e) {}
+        })();
+
+        function showAlert(msg, type = 'error') {
             const el = document.getElementById('statusAlert');
-            el.className = 'status-alert ' + (isError ? 'error' : 'success');
+            el.className = 'status-alert ' + type;
             el.textContent = msg;
             el.style.display = 'block';
         }
@@ -210,6 +371,280 @@
             const el = document.getElementById('statusAlert');
             el.style.display = 'none';
             el.textContent = '';
+        }
+
+        // 1. SMART EMAIL CHECK FLOW
+        async function handleContinueEmail() {
+            const emailInput = document.getElementById('emailInput');
+            const email = (emailInput?.value || '').trim().toLowerCase();
+            const btn = document.getElementById('btnContinue');
+
+            if (!email || !email.includes('@')) {
+                showAlert('Please enter a valid email address.', 'error');
+                emailInput?.focus();
+                return;
+            }
+
+            clearAlert();
+            btn.disabled = true;
+            btn.textContent = 'Checking Account...';
+
+            try {
+                // Call check-email
+                const checkRes = await fetch('/api/auth/check-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const checkData = await checkRes.json();
+                currentEmail = email;
+
+                if (checkData.exists) {
+                    // EMAIL FOUND: Send OTP
+                    btn.textContent = 'Sending Verification OTP...';
+                    await dispatchOtp(email);
+                } else {
+                    // EMAIL NOT FOUND: Transition to Sign Up
+                    showRegistrationFlow(email);
+                }
+            } catch (err) {
+                showAlert('Connection error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Continue';
+            }
+        }
+
+        async function dispatchOtp(email) {
+            try {
+                const res = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    document.getElementById('stageEmail').style.display = 'none';
+                    document.getElementById('stageRegister').style.display = 'none';
+                    document.getElementById('stageOtp').style.display = 'block';
+
+                    document.getElementById('boxTitle').textContent = 'Enter Verification Code';
+                    document.getElementById('boxSubTitle').textContent = 'Passwordless secure login';
+                    document.getElementById('otpEmailSpan').textContent = email;
+                    document.getElementById('otpInput').value = '';
+                    document.getElementById('otpInput').focus();
+
+                    showAlert('4-Digit code dispatched to ' + email, 'success');
+                    startResendCountdown();
+                } else {
+                    showAlert(data.message || 'Failed to dispatch OTP.', 'error');
+                }
+            } catch(e) {
+                showAlert('Error sending code: ' + e.message, 'error');
+            }
+        }
+
+        // 2. OTP VERIFICATION FLOW
+        async function handleVerifyOtp() {
+            const otpInput = document.getElementById('otpInput');
+            const otp = (otpInput?.value || '').trim();
+            const btn = document.getElementById('btnVerifyOtp');
+
+            if (!otp || otp.length < 4) {
+                showAlert('Please enter the 4-digit verification code.', 'error');
+                otpInput?.focus();
+                return;
+            }
+
+            clearAlert();
+            btn.disabled = true;
+            btn.textContent = 'Verifying Access...';
+
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentEmail, otp })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    // Save 30-day session token
+                    localStorage.setItem('bbcc_token', data.token);
+                    localStorage.setItem('bbcc_auth_token', data.token);
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('bbcc_user_email', currentEmail);
+                    localStorage.setItem('bbcc_user_role', data.role || 'student');
+
+                    showAlert('Verified successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl || '/student-dashboard.html';
+                    }, 500);
+                } else {
+                    showAlert(data.message || 'Invalid or expired OTP.', 'error');
+                }
+            } catch(e) {
+                showAlert('Verification failed: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify & Log In';
+            }
+        }
+
+        // 3. REGISTRATION ONBOARDING FLOW
+        async function showRegistrationFlow(email) {
+            document.getElementById('stageEmail').style.display = 'none';
+            document.getElementById('stageOtp').style.display = 'none';
+            document.getElementById('stageRegister').style.display = 'block';
+
+            document.getElementById('boxTitle').textContent = 'Create BBCC Account';
+            document.getElementById('boxSubTitle').textContent = 'Account not found. Please choose account type.';
+            document.getElementById('regEmailSpan').textContent = email;
+
+            // Load approved centers list for student dropdown
+            loadApprovedCenters();
+            showAlert('No account found with this email. Please register below.', 'info');
+        }
+
+        function switchRegType(type) {
+            clearAlert();
+            const optStu = document.getElementById('optStudent');
+            const optDir = document.getElementById('optCoaching');
+            const formStu = document.getElementById('formRegStudent');
+            const formDir = document.getElementById('formRegCoaching');
+
+            if (type === 'student') {
+                optStu.className = 'role-card-opt active';
+                optDir.className = 'role-card-opt';
+                formStu.style.display = 'block';
+                formDir.style.display = 'none';
+            } else {
+                optDir.className = 'role-card-opt active';
+                optStu.className = 'role-card-opt';
+                formDir.style.display = 'block';
+                formStu.style.display = 'none';
+            }
+        }
+
+        function toggleCoachingDropdown(val) {
+            document.getElementById('coachingDropdownGroup').style.display = (val === 'coaching' ? 'block' : 'none');
+        }
+
+        async function loadApprovedCenters() {
+            try {
+                const res = await fetch('/api/public/approved-centers');
+                const data = await res.json();
+                const sel = document.getElementById('regStuCoachingSelect');
+                if (data.success && data.centers && data.centers.length > 0) {
+                    sel.innerHTML = data.centers.map(c => `<option value="${c.id}">${c.name} (${c.address || c.director})</option>`).join('');
+                } else {
+                    sel.innerHTML = '<option value="">No centers active. BBCC Direct Visitor recommended.</option>';
+                }
+            } catch(e) {}
+        }
+
+        // Register Student
+        async function handleRegisterStudent(e) {
+            e.preventDefault();
+            const name = document.getElementById('regStuName').value.trim();
+            const phone = document.getElementById('regStuPhone').value.trim();
+            const admissionType = document.getElementById('regStuAdmissionType').value;
+            const coachingId = document.getElementById('regStuCoachingSelect').value;
+            const btn = document.getElementById('btnSubmitStudent');
+
+            clearAlert();
+            btn.disabled = true;
+            btn.textContent = 'Creating Student Account...';
+
+            try {
+                const res = await fetch('/api/auth/register-student', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        email: currentEmail,
+                        phone,
+                        admissionType,
+                        coachingId
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success && data.token) {
+                    localStorage.setItem('bbcc_token', data.token);
+                    localStorage.setItem('bbcc_auth_token', data.token);
+                    localStorage.setItem('bbcc_user_email', currentEmail);
+                    localStorage.setItem('bbcc_user_role', 'student');
+
+                    showAlert('Account created! Welcome to BBCC.', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl || '/student-dashboard.html';
+                    }, 600);
+                } else {
+                    showAlert(data.message || 'Failed to create student account.', 'error');
+                }
+            } catch(err) {
+                showAlert('Error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Complete Student Registration';
+            }
+        }
+
+        // Register Coaching Center
+        async function handleRegisterCoaching(e) {
+            e.preventDefault();
+            const directorName = document.getElementById('regDirName').value.trim();
+            const centerName = document.getElementById('regCenterName').value.trim();
+            const phone = document.getElementById('regDirPhone').value.trim();
+            const city = document.getElementById('regDirCity').value.trim();
+            const btn = document.getElementById('btnSubmitCoaching');
+
+            clearAlert();
+            btn.disabled = true;
+            btn.textContent = 'Submitting Application...';
+
+            try {
+                const res = await fetch('/api/auth/register-coaching', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        directorName,
+                        centerName,
+                        email: currentEmail,
+                        phone,
+                        city
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('formRegCoaching').reset();
+                } else {
+                    showAlert(data.message || 'Registration failed.', 'error');
+                }
+            } catch(err) {
+                showAlert('Error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Submit Institute for Approval';
+            }
+        }
+
+        function handleBackToEmail() {
+            clearAlert();
+            document.getElementById('stageOtp').style.display = 'none';
+            document.getElementById('stageRegister').style.display = 'none';
+            document.getElementById('stageEmail').style.display = 'block';
+            document.getElementById('boxTitle').textContent = 'BBCC Skill Hub Login';
+            document.getElementById('boxSubTitle').textContent = 'Enter your email to continue';
+            document.getElementById('emailInput').focus();
+        }
+
+        function handleResendOtp() {
+            dispatchOtp(currentEmail);
         }
 
         function startResendCountdown() {
@@ -231,109 +666,11 @@
             }, 1000);
         }
 
-        async function handleSendOtp(isResend = false) {
-            const emailInput = document.getElementById('emailInput');
-            const email = (emailInput?.value || '').trim().toLowerCase();
-            const btn = document.getElementById('btnSendOtp');
-
-            if (!email || !email.includes('@')) {
-                showAlert('Please enter a valid email address.', true);
-                emailInput?.focus();
-                return;
-            }
-
-            clearAlert();
-            if (!isResend) {
-                btn.disabled = true;
-                btn.textContent = 'Sending OTP...';
-            }
-
-            try {
-                const res = await fetch('/api/auth/send-otp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    document.getElementById('stepEmail').style.display = 'none';
-                    document.getElementById('stepOtp').style.display = 'block';
-                    document.getElementById('otpInput').value = '';
-                    document.getElementById('otpInput').focus();
-                    showAlert('OTP has been sent to ' + email, false);
-                    startResendCountdown();
-                } else {
-                    showAlert(data.message || 'Failed to send OTP. Please try again.', true);
-                }
-            } catch (err) {
-                showAlert('Network error: ' + err.message, true);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Send OTP';
-            }
-        }
-
-        function handleChangeEmail() {
-            document.getElementById('stepOtp').style.display = 'none';
-            document.getElementById('stepEmail').style.display = 'block';
-            document.getElementById('emailInput').focus();
-            clearAlert();
-        }
-
-        async function handleVerifyOtp() {
-            const email = (document.getElementById('emailInput')?.value || '').trim().toLowerCase();
-            const otpInput = document.getElementById('otpInput');
-            const otp = (otpInput?.value || '').trim();
-            const btn = document.getElementById('btnVerifyOtp');
-
-            if (!otp || otp.length < 4) {
-                showAlert('Please enter the 4-digit OTP.', true);
-                otpInput?.focus();
-                return;
-            }
-
-            clearAlert();
-            btn.disabled = true;
-            btn.textContent = 'Verifying...';
-
-            try {
-                const res = await fetch('/api/auth/verify-otp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.token) {
-                    localStorage.setItem('bbcc_token', data.token);
-                    localStorage.setItem('bbcc_auth_token', data.token);
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('bbcc_user_email', email);
-                    localStorage.setItem('bbcc_user_role', data.role || 'user');
-
-                    showAlert('Login successful! Redirecting...', false);
-
-                    setTimeout(() => {
-                        window.location.href = data.redirectUrl || '/admin-console.html';
-                    }, 500);
-                } else {
-                    showAlert(data.message || 'Invalid or expired OTP.', true);
-                }
-            } catch (err) {
-                showAlert('Verification error: ' + err.message, true);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Verify & Log In';
-            }
-        }
-
+        // Enter key listeners
         document.getElementById('emailInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                handleSendOtp();
+                handleContinueEmail();
             }
         });
 
