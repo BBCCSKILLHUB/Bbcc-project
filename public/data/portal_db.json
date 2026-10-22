@@ -5,7 +5,7 @@
     "heroTitle": "Empowering Certified Learning & Partner Institutes",
     "heroDesc": "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
     "newsMarquee": "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply for Direct Affiliation Online | 24/7 Digital Helpline & BHARTI AI Live",
-    "affiliationFee": 999,
+    "affiliationFee": 0,
     "boardLogo": "/data/branding/logo.png",
     "phone": "+91 98765 43210",
     "email": "admin@bbccskillhub.org",
@@ -25,75 +25,67 @@
       "terms": "1. Fees paid are valid for the enrolled academic term. 2. Admission fee is non-refundable once roll number is issued. 3. Retain this digital receipt for identity card and examination hall pass.",
       "authorizedSignatory": "Accounts Directorate, BBCC Central Verification Desk"
     },
-    "certTemplate": {
-      "title": "CERTIFICATE OF ENROLLMENT & ACADEMIC RECOGNITION",
-      "subtitle": "This is to certify that the student has been officially registered and verified under BBCC Affiliated Center Network.",
-      "signatoryTitle": "Chairman & Managing Director, BBCC Board of Skill Development"
-    },
-    "banners": [
-      {
-        "_id": "pban_user_001",
-        "title": "BBCC Skill Hub Official Banner",
-        "image": "/uploads/branding/central_banner_7739_1792133077740_45e577.jpg",
-        "active": true,
-        "createdAt": "2026-10-16T06:44:37.741Z"
-      }
-    ],
+    "banners": [],
     "gallery": [],
     "_id": "6ad1b3b5b53cbd344cc652f1",
-    "vouchers": [
-      {
-        "code": "BBCC10",
-        "discountType": "percent",
-        "discountPercent": 10,
-        "discountAmount": 0,
-        "maxDiscount": 100,
-        "description": "10% Welcome Discount on all study notes",
-        "active": true
-      },
-      {
-        "code": "BBCC25",
-        "discountType": "percent",
-        "discountPercent": 25,
-        "discountAmount": 0,
-        "maxDiscount": 250,
-        "description": "25% Special Student Discount",
-        "active": true
-      },
-      {
-        "code": "BBCC50",
-        "discountType": "percent",
-        "discountPercent": 50,
-        "discountAmount": 0,
-        "maxDiscount": 500,
-        "description": "50% Festival Scholarship Discount",
-        "active": true
-      },
-      {
-        "code": "FLAT50",
-        "discountType": "flat",
-        "discountPercent": 0,
-        "discountAmount": 50,
-        "maxDiscount": 50,
-        "description": "₹50 Direct Rupee Discount",
-        "active": true
-      },
-      {
-        "code": "SCHOLAR100",
-        "discountType": "percent",
-        "discountPercent": 100,
-        "discountAmount": 0,
-        "maxDiscount": 1000,
-        "description": "100% Full Scholarship Fee Waiver",
-        "active": true
-      }
-    ],
+    "vouchers": [],
     "runningOffers": [
-      "🔥 FLAT 50% OFF on All Class 10th & 12th Master Notes! Use Code: BBCC50",
       "📢 Admissions Open 2026-27 Across All BBCC Certified Centers | Apply Online with 1-Click Verification",
-      "💻 ADCA & DCA Computer Diplomas: ISO 9001:2015 Central Enrollment Certificate Included",
-      "⚡ Coaching Centers: Join BBCC Aggregator Network & Get Direct Online Admissions Today!"
+      "⚡ Coaching Centers: 7-Day Full Access Free Trial Available Upon Registration!"
     ]
+  },
+  "cms": {
+    "home": {
+      "heroBadge": "📢 Admissions Open 2026-27 Across All BBCC Certified Centers",
+      "heroTitle": "Empowering Certified Learning & Partner Institutes",
+      "heroDesc": "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
+      "primaryBtnText": "Explore Coaching Centers",
+      "primaryBtnLink": "#institutes",
+      "secondaryBtnText": "Coaching Registration",
+      "secondaryBtnLink": "/login?mode=coaching",
+      "offerBannerText": "🔥 Free 7-Day Unlimited Trial for all new coaching institutes registering on BBCC Skill Hub!",
+      "offerBannerActive": true,
+      "aboutTitle": "About BBCC Skill Hub",
+      "aboutText": "Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar's premier educational aggregator and digital learning ecosystem.",
+      "statCoachings": 1,
+      "statStudents": 0,
+      "statNotes": 0
+    }
+  },
+  "bhartiConfig": {
+    "visibleTo": {
+      "visitors": true,
+      "students": true,
+      "coaching": true,
+      "teachers": true
+    },
+    "customPrompts": {
+      "visitors": "Guide visitors with utmost courtesy, explain admission steps, platform advantages, and finding verified coaching centers in Bihar.",
+      "students": "Act as a caring academic mentor (Bharti Didi). Help students find syllabus notes, solve homework doubts, provide exam prep advice.",
+      "coaching": "Act as an institutional growth consultant. Help Directors design course batches, increase student admissions, upload notes, and expand their brand.",
+      "teachers": "Assist teachers in structuring lesson plans, creating practice quizzes, and improving classroom engagement."
+    },
+    "welcomeMessage": "Namaste! Main **Bharti** hoon, BBCC SKILL HUB ki Chief Academic Counselor. Main aapki kya sahayata kar sakti hoon?"
+  },
+  "designTemplates": {
+    "idCard": {
+      "orgHeader": "BAL BHARTI COACHING CENTER NETWORK",
+      "subHeader": "CENTRAL ACADEMIC VERIFICATION BOARD",
+      "themeColor": "#0f172a",
+      "accentColor": "#f59e0b",
+      "signatoryName": "Santosh Kumar",
+      "signatoryTitle": "Founder & Managing Director",
+      "validityNote": "Valid across all BBCC certified institutes & examination desks."
+    },
+    "certificate": {
+      "title": "CERTIFICATE OF INSTITUTIONAL ACCREDITATION",
+      "subTitle": "BAL BHARTI COACHING CENTER — SKILL & EDUCATION DIRECTORY",
+      "statement": "This is to officially certify that the aforementioned institution has met all central academic standards, verified faculty compliance, and is hereby granted Official Affiliated Center Status under BBCC Skill Hub.",
+      "borderStyle": "gold-double",
+      "signatoryName": "Santosh Kumar",
+      "signatoryTitle": "Founder & Managing Director, BBCC Central Directorate",
+      "sealText": "OFFICIAL BBCC SEAL • ACCREDITED 2026-27"
+    }
   },
   "admins": [
     {
@@ -119,51 +111,16 @@
       "fromClass": "Class 6th",
       "toClass": "ADCA / Competitive",
       "admissionFee": 0,
-      "affiliationFee": 999,
+      "affiliationFee": 0,
       "status": "Active",
       "isBlocked": false,
-      "rating": 4.98,
-      "reviewsCount": 520,
+      "certificateIssued": true,
+      "certificateId": "BBCC-HQ-CERT-001",
+      "certificateIssuedAt": "2026-01-01T00:00:00.000Z",
       "verifiedBadge": true,
-      "bannerImg": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80",
-      "courses": [
-        {
-          "name": "Class 9th & 10th Board Foundation (BSEB/CBSE)",
-          "duration": "1 Year",
-          "fee": 3500
-        },
-        {
-          "name": "Class 11th & 12th Science Stream",
-          "duration": "1 Year",
-          "fee": 5500
-        },
-        {
-          "name": "ADCA / DCA Computer Diploma (Certified)",
-          "duration": "6-12 Months",
-          "fee": 2500
-        },
-        {
-          "name": "General Competition (SSC, Railway, Police)",
-          "duration": "6 Months",
-          "fee": 3000
-        }
-      ],
-      "materials": [
-        {
-          "_id": "mat_bbcc_01",
-          "title": "Class 10th Science Master Notes (Official)",
-          "price": 49,
-          "originalPrice": 299,
-          "fileType": "pdf"
-        },
-        {
-          "_id": "mat_bbcc_02",
-          "title": "ADCA Diploma Practical Hands-on Handbook",
-          "price": 99,
-          "originalPrice": 499,
-          "fileType": "pdf"
-        }
-      ],
+      "bannerImg": "",
+      "courses": [],
+      "materials": [],
       "createdAt": "2026-01-01T00:00:00.000Z"
     }
   ],
@@ -171,135 +128,6 @@
   "teachers": [],
   "studyMaterials": {
     "notes": [
-      {
-        "_id": "book_sci10_master_2026",
-        "title": "Class 10th Science Master Notes (NCERT & CBSE/BSEB)",
-        "subject": "Science",
-        "classLevel": "Class 10th",
-        "author": "Prof. Santosh Kumar & Board Advisory Panel",
-        "description": "Comprehensive chapter-wise formula sheets, solved exemplar questions, and 100% guaranteed board exam toppers answers.",
-        "thumbnail": "/data/materials/Class_10_Science_Master_Notes__1792586639397_6e52af.jpg",
-        "price": 49,
-        "originalPrice": 49,
-        "pdfMrp": 299,
-        "rating": 4.9,
-        "reviewsCount": 342,
-        "downloadsCount": 1420,
-        "tags": [
-          "Class 10th",
-          "Science",
-          "Board Topper",
-          "Bestseller"
-        ],
-        "targetCenterId": "all"
-      },
-      {
-        "_id": "book_phy12_formula_2026",
-        "title": "Class 12th Physics Quick Revision & Derivations Handbook",
-        "subject": "Physics",
-        "classLevel": "Class 12th",
-        "author": "Er. Rajesh Verma (M.Tech)",
-        "description": "All 14 chapters electrostatics to optics derivations, mindmaps, and 10-year previous questions with step-by-step marking scheme.",
-        "thumbnail": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&w=600&q=80",
-        "price": 69,
-        "originalPrice": 69,
-        "pdfMrp": 399,
-        "rating": 4.85,
-        "reviewsCount": 289,
-        "downloadsCount": 980,
-        "tags": [
-          "Class 12th",
-          "Physics",
-          "Board & JEE",
-          "Trending"
-        ],
-        "targetCenterId": "all"
-      },
-      {
-        "_id": "book_adca_diploma_2026",
-        "title": "ADCA & DCA Computer Diploma Full Practical Syllabus Guide",
-        "subject": "Computer Science",
-        "classLevel": "Diploma",
-        "author": "BBCC Skill Hub Tech Division",
-        "description": "Windows 11, MS Office 365, Tally Prime with GST, HTML/CSS, Photoshop, Internet fundamentals with shortcut keys cheat sheets.",
-        "thumbnail": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
-        "price": 99,
-        "originalPrice": 99,
-        "pdfMrp": 499,
-        "rating": 4.95,
-        "reviewsCount": 512,
-        "downloadsCount": 2310,
-        "tags": [
-          "Computer",
-          "ADCA",
-          "Job Ready",
-          "Govt Verified"
-        ],
-        "targetCenterId": "all"
-      },
-      {
-        "_id": "book_math10_shortcuts_2026",
-        "title": "Class 10th Mathematics 100/100 Scoring Blueprint",
-        "subject": "Mathematics",
-        "classLevel": "Class 10th",
-        "author": "Santosh Sir (Director BBCC)",
-        "description": "Trigonometry tricks, coordinate geometry shortcuts, and theorem proofs with zero error strategies.",
-        "thumbnail": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80",
-        "price": 49,
-        "originalPrice": 49,
-        "pdfMrp": 249,
-        "rating": 4.92,
-        "reviewsCount": 418,
-        "downloadsCount": 1850,
-        "tags": [
-          "Mathematics",
-          "Class 10th",
-          "Top Rated"
-        ],
-        "targetCenterId": "all"
-      },
-      {
-        "_id": "book_reasoning_ssc_2026",
-        "title": "General Competition Reasoning & Math Shortcuts Master Guide",
-        "subject": "Competitive",
-        "classLevel": "All Exams",
-        "author": "Competitive Exam Cell, Patna",
-        "description": "Essential for SSC CGL/CHSL, Railway RRB, Bihar Police, BPSC TRE. 5000+ speed practice questions with video QR hints.",
-        "thumbnail": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80",
-        "price": 79,
-        "originalPrice": 79,
-        "pdfMrp": 349,
-        "rating": 4.88,
-        "reviewsCount": 376,
-        "downloadsCount": 1640,
-        "tags": [
-          "SSC & Railway",
-          "Govt Exams",
-          "Hot Pick"
-        ],
-        "targetCenterId": "all"
-      },
-      {
-        "_id": "book_english_speaking_2026",
-        "title": "Spoken English & Daily Vocabulary 30-Day Fluency Book",
-        "subject": "English",
-        "classLevel": "All Levels",
-        "author": "Dr. M. Roy (English Faculty)",
-        "description": "Hindi-to-English practical conversations, 1000 daily action words, common errors elimination, and interview mastery.",
-        "thumbnail": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=600&q=80",
-        "price": 59,
-        "originalPrice": 59,
-        "pdfMrp": 299,
-        "rating": 4.9,
-        "reviewsCount": 220,
-        "downloadsCount": 1120,
-        "tags": [
-          "Spoken English",
-          "Interview",
-          "Fluency"
-        ],
-        "targetCenterId": "all"
-      },
       {
         "_id": "book_mviau5xq3134d",
         "title": "bbcc",
@@ -321,7 +149,14 @@
   "admissionInquiries": [],
   "affiliationApplications": [],
   "liveSessions": [],
-  "bharti_auto_push_log": [],
+  "bharti_auto_push_log": {
+    "2026-10-22_morning": {
+      "dispatchedAt": "2026-10-22T04:22:45.260Z",
+      "slot": "morning",
+      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
+      "body": "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅"
+    }
+  },
   "coupons": [],
   "plans": [
     {
