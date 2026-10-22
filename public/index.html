@@ -1537,6 +1537,74 @@
         </div>
     </div>
 
+    <!-- EXPRESS E-LIBRARY BUY MODAL -->
+    <div class="center-modal-overlay" id="buyNotesModal" style="display: none; align-items: center; justify-content: center; z-index: 100000; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px);">
+        <div style="background: #ffffff; border-radius: 20px; width: 92%; max-width: 480px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 18px 22px; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="/data/branding/logo.png" alt="BBCC" style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain;" onerror="this.src='/logo.png'">
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.3px;">BBCC Central Digital Store</h3>
+                        <div style="font-size: 11px; color: #38bdf8; font-weight: 600;">⚡ Instant Download &amp; Lifetime Access</div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeBuyModal()" style="background: rgba(255,255,255,0.1); border: none; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+            </div>
+
+            <div style="padding: 22px 24px;">
+                <!-- Book Summary Box -->
+                <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="max-width: 70%;">
+                        <div id="buyModalBookTitle" style="font-size: 14.5px; font-weight: 800; color: #0f172a; margin-bottom: 3px; line-height: 1.3;">Study Material Notes</div>
+                        <div id="buyModalBadge" style="font-size: 11px; color: #2563eb; font-weight: 700;">✓ Verified Authentic Notes</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div id="buyModalPrice" style="font-size: 22px; font-weight: 900; color: #16a34a;">₹49</div>
+                        <div style="font-size: 11px; color: #94a3b8; text-decoration: line-through;">₹299</div>
+                    </div>
+                </div>
+
+                <!-- Logged In / Auto-filled Status Banner -->
+                <div id="buyModalUserStatus" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; font-size: 12px; color: #065f46; font-weight: 600; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span id="buyModalUserStatusText">Auto-filled from your logged-in session</span>
+                </div>
+
+                <!-- Input Form -->
+                <form id="buyNotesForm" onsubmit="executeDirectPurchase(event)">
+                    <input type="hidden" id="buyModalDocId">
+                    <input type="hidden" id="buyModalPriceValue">
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Student Full Name *</label>
+                        <input type="text" id="buyModalPayerName" required placeholder="Enter student name" style="width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; outline: none;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">WhatsApp / Mobile *</label>
+                            <input type="tel" id="buyModalPayerPhone" required placeholder="10-digit mobile" style="width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; outline: none;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Email (For receipt)</label>
+                            <input type="email" id="buyModalPayerEmail" placeholder="student@gmail.com" style="width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; outline: none;">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnExecuteBuy" style="width: 100%; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border: none; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);">
+                        <i class="fas fa-lock"></i>
+                        <span id="buyBtnText">Pay Now &amp; Download PDF</span>
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 10px; font-size: 11px; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-shield-halved" style="color: #10b981;"></i>
+                        <span>Direct Official BBCC Payment • Instant PDF Download</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT ENGINE -->
     <script>
         let allCenters = [];
@@ -1554,6 +1622,7 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.success && data.user) {
+                    window.currentUser = data.user;
                     document.getElementById('navLoginBtn').style.display = 'none';
                     const sessionArea = document.getElementById('navSessionUser');
                     sessionArea.style.display = 'flex';
@@ -1764,56 +1833,167 @@
         window.onclick = function(event) {
             const modal = document.getElementById('centerProfileModal');
             if (event.target === modal) modal.style.display = 'none';
+            const buyModal = document.getElementById('buyNotesModal');
+            if (event.target === buyModal) buyModal.style.display = 'none';
         };
 
-        // 6. 1-Click Razorpay Buy Now Handler
-        function handleBuyBook(bookId, bookTitle, price) {
-            const token = localStorage.getItem('bbcc_token') || localStorage.getItem('bbcc_auth_token');
-            if (!token) {
-                if (confirm(`To purchase "${bookTitle}" for ₹${price}, please login with your email first. Proceed to login?`)) {
-                    window.location.href = '/login';
-                }
-                return;
+        // 6. Direct Express Buy Now Modal & Payment Flow
+        function openBuyModal(bookId, bookTitle, price) {
+            document.getElementById('buyModalDocId').value = bookId;
+            document.getElementById('buyModalPriceValue').value = price;
+            document.getElementById('buyModalBookTitle').textContent = bookTitle;
+            document.getElementById('buyModalPrice').textContent = '₹' + price;
+
+            const nameInput = document.getElementById('buyModalPayerName');
+            const phoneInput = document.getElementById('buyModalPayerPhone');
+            const emailInput = document.getElementById('buyModalPayerEmail');
+            const statusBanner = document.getElementById('buyModalUserStatus');
+            const statusText = document.getElementById('buyModalUserStatusText');
+            const btnText = document.getElementById('buyBtnText');
+
+            btnText.textContent = `Pay ₹${price} & Download PDF`;
+
+            if (window.currentUser) {
+                nameInput.value = window.currentUser.name || '';
+                phoneInput.value = window.currentUser.mobile || window.currentUser.phone || '';
+                emailInput.value = window.currentUser.email || '';
+                statusBanner.style.display = 'flex';
+                statusText.textContent = `Logged in as: ${window.currentUser.name || 'Student'} (${window.currentUser.email || window.currentUser.role})`;
+            } else {
+                statusBanner.style.display = 'none';
+                nameInput.value = localStorage.getItem('bbcc_payer_name') || '';
+                phoneInput.value = localStorage.getItem('bbcc_payer_phone') || '';
+                emailInput.value = localStorage.getItem('bbcc_payer_email') || '';
             }
 
-            // Secure Razorpay Trigger
-            fetch('/api/library/create-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ bookId, price })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.order) {
-                    const options = {
-                        key: data.keyId || 'rzp_test_fallback',
-                        amount: data.order.amount,
-                        currency: 'INR',
-                        name: 'BBCC Skill Hub E-Library',
-                        description: bookTitle,
-                        image: '/data/branding/logo.png',
-                        order_id: data.order.id,
-                        handler: function(response) {
-                            alert('Payment Successful! Transaction ID: ' + response.razorpay_payment_id + '\nYour notes are now available in your Student Dashboard.');
-                            window.location.href = '/student-dashboard';
-                        },
-                        theme: { color: '#fb641b' }
-                    };
-                    const rzp = new Razorpay(options);
-                    rzp.open();
-                } else {
-                    // Direct access fallback
-                    alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
-                    window.location.href = '/student-dashboard';
+            document.getElementById('buyNotesModal').style.display = 'flex';
+        }
+
+        function closeBuyModal() {
+            document.getElementById('buyNotesModal').style.display = 'none';
+        }
+
+        function handleBuyBook(bookId, bookTitle, price) {
+            openBuyModal(bookId, bookTitle, price);
+        }
+
+        async function executeDirectPurchase(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnExecuteBuy');
+            const btnText = document.getElementById('buyBtnText');
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Payment Gateway...';
+
+            const docId = document.getElementById('buyModalDocId').value;
+            const price = parseFloat(document.getElementById('buyModalPriceValue').value) || 49;
+            const payerName = document.getElementById('buyModalPayerName').value.trim();
+            const payerPhone = document.getElementById('buyModalPayerPhone').value.trim();
+            const payerEmail = document.getElementById('buyModalPayerEmail').value.trim();
+            const bookTitle = document.getElementById('buyModalBookTitle').textContent;
+
+            // Remember user input for quick future checkouts
+            localStorage.setItem('bbcc_payer_name', payerName);
+            localStorage.setItem('bbcc_payer_phone', payerPhone);
+            localStorage.setItem('bbcc_payer_email', payerEmail);
+
+            try {
+                const res = await fetch('/api/pay/create-document-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        docId,
+                        bookId: docId,
+                        payerName,
+                        payerPhone,
+                        payerEmail,
+                        studentName: payerName,
+                        mobile: payerPhone,
+                        price
+                    })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    btn.disabled = false;
+                    btnText.textContent = `Pay ₹${price} & Download PDF`;
+                    alert(data.message || 'Payment gateway connection error. Please try again.');
+                    return;
                 }
-            })
-            .catch(err => {
-                alert(`Purchase initiated for "${bookTitle}" (₹${price}). Redirecting to your library dashboard...`);
-                window.location.href = '/student-dashboard';
-            });
+
+                // If document is 100% free / 0 price
+                if (data.free) {
+                    closeBuyModal();
+                    alert('🎉 Note unlocked for direct free download!');
+                    const dl = document.createElement('a');
+                    dl.href = data.downloadUrl || data.file;
+                    dl.setAttribute('download', data.fileName || `${bookTitle}.pdf`);
+                    document.body.appendChild(dl);
+                    dl.click();
+                    return;
+                }
+
+                // Razorpay Live Payment Trigger
+                const options = {
+                    key: data.keyId || 'rzp_test_fallback',
+                    amount: data.amountInPaise || Math.round(price * 100),
+                    currency: 'INR',
+                    name: 'BBCC Skill Hub',
+                    description: `Notes: ${bookTitle}`,
+                    image: '/data/branding/logo.png',
+                    order_id: data.orderId || (data.order && data.order.id),
+                    prefill: {
+                        name: payerName,
+                        contact: payerPhone,
+                        email: payerEmail
+                    },
+                    theme: { color: '#2563eb' },
+                    modal: {
+                        ondismiss: function() {
+                            btn.disabled = false;
+                            btnText.textContent = `Pay ₹${price} & Download PDF`;
+                        }
+                    },
+                    handler: async function(paymentResponse) {
+                        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Payment & Generating Download...';
+                        try {
+                            const verifyRes = await fetch('/api/pay/verify-document-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: paymentResponse.razorpay_order_id,
+                                    razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                    razorpay_signature: paymentResponse.razorpay_signature,
+                                    docId
+                                })
+                            });
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                closeBuyModal();
+                                alert(`🎉 Payment Successful!\nTransaction ID: ${paymentResponse.razorpay_payment_id}\n\nYour notes are now downloading!`);
+                                const dlLink = document.createElement('a');
+                                dlLink.href = verifyData.downloadUrl || `/api/pay/download-file?orderId=${encodeURIComponent(paymentResponse.razorpay_order_id)}&docId=${encodeURIComponent(docId)}`;
+                                dlLink.setAttribute('download', verifyData.fileName || `${bookTitle}.pdf`);
+                                document.body.appendChild(dlLink);
+                                dlLink.click();
+                            } else {
+                                alert('Payment verification notice: ' + (verifyData.message || 'Payment received, but download verification took longer. Please check your email or contact support.'));
+                            }
+                        } catch(err) {
+                            alert('Network connection error while verifying payment: ' + err.message);
+                        } finally {
+                            btn.disabled = false;
+                            btnText.textContent = `Pay ₹${price} & Download PDF`;
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) {
+                btn.disabled = false;
+                btnText.textContent = `Pay ₹${price} & Download PDF`;
+                alert('Connection error: ' + e.message);
+            }
         }
 
         // 7. Search & Filter Handlers
