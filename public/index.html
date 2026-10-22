@@ -1376,7 +1376,7 @@
         <div class="elibrary-container">
             <div class="section-header">
                 <div>
-                    <div style="color: #fb641b; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">⚡ FLIPKART STYLE CENTRAL STORE</div>
+                    <div style="color: #2563eb; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">📚 BBCC CENTRAL DIGITAL STORE</div>
                     <h2 class="section-title">Top Trending E-Library Notes</h2>
                     <p class="section-subtitle">Hand-written master notes, solved papers &amp; formula sheets with instant Razorpay download.</p>
                 </div>
@@ -1430,22 +1430,10 @@
                 <p class="section-subtitle">Real snapshots from smart classrooms, computer laboratories, and academic felicitations.</p>
             </div>
         </div>
-        <div class="gallery-grid">
-            <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="Smart Classroom Session">
-                <div class="gallery-caption">Smart Board Interactive Lectures</div>
-            </div>
-            <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="Computer Lab Session">
-                <div class="gallery-caption">High-Tech Computer Lab (ADCA Practical)</div>
-            </div>
-            <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" alt="Group Study & Discussion">
-                <div class="gallery-caption">Doubt Solving &amp; Discussion Hub</div>
-            </div>
-            <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80" alt="Annual Award Ceremony">
-                <div class="gallery-caption">Board Toppers Award Felicitation</div>
+        <div class="gallery-grid" id="publicGalleryGrid">
+            <!-- Dynamic Campus Gallery Loaded via API -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                Loading campus life gallery...
             </div>
         </div>
     </section>
@@ -1938,12 +1926,51 @@
             }
         }
 
+        // 7. Fetch Dynamic Campus Photo Gallery
+        async function loadGallery() {
+            const container = document.getElementById('publicGalleryGrid');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/public/gallery?_t=' + Date.now(), { cache: 'no-store' });
+                const result = await res.json();
+                const photos = (result.success && Array.isArray(result.data))
+                    ? result.data
+                    : (result.data && result.data.gallery ? result.data.gallery : []);
+
+                if (!photos || photos.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 45px 20px; background: #f8fafc; border-radius: 14px; border: 1px dashed #cbd5e1;">
+                            <div style="font-size: 32px; color: #94a3b8; margin-bottom: 8px;">📷</div>
+                            <h4 style="font-size: 16px; font-weight: 700; color: #334155; margin-bottom: 4px;">Campus Life &amp; Events Gallery</h4>
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Verified center events, awards and smart classroom moments will appear here once published by the Central Directorate.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = photos.map(p => `
+                    <div class="gallery-item">
+                        <img src="${p.image}" alt="${p.title || 'Campus Event'}" loading="lazy" onerror="this.src='/data/branding/logo.png'">
+                        <div class="gallery-caption">${p.title || 'Campus Event'}</div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                console.error('Error loading gallery:', e);
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: #94a3b8;">
+                        Campus gallery photos will appear here once uploaded by admin.
+                    </div>
+                `;
+            }
+        }
+
         // Initialize on Load
         document.addEventListener('DOMContentLoaded', () => {
             loadLiveCms();
             loadRunningOffers();
             loadCenters();
             loadBooks();
+            loadGallery();
         });
     </script>
 
