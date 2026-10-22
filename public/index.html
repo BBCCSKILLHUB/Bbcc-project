@@ -1266,12 +1266,12 @@
     <!-- 3. HERO SECTION (COLLEGE VIDYA STYLE) -->
     <section class="hero-section">
         <div class="hero-badge-tag">
-            <span>🛡️ ISO 9001:2015 Certified Educational Ecosystem</span>
+            <span id="heroBadgeText">🛡️ ISO 9001:2015 Certified Educational Ecosystem</span>
         </div>
-        <h1 class="hero-title">
+        <h1 class="hero-title" id="heroMainTitle">
             Discover Top Verified <span>Coaching Centers</span> &amp; E-Notes
         </h1>
-        <p class="hero-subtitle">
+        <p class="hero-subtitle" id="heroSubDesc">
             Compare trusted coaching institutes, get direct verified admission, and buy toppers' hand-written syllabus notes with instant Razorpay download.
         </p>
 
@@ -1455,7 +1455,7 @@
         <div class="footer-container">
             <div>
                 <div class="footer-logo-title">BBCC SKILL HUB</div>
-                <p class="footer-desc">
+                <p class="footer-desc" id="footerAboutDesc">
                     Bihar's premier EdTech aggregator and digital institute network. Empowering students with authentic study material, verified center affiliations, and transparent roll number verification.
                 </p>
                 <p style="font-size: 13px; color: #cbd5e1;">
@@ -1901,12 +1901,53 @@
             renderBooks(filtered);
         }
 
+        // 8. Live CMS Synchronizer (Admin Controlled)
+        async function loadLiveCms() {
+            try {
+                const res = await fetch('/api/public/cms/home');
+                const data = await res.json();
+                if (data.success && data.cms) {
+                    const c = data.cms;
+                    if (c.heroBadge) {
+                        const el = document.getElementById('heroBadgeText');
+                        if (el) el.textContent = c.heroBadge;
+                    }
+                    if (c.heroTitle) {
+                        const el = document.getElementById('heroMainTitle');
+                        if (el) el.innerHTML = c.heroTitle.replace(/Coaching Centers/g, '<span>Coaching Centers</span>');
+                    }
+                    if (c.heroDesc) {
+                        const el = document.getElementById('heroSubDesc');
+                        if (el) el.textContent = c.heroDesc;
+                    }
+                    if (c.aboutText) {
+                        const el = document.getElementById('footerAboutDesc');
+                        if (el) el.textContent = c.aboutText;
+                    }
+                    if (c.offerBannerText) {
+                        const ticker = document.getElementById('topOfferTicker');
+                        if (ticker) ticker.textContent = c.offerBannerText;
+                    }
+                    if (c.showOfferBanner === false) {
+                        const bar = document.querySelector('.top-offer-bar');
+                        if (bar) bar.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.warn('Live CMS sync error:', e);
+            }
+        }
+
         // Initialize on Load
         document.addEventListener('DOMContentLoaded', () => {
+            loadLiveCms();
             loadRunningOffers();
             loadCenters();
             loadBooks();
         });
     </script>
+
+    <!-- Bharti AI Assistant (Admin Controlled via Bharti AI Manager) -->
+    <script src="/bharti-widget.js" data-role="visitor"></script>
 </body>
 </html>
