@@ -96,50 +96,12 @@
       "createdAt": "2026-01-01T00:00:00.000Z"
     }
   ],
-  "centers": [
-    {
-      "_id": "ctr_bbcc_hq_001",
-      "centerName": "Bal Bharti Coaching Center (Central Campus)",
-      "directorName": "Santosh Kumar (Founder & MD)",
-      "email": "sky140052@gmail.com",
-      "contactNumber": "9876543210",
-      "whatsappNumber": "9876543210",
-      "address": "PTCC+BBCC Chakdah Chowk, Madhubani, Bihar - 847211",
-      "city": "Madhubani",
-      "regNumber": "BBCC-HQ-100001",
-      "username": "bbcc_hq",
-      "fromClass": "Class 6th",
-      "toClass": "ADCA / Competitive",
-      "admissionFee": 0,
-      "affiliationFee": 0,
-      "status": "Active",
-      "isBlocked": false,
-      "certificateIssued": true,
-      "certificateId": "BBCC-HQ-CERT-001",
-      "certificateIssuedAt": "2026-01-01T00:00:00.000Z",
-      "verifiedBadge": true,
-      "bannerImg": "",
-      "courses": [],
-      "materials": [],
-      "createdAt": "2026-01-01T00:00:00.000Z"
-    }
-  ],
+  "centers": [],
   "students": [],
   "teachers": [],
   "studyMaterials": {
-    "notes": [
-      {
-        "_id": "book_mviau5xq3134d",
-        "title": "bbcc",
-        "category": "Class 10th",
-        "mrp": 299,
-        "price": 99,
-        "coverImage": "/data/materials/bbcc_cover_1792598457437_a32a9e.png",
-        "fileUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
-        "downloadUrl": "/data/materials/bbcc_1792598457231_b351eb.pdf",
-        "createdAt": "2026-10-21T16:00:57.533Z"
-      }
-    ],
+    "notes": [],
+    "videos": [],
     "books": []
   },
   "paymentTransactions": [],
@@ -149,14 +111,7 @@
   "admissionInquiries": [],
   "affiliationApplications": [],
   "liveSessions": [],
-  "bharti_auto_push_log": {
-    "2026-10-22_morning": {
-      "dispatchedAt": "2026-10-22T04:22:45.260Z",
-      "slot": "morning",
-      "title": "🤖 भारती AI — प्रभात संदेश 🌅",
-      "body": "सुप्रभात! 'सफलता का रहस्य है प्रतिदिन निरंतर अभ्यास।' आज BBCC ई-लाइब्रेरी से अपना दैनिक लक्ष्य पूरा करें! 🌅"
-    }
-  },
+  "bharti_auto_push_log": {},
   "coupons": [],
   "plans": [
     {
