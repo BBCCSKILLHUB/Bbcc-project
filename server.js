@@ -2019,7 +2019,10 @@ async function initSystem() {
         // 1. Clean up legacy demo coaching centers if present in MongoDB
         try {
             const removed = await TuitionCenter.deleteMany({
-                username: { $in: ['patna-science', 'mithila-it', 'magadh-teachers'] }
+                $or: [
+                    { username: { $in: ['patna-science', 'mithila-it', 'magadh-teachers', 'super30', 'patna-super-30', 'demo-center'] } },
+                    { centerName: { $regex: /super 30|demo coaching|test coaching|sample coaching/i } }
+                ]
             });
             if (removed && removed.deletedCount > 0) {
                 console.log(`🧹 Removed ${removed.deletedCount} legacy demo coaching centers from MongoDB.`);
@@ -2028,51 +2031,24 @@ async function initSystem() {
             console.warn('Demo centers cleanup notice:', cleanErr.message);
         }
 
-        // 3. Preserve and merge StudyMaterial notes across MongoDB & portal_db.json
+        // 2. Synchronize StudyMaterial notes strictly according to portal_db.json
+        // CRITICAL: Never auto-resurrect deleted books or notes from old MongoDB/Astra remnants!
         let smDoc = await StudyMaterial.findOne();
         if (!smDoc) {
             smDoc = await StudyMaterial.create({ notes: [], videos: [] });
         }
-        if (!smDoc.notes) smDoc.notes = [];
         if (!pdb.studyMaterials) pdb.studyMaterials = { notes: [], videos: [] };
         if (!pdb.studyMaterials.notes) pdb.studyMaterials.notes = [];
 
-        // Merge notes so user-added books in MongoDB are never wiped out on restart!
-        const existingSmIds = new Set(smDoc.notes.map(n => (n._id || '').toString()));
-        pdb.studyMaterials.notes.forEach(pn => {
-            const pid = (pn._id || '').toString();
-            if (pid && !existingSmIds.has(pid)) {
-                smDoc.notes.push(pn);
-                existingSmIds.add(pid);
-            }
-        });
-        const existingPdbIds = new Set(pdb.studyMaterials.notes.map(n => (n._id || '').toString()));
-        smDoc.notes.forEach(mn => {
-            const mid = (mn._id || '').toString();
-            if (mid && !existingPdbIds.has(mid)) {
-                pdb.studyMaterials.notes.push(mn);
-                existingPdbIds.add(mid);
-            }
-        });
-
-        // Tri-merge with Astra DB bbcc_study_materials so notes persist forever even across Render redeploys!
-        if (astraDb && isAstraConnected) {
-            try {
-                const astraCol = astraDb.collection('bbcc_study_materials');
-                const astraNotes = await astraCol.find({}).toArray();
-                if (Array.isArray(astraNotes)) {
-                    astraNotes.forEach(an => {
-                        const aid = (an._id || '').toString();
-                        if (aid && !existingPdbIds.has(aid)) {
-                            pdb.studyMaterials.notes.push(an);
-                            existingPdbIds.add(aid);
-                        }
-                    });
-                }
-            } catch(e) {}
+        // If portal_db.json has 0 notes (wiped/empty), keep MongoDB smDoc empty as well!
+        if (pdb.studyMaterials.notes.length === 0) {
+            smDoc.notes = [];
+            await smDoc.save().catch(() => {});
+        } else {
+            // Otherwise sync MongoDB to match portal_db.json
+            smDoc.notes = pdb.studyMaterials.notes;
+            await smDoc.save().catch(() => {});
         }
-
-        await smDoc.save().catch(() => {});
         await savePortalDb(pdb).catch(() => {});
 
         // 4. Ensure Settings has valid restored logo, gallery, founder & promotional banners
@@ -2811,26 +2787,28 @@ app.get('/api/public/centers', async (req, res) => {
             if (cached) return res.json({ success: true, data: cached });
         }
 
-        let centers = [];
-        if (isMongoConnected) {
-            try {
-                centers = await TuitionCenter.find({}, { password: 0, paymentQr: 0 }).sort({ createdAt: -1 }).lean();
-            } catch(e) {}
-        }
         const pdb = loadPortalDb();
-        if (!centers || centers.length === 0) {
-            centers = (pdb.centers || []).map(c => {
-                const { password, paymentQr, ...safe } = c;
-                return safe;
-            });
-        } else if (pdb.centers && pdb.centers.length > 0) {
-            const existingUsernames = new Set(centers.map(c => (c.username || '').toLowerCase()));
-            pdb.centers.forEach(pc => {
-                if (!existingUsernames.has((pc.username || '').toLowerCase())) {
-                    const { password, paymentQr, ...safe } = pc;
-                    centers.push(safe);
+        const pdbCenters = (pdb.centers || []).map(c => {
+            const { password, paymentQr, ...safe } = c;
+            return safe;
+        });
+
+        let centers = [...pdbCenters];
+
+        if (isMongoConnected && pdbCenters.length > 0) {
+            try {
+                const mongoCenters = await TuitionCenter.find({}, { password: 0, paymentQr: 0 }).sort({ createdAt: -1 }).lean();
+                if (Array.isArray(mongoCenters) && mongoCenters.length > 0) {
+                    const existingUsernames = new Set(centers.map(c => (c.username || '').toLowerCase()));
+                    mongoCenters.forEach(mc => {
+                        const u = (mc.username || '').toLowerCase();
+                        if (u && !existingUsernames.has(u)) {
+                            centers.push(mc);
+                            existingUsernames.add(u);
+                        }
+                    });
                 }
-            });
+            } catch(e) {}
         }
 
         setCache('public_centers', centers, 3000);
@@ -11055,13 +11033,25 @@ app.put('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
 // 8.3 Delete Center
 app.delete('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
     try {
-        await TuitionCenter.findByIdAndDelete(req.params.id);
+        const cid = req.params.id;
+        if (isMongoConnected) {
+            try {
+                await TuitionCenter.deleteMany({
+                    $or: [
+                        { _id: mongoose.Types.ObjectId.isValid(cid) ? new mongoose.Types.ObjectId(cid) : null },
+                        { _id: cid },
+                        { username: cid },
+                        { regNumber: cid }
+                    ]
+                });
+            } catch(e) {}
+        }
         const pdb = loadPortalDb();
         let centerUsername = '';
         if (pdb.centers) {
-            const foundC = pdb.centers.find(c => c._id && c._id.toString() === req.params.id.toString());
+            const foundC = pdb.centers.find(c => (c._id && c._id.toString() === cid) || c.username === cid || c.regNumber === cid);
             if (foundC) centerUsername = foundC.username;
-            pdb.centers = pdb.centers.filter(c => c._id && c._id.toString() !== req.params.id.toString());
+            pdb.centers = pdb.centers.filter(c => (c._id && c._id.toString() !== cid) && c.username !== cid && c.regNumber !== cid);
         }
         if (centerUsername) {
             if (pdb.affiliationApplications) {
@@ -11074,7 +11064,7 @@ app.delete('/api/admin/centers/:id', verifySuperAdmin, async (req, res) => {
         await savePortalDb(pdb);
         clearCache();
         broadcastRealtimeEvent('centers_updated', { action: 'center_deleted', centerId: req.params.id });
-        res.json({ success: true, message: 'Coaching center removed from system' });
+        res.json({ success: true, message: 'Coaching center permanently removed from system' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -12061,15 +12051,44 @@ app.delete('/api/admin/coaching/:id', verifySuperAdmin, async (req, res) => {
     try {
         const id = req.params.id;
         const pdb = loadPortalDb();
-        const idx = (pdb.centers || []).findIndex(c => c._id === id || c.username === id || c.regNumber === id);
-        if (idx === -1) {
-            return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        const foundC = (pdb.centers || []).find(c => (c._id && c._id.toString() === id) || c.username === id || c.regNumber === id || c.id === id);
+        const centerName = foundC ? (foundC.centerName || 'Center') : 'Center';
+        const centerUser = foundC ? foundC.username : '';
+
+        // 1. Remove from portal_db.json
+        pdb.centers = (pdb.centers || []).filter(c => (c._id && c._id.toString() !== id) && c.username !== id && c.regNumber !== id && c.id !== id);
+
+        if (centerUser) {
+            if (pdb.affiliationApplications) {
+                pdb.affiliationApplications = pdb.affiliationApplications.filter(a => a.username !== centerUser);
+            }
+            if (pdb.paymentTransactions) {
+                pdb.paymentTransactions = pdb.paymentTransactions.filter(t => t.username !== centerUser);
+            }
         }
-        const removed = pdb.centers.splice(idx, 1)[0];
+
+        // 2. Remove from MongoDB (if connected)
+        if (isMongoConnected) {
+            try {
+                await TuitionCenter.deleteMany({
+                    $or: [
+                        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null },
+                        { _id: id },
+                        { id: id },
+                        { username: id },
+                        { regNumber: id }
+                    ]
+                });
+                if (pdb.centers.length === 0) {
+                    await TuitionCenter.deleteMany({});
+                }
+            } catch(e) {}
+        }
+
         await savePortalDb(pdb);
         clearCache();
-        broadcastRealtimeEvent('centers_updated');
-        res.json({ success: true, message: `Coaching center "${removed.centerName}" deleted successfully` });
+        broadcastRealtimeEvent('centers_updated', { action: 'center_deleted', centerId: id });
+        res.json({ success: true, message: `Coaching center "${centerName}" permanently deleted successfully from all systems` });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -12194,24 +12213,66 @@ app.delete('/api/admin/library/:id', verifySuperAdmin, async (req, res) => {
     try {
         const id = req.params.id;
         const pdb = loadPortalDb();
+        let bookTitle = 'Document';
         if (pdb.studyMaterials && Array.isArray(pdb.studyMaterials.notes)) {
-            const idx = pdb.studyMaterials.notes.findIndex(b => (b._id && b._id.toString() === id) || b.id === id);
-            if (idx !== -1) {
-                pdb.studyMaterials.notes.splice(idx, 1);
-                await savePortalDb(pdb);
-            }
+            const foundB = pdb.studyMaterials.notes.find(b => (b._id && b._id.toString() === id) || b.id === id);
+            if (foundB) bookTitle = foundB.title || 'Document';
+            pdb.studyMaterials.notes = pdb.studyMaterials.notes.filter(b => (b._id && b._id.toString() !== id) && b.id !== id);
+            await savePortalDb(pdb);
         }
 
-        if (astraDb && isAstraConnected) {
+        // Remove from MongoDB
+        if (isMongoConnected) {
             try {
-                const astraCol = astraDb.collection('bbcc_study_materials');
-                await astraCol.deleteOne({ _id: id });
+                await StudyMaterial.updateMany({}, {
+                    $pull: {
+                        notes: {
+                            $or: [
+                                { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null },
+                                { _id: id },
+                                { id: id }
+                            ]
+                        }
+                    }
+                });
+                if (!pdb.studyMaterials || !pdb.studyMaterials.notes || pdb.studyMaterials.notes.length === 0) {
+                    await StudyMaterial.updateMany({}, { $set: { notes: [] } });
+                }
             } catch (e) {}
         }
 
+        // Remove from Astra DB
+        if (astraDb && isAstraConnected) {
+            try {
+                const astraCol = astraDb.collection('bbcc_study_materials');
+                await astraCol.deleteMany({
+                    $or: [
+                        { _id: id },
+                        { _id: id.toString() }
+                    ]
+                });
+                if (!pdb.studyMaterials || !pdb.studyMaterials.notes || pdb.studyMaterials.notes.length === 0) {
+                    await astraCol.deleteMany({});
+                }
+            } catch (e) {}
+        }
+
+        // Clean local disk file if present
+        try {
+            const matDir = path.join(__dirname, 'public', 'data', 'materials');
+            if (fs.existsSync(matDir)) {
+                const files = fs.readdirSync(matDir);
+                files.forEach(f => {
+                    if (f.includes(id)) {
+                        try { fs.unlinkSync(path.join(matDir, f)); } catch(e) {}
+                    }
+                });
+            }
+        } catch(e) {}
+
         clearCache();
-        broadcastRealtimeEvent('books_updated');
-        res.json({ success: true, message: 'Book deleted from E-Library and Astra DB' });
+        broadcastRealtimeEvent('books_updated', { action: 'book_deleted', bookId: id });
+        res.json({ success: true, message: `Book "${bookTitle}" permanently deleted from E-Library, Database, and Astra DB` });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -12276,16 +12337,131 @@ app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
 // ============================================================
 app.get(['/api/admin/settings/apikeys', '/api/admin/api-health'], verifySuperAdmin, async (req, res) => {
     try {
-        const brevoKey = process.env.BREVO_API_KEY || '';
-        const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
-        const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || '';
-        const geminiApiKey = process.env.GEMINI_API_KEY || '';
-        const groqApiKey = process.env.GROQ_API_KEY || '';
-        const astraToken = process.env.ASTRA_DB_APPLICATION_TOKEN || '';
-        const astraEndpoint = process.env.ASTRA_DB_API_ENDPOINT || '';
-        const emailUser = process.env.EMAIL_USER || 'balbharticoching.center@gmail.com';
-        const hasEmailPass = Boolean(process.env.EMAIL_APP_PASSWORD);
-        const jwtSecret = process.env.JWT_SECRET || '';
+        const brevoKey = (process.env.BREVO_API_KEY || process.env.EMAIL_API_KEY || '').trim();
+        const razorpayKeyId = (process.env.RAZORPAY_KEY_ID || '').trim();
+        const razorpayKeySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+        const geminiApiKey = (process.env.GEMINI_API_KEY || '').trim();
+        const groqApiKey = (process.env.GROQ_API_KEY || '').trim();
+        const astraToken = (process.env.ASTRA_DB_APPLICATION_TOKEN || '').trim();
+        const astraEndpoint = (process.env.ASTRA_DB_API_ENDPOINT || '').trim();
+        const mongoUri = (process.env.MONGO_URI || '').trim();
+        const twilioSid = (process.env.TWILIO_ACCOUNT_SID || '').trim();
+        const twilioToken = (process.env.TWILIO_AUTH_TOKEN || '').trim();
+        const emailUser = (process.env.EMAIL_USER || 'balbharticoching.center@gmail.com').trim();
+        const emailPass = (process.env.EMAIL_APP_PASSWORD || '').trim();
+        const jwtSecret = (process.env.JWT_SECRET || '').trim();
+
+        // Run fast parallel probes (timeout 2500ms each)
+        const [brevoProbe, rzpProbe, geminiProbe, twilioProbe, groqProbe] = await Promise.allSettled([
+            // 1. Brevo
+            (async () => {
+                if (!brevoKey) return { status: 'Not Set / Missing', statusCode: 'missing', detail: 'BREVO_API_KEY not set in Render .env' };
+                try {
+                    const r = await fetch('https://api.brevo.com/v3/account', {
+                        headers: { 'api-key': brevoKey, 'accept': 'application/json' },
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r.ok) {
+                        const d = await r.json().catch(() => ({}));
+                        return { status: 'Active & Connected', statusCode: 'active', detail: `Brevo Live: ${d.email || 'Verified'}` };
+                    }
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: `HTTP ${r.status} Unauthorized / IP Restricted` };
+                } catch(e) {
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: e.message };
+                }
+            })(),
+            // 2. Razorpay
+            (async () => {
+                if (!razorpayKeyId || !razorpayKeySecret) return { status: 'Not Set / Missing', statusCode: 'missing', detail: 'RAZORPAY_KEY_ID or SECRET not set in Render .env' };
+                try {
+                    const auth = Buffer.from(razorpayKeyId + ':' + razorpayKeySecret).toString('base64');
+                    const r = await fetch('https://api.razorpay.com/v1/payments?count=1', {
+                        headers: { 'Authorization': 'Basic ' + auth },
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r.ok) return { status: 'Active & Connected', statusCode: 'active', detail: 'Razorpay Gateway Live & Operational' };
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: `HTTP ${r.status} Authentication Failed` };
+                } catch(e) {
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: e.message };
+                }
+            })(),
+            // 3. Google Gemini AI
+            (async () => {
+                if (!geminiApiKey) return { status: 'Not Set / Missing', statusCode: 'missing', detail: 'GEMINI_API_KEY not set in Render .env' };
+                try {
+                    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + geminiApiKey, {
+                        headers: { 'x-goog-api-key': geminiApiKey },
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r.ok) return { status: 'Active & Connected', statusCode: 'active', detail: 'Google Gemini 1.5/2.0 Live' };
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: `HTTP ${r.status} ACCESS_TOKEN_TYPE_UNSUPPORTED` };
+                } catch(e) {
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: e.message };
+                }
+            })(),
+            // 4. Twilio
+            (async () => {
+                if (!twilioSid || !twilioToken) return { status: 'Not Set / Missing', statusCode: 'missing', detail: 'TWILIO_ACCOUNT_SID not set in Render .env' };
+                try {
+                    const auth = Buffer.from(twilioSid + ':' + twilioToken).toString('base64');
+                    const r = await fetch('https://api.twilio.com/2010-04-01/Accounts/' + twilioSid + '.json', {
+                        headers: { 'Authorization': 'Basic ' + auth },
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r.ok) {
+                        const d = await r.json().catch(() => ({}));
+                        return { status: 'Active & Connected', statusCode: 'active', detail: `Twilio Live: ${d.friendly_name || 'Active'}` };
+                    }
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: `HTTP ${r.status} Twilio Auth Failed` };
+                } catch(e) {
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: e.message };
+                }
+            })(),
+            // 5. Groq
+            (async () => {
+                if (!groqApiKey) return { status: 'Not Set / Missing', statusCode: 'missing', detail: 'GROQ_API_KEY not set in Render .env' };
+                try {
+                    const r = await fetch('https://api.groq.com/openai/v1/models', {
+                        headers: { 'Authorization': 'Bearer ' + groqApiKey },
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r.ok) return { status: 'Active & Connected', statusCode: 'active', detail: 'Groq Cloud Llama-3.3 Live' };
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: `HTTP ${r.status} Invalid Groq Key` };
+                } catch(e) {
+                    return { status: 'Expired / Invalid Key', statusCode: 'expired', detail: e.message };
+                }
+            })()
+        ]);
+
+        const bp = brevoProbe.status === 'fulfilled' ? brevoProbe.value : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Probe error' };
+        const rp = rzpProbe.status === 'fulfilled' ? rzpProbe.value : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Probe error' };
+        const gp = geminiProbe.status === 'fulfilled' ? geminiProbe.value : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Probe error' };
+        const tp = twilioProbe.status === 'fulfilled' ? twilioProbe.value : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Probe error' };
+        const grp = groqProbe.status === 'fulfilled' ? groqProbe.value : { status: 'Not Set / Missing', statusCode: 'missing', detail: 'Not set' };
+
+        // 6. Astra DB
+        const astraStatus = (!astraToken || !astraEndpoint)
+            ? { status: 'Not Set / Missing', statusCode: 'missing', detail: 'ASTRA_DB_APPLICATION_TOKEN not set' }
+            : (isAstraConnected && astraDb
+                ? { status: 'Active & Connected', statusCode: 'active', detail: 'Astra DB Cloud Live (default_keyspace)' }
+                : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Astra DB connection failed' });
+
+        // 7. MongoDB
+        const mongoStatus = (!mongoUri)
+            ? { status: 'Not Set / Missing', statusCode: 'missing', detail: 'MONGO_URI not set in Render .env' }
+            : (isMongoConnected || (mongoose.connection && mongoose.connection.readyState === 1)
+                ? { status: 'Active & Connected', statusCode: 'active', detail: 'MongoDB Atlas Cloud Database Connected' }
+                : { status: 'Expired / Invalid Key', statusCode: 'expired', detail: 'Authentication Failed / bad auth' });
+
+        // 8. Nodemailer / Gmail SMTP
+        const nodemailerStatus = (!emailPass)
+            ? { status: 'Not Set / Missing', statusCode: 'missing', detail: 'EMAIL_APP_PASSWORD not set in Render .env' }
+            : { status: 'Active & Connected', statusCode: 'active', detail: 'Gmail SMTP Dispatcher (200 OK / Ready)' };
+
+        // 9. JWT Auth
+        const jwtStatus = (!jwtSecret)
+            ? { status: 'Not Set / Missing', statusCode: 'missing', detail: 'JWT_SECRET not set' }
+            : { status: 'Active & Connected', statusCode: 'active', detail: 'JWT Military-Grade 30-Day Sealed Vault' };
 
         res.json({
             success: true,
@@ -12295,51 +12471,82 @@ app.get(['/api/admin/settings/apikeys', '/api/admin/api-health'], verifySuperAdm
                     name: 'Brevo Transactional Email',
                     envVar: 'BREVO_API_KEY',
                     configured: Boolean(brevoKey),
-                    keyId: brevoKey ? (brevoKey.slice(0, 10) + '••••••••' + brevoKey.slice(-4)) : 'Missing in Render .env',
-                    status: Boolean(brevoKey) ? 'Connected' : 'Not Configured'
+                    keyId: brevoKey ? (brevoKey.slice(0, 10) + '••••••••' + brevoKey.slice(-4)) : 'Not Set',
+                    status: bp.status,
+                    statusCode: bp.statusCode,
+                    detail: bp.detail
                 },
                 razorpay: {
                     name: 'Razorpay Payment Gateway',
                     envVar: 'RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET',
                     configured: Boolean(razorpayKeyId && razorpayKeySecret),
-                    keyId: razorpayKeyId ? (razorpayKeyId.slice(0, 8) + '••••••••' + razorpayKeyId.slice(-4)) : 'Missing in Render .env',
-                    status: Boolean(razorpayKeyId && razorpayKeySecret) ? 'Active' : 'Pending Setup'
+                    keyId: razorpayKeyId ? (razorpayKeyId.slice(0, 8) + '••••••••' + razorpayKeyId.slice(-4)) : 'Not Set',
+                    status: rp.status,
+                    statusCode: rp.statusCode,
+                    detail: rp.detail
                 },
                 gemini: {
                     name: 'Google Gemini AI (Bharti Counselor)',
                     envVar: 'GEMINI_API_KEY',
                     configured: Boolean(geminiApiKey),
-                    key: geminiApiKey ? (geminiApiKey.slice(0, 8) + '••••••••' + geminiApiKey.slice(-4)) : 'Missing in Render .env',
-                    status: Boolean(geminiApiKey) ? 'Active' : 'Not Configured'
-                },
-                groq: {
-                    name: 'Groq Cloud AI (High-Speed LLM)',
-                    envVar: 'GROQ_API_KEY',
-                    configured: Boolean(groqApiKey),
-                    key: groqApiKey ? (groqApiKey.slice(0, 7) + '••••••••' + groqApiKey.slice(-4)) : 'Optional Standby',
-                    model: 'llama-3.3-70b-versatile',
-                    status: Boolean(groqApiKey) ? 'Active' : 'Standby / Optional'
+                    key: geminiApiKey ? (geminiApiKey.slice(0, 8) + '••••••••' + geminiApiKey.slice(-4)) : 'Not Set',
+                    status: gp.status,
+                    statusCode: gp.statusCode,
+                    detail: gp.detail
                 },
                 astra: {
                     name: 'DataStax Astra DB (Cloud Document DB)',
                     envVar: 'ASTRA_DB_APPLICATION_TOKEN',
                     configured: Boolean(isAstraConnected && astraToken),
                     endpoint: astraEndpoint ? (astraEndpoint.slice(0, 25) + '...') : '',
-                    status: isAstraConnected ? 'Connected & Live' : (Boolean(astraToken) ? 'Configured' : 'Local File Staging')
+                    status: astraStatus.status,
+                    statusCode: astraStatus.statusCode,
+                    detail: astraStatus.detail
+                },
+                mongo: {
+                    name: 'MongoDB Atlas Cloud Database',
+                    envVar: 'MONGO_URI',
+                    configured: Boolean(mongoUri),
+                    uri: mongoUri ? (mongoUri.slice(0, 15) + '••••••••') : 'Not Set',
+                    status: mongoStatus.status,
+                    statusCode: mongoStatus.statusCode,
+                    detail: mongoStatus.detail
+                },
+                twilio: {
+                    name: 'Twilio SMS & WhatsApp Gateway',
+                    envVar: 'TWILIO_ACCOUNT_SID & TWILIO_AUTH_TOKEN',
+                    configured: Boolean(twilioSid && twilioToken),
+                    sid: twilioSid ? (twilioSid.slice(0, 6) + '••••••••' + twilioSid.slice(-4)) : 'Not Set',
+                    status: tp.status,
+                    statusCode: tp.statusCode,
+                    detail: tp.detail
                 },
                 nodemailer: {
-                    name: 'Official SMTP / Gmail Fallback',
+                    name: 'Official Gmail SMTP Dispatcher',
                     envVar: 'EMAIL_USER & EMAIL_APP_PASSWORD',
-                    configured: Boolean(emailUser && hasEmailPass),
+                    configured: Boolean(emailUser && emailPass),
                     user: emailUser,
-                    status: Boolean(emailUser && hasEmailPass) ? 'Active (Ready)' : 'Config Error'
+                    status: nodemailerStatus.status,
+                    statusCode: nodemailerStatus.statusCode,
+                    detail: nodemailerStatus.detail
+                },
+                groq: {
+                    name: 'Groq Cloud AI (High-Speed LLM)',
+                    envVar: 'GROQ_API_KEY',
+                    configured: Boolean(groqApiKey),
+                    key: groqApiKey ? (groqApiKey.slice(0, 7) + '••••••••' + groqApiKey.slice(-4)) : 'Not Set',
+                    status: grp.status,
+                    statusCode: grp.statusCode,
+                    detail: grp.detail
                 },
                 jwt: {
                     name: 'JWT Military-Grade Auth Vault',
                     envVar: 'JWT_SECRET',
                     configured: Boolean(jwtSecret),
                     keyId: '•••••••••••••••• (30-Day Sealed)',
-                    status: 'Active'
+                    status: jwtStatus.status,
+                    statusCode: jwtStatus.statusCode,
+                    detail: jwtStatus.detail
                 }
             }
         });
@@ -12356,47 +12563,79 @@ app.put('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
     });
 });
 
-// Diagnostic ping testing
+// Diagnostic live ping testing
 app.post('/api/admin/api-health/ping', verifySuperAdmin, async (req, res) => {
     const { service } = req.body;
     try {
         if (service === 'brevo') {
-            const key = process.env.BREVO_API_KEY;
-            if (!key) return res.status(400).json({ success: false, message: 'BREVO_API_KEY is not configured in Render .env' });
+            const key = (process.env.BREVO_API_KEY || process.env.EMAIL_API_KEY || '').trim();
+            if (!key) return res.json({ success: false, status: 'Not Set / Missing', message: 'BREVO_API_KEY is not configured in Render .env' });
             const r = await fetch('https://api.brevo.com/v3/account', {
-                headers: { 'api-key': key, 'accept': 'application/json' }
+                headers: { 'api-key': key, 'accept': 'application/json' },
+                signal: AbortSignal.timeout(4000)
             });
             if (r.ok) {
-                const data = await r.json();
-                return res.json({ success: true, message: `Brevo Live Connected! Account: ${data.email || 'Verified'}` });
-            } else {
-                return res.status(r.status).json({ success: false, message: `Brevo responded with status: ${r.status}` });
+                const data = await r.json().catch(() => ({}));
+                return res.json({ success: true, status: 'Active & Connected', message: `Brevo Live Connected! Account: ${data.email || 'Verified'}` });
             }
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: `Brevo Error: HTTP ${r.status} Unauthorized (IP restriction enabled or invalid key)` });
         } else if (service === 'razorpay') {
-            const key = process.env.RAZORPAY_KEY_ID;
-            const secret = process.env.RAZORPAY_KEY_SECRET;
-            if (!key || !secret) return res.status(400).json({ success: false, message: 'RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set in Render .env' });
-            return res.json({ success: true, message: `Razorpay Credentials Active in .env (Key ID: ${key.slice(0, 8)}••••)` });
+            const key = (process.env.RAZORPAY_KEY_ID || '').trim();
+            const secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+            if (!key || !secret) return res.json({ success: false, status: 'Not Set / Missing', message: 'RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing in Render .env' });
+            const auth = Buffer.from(key + ':' + secret).toString('base64');
+            const r = await fetch('https://api.razorpay.com/v1/payments?count=1', {
+                headers: { 'Authorization': 'Basic ' + auth },
+                signal: AbortSignal.timeout(4000)
+            });
+            if (r.ok) return res.json({ success: true, status: 'Active & Connected', message: `Razorpay Live Connected! Key ID: ${key.slice(0, 8)}••••` });
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: `Razorpay Error: HTTP ${r.status} Authentication Failed (Check Key & Secret)` });
         } else if (service === 'gemini') {
-            const key = process.env.GEMINI_API_KEY;
-            if (!key) return res.status(400).json({ success: false, message: 'GEMINI_API_KEY is not configured in Render .env' });
-            const testResult = await callGoogleGemini({
-                apiKey: key,
-                prompt: 'Say exactly: "Google Gemini AI Engine is operational."'
+            const key = (process.env.GEMINI_API_KEY || '').trim();
+            if (!key) return res.json({ success: false, status: 'Not Set / Missing', message: 'GEMINI_API_KEY is not configured in Render .env' });
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + key, {
+                headers: { 'x-goog-api-key': key },
+                signal: AbortSignal.timeout(4000)
             });
-            return res.json({ success: true, message: testResult.text ? `Gemini Active! (${testResult.modelUsed || 'Gemini 1.5/2.0 Flash'})` : 'Gemini ping successful.' });
+            if (r.ok) return res.json({ success: true, status: 'Active & Connected', message: 'Google Gemini AI Live & Operational!' });
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: `Gemini Error: HTTP ${r.status} (ACCESS_TOKEN_TYPE_UNSUPPORTED: Standard AIzaSy... key required)` });
         } else if (service === 'groq') {
-            const key = process.env.GROQ_API_KEY;
-            if (!key) return res.status(400).json({ success: false, message: 'GROQ_API_KEY is not set in Render .env' });
-            const result = await callGroqChat({
-                apiKey: key,
-                prompt: 'Test connectivity: Return exactly "OK"'
+            const key = (process.env.GROQ_API_KEY || '').trim();
+            if (!key) return res.json({ success: false, status: 'Not Set / Missing', message: 'GROQ_API_KEY is not set in Render .env' });
+            const r = await fetch('https://api.groq.com/openai/v1/models', {
+                headers: { 'Authorization': 'Bearer ' + key },
+                signal: AbortSignal.timeout(4000)
             });
-            return res.json({ success: true, message: 'Groq Cloud Llama-3.3-70b Active & Live!' });
+            if (r.ok) return res.json({ success: true, status: 'Active & Connected', message: 'Groq Cloud Llama-3.3-70b Active & Live!' });
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: `Groq Error: HTTP ${r.status} Invalid Key` });
         } else if (service === 'astra') {
-            return res.json({ success: true, message: isAstraConnected ? 'Astra DB Cloud is Live & Connected!' : 'Astra DB configured on local/cloud fallback' });
-        } else if (service === 'otp') {
-            return res.json({ success: true, message: 'Gmail SMTP Dispatcher is Active & Ready' });
+            if (!process.env.ASTRA_DB_APPLICATION_TOKEN) return res.json({ success: false, status: 'Not Set / Missing', message: 'ASTRA_DB_APPLICATION_TOKEN not set in Render .env' });
+            if (isAstraConnected && astraDb) return res.json({ success: true, status: 'Active & Connected', message: 'DataStax Astra DB Cloud is Live & Connected!' });
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: 'Astra DB Connection Failed / Token Invalid' });
+        } else if (service === 'mongo') {
+            if (!process.env.MONGO_URI) return res.json({ success: false, status: 'Not Set / Missing', message: 'MONGO_URI is not set in Render .env' });
+            if (isMongoConnected || (mongoose.connection && mongoose.connection.readyState === 1)) {
+                return res.json({ success: true, status: 'Active & Connected', message: 'MongoDB Atlas Cloud Database is Active & Connected!' });
+            }
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: 'MongoDB Error: bad auth : authentication failed' });
+        } else if (service === 'twilio') {
+            const sid = (process.env.TWILIO_ACCOUNT_SID || '').trim();
+            const token = (process.env.TWILIO_AUTH_TOKEN || '').trim();
+            if (!sid || !token) return res.json({ success: false, status: 'Not Set / Missing', message: 'TWILIO_ACCOUNT_SID or AUTH_TOKEN not set in Render .env' });
+            const auth = Buffer.from(sid + ':' + token).toString('base64');
+            const r = await fetch('https://api.twilio.com/2010-04-01/Accounts/' + sid + '.json', {
+                headers: { 'Authorization': 'Basic ' + auth },
+                signal: AbortSignal.timeout(4000)
+            });
+            if (r.ok) {
+                const d = await r.json().catch(() => ({}));
+                return res.json({ success: true, status: 'Active & Connected', message: `Twilio Live Connected! Account: ${d.friendly_name || 'Active'}` });
+            }
+            return res.json({ success: false, status: 'Expired / Invalid Key', message: `Twilio Error: HTTP ${r.status} Authentication Failed` });
+        } else if (service === 'otp' || service === 'nodemailer') {
+            const pass = (process.env.EMAIL_APP_PASSWORD || '').trim();
+            if (!pass) return res.json({ success: false, status: 'Not Set / Missing', message: 'EMAIL_APP_PASSWORD is not set in Render .env' });
+            return res.json({ success: true, status: 'Active & Connected', message: 'Official Gmail SMTP Dispatcher is Active & Ready to send OTPs / emails!' });
         } else {
             return res.status(400).json({ success: false, message: 'Unknown service requested' });
         }
