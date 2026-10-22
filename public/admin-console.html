@@ -260,6 +260,9 @@
             <button class="admin-nav-btn" id="navBtn-studio" onclick="switchAdminTab('studio')">
                 <i class="fas fa-certificate" style="color:#ec4899;"></i> 11. Design Studio (ID & Certs)
             </button>
+            <button class="admin-nav-btn" id="navBtn-gallery" onclick="switchAdminTab('gallery')">
+                <i class="fas fa-images" style="color:#f59e0b;"></i> 12. Campus Photo Gallery
+            </button>
 
             <!-- Category Title: DIRECTORATE TOOLS & STUDIO -->
             <div style="margin-top:16px; padding:6px 12px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
@@ -8104,26 +8107,27 @@ Provide authentic information and direct escalation links to leadership or cente
             const grid = document.getElementById('adminGalleryGrid');
             if (!grid) return;
             try {
-                const res = await fetch('/api/public/config?_t=' + Date.now(), { cache: 'no-store' });
+                const res = await fetch('/api/public/gallery?_t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
-                if (data.success && data.data && data.data.gallery) {
-                    const gallery = data.data.gallery;
-                    if (gallery.length === 0) {
-                        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;">No campus gallery photos uploaded yet.</div>';
-                        return;
-                    }
-                    grid.innerHTML = gallery.map(img => `
-                        <div style="background:var(--admin-card); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden;">
-                            <img src="${img.image}" style="width:100%; height:160px; object-fit:cover;">
-                            <div style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                                <strong style="font-size:13px; color:#ffffff;">${img.title || 'Campus Event'}</strong>
-                                <button onclick="deleteGalleryPhoto('${img._id}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 8px; font-size:11px;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
+                const gallery = (data.success && Array.isArray(data.data)) 
+                    ? data.data 
+                    : (data.data && data.data.gallery ? data.data.gallery : []);
+
+                if (gallery.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;"><i class="fas fa-images" style="font-size:28px; margin-bottom:8px; display:block;"></i>No campus gallery photos uploaded yet. Upload your first photo above!</div>';
+                    return;
                 }
+                grid.innerHTML = gallery.map(img => `
+                    <div style="background:var(--admin-card); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden;">
+                        <img src="${img.image}" style="width:100%; height:160px; object-fit:cover;" onerror="this.src='/data/branding/logo.png'">
+                        <div style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:13px; color:#ffffff;">${img.title || 'Campus Event'}</strong>
+                            <button onclick="deleteGalleryPhoto('${img._id}')" class="btn-aurora" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:4px 8px; font-size:11px;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
             } catch(e) {
                 grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#ef4444; padding:20px;">Error loading gallery photos.</div>';
             }
