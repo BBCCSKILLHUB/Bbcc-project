@@ -646,107 +646,152 @@
                                 Production API credentials are strictly read from Render Environment Variables (.env). Zero client-side storage for maximum security.
                             </p>
                         </div>
-                        <button type="button" onclick="loadApiIntegrations()" class="btn-aurora btn-gold">
-                            <i class="fas fa-rotate"></i> Refresh Health Status
-                        </button>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="runAllApiHealthPings()" class="btn-aurora" style="background:#10b981; border:1px solid #059669; color:#ffffff; font-weight:700;">
+                                <i class="fas fa-bolt"></i> Run Live Verification on All APIs
+                            </button>
+                            <button type="button" onclick="loadApiIntegrations()" class="btn-aurora btn-gold">
+                                <i class="fas fa-rotate"></i> Refresh Health Status
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 6 API Diagnostic Cards Grid -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-bottom:24px;">
-                    <!-- 1. Brevo Email API -->
-                    <div class="card-console" style="margin-bottom:0; border-color:rgba(16,185,129,0.35);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-paper-plane" style="color:#10b981; font-size:18px;"></i>
-                                <b style="font-size:14px;">Brevo Email Service</b>
-                            </div>
-                            <span id="badgeBrevoStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
-                        </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">BREVO_API_KEY</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Key: <span id="dispBrevoKey" style="color:#fff; font-family:monospace;">xkeysib-••••••••</span></div>
-                        <button type="button" onclick="testApiKey('brevo')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#34d399; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-plug"></i> Test Brevo Connection
-                        </button>
-                    </div>
-
-                    <!-- 2. Razorpay Gateway -->
-                    <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.25);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <!-- 8 API Diagnostic Cards Grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(290px, 1fr)); gap:18px; margin-bottom:24px;">
+                    <!-- 1. Razorpay Gateway -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.35);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-credit-card" style="color:#38bdf8; font-size:18px;"></i>
                                 <b style="font-size:14px;">Razorpay Gateway</b>
                             </div>
-                            <span id="badgeRazorpayStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                            <span id="badgeRazorpayStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">RAZORPAY_KEY_ID</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Key: <span id="dispRazorpayKeyId" style="color:#fff; font-family:monospace;">••••••••</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">RAZORPAY_KEY_ID &amp; SECRET</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Key: <span id="dispRazorpayKeyId" style="color:#fff; font-family:monospace;">••••••••</span></div>
+                        <div id="dispRazorpayDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
                         <button type="button" onclick="testApiKey('razorpay')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
                             <i class="fas fa-plug"></i> Test Razorpay Gateway
                         </button>
                     </div>
 
-                    <!-- 3. Google Gemini AI Engine -->
+                    <!-- 2. Google Gemini AI Engine -->
                     <div class="card-console" style="margin-bottom:0; border-color:rgba(168,85,247,0.35);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-wand-magic-sparkles" style="color:#c084fc; font-size:18px;"></i>
                                 <b style="font-size:14px;">Google Gemini AI (Bharti)</b>
                             </div>
-                            <span id="badgeGeminiStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(168,85,247,0.15); color:#c084fc;">Active</span>
+                            <span id="badgeGeminiStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(168,85,247,0.15); color:#c084fc;">Active</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">GEMINI_API_KEY</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Model: <span style="color:#fff;">Gemini 1.5/2.0 Flash</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">GEMINI_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Model: <span style="color:#fff;">Gemini 1.5/2.0 Flash</span></div>
+                        <div id="dispGeminiDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
                         <button type="button" onclick="testApiKey('gemini')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(168,85,247,0.12); border:1px solid #a855f7; color:#c084fc; font-size:12px; padding:8px 12px;">
                             <i class="fas fa-robot"></i> Test Gemini Counselor
                         </button>
                     </div>
 
+                    <!-- 3. Brevo Transactional Email -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(16,185,129,0.35);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-paper-plane" style="color:#10b981; font-size:18px;"></i>
+                                <b style="font-size:14px;">Brevo Email Service</b>
+                            </div>
+                            <span id="badgeBrevoStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">BREVO_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Key: <span id="dispBrevoKey" style="color:#fff; font-family:monospace;">xkeysib-••••••••</span></div>
+                        <div id="dispBrevoDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
+                        <button type="button" onclick="testApiKey('brevo')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#34d399; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-plug"></i> Test Brevo Connection
+                        </button>
+                    </div>
+
                     <!-- 4. DataStax Astra DB Cloud -->
                     <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.25);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-database" style="color:#38bdf8; font-size:18px;"></i>
                                 <b style="font-size:14px;">DataStax Astra DB</b>
                             </div>
-                            <span id="badgeAstraStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
+                            <span id="badgeAstraStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">ASTRA_DB_APPLICATION_TOKEN</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Cluster: <span style="color:#fff;">astra.datastax.com (Active)</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">ASTRA_DB_APPLICATION_TOKEN</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Keyspace: <span style="color:#fff;">default_keyspace</span></div>
+                        <div id="dispAstraDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
                         <button type="button" onclick="testApiKey('astra')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
                             <i class="fas fa-server"></i> Test Astra DB Ping
                         </button>
                     </div>
 
-                    <!-- 5. Groq AI Engine (High Speed) -->
-                    <div class="card-console" style="margin-bottom:0; border-color:rgba(249,115,22,0.25);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <!-- 5. MongoDB Atlas Database -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(16,185,129,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-brain" style="color:#f97316; font-size:18px;"></i>
-                                <b style="font-size:14px;">Groq AI (Llama 3.3)</b>
+                                <i class="fas fa-leaf" style="color:#10b981; font-size:18px;"></i>
+                                <b style="font-size:14px;">MongoDB Atlas Database</b>
                             </div>
-                            <span id="badgeGroqStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                            <span id="badgeMongoStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">GROQ_API_KEY</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Speed: <span style="color:#fff;">~300 tokens/sec</span></div>
-                        <button type="button" onclick="testApiKey('groq')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(249,115,22,0.12); border:1px solid #f97316; color:#fdba74; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-bolt"></i> Test Groq AI
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">MONGO_URI</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Cluster: <span style="color:#fff;">cluster0.g0w0fgn.mongodb.net</span></div>
+                        <div id="dispMongoDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
+                        <button type="button" onclick="testApiKey('mongo')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#34d399; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-network-wired"></i> Test MongoDB Atlas
                         </button>
                     </div>
 
-                    <!-- 6. Gmail SMTP Dispatcher -->
+                    <!-- 6. Twilio SMS / WhatsApp -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(239,68,68,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-sms" style="color:#ef4444; font-size:18px;"></i>
+                                <b style="font-size:14px;">Twilio SMS Gateway</b>
+                            </div>
+                            <span id="badgeTwilioStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">TWILIO_ACCOUNT_SID &amp; AUTH_TOKEN</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Number: <span style="color:#fff;">+13613211017</span></div>
+                        <div id="dispTwilioDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Diagnostic standby</div>
+                        <button type="button" onclick="testApiKey('twilio')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(239,68,68,0.12); border:1px solid #ef4444; color:#fca5a5; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-message"></i> Test Twilio Gateway
+                        </button>
+                    </div>
+
+                    <!-- 7. Gmail SMTP Dispatcher -->
                     <div class="card-console" style="margin-bottom:0; border-color:rgba(251,191,36,0.25);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-envelope" style="color:#fbbf24; font-size:18px;"></i>
                                 <b style="font-size:14px;">Official SMTP Dispatcher</b>
                             </div>
-                            <span id="badgeNodemailerStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Active</span>
+                            <span id="badgeNodemailerStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Active</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">EMAIL_USER</code></div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">User: <span id="dispEmailUser" style="color:#fff;">balbharticoching.center@gmail.com</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">EMAIL_USER &amp; APP_PASSWORD</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">User: <span id="dispEmailUser" style="color:#fff;">balbharticoching.center@gmail.com</span></div>
+                        <div id="dispEmailDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Official Gmail SMTP Dispatcher Ready</div>
                         <button type="button" onclick="testApiKey('otp')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(251,191,36,0.12); border:1px solid #fbbf24; color:#fbbf24; font-size:12px; padding:8px 12px;">
                             <i class="fas fa-paper-plane"></i> Test SMTP Dispatch
+                        </button>
+                    </div>
+
+                    <!-- 8. Groq AI Engine (High Speed) -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(249,115,22,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-brain" style="color:#f97316; font-size:18px;"></i>
+                                <b style="font-size:14px;">Groq AI (Llama 3.3)</b>
+                            </div>
+                            <span id="badgeGroqStatus" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Env: <code style="color:#38bdf8;">GROQ_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Speed: <span style="color:#fff;">~300 tokens/sec</span></div>
+                        <div id="dispGroqDetail" style="font-size:11.5px; color:#94a3b8; margin-bottom:12px; min-height:18px;">Optional Standby</div>
+                        <button type="button" onclick="testApiKey('groq')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(249,115,22,0.12); border:1px solid #f97316; color:#fdba74; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-bolt"></i> Test Groq AI
                         </button>
                     </div>
                 </div>
@@ -6034,8 +6079,32 @@ Provide authentic information and direct escalation links to leadership or cente
             }
         }
 
-        // --- MODULE 5: SYSTEM & API INTEGRATIONS ---
-        // --- MODULE 5: SYSTEM & API INTEGRATIONS (READ-ONLY HEALTH CHECKS) ---
+        function renderApiBadge(badgeId, detailId, item) {
+            const badge = document.getElementById(badgeId);
+            const detail = document.getElementById(detailId);
+            if (!badge) return;
+            const status = item?.status || 'Not Set / Missing';
+            const code = item?.statusCode || (status.includes('Active') ? 'active' : (status.includes('Expired') || status.includes('Invalid') ? 'expired' : 'missing'));
+            badge.textContent = status;
+            if (code === 'active') {
+                badge.style.color = '#10b981';
+                badge.style.background = 'rgba(16,185,129,0.18)';
+                badge.style.border = '1px solid #10b981';
+            } else if (code === 'expired') {
+                badge.style.color = '#ef4444';
+                badge.style.background = 'rgba(239,68,68,0.18)';
+                badge.style.border = '1px solid #ef4444';
+            } else {
+                badge.style.color = '#94a3b8';
+                badge.style.background = 'rgba(148,163,184,0.12)';
+                badge.style.border = '1px solid #64748b';
+            }
+            if (detail && item?.detail) {
+                detail.textContent = item.detail;
+                detail.style.color = code === 'active' ? '#6ee7b7' : (code === 'expired' ? '#fca5a5' : '#94a3b8');
+            }
+        }
+
         async function loadApiIntegrations() {
             try {
                 const token = getAdminToken();
@@ -6046,69 +6115,33 @@ Provide authentic information and direct escalation links to leadership or cente
                 if (data.success && data.integrations) {
                     const i = data.integrations;
 
-                    // Brevo
-                    const bBadge = document.getElementById('badgeBrevoStatus');
-                    if (bBadge) {
-                        bBadge.textContent = i.brevo?.status || 'Not Configured';
-                        bBadge.style.color = i.brevo?.configured ? '#10b981' : '#f59e0b';
-                        bBadge.style.background = i.brevo?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
-                    }
-                    if (document.getElementById('dispBrevoKey')) {
-                        document.getElementById('dispBrevoKey').textContent = i.brevo?.keyId || 'Missing in Render .env';
-                    }
-
-                    // Razorpay
-                    const rBadge = document.getElementById('badgeRazorpayStatus');
-                    if (rBadge) {
-                        rBadge.textContent = i.razorpay?.status || 'Pending';
-                        rBadge.style.color = i.razorpay?.configured ? '#10b981' : '#f59e0b';
-                        rBadge.style.background = i.razorpay?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
-                    }
+                    renderApiBadge('badgeRazorpayStatus', 'dispRazorpayDetail', i.razorpay);
                     if (document.getElementById('dispRazorpayKeyId')) {
                         document.getElementById('dispRazorpayKeyId').textContent = i.razorpay?.keyId || 'Not Configured';
                     }
 
-                    // Gemini
-                    const gemBadge = document.getElementById('badgeGeminiStatus');
-                    if (gemBadge) {
-                        gemBadge.textContent = i.gemini?.status || 'Active';
-                        gemBadge.style.color = i.gemini?.configured ? '#c084fc' : '#94a3b8';
-                        gemBadge.style.background = i.gemini?.configured ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.06)';
+                    renderApiBadge('badgeGeminiStatus', 'dispGeminiDetail', i.gemini);
+                    renderApiBadge('badgeBrevoStatus', 'dispBrevoDetail', i.brevo);
+                    if (document.getElementById('dispBrevoKey')) {
+                        document.getElementById('dispBrevoKey').textContent = i.brevo?.keyId || 'Not Configured';
                     }
 
-                    // Groq
-                    const gBadge = document.getElementById('badgeGroqStatus');
-                    if (gBadge) {
-                        gBadge.textContent = i.groq?.status || 'Standby';
-                        gBadge.style.color = i.groq?.configured ? '#10b981' : '#94a3b8';
-                        gBadge.style.background = i.groq?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)';
-                    }
-
-                    // Astra
-                    const aBadge = document.getElementById('badgeAstraStatus');
-                    if (aBadge) {
-                        aBadge.textContent = i.astra?.status || 'Connected';
-                        aBadge.style.color = '#10b981';
-                        aBadge.style.background = 'rgba(16,185,129,0.15)';
-                    }
-
-                    // Nodemailer
-                    const nBadge = document.getElementById('badgeNodemailerStatus');
-                    if (nBadge) {
-                        nBadge.textContent = i.nodemailer?.status || 'Active';
-                        nBadge.style.color = '#10b981';
-                        nBadge.style.background = 'rgba(16,185,129,0.15)';
-                    }
+                    renderApiBadge('badgeAstraStatus', 'dispAstraDetail', i.astra);
+                    renderApiBadge('badgeMongoStatus', 'dispMongoDetail', i.mongo);
+                    renderApiBadge('badgeTwilioStatus', 'dispTwilioDetail', i.twilio);
+                    renderApiBadge('badgeNodemailerStatus', 'dispEmailDetail', i.nodemailer);
                     if (document.getElementById('dispEmailUser')) {
                         document.getElementById('dispEmailUser').textContent = i.nodemailer?.user || 'balbharticoching.center@gmail.com';
                     }
+
+                    renderApiBadge('badgeGroqStatus', 'dispGroqDetail', i.groq);
                 }
             } catch (err) {
                 console.error('loadApiIntegrations error:', err);
             }
         }
 
-        async function testApiKey(service) {
+        async function testApiKey(service, showAlert = true) {
             const token = getAdminToken();
             try {
                 const res = await fetch('/api/admin/api-health/ping', {
@@ -6120,14 +6153,33 @@ Provide authentic information and direct escalation links to leadership or cente
                     body: JSON.stringify({ service })
                 });
                 const d = await res.json();
-                if (d.success) {
-                    alert(`✅ ${d.message}`);
-                } else {
-                    alert(`⚠️ ${d.message}`);
+                await loadApiIntegrations();
+                if (showAlert) {
+                    if (d.success) {
+                        alert(`✅ [${d.status || 'Active & Connected'}]: ${d.message}`);
+                    } else {
+                        alert(`⚠️ [${d.status || 'Status Alert'}]: ${d.message}`);
+                    }
                 }
+                return d;
             } catch (err) {
-                alert('❌ Diagnostic ping error: ' + err.message);
+                if (showAlert) alert('❌ Diagnostic ping error: ' + err.message);
+                return { success: false, message: err.message };
             }
+        }
+
+        async function runAllApiHealthPings() {
+            showToast('⚡ Running live diagnostics on all Render APIs...', 'spinner fa-spin', '#38bdf8');
+            const services = ['razorpay', 'gemini', 'brevo', 'astra', 'mongo', 'twilio', 'nodemailer', 'groq'];
+            const results = await Promise.allSettled(services.map(s => testApiKey(s, false)));
+            await loadApiIntegrations();
+            let summary = '📊 Render APIs Live Diagnostic Summary:\n\n';
+            services.forEach((s, idx) => {
+                const r = results[idx]?.value;
+                const icon = r?.success ? '🟢' : (r?.status === 'Not Set / Missing' ? '⚪' : '🔴');
+                summary += `${icon} ${s.toUpperCase()}: ${r?.message || 'Checked'}\n`;
+            });
+            alert(summary);
         }
 
         // ============================================================
