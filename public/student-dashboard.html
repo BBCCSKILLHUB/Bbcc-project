@@ -583,9 +583,12 @@
                     </div>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:16px;">
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
                     <button type="button" onclick="saveProfileChanges()" class="btn-dash btn-dash-gold" style="padding:11px 26px;">
                         <i class="fas fa-floppy-disk"></i> Save Profile Details
+                    </button>
+                    <button type="button" onclick="viewStudentIDCard()" class="btn-dash" style="background:#0284c7; color:#fff; padding:11px 22px; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        <i class="fas fa-id-card"></i> View &amp; Print Official ID Card
                     </button>
                     <span id="profSaveNotice" style="font-size:13px; font-weight:600;"></span>
                 </div>
@@ -1080,9 +1083,77 @@
             }
         }
 
+        // Student ID Card Generator & Viewer
+        function viewStudentIDCard() {
+            const name = document.getElementById('profStudentName').value || localStorage.getItem('bbcc_student_name') || 'Student';
+            const email = document.getElementById('profStudentEmail').value || localStorage.getItem('bbcc_user_email') || 'student@bbcc.org';
+            const roll = document.getElementById('profStudentRoll').value || 'BBCC-STU-ACTIVE';
+            const phone = document.getElementById('profStudentPhone').value || 'N/A';
+            const center = document.getElementById('profStudentCenter').value || 'Bal Bharti Coaching Center (HQ)';
+
+            const container = document.getElementById('printableIdCardContainer');
+            container.innerHTML = `
+                <div style="width:340px; margin:0 auto; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border:2px solid #38bdf8; border-radius:16px; overflow:hidden; box-shadow:0 15px 35px rgba(0,0,0,0.4); color:#ffffff; font-family:'Outfit', sans-serif; text-align:center;">
+                    <div style="background:linear-gradient(90deg, #1d4ed8, #2563eb); padding:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        <img src="/data/branding/logo.png" style="width:32px; height:32px; object-fit:contain;" onerror="this.src='/logo.png'">
+                        <div style="text-align:left;">
+                            <div style="font-size:14px; font-weight:900; letter-spacing:0.5px;">BBCC SKILL HUB</div>
+                            <div style="font-size:9.5px; opacity:0.85;">Official Student Identity Card</div>
+                        </div>
+                    </div>
+                    <div style="padding:18px;">
+                        <div style="width:72px; height:72px; margin:0 auto 10px; border-radius:50%; background:linear-gradient(135deg, #fbbf24, #f59e0b); display:flex; align-items:center; justify-content:center; font-size:32px; border:2px solid #ffffff;">
+                            🎓
+                        </div>
+                        <h3 style="font-size:18px; font-weight:800; color:#38bdf8; margin:0;">${name}</h3>
+                        <div style="font-size:12px; color:#fbbf24; font-family:monospace; font-weight:700; margin-top:2px;">ROLL: ${roll}</div>
+                        <div style="margin-top:14px; text-align:left; font-size:11.5px; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:8px; display:flex; flex-direction:column; gap:4px;">
+                            <div><b>Center:</b> <span style="color:#cbd5e1;">${center}</span></div>
+                            <div><b>Email:</b> <span style="color:#cbd5e1;">${email}</span></div>
+                            <div><b>Phone:</b> <span style="color:#cbd5e1;">${phone}</span></div>
+                            <div><b>Validity:</b> <span style="color:#10b981;">2026 - 2027 Academic Session</span></div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.4); padding:8px; font-size:9.5px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; padding:8px 16px;">
+                        <span>Authorized By BBCC Directorate</span>
+                        <span style="color:#fbbf24; font-weight:700;">Santosh Sir</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('studentIdModal').style.display = 'flex';
+        }
+
+        function closeStudentIDModal() {
+            document.getElementById('studentIdModal').style.display = 'none';
+        }
+
+        function printStudentID() {
+            window.print();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadStudentDashboard();
         });
     </script>
+
+    <!-- Student ID Card Modal -->
+    <div id="studentIdModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:999999; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px);">
+        <div style="background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:16px; max-width:440px; width:100%; max-height:92vh; overflow-y:auto; padding:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="color:#38bdf8; font-size:16px; margin:0;"><i class="fas fa-id-card"></i> Official Student ID Card</h3>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="printStudentID()" class="btn-dash btn-dash-gold" style="padding:6px 14px; font-size:12px; border:none; cursor:pointer; border-radius:6px;">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button type="button" onclick="closeStudentIDModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer;">✕</button>
+                </div>
+            </div>
+            <div id="printableIdCardContainer"></div>
+        </div>
+    </div>
+
+    <!-- Bharti AI Assistant (Admin Controlled via Bharti AI Manager) -->
+    <script src="/bharti-widget.js" data-role="student"></script>
 </body>
 </html>
