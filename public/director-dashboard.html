@@ -809,6 +809,38 @@
                             <i class="fas fa-floppy-disk"></i> Save &amp; Publish Storefront
                         </button>
                     </form>
+
+                    <!-- CONTROLLED ACCREDITATION CERTIFICATE CARD -->
+                    <div style="margin-top:28px; background:linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(15,23,42,0.9) 100%); border:1px solid rgba(251,191,36,0.35); border-radius:14px; padding:22px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-size:24px;">🎖️</span>
+                                    <div>
+                                        <h3 style="font-size:17px; font-weight:800; color:#fbbf24; margin:0;">Official BBCC Accreditation &amp; Affiliation Certificate</h3>
+                                        <p style="font-size:12.5px; color:#94a3b8; margin-top:2px;">Centrally authorized accreditation issued and signed by Master Admin (Santosh Sir).</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="directorCertStatusBadge">
+                                <span style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700;">
+                                    🔒 Status: Not Issued
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="directorCertBody" style="margin-top:16px; padding:16px; background:rgba(0,0,0,0.35); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="font-size:24px; color:#f59e0b;"><i class="fas fa-shield-halved"></i></div>
+                                <div>
+                                    <div style="font-size:13.5px; font-weight:700; color:#f1f5f9;">Accreditation Certificate Pending Issuance</div>
+                                    <div style="font-size:12px; color:#94a3b8; margin-top:3px;">
+                                        Loading central accreditation status from BBCC headquarters...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1654,7 +1686,10 @@
 
                     document.getElementById('topbarRegId').textContent = directorProfile.regNumber || 'BBCC-REG-ACTIVE';
                 }
-            } catch(e) {}
+                loadDirectorCertificate();
+            } catch(e) {
+                loadDirectorCertificate();
+            }
         }
 
         async function saveDirectorProfile(e) {
@@ -2287,6 +2322,117 @@
             `).join('');
         }
 
+        // MODULE 11: CONTROLLED ACCREDITATION CERTIFICATE
+        let activeCertData = null;
+
+        async function loadDirectorCertificate() {
+            const token = getDirectorToken();
+            const badgeEl = document.getElementById('directorCertStatusBadge');
+            const bodyEl = document.getElementById('directorCertBody');
+            if (!badgeEl || !bodyEl) return;
+
+            try {
+                const res = await fetch('/api/director/certificate', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    activeCertData = data;
+                    if (data.isCertified) {
+                        badgeEl.innerHTML = `
+                            <span style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#6ee7b7; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700;">
+                                <i class="fas fa-certificate"></i> Officially Verified &amp; Issued
+                            </span>
+                        `;
+                        bodyEl.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                                <div>
+                                    <div style="font-size:14px; font-weight:700; color:#f8fafc;">Certificate ID: <span style="font-family:monospace; color:#fbbf24;">${data.certificateId || 'BBCC-CERT-ACTIVE'}</span></div>
+                                    <div style="font-size:12px; color:#94a3b8; margin-top:3px;">Issued by Master Admin (Santosh Sir) on: <b>${data.certificateIssuedAt ? new Date(data.certificateIssuedAt).toLocaleDateString() : 'Active'}</b></div>
+                                    <div style="font-size:11.5px; color:#38bdf8; margin-top:2px;">Accreditation Valid across BBCC Skill Hub Central Network.</div>
+                                </div>
+                                <button type="button" onclick="viewPrintCertificate()" class="btn-action-gold" style="padding:10px 20px; font-size:13.5px; border:none; cursor:pointer; border-radius:8px;">
+                                    <i class="fas fa-print"></i> View &amp; Print Official Certificate
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        badgeEl.innerHTML = `
+                            <span style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700;">
+                                <i class="fas fa-lock"></i> Pending Admin Issuance
+                            </span>
+                        `;
+                        bodyEl.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="font-size:24px; color:#f59e0b;"><i class="fas fa-shield-halved"></i></div>
+                                <div>
+                                    <div style="font-size:13.5px; font-weight:700; color:#f1f5f9;">Official Accreditation Certificate Not Yet Issued</div>
+                                    <div style="font-size:12px; color:#94a3b8; margin-top:3px;">
+                                        In accordance with BBCC verification protocols, accreditation certificates are manually reviewed and issued by Master Admin (Santosh Sir). Once issued from the Central Admin Console, your verifiable certificate and instant download button will unlock here.
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error('Certificate load error:', err);
+            }
+        }
+
+        function viewPrintCertificate() {
+            if (!activeCertData || !activeCertData.isCertified) {
+                alert('Your certificate has not been issued by Santosh Sir yet.');
+                return;
+            }
+            const modal = document.getElementById('directorCertModal');
+            const certBox = document.getElementById('printableCertContainer');
+            const tmpl = activeCertData.template || {};
+
+            certBox.innerHTML = `
+                <div style="border:10px solid #d97706; outline:2px solid #fbbf24; outline-offset:-5px; padding:36px; background:#fffdf5; color:#0f172a; font-family:'Georgia', serif; text-align:center; position:relative; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+                    <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:12px;">
+                        <img src="/data/branding/logo.png" style="width:50px; height:50px; object-fit:contain;" onerror="this.src='/logo.png'">
+                        <div>
+                            <div style="font-size:22px; font-weight:900; color:#1e3a8a; letter-spacing:1px; font-family:'Outfit', sans-serif;">BBCC SKILL HUB</div>
+                            <div style="font-size:11px; font-weight:700; color:#b45309; text-transform:uppercase;">Central Accreditation Directorate</div>
+                        </div>
+                    </div>
+                    <h1 style="font-size:26px; color:#b45309; margin:16px 0 8px; font-family:'Cinzel', serif; letter-spacing:2px; text-transform:uppercase;">${tmpl.title || 'Certificate of Accreditation'}</h1>
+                    <p style="font-size:13px; color:#475569; font-style:italic;">This is to proudly certify that</p>
+                    <h2 style="font-size:24px; color:#0f172a; font-weight:900; margin:12px 0 4px; text-decoration:underline; font-family:'Outfit', sans-serif;">${activeCertData.centerName || 'Verified Coaching Center'}</h2>
+                    <p style="font-size:13px; color:#334155;">Under the visionary leadership of Director <b>${activeCertData.directorName || 'Director'}</b></p>
+                    <p style="font-size:12px; color:#64748b; max-width:540px; margin:16px auto; line-height:1.6;">
+                        ${tmpl.subText || 'Has been formally audited, verified, and officially granted Affiliated Coaching Partner status under the aegis of Bal Bharti Coaching Center (BBCC Skill Hub).'}
+                    </p>
+                    <div style="margin-top:24px; display:flex; justify-content:space-between; align-items:flex-end; border-top:1px dashed #cbd5e1; padding-top:16px;">
+                        <div style="text-align:left; font-size:11px; color:#64748b;">
+                            <div>Certificate No: <b style="font-family:monospace; color:#0f172a;">${activeCertData.certificateId || 'BBCC-CERT-ACTIVE'}</b></div>
+                            <div>Issued Date: <b>${activeCertData.certificateIssuedAt ? new Date(activeCertData.certificateIssuedAt).toLocaleDateString() : 'Active'}</b></div>
+                            <div>Verification: <b>bbccskillhub.org/verify</b></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-family:'Brush Script MT', cursive; font-size:24px; color:#1e3a8a;">Santosh Kumar</div>
+                            <div style="border-top:1px solid #0f172a; width:160px; margin-top:2px;"></div>
+                            <div style="font-size:11px; font-weight:800; color:#0f172a; margin-top:3px;">Santosh Sir</div>
+                            <div style="font-size:10px; color:#64748b;">Master Admin &amp; Founder, BBCC</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeDirectorCertModal() {
+            const modal = document.getElementById('directorCertModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function printDirectorCert() {
+            window.print();
+        }
+
         function handleDirectorLogout() {
             localStorage.removeItem('bbcc_token');
             localStorage.removeItem('bbcc_auth_token');
@@ -2300,5 +2446,24 @@
             initDirectorDashboard();
         });
     </script>
+
+    <!-- Certificate View & Print Modal -->
+    <div id="directorCertModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:999999; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px);">
+        <div style="background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:16px; max-width:760px; width:100%; max-height:92vh; overflow-y:auto; padding:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="color:#fbbf24; font-size:17px; margin:0;"><i class="fas fa-certificate"></i> Official Accreditation Certificate</h3>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="printDirectorCert()" class="btn-action-gold" style="padding:6px 14px; font-size:12px; border:none; cursor:pointer; border-radius:6px;">
+                        <i class="fas fa-print"></i> Print / Save PDF
+                    </button>
+                    <button type="button" onclick="closeDirectorCertModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer;">✕</button>
+                </div>
+            </div>
+            <div id="printableCertContainer"></div>
+        </div>
+    </div>
+
+    <!-- Bharti AI Assistant (Admin Controlled via Bharti AI Manager) -->
+    <script src="/bharti-widget.js" data-role="coaching"></script>
 </body>
 </html>
