@@ -14112,6 +14112,28 @@ app.delete('/api/admin/banners/:cid/:bid', verifySuperAdmin, async (req, res) =>
 });
 
 // 8.16 Board Campus Photo Gallery Management
+app.get(['/api/public/gallery', '/api/admin/gallery'], async (req, res) => {
+    try {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        let gallery = [];
+        if (isMongoConnected) {
+            try {
+                const settings = await Settings.findOne();
+                if (settings && settings.gallery && settings.gallery.length > 0) {
+                    gallery = settings.gallery;
+                }
+            } catch(e) {}
+        }
+        if (!gallery || gallery.length === 0) {
+            const pdb = loadPortalDb();
+            gallery = (pdb.settings && pdb.settings.gallery) ? pdb.settings.gallery : [];
+        }
+        res.json({ success: true, count: gallery.length, data: gallery });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 app.post('/api/admin/gallery', verifySuperAdmin, async (req, res) => {
     try {
         const { image, title, storageMode } = req.body;
