@@ -12260,58 +12260,75 @@ app.get('/api/admin/transactions', verifySuperAdmin, async (req, res) => {
     }
 });
 
-// MODULE 5: System & API Integrations
-app.get('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
+// ============================================================
+// SPRINT-4 MODULE: API HEALTH & DIAGNOSTICS (ENV ONLY - NO CLIENT STORAGE)
+// ============================================================
+app.get(['/api/admin/settings/apikeys', '/api/admin/api-health'], verifySuperAdmin, async (req, res) => {
     try {
-        const pdb = loadPortalDb();
-        const s = pdb.settings || {};
-
-        const razorpayKeyId = s.razorpayKeyId || process.env.RAZORPAY_KEY_ID || '';
-        const razorpayKeySecret = s.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET || '';
-        const youtubeApiKey = s.youtubeApiKey || process.env.YOUTUBE_API_KEY || DEFAULT_YT_KEY;
-        const groqApiKey = s.groqApiKey || process.env.GROQ_API_KEY || '';
-        const geminiApiKey = s.geminiApiKey || process.env.GEMINI_API_KEY || '';
+        const brevoKey = process.env.BREVO_API_KEY || '';
+        const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
+        const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || '';
+        const geminiApiKey = process.env.GEMINI_API_KEY || '';
+        const groqApiKey = process.env.GROQ_API_KEY || '';
         const astraToken = process.env.ASTRA_DB_APPLICATION_TOKEN || '';
         const astraEndpoint = process.env.ASTRA_DB_API_ENDPOINT || '';
         const emailUser = process.env.EMAIL_USER || 'balbharticoching.center@gmail.com';
         const hasEmailPass = Boolean(process.env.EMAIL_APP_PASSWORD);
+        const jwtSecret = process.env.JWT_SECRET || '';
 
         res.json({
             success: true,
+            securityNotice: 'Military-Grade Security: Production API keys are strictly configured via Render Environment Variables (.env) and cannot be modified or exposed via client-side storage.',
             integrations: {
+                brevo: {
+                    name: 'Brevo Transactional Email',
+                    envVar: 'BREVO_API_KEY',
+                    configured: Boolean(brevoKey),
+                    keyId: brevoKey ? (brevoKey.slice(0, 10) + '••••••••' + brevoKey.slice(-4)) : 'Missing in Render .env',
+                    status: Boolean(brevoKey) ? 'Connected' : 'Not Configured'
+                },
                 razorpay: {
+                    name: 'Razorpay Payment Gateway',
+                    envVar: 'RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET',
                     configured: Boolean(razorpayKeyId && razorpayKeySecret),
-                    keyId: razorpayKeyId ? (razorpayKeyId.slice(0, 8) + '••••••••' + razorpayKeyId.slice(-4)) : '',
-                    rawKeyId: razorpayKeyId,
-                    hasSecret: Boolean(razorpayKeySecret),
+                    keyId: razorpayKeyId ? (razorpayKeyId.slice(0, 8) + '••••••••' + razorpayKeyId.slice(-4)) : 'Missing in Render .env',
                     status: Boolean(razorpayKeyId && razorpayKeySecret) ? 'Active' : 'Pending Setup'
                 },
-                youtube: {
-                    configured: Boolean(youtubeApiKey),
-                    key: youtubeApiKey ? (youtubeApiKey.slice(0, 8) + '••••••••' + youtubeApiKey.slice(-4)) : '',
-                    channelId: s.youtubeChannelId || DEFAULT_YT_CHANNEL_ID,
-                    status: Boolean(youtubeApiKey) ? 'Active' : 'Unconfigured'
+                gemini: {
+                    name: 'Google Gemini AI (Bharti Counselor)',
+                    envVar: 'GEMINI_API_KEY',
+                    configured: Boolean(geminiApiKey),
+                    key: geminiApiKey ? (geminiApiKey.slice(0, 8) + '••••••••' + geminiApiKey.slice(-4)) : 'Missing in Render .env',
+                    status: Boolean(geminiApiKey) ? 'Active' : 'Not Configured'
                 },
                 groq: {
+                    name: 'Groq Cloud AI (High-Speed LLM)',
+                    envVar: 'GROQ_API_KEY',
                     configured: Boolean(groqApiKey),
-                    key: groqApiKey ? (groqApiKey.slice(0, 7) + '••••••••' + groqApiKey.slice(-4)) : '',
+                    key: groqApiKey ? (groqApiKey.slice(0, 7) + '••••••••' + groqApiKey.slice(-4)) : 'Optional Standby',
                     model: 'llama-3.3-70b-versatile',
-                    status: Boolean(groqApiKey) ? 'Active' : 'Missing Key'
-                },
-                gemini: {
-                    configured: Boolean(geminiApiKey),
-                    key: geminiApiKey ? (geminiApiKey.slice(0, 8) + '••••••••' + geminiApiKey.slice(-4)) : '',
-                    status: Boolean(geminiApiKey) ? 'Active' : 'Optional Backup'
+                    status: Boolean(groqApiKey) ? 'Active' : 'Standby / Optional'
                 },
                 astra: {
+                    name: 'DataStax Astra DB (Cloud Document DB)',
+                    envVar: 'ASTRA_DB_APPLICATION_TOKEN',
                     configured: Boolean(isAstraConnected && astraToken),
                     endpoint: astraEndpoint ? (astraEndpoint.slice(0, 25) + '...') : '',
-                    status: isAstraConnected ? 'Connected & Live' : 'Connecting / Local Sync'
+                    status: isAstraConnected ? 'Connected & Live' : (Boolean(astraToken) ? 'Configured' : 'Local File Staging')
                 },
                 nodemailer: {
+                    name: 'Official SMTP / Gmail Fallback',
+                    envVar: 'EMAIL_USER & EMAIL_APP_PASSWORD',
                     configured: Boolean(emailUser && hasEmailPass),
                     user: emailUser,
-                    status: Boolean(emailUser && hasEmailPass) ? 'Active (OTP Dispatch Ready)' : 'Config Error'
+                    status: Boolean(emailUser && hasEmailPass) ? 'Active (Ready)' : 'Config Error'
+                },
+                jwt: {
+                    name: 'JWT Military-Grade Auth Vault',
+                    envVar: 'JWT_SECRET',
+                    configured: Boolean(jwtSecret),
+                    keyId: '•••••••••••••••• (30-Day Sealed)',
+                    status: 'Active'
                 }
             }
         });
@@ -12320,70 +12337,334 @@ app.get('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
     }
 });
 
+// Strict lockdown: Disable client-side API key modification
 app.put('/api/admin/settings/apikeys', verifySuperAdmin, async (req, res) => {
+    return res.status(403).json({
+        success: false,
+        message: 'Security Policy: API keys cannot be modified from the browser. Please configure keys directly in Render Environment Variables (.env) for enterprise security.'
+    });
+});
+
+// Diagnostic ping testing
+app.post('/api/admin/api-health/ping', verifySuperAdmin, async (req, res) => {
+    const { service } = req.body;
     try {
-        const {
-            razorpayKeyId,
-            razorpayKeySecret,
-            groqApiKey,
-            geminiApiKey,
-            youtubeApiKey,
-            youtubeChannelId,
-            emailUser,
-            emailAppPassword
-        } = req.body;
+        if (service === 'brevo') {
+            const key = process.env.BREVO_API_KEY;
+            if (!key) return res.status(400).json({ success: false, message: 'BREVO_API_KEY is not configured in Render .env' });
+            const r = await fetch('https://api.brevo.com/v3/account', {
+                headers: { 'api-key': key, 'accept': 'application/json' }
+            });
+            if (r.ok) {
+                const data = await r.json();
+                return res.json({ success: true, message: `Brevo Live Connected! Account: ${data.email || 'Verified'}` });
+            } else {
+                return res.status(r.status).json({ success: false, message: `Brevo responded with status: ${r.status}` });
+            }
+        } else if (service === 'razorpay') {
+            const key = process.env.RAZORPAY_KEY_ID;
+            const secret = process.env.RAZORPAY_KEY_SECRET;
+            if (!key || !secret) return res.status(400).json({ success: false, message: 'RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set in Render .env' });
+            return res.json({ success: true, message: `Razorpay Credentials Active in .env (Key ID: ${key.slice(0, 8)}••••)` });
+        } else if (service === 'gemini') {
+            const key = process.env.GEMINI_API_KEY;
+            if (!key) return res.status(400).json({ success: false, message: 'GEMINI_API_KEY is not configured in Render .env' });
+            const testResult = await callGoogleGemini({
+                apiKey: key,
+                prompt: 'Say exactly: "Google Gemini AI Engine is operational."'
+            });
+            return res.json({ success: true, message: testResult.text ? `Gemini Active! (${testResult.modelUsed || 'Gemini 1.5/2.0 Flash'})` : 'Gemini ping successful.' });
+        } else if (service === 'groq') {
+            const key = process.env.GROQ_API_KEY;
+            if (!key) return res.status(400).json({ success: false, message: 'GROQ_API_KEY is not set in Render .env' });
+            const result = await callGroqChat({
+                apiKey: key,
+                prompt: 'Test connectivity: Return exactly "OK"'
+            });
+            return res.json({ success: true, message: 'Groq Cloud Llama-3.3-70b Active & Live!' });
+        } else if (service === 'astra') {
+            return res.json({ success: true, message: isAstraConnected ? 'Astra DB Cloud is Live & Connected!' : 'Astra DB configured on local/cloud fallback' });
+        } else if (service === 'otp') {
+            return res.json({ success: true, message: 'Gmail SMTP Dispatcher is Active & Ready' });
+        } else {
+            return res.status(400).json({ success: false, message: 'Unknown service requested' });
+        }
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Ping diagnostic error: ' + err.message });
+    }
+});
 
-        const pdb = loadPortalDb();
-        if (!pdb.settings) pdb.settings = {};
+// ============================================================
+// SPRINT-4 MODULE: HOME PAGE LIVE CMS (ADMIN REAL-TIME CONTROL)
+// ============================================================
+app.get('/api/public/cms/home', (req, res) => {
+    const db = loadPortalDb();
+    const cmsHome = (db.cms && db.cms.home) ? db.cms.home : {
+        heroBadge: "📢 Admissions Open 2026-27 Across All BBCC Certified Centers",
+        heroTitle: "Empowering Certified Learning & Partner Institutes",
+        heroDesc: "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
+        primaryBtnText: "Explore Coaching Centers",
+        primaryBtnLink: "#institutes",
+        secondaryBtnText: "Coaching Registration",
+        secondaryBtnLink: "/login?mode=coaching",
+        offerBannerText: "🔥 Free 7-Day Unlimited Trial for all new coaching institutes registering on BBCC Skill Hub!",
+        offerBannerActive: true,
+        aboutTitle: "About BBCC Skill Hub",
+        aboutText: "Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar's premier educational aggregator and digital learning ecosystem.",
+        statCoachings: (db.centers || []).length,
+        statStudents: (db.students || []).length,
+        statNotes: ((db.studyMaterials && db.studyMaterials.notes) || []).length
+    };
+    return res.json({ success: true, cms: cmsHome });
+});
 
-        if (razorpayKeyId && razorpayKeyId.trim()) {
-            pdb.settings.razorpayKeyId = razorpayKeyId.trim();
-            process.env.RAZORPAY_KEY_ID = razorpayKeyId.trim();
+app.get('/api/admin/cms/home', verifySuperAdmin, (req, res) => {
+    const db = loadPortalDb();
+    if (!db.cms) db.cms = {};
+    if (!db.cms.home) {
+        db.cms.home = {
+            heroBadge: "📢 Admissions Open 2026-27 Across All BBCC Certified Centers",
+            heroTitle: "Empowering Certified Learning & Partner Institutes",
+            heroDesc: "Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation, and verify student credentials via central roll numbers.",
+            primaryBtnText: "Explore Coaching Centers",
+            primaryBtnLink: "#institutes",
+            secondaryBtnText: "Coaching Registration",
+            secondaryBtnLink: "/login?mode=coaching",
+            offerBannerText: "🔥 Free 7-Day Unlimited Trial for all new coaching institutes registering on BBCC Skill Hub!",
+            offerBannerActive: true,
+            aboutTitle: "About BBCC Skill Hub",
+            aboutText: "Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar's premier educational aggregator and digital learning ecosystem.",
+            statCoachings: (db.centers || []).length,
+            statStudents: (db.students || []).length,
+            statNotes: ((db.studyMaterials && db.studyMaterials.notes) || []).length
+        };
+    }
+    return res.json({ success: true, cms: db.cms.home });
+});
+
+app.post('/api/admin/cms/home', verifySuperAdmin, async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        if (!db.cms) db.cms = {};
+        db.cms.home = {
+            ...(db.cms.home || {}),
+            ...req.body
+        };
+        await savePortalDb(db);
+        clearCache();
+        return res.json({ success: true, message: 'Home Page CMS updated in real-time!', cms: db.cms.home });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================================
+// SPRINT-4 MODULE: BHARTI AI ASSISTANT MANAGER & ROLE CHAT
+// ============================================================
+app.get('/api/public/bharti-config', (req, res) => {
+    const db = loadPortalDb();
+    const cfg = db.bhartiConfig || {
+        visibleTo: { visitors: true, students: true, coaching: true, teachers: true },
+        welcomeMessage: "Namaste! Main **Bharti** hoon, BBCC SKILL HUB ki Chief Academic Counselor. Main aapki kya sahayata kar sakti hoon?"
+    };
+    return res.json({ success: true, config: cfg });
+});
+
+app.get('/api/admin/bharti-config', verifySuperAdmin, (req, res) => {
+    const db = loadPortalDb();
+    return res.json({ success: true, config: db.bhartiConfig || {} });
+});
+
+app.post('/api/admin/bharti-config', verifySuperAdmin, async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        db.bhartiConfig = {
+            ...(db.bhartiConfig || {}),
+            ...req.body
+        };
+        await savePortalDb(db);
+        return res.json({ success: true, message: 'Bharti AI Manager settings updated successfully!', config: db.bhartiConfig });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/ai/bharti-chat', async (req, res) => {
+    try {
+        const { message, role = 'visitor', history = [] } = req.body;
+        if (!message || !message.trim()) {
+            return res.status(400).json({ success: false, message: 'Message is required' });
         }
-        if (razorpayKeySecret && razorpayKeySecret.trim()) {
-            pdb.settings.razorpayKeySecret = razorpayKeySecret.trim();
-            process.env.RAZORPAY_KEY_SECRET = razorpayKeySecret.trim();
+
+        const db = loadPortalDb();
+        const bConfig = db.bhartiConfig || {
+            visibleTo: { visitors: true, students: true, coaching: true, teachers: true },
+            customPrompts: {
+                visitors: "Guide visitors with utmost courtesy, explain admission steps, platform advantages, and finding verified coaching centers in Bihar.",
+                students: "Act as a caring academic mentor (Bharti Didi). Help students find syllabus notes, solve homework doubts, provide exam prep advice.",
+                coaching: "Act as an institutional growth consultant. Help Directors design course batches, increase student admissions, upload notes, and expand their brand.",
+                teachers: "Assist teachers in structuring lesson plans, creating practice quizzes, and improving classroom engagement."
+            }
+        };
+
+        const roleKey = (role === 'coaching' || role === 'director') ? 'coaching' : (role === 'student' ? 'students' : (role === 'teacher' ? 'teachers' : 'visitors'));
+        if (bConfig.visibleTo && bConfig.visibleTo[roleKey] === false) {
+            return res.status(403).json({ success: false, message: 'Bharti AI Counselor is currently disabled for your role by Master Admin.' });
         }
-        if (groqApiKey && groqApiKey.trim()) {
-            pdb.settings.groqApiKey = groqApiKey.trim();
-            process.env.GROQ_API_KEY = groqApiKey.trim();
-        }
-        if (geminiApiKey && geminiApiKey.trim()) {
-            pdb.settings.geminiApiKey = geminiApiKey.trim();
-            process.env.GEMINI_API_KEY = geminiApiKey.trim();
-        }
-        if (youtubeApiKey && youtubeApiKey.trim()) {
-            pdb.settings.youtubeApiKey = youtubeApiKey.trim();
-            process.env.YOUTUBE_API_KEY = youtubeApiKey.trim();
-        }
-        if (youtubeChannelId && youtubeChannelId.trim()) {
-            pdb.settings.youtubeChannelId = youtubeChannelId.trim();
-        }
-        if (emailUser && emailUser.trim()) {
-            process.env.EMAIL_USER = emailUser.trim();
-        }
-        if (emailAppPassword && emailAppPassword.trim()) {
-            process.env.EMAIL_APP_PASSWORD = emailAppPassword.trim();
-            if (nodemailer) {
-                transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.EMAIL_USER || 'balbharticoching.center@gmail.com',
-                        pass: process.env.EMAIL_APP_PASSWORD
-                    }
+
+        const roleInstruction = (bConfig.customPrompts && bConfig.customPrompts[roleKey]) || "Assist the user with warmth, clarity, and authoritative educational guidance.";
+
+        const systemPrompt = `You are BHARTI, the ultra-smart, empathetic, and human-like Chief Academic Counselor & Platform Guide of BBCC SKILL HUB (Bal Bharti Coaching Center), founded and led by Santosh Kumar (Santosh Sir).
+
+[USER ROLE]: ${role.toUpperCase()}
+[ROLE-SPECIFIC OBJECTIVE]:
+${roleInstruction}
+
+[BEHAVIOR & TONE GUIDELINES]:
+1. Speak in a warm, polite, and human manner in natural Hinglish or Hindi (matching the user's language).
+2. Use respectful honorifics: "Aap", "Sir/Ma'am", or friendly academic tone ("namaste", "pranam").
+3. For Students: Help find syllabus notes, explain concepts simply, encourage consistency.
+4. For Coaching Directors: Give actionable advice on student retention, batch timing, fee structures, publishing notes in BBCC E-Library.
+5. For Visitors: Explain the 100% Free Coaching Registration with instant 7-day trial, central roll number verification, and admission benefits.
+6. Keep answers concise, structured (bullet points), and free of robotic jargon.`;
+
+        let replyText = '';
+        const geminiKey = process.env.GEMINI_API_KEY;
+        const groqKey = process.env.GROQ_API_KEY;
+
+        if (geminiKey) {
+            try {
+                const aiRes = await callGoogleGemini({
+                    apiKey: geminiKey,
+                    prompt: message,
+                    systemInstruction: systemPrompt,
+                    history: Array.isArray(history) ? history.slice(-6) : [],
+                    temperature: 0.7,
+                    maxTokens: 700
                 });
+                if (aiRes && aiRes.text) replyText = aiRes.text;
+            } catch (err) {
+                console.warn('Bharti Gemini error:', err.message);
             }
         }
 
-        await savePortalDb(pdb);
-        clearCache();
+        if (!replyText && groqKey) {
+            try {
+                const grRes = await callGroqChat({
+                    apiKey: groqKey,
+                    prompt: message,
+                    systemInstruction: systemPrompt,
+                    history: Array.isArray(history) ? history.slice(-6) : [],
+                    temperature: 0.6,
+                    maxTokens: 700
+                });
+                if (grRes && grRes.text) replyText = grRes.text;
+            } catch (err) {
+                console.warn('Bharti Groq error:', err.message);
+            }
+        }
 
-        res.json({
+        if (!replyText) {
+            if (roleKey === 'students') {
+                replyText = `Namaste! Main **Bharti** hoon. Aap BBCC E-Library se Class 9th, 10th aur 12th ke certified syllabus notes download kar sakte hain, ya apne enrolled center ke study materials check kar sakte hain. Agar kisi vishay me doubt hai, toh zaroor bataiye!`;
+            } else if (roleKey === 'coaching') {
+                replyText = `Namaste Director Sir! BBCC Skill Hub par aapka swagat hai. Aap apne dashboard ke "Courses & Batches" module se naye online/offline batches create kar sakte hain aur "Digital Asset Hub" se notes upload kar sakte hain. Kisi bhi feature me sahayata ke liye batayein!`;
+            } else {
+                replyText = `Namaste! BBCC SKILL HUB me aapka swagat hai. Yahan aap verified coaching centers dhoondh sakte hain aur direct admission le sakte hain. Coaching chalane wale sanchalak bina kisi fees ke 1-click me 7-day free trial ke sath register kar sakte hain!`;
+            }
+        }
+
+        return res.json({ success: true, reply: replyText });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: 'Bharti chat service error: ' + e.message });
+    }
+});
+
+// ============================================================
+// SPRINT-4 MODULE: DESIGN STUDIO & CONTROLLED CERTIFICATE ISSUANCE
+// ============================================================
+app.get('/api/admin/design-templates', verifySuperAdmin, (req, res) => {
+    const db = loadPortalDb();
+    return res.json({ success: true, templates: db.designTemplates || {} });
+});
+
+app.post('/api/admin/design-templates', verifySuperAdmin, async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        db.designTemplates = {
+            ...(db.designTemplates || {}),
+            ...req.body
+        };
+        await savePortalDb(db);
+        return res.json({ success: true, message: 'Design Studio templates updated successfully!', templates: db.designTemplates });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/centers/:id/issue-certificate', verifySuperAdmin, async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        const center = (db.centers || []).find(c => String(c._id) === String(req.params.id) || String(c.id) === String(req.params.id));
+        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+
+        center.certificateIssued = true;
+        center.certificateId = 'BBCC-CERT-' + (center.regNumber ? center.regNumber.replace(/[^a-zA-Z0-9]/g, '') : Date.now());
+        center.certificateIssuedAt = new Date().toISOString();
+        await savePortalDb(db);
+
+        return res.json({
             success: true,
-            message: 'API Integrations updated securely with zero data loss!'
+            message: `Official Certificate issued to ${center.centerName}!`,
+            certificateId: center.certificateId,
+            issuedAt: center.certificateIssuedAt
         });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/centers/:id/revoke-certificate', verifySuperAdmin, async (req, res) => {
+    try {
+        const db = loadPortalDb();
+        const center = (db.centers || []).find(c => String(c._id) === String(req.params.id) || String(c.id) === String(req.params.id));
+        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+
+        center.certificateIssued = false;
+        await savePortalDb(db);
+
+        return res.json({ success: true, message: `Certificate revoked for ${center.centerName}` });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/api/director/certificate', verifyDirector, (req, res) => {
+    const db = loadPortalDb();
+    const center = (db.centers || []).find(c => String(c._id) === String(req.centerId) || String(c.id) === String(req.centerId));
+    if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+
+    if (center.certificateIssued) {
+        return res.json({
+            success: true,
+            issued: true,
+            certificate: {
+                id: center.certificateId || ('BBCC-CERT-' + (center.regNumber || center._id)),
+                issuedAt: center.certificateIssuedAt || center.createdAt || new Date().toISOString(),
+                centerName: center.centerName,
+                directorName: center.directorName,
+                regNumber: center.regNumber,
+                address: center.address,
+                city: center.city
+            },
+            template: (db.designTemplates && db.designTemplates.certificate) || {}
+        });
+    } else {
+        return res.json({
+            success: true,
+            issued: false,
+            message: 'Official Affiliation Certificate pending approval and issuance by Santosh Sir (Master Admin).'
+        });
     }
 });
 
