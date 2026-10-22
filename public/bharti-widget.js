@@ -320,24 +320,22 @@
 
         container.innerHTML = `
             <div class="bharti-hint-bubble" id="bhartiHintBubble" onclick="toggleBhartiChat()">
-                <span>✨ Ask Bharti AI</span>
+                <span>✨ Bharti</span>
             </div>
-            <button class="bharti-launcher-btn" id="bhartiLauncher" onclick="toggleBhartiChat()" title="Chat with Bharti AI">
+            <button class="bharti-launcher-btn" id="bhartiLauncher" onclick="toggleBhartiChat()" title="Chat with Bharti">
                 <div class="bharti-avatar-glow"></div>
-                <span style="font-size:26px;">🤖</span>
-                <span class="bharti-badge-pill">AI</span>
+                <img src="/data/branding/logo.png" alt="BBCC Logo" style="width:38px; height:38px; border-radius:50%; object-fit:contain; background:#ffffff; padding:2px; display:block;" onerror="this.src='/logo.png'">
             </button>
 
             <div class="bharti-chat-panel" id="bhartiChatPanel">
                 <div class="bharti-chat-header">
                     <div class="bharti-header-left">
-                        <div class="bharti-avatar-circle">
-                            <span>👩‍🏫</span>
+                        <div class="bharti-avatar-circle" style="background:#ffffff; padding:2px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                            <img src="/data/branding/logo.png" alt="BBCC Logo" style="width:100%; height:100%; border-radius:50%; object-fit:contain; display:block;" onerror="this.src='/logo.png'">
                             <div class="bharti-status-dot"></div>
                         </div>
                         <div class="bharti-header-info">
-                            <h4>BHARTI <span style="font-size:10px; background:rgba(37,99,235,0.3); color:#60a5fa; padding:1px 6px; border-radius:4px;">Gemini AI</span></h4>
-                            <p>BBCC Academic Counselor (${capitalize(userRole)})</p>
+                            <h4 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.5px;">BHARTI</h4>
                         </div>
                     </div>
                     <button class="bharti-close-btn" onclick="toggleBhartiChat()" title="Close">✕</button>
