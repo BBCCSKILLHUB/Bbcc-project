@@ -4711,10 +4711,10 @@ app.put('/api/director/tickets/:id', verifyDirector, async (req, res) => {
 // ============================================================
 
 // 5.1 Create Order for E-Library Document (Free Instant Unlock or Paid Razorpay Order)
-app.post('/api/pay/create-document-order', async (req, res) => {
+app.post(['/api/pay/create-document-order', '/api/library/create-order'], async (req, res) => {
     try {
-        const docId = (req.body.docId || req.body.documentId || '').toString().trim();
-        const { payerName, payerPhone, payerEmail, studentQuery, onlyVerify, orderType, voucherCode, studentName, mobile } = req.body;
+        const docId = (req.body.docId || req.body.documentId || req.body.bookId || '').toString().trim();
+        const { payerName, payerPhone, payerEmail, studentQuery, onlyVerify, orderType, voucherCode, studentName, mobile, email } = req.body;
         if (!docId) {
             return res.status(400).json({ success: false, message: 'Document ID is required' });
         }
@@ -4957,9 +4957,10 @@ app.post('/api/pay/create-document-order', async (req, res) => {
             success: true,
             free: false,
             orderId: order.id,
+            order: order,
             amount: price,
             amountInPaise: amountInPaise,
-            keyId: keyId,
+            keyId: keyId || process.env.RAZORPAY_KEY_ID || '',
             docTitle: note.title,
             isPhysicalOrder: isPhysicalOrder,
             pickupInfo: isPhysicalOrder ? {
@@ -5030,7 +5031,7 @@ app.post('/api/public/verify-student-access', async (req, res) => {
 });
 
 // 5.2 Verify Document Payment & Deliver File Payload Directly for Download (80/20 Revenue Split)
-app.post('/api/pay/verify-document-payment', async (req, res) => {
+app.post(['/api/pay/verify-document-payment', '/api/library/verify-payment'], async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, docId } = req.body;
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -11721,10 +11722,13 @@ app.post('/api/director/create-plan-order', verifyDirector, async (req, res) => 
 
         const amountPaisa = Math.round(plan.price * 100);
         let orderData = null;
+        let activeKeyId = process.env.RAZORPAY_KEY_ID || '';
 
-        if (razorpayInstance && amountPaisa > 0) {
-            try {
-                orderData = await razorpayInstance.orders.create({
+        try {
+            const { client: rzpClient, keyId: rKeyId } = await getRazorpayClient();
+            if (rKeyId) activeKeyId = rKeyId;
+            if (rzpClient && amountPaisa > 0) {
+                orderData = await rzpClient.orders.create({
                     amount: amountPaisa,
                     currency: 'INR',
                     receipt: `plan_${plan.id}_${Date.now().toString(36)}`,
@@ -11735,15 +11739,15 @@ app.post('/api/director/create-plan-order', verifyDirector, async (req, res) => 
                         centerName: req.targetCenter ? req.targetCenter.centerName : 'Center'
                     }
                 });
-            } catch(rzpErr) {
-                console.warn('Razorpay order fallback:', rzpErr.message);
             }
+        } catch(rzpErr) {
+            console.warn('Payment order creation notice:', rzpErr.message);
         }
 
         return res.json({
             success: true,
             plan,
-            keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_bbcc_mock',
+            keyId: activeKeyId || 'rzp_test_bbcc_mock',
             order: orderData || {
                 id: `order_mock_${Date.now()}`,
                 amount: amountPaisa,
@@ -11751,7 +11755,7 @@ app.post('/api/director/create-plan-order', verifyDirector, async (req, res) => 
             }
         });
     } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ success: false, message: 'Payment gateway service is initializing. Please try again.' });
     }
 });
 
@@ -12854,20 +12858,62 @@ app.post('/api/admin/design-templates', verifySuperAdmin, async (req, res) => {
 
 app.post('/api/admin/centers/:id/issue-certificate', verifySuperAdmin, async (req, res) => {
     try {
-        const db = loadPortalDb();
-        const center = (db.centers || []).find(c => String(c._id) === String(req.params.id) || String(c.id) === String(req.params.id));
-        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        const centerId = req.params.id;
+        let center = null;
+        let centerDoc = null;
 
-        center.certificateIssued = true;
-        center.certificateId = 'BBCC-CERT-' + (center.regNumber ? center.regNumber.replace(/[^a-zA-Z0-9]/g, '') : Date.now());
-        center.certificateIssuedAt = new Date().toISOString();
-        await savePortalDb(db);
+        if (isMongoConnected) {
+            try {
+                if (mongoose.Types.ObjectId.isValid(centerId)) {
+                    centerDoc = await TuitionCenter.findById(centerId);
+                }
+                if (!centerDoc) {
+                    centerDoc = await TuitionCenter.findOne({
+                        $or: [{ _id: centerId }, { regNumber: centerId }, { centerCode: centerId }]
+                    });
+                }
+                if (centerDoc) center = centerDoc.toObject();
+            } catch(e) {}
+        }
+
+        const db = loadPortalDb();
+        if (!center) {
+            center = (db.centers || []).find(c => String(c._id) === String(centerId) || String(c.id) === String(centerId) || String(c.regNumber) === String(centerId));
+        }
+
+        if (!center && !centerDoc) {
+            return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        }
+
+        const rawReg = (center && center.regNumber) ? center.regNumber : centerId;
+        const certId = 'BBCC-CERT-' + rawReg.replace(/[^a-zA-Z0-9]/g, '');
+        const issuedAt = new Date().toISOString();
+
+        if (centerDoc) {
+            centerDoc.certificateIssued = true;
+            centerDoc.certificateId = certId;
+            centerDoc.certificateIssuedAt = issuedAt;
+            await centerDoc.save();
+        }
+
+        if (db.centers && Array.isArray(db.centers)) {
+            const jsonCenter = db.centers.find(c => String(c._id) === String(centerId) || String(c.id) === String(centerId));
+            if (jsonCenter) {
+                jsonCenter.certificateIssued = true;
+                jsonCenter.certificateId = certId;
+                jsonCenter.certificateIssuedAt = issuedAt;
+                await savePortalDb(db);
+            }
+        }
+
+        clearCache();
+        broadcastRealtimeEvent('center_updated');
 
         return res.json({
             success: true,
-            message: `Official Certificate issued to ${center.centerName}!`,
-            certificateId: center.certificateId,
-            issuedAt: center.certificateIssuedAt
+            message: `Official Certificate issued to ${center ? center.centerName : 'Center'}!`,
+            certificateId: certId,
+            issuedAt
         });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
@@ -12876,45 +12922,99 @@ app.post('/api/admin/centers/:id/issue-certificate', verifySuperAdmin, async (re
 
 app.post('/api/admin/centers/:id/revoke-certificate', verifySuperAdmin, async (req, res) => {
     try {
+        const centerId = req.params.id;
+        let centerName = 'Center';
+
+        if (isMongoConnected) {
+            try {
+                let centerDoc = null;
+                if (mongoose.Types.ObjectId.isValid(centerId)) {
+                    centerDoc = await TuitionCenter.findById(centerId);
+                }
+                if (!centerDoc) {
+                    centerDoc = await TuitionCenter.findOne({
+                        $or: [{ _id: centerId }, { regNumber: centerId }, { centerCode: centerId }]
+                    });
+                }
+                if (centerDoc) {
+                    centerName = centerDoc.centerName || centerName;
+                    centerDoc.certificateIssued = false;
+                    await centerDoc.save();
+                }
+            } catch(e) {}
+        }
+
         const db = loadPortalDb();
-        const center = (db.centers || []).find(c => String(c._id) === String(req.params.id) || String(c.id) === String(req.params.id));
-        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+        if (db.centers && Array.isArray(db.centers)) {
+            const jsonCenter = db.centers.find(c => String(c._id) === String(centerId) || String(c.id) === String(centerId));
+            if (jsonCenter) {
+                centerName = jsonCenter.centerName || centerName;
+                jsonCenter.certificateIssued = false;
+                await savePortalDb(db);
+            }
+        }
 
-        center.certificateIssued = false;
-        await savePortalDb(db);
+        clearCache();
+        broadcastRealtimeEvent('center_updated');
 
-        return res.json({ success: true, message: `Certificate revoked for ${center.centerName}` });
+        return res.json({ success: true, message: `Certificate revoked for ${centerName}` });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
     }
 });
 
-app.get('/api/director/certificate', verifyDirector, (req, res) => {
-    const db = loadPortalDb();
-    const center = (db.centers || []).find(c => String(c._id) === String(req.centerId) || String(c.id) === String(req.centerId));
-    if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+app.get('/api/director/certificate', verifyDirector, async (req, res) => {
+    try {
+        const centerId = req.centerId || (req.targetCenter ? req.targetCenter._id : null);
+        let center = req.targetCenter ? (req.targetCenter.toObject ? req.targetCenter.toObject() : req.targetCenter) : null;
 
-    if (center.certificateIssued) {
-        return res.json({
-            success: true,
-            issued: true,
-            certificate: {
-                id: center.certificateId || ('BBCC-CERT-' + (center.regNumber || center._id)),
-                issuedAt: center.certificateIssuedAt || center.createdAt || new Date().toISOString(),
-                centerName: center.centerName,
-                directorName: center.directorName,
-                regNumber: center.regNumber,
-                address: center.address,
-                city: center.city
-            },
-            template: (db.designTemplates && db.designTemplates.certificate) || {}
-        });
-    } else {
-        return res.json({
-            success: true,
-            issued: false,
-            message: 'Official Affiliation Certificate pending approval and issuance by Santosh Sir (Master Admin).'
-        });
+        if (!center && isMongoConnected && centerId) {
+            try {
+                if (mongoose.Types.ObjectId.isValid(centerId)) {
+                    const cDoc = await TuitionCenter.findById(centerId);
+                    if (cDoc) center = cDoc.toObject();
+                }
+                if (!center) {
+                    const cDoc = await TuitionCenter.findOne({
+                        $or: [{ _id: centerId }, { regNumber: centerId }, { centerCode: centerId }]
+                    });
+                    if (cDoc) center = cDoc.toObject();
+                }
+            } catch(e) {}
+        }
+
+        if (!center) {
+            const db = loadPortalDb();
+            center = (db.centers || []).find(c => String(c._id) === String(centerId) || String(c.id) === String(centerId));
+        }
+
+        if (!center) return res.status(404).json({ success: false, message: 'Coaching center not found' });
+
+        const db = loadPortalDb();
+        if (center.certificateIssued) {
+            return res.json({
+                success: true,
+                issued: true,
+                certificate: {
+                    id: center.certificateId || ('BBCC-CERT-' + (center.regNumber ? center.regNumber.replace(/[^a-zA-Z0-9]/g, '') : center._id)),
+                    issuedAt: center.certificateIssuedAt || center.createdAt || new Date().toISOString(),
+                    centerName: center.centerName,
+                    directorName: center.directorName,
+                    regNumber: center.regNumber,
+                    address: center.address,
+                    city: center.city
+                },
+                template: (db.designTemplates && db.designTemplates.certificate) || {}
+            });
+        } else {
+            return res.json({
+                success: true,
+                issued: false,
+                message: 'Official Affiliation Certificate pending approval and issuance by Santosh Sir (Master Admin).'
+            });
+        }
+    } catch(err) {
+        return res.status(500).json({ success: false, message: err.message });
     }
 });
 
