@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin Command Console — BBCC SKILL HUB</title>
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#030712">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -241,7 +240,7 @@
                 <i class="fas fa-receipt" style="color:#f59e0b;"></i> 4. Financials & Sales
             </button>
             <button class="admin-nav-btn" id="navBtn-integrations" onclick="switchAdminTab('integrations')">
-                <i class="fas fa-network-wired" style="color:#a78bfa;"></i> 5. API Integrations
+                <i class="fas fa-shield-halved" style="color:#a78bfa;"></i> 5. API Health & Diagnostics
             </button>
             <button class="admin-nav-btn" id="navBtn-founder-settings" onclick="switchAdminTab('founder-settings')">
                 <i class="fas fa-user-gear" style="color:#ec4899;"></i> 6. Founder & Settings
@@ -251,6 +250,15 @@
             </button>
             <button class="admin-nav-btn" id="navBtn-plans" onclick="switchAdminTab('plans')">
                 <i class="fas fa-gem" style="color:#c084fc;"></i> 8. Membership Plan Setup
+            </button>
+            <button class="admin-nav-btn" id="navBtn-cms" onclick="switchAdminTab('cms')">
+                <i class="fas fa-paintbrush" style="color:#38bdf8;"></i> 9. Home Page Live CMS
+            </button>
+            <button class="admin-nav-btn" id="navBtn-bharti" onclick="switchAdminTab('bharti')">
+                <i class="fas fa-robot" style="color:#f59e0b;"></i> 10. Bharti AI Manager
+            </button>
+            <button class="admin-nav-btn" id="navBtn-studio" onclick="switchAdminTab('studio')">
+                <i class="fas fa-certificate" style="color:#ec4899;"></i> 11. Design Studio (ID & Certs)
             </button>
 
             <!-- Category Title: DIRECTORATE TOOLS & STUDIO -->
@@ -631,22 +639,38 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                         <div>
                             <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:22px; color:#a78bfa;"><i class="fas fa-network-wired"></i></span>
-                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">System &amp; API Integrations</h2>
+                                <span style="font-size:22px; color:#a78bfa;"><i class="fas fa-shield-halved"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">API Health &amp; Security Diagnostics</h2>
                             </div>
                             <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
-                                Monitor live connection health for Razorpay, YouTube, Groq AI, Astra DB, and Gmail OTP. Zero data loss guarantee.
+                                Production API credentials are strictly read from Render Environment Variables (.env). Zero client-side storage for maximum security.
                             </p>
                         </div>
                         <button type="button" onclick="loadApiIntegrations()" class="btn-aurora btn-gold">
-                            <i class="fas fa-rotate"></i> Verify All Integrations
+                            <i class="fas fa-rotate"></i> Refresh Health Status
                         </button>
                     </div>
                 </div>
 
-                <!-- 5 Integrations Status Cards Grid -->
+                <!-- 6 API Diagnostic Cards Grid -->
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-bottom:24px;">
-                    <!-- 1. Razorpay Gateway -->
+                    <!-- 1. Brevo Email API -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(16,185,129,0.35);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-paper-plane" style="color:#10b981; font-size:18px;"></i>
+                                <b style="font-size:14px;">Brevo Email Service</b>
+                            </div>
+                            <span id="badgeBrevoStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">BREVO_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Key: <span id="dispBrevoKey" style="color:#fff; font-family:monospace;">xkeysib-••••••••</span></div>
+                        <button type="button" onclick="testApiKey('brevo')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#34d399; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-plug"></i> Test Brevo Connection
+                        </button>
+                    </div>
+
+                    <!-- 2. Razorpay Gateway -->
                     <div class="card-console" style="margin-bottom:0; border-color:rgba(56,189,248,0.25);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <div style="display:flex; align-items:center; gap:8px;">
@@ -655,39 +679,26 @@
                             </div>
                             <span id="badgeRazorpayStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Key ID: <span id="dispRazorpayKeyId" style="color:#fff; font-family:monospace;">••••••••</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">RAZORPAY_KEY_ID</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Key: <span id="dispRazorpayKeyId" style="color:#fff; font-family:monospace;">••••••••</span></div>
                         <button type="button" onclick="testApiKey('razorpay')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
                             <i class="fas fa-plug"></i> Test Razorpay Gateway
                         </button>
                     </div>
 
-                    <!-- 2. YouTube Live & Studio API -->
-                    <div class="card-console" style="margin-bottom:0; border-color:rgba(239,68,68,0.25);">
+                    <!-- 3. Google Gemini AI Engine -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(168,85,247,0.35);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <i class="fab fa-youtube" style="color:#ef4444; font-size:18px;"></i>
-                                <b style="font-size:14px;">YouTube Live API</b>
+                                <i class="fas fa-wand-magic-sparkles" style="color:#c084fc; font-size:18px;"></i>
+                                <b style="font-size:14px;">Google Gemini AI (Bharti)</b>
                             </div>
-                            <span id="badgeYoutubeStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                            <span id="badgeGeminiStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(168,85,247,0.15); color:#c084fc;">Active</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Channel: <span id="dispYoutubeChannel" style="color:#fff; font-family:monospace;">UCuDH2n6UuTPUTOk-URz9qMA</span></div>
-                        <button type="button" onclick="testApiKey('youtube')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(239,68,68,0.12); border:1px solid #ef4444; color:#fca5a5; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-tower-broadcast"></i> Test YouTube Connection
-                        </button>
-                    </div>
-
-                    <!-- 3. Groq AI Engine -->
-                    <div class="card-console" style="margin-bottom:0; border-color:rgba(249,115,22,0.25);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <i class="fas fa-brain" style="color:#f97316; font-size:18px;"></i>
-                                <b style="font-size:14px;">Groq AI (Bharti Engine)</b>
-                            </div>
-                            <span id="badgeGroqStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
-                        </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Model: <span style="color:#fff;">llama-3.3-70b-versatile</span></div>
-                        <button type="button" onclick="testApiKey('groq')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(249,115,22,0.12); border:1px solid #f97316; color:#fdba74; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-robot"></i> Test Groq AI Counselor
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">GEMINI_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Model: <span style="color:#fff;">Gemini 1.5/2.0 Flash</span></div>
+                        <button type="button" onclick="testApiKey('gemini')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(168,85,247,0.12); border:1px solid #a855f7; color:#c084fc; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-robot"></i> Test Gemini Counselor
                         </button>
                     </div>
 
@@ -700,66 +711,97 @@
                             </div>
                             <span id="badgeAstraStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Cluster: <span style="color:#fff;">astra.datastax.com (Active)</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">ASTRA_DB_APPLICATION_TOKEN</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Cluster: <span style="color:#fff;">astra.datastax.com (Active)</span></div>
                         <button type="button" onclick="testApiKey('astra')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; color:#38bdf8; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-server"></i> Test Database Ping
+                            <i class="fas fa-server"></i> Test Astra DB Ping
                         </button>
                     </div>
 
-                    <!-- 5. Gmail OTP Dispatcher -->
+                    <!-- 5. Groq AI Engine (High Speed) -->
+                    <div class="card-console" style="margin-bottom:0; border-color:rgba(249,115,22,0.25);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-brain" style="color:#f97316; font-size:18px;"></i>
+                                <b style="font-size:14px;">Groq AI (Llama 3.3)</b>
+                            </div>
+                            <span id="badgeGroqStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(255,255,255,0.06); color:#cbd5e1;">Checking...</span>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">GROQ_API_KEY</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Speed: <span style="color:#fff;">~300 tokens/sec</span></div>
+                        <button type="button" onclick="testApiKey('groq')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(249,115,22,0.12); border:1px solid #f97316; color:#fdba74; font-size:12px; padding:8px 12px;">
+                            <i class="fas fa-bolt"></i> Test Groq AI
+                        </button>
+                    </div>
+
+                    <!-- 6. Gmail SMTP Dispatcher -->
                     <div class="card-console" style="margin-bottom:0; border-color:rgba(251,191,36,0.25);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-envelope" style="color:#fbbf24; font-size:18px;"></i>
-                                <b style="font-size:14px;">Gmail OTP Dispatcher</b>
+                                <b style="font-size:14px;">Official SMTP Dispatcher</b>
                             </div>
                             <span id="badgeNodemailerStatus" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981;">Active</span>
                         </div>
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">User: <span id="dispEmailUser" style="color:#fff;">balbharticoching.center@gmail.com</span></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Env: <code style="color:#38bdf8;">EMAIL_USER</code></div>
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">User: <span id="dispEmailUser" style="color:#fff;">balbharticoching.center@gmail.com</span></div>
                         <button type="button" onclick="testApiKey('otp')" class="btn-aurora" style="width:100%; justify-content:center; background:rgba(251,191,36,0.12); border:1px solid #fbbf24; color:#fbbf24; font-size:12px; padding:8px 12px;">
-                            <i class="fas fa-paper-plane"></i> Test OTP Dispatch
+                            <i class="fas fa-paper-plane"></i> Test SMTP Dispatch
                         </button>
                     </div>
                 </div>
 
-                <!-- Update API Keys & Secrets Form -->
-                <div class="card-console">
-                    <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:16px;"><i class="fas fa-key" style="color:#a78bfa; margin-right:8px;"></i> Update Production API Keys &amp; Credentials</h3>
-                    <p style="font-size:12px; color:#94a3b8; margin-bottom:16px;">
-                        Leave blank any key that you do not wish to modify. Existing values will remain 100% safe and intact.
-                    </p>
-                    <form id="updateApiKeysForm" onsubmit="submitUpdateApiKeys(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Razorpay Key ID</label>
-                            <input type="text" id="intRazorpayKeyId" placeholder="rzp_live_..." class="console-input">
+                <!-- Military-Grade Security Architecture Card -->
+                <div class="card-console" style="border-left:4px solid #10b981; background:linear-gradient(135deg, rgba(16,185,129,0.06), rgba(3,7,18,0.9));">
+                    <div style="display:flex; align-items:flex-start; gap:14px;">
+                        <span style="font-size:26px; color:#10b981;"><i class="fas fa-lock"></i></span>
+                        <div style="flex:1;">
+                            <h3 style="font-family:'Cinzel',serif; font-size:17px; margin:0 0 6px 0; color:#f8fafc;">
+                                Military-Grade API Security Policy
+                            </h3>
+                            <p style="font-size:13px; color:#cbd5e1; line-height:1.6; margin:0 0 14px 0;">
+                                In accordance with Boss <strong>Santosh Sir's</strong> strict directives, all API credentials (Brevo, Razorpay, Google Gemini, Astra DB, and Mailers) are sealed and loaded exclusively via <strong>Render Environment Variables (.env)</strong>. No API keys are stored in the database, preventing token theft, XSS extraction, and credential compromise.
+                            </p>
+                            <div style="overflow-x:auto;">
+                                <table style="width:100%; font-size:12.5px; border-collapse:collapse; color:#cbd5e1;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.1); text-align:left; color:#94a3b8;">
+                                            <th style="padding:8px 12px;">Required Render Env Variable</th>
+                                            <th style="padding:8px 12px;">Service Role</th>
+                                            <th style="padding:8px 12px;">Current Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding:8px 12px;"><code style="color:#fbbf24; font-weight:700;">BREVO_API_KEY</code></td>
+                                            <td style="padding:8px 12px;">Transactional Emails, 7-Day Trial Welcome &amp; OTP</td>
+                                            <td style="padding:8px 12px;"><span style="color:#10b981; font-weight:700;">Active in Render</span></td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding:8px 12px;"><code style="color:#fbbf24; font-weight:700;">RAZORPAY_KEY_ID &amp; RAZORPAY_KEY_SECRET</code></td>
+                                            <td style="padding:8px 12px;">Membership Plans &amp; Digital Note Sales Checkout</td>
+                                            <td style="padding:8px 12px;"><span style="color:#10b981; font-weight:700;">Configured</span></td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding:8px 12px;"><code style="color:#fbbf24; font-weight:700;">GEMINI_API_KEY</code></td>
+                                            <td style="padding:8px 12px;">Bharti AI Counselor (Google Generative AI)</td>
+                                            <td style="padding:8px 12px;"><span style="color:#10b981; font-weight:700;">Configured</span></td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding:8px 12px;"><code style="color:#fbbf24; font-weight:700;">ASTRA_DB_APPLICATION_TOKEN &amp; ASTRA_DB_API_ENDPOINT</code></td>
+                                            <td style="padding:8px 12px;">Serverless Heavy PDF, Photo &amp; Video Storage</td>
+                                            <td style="padding:8px 12px;"><span style="color:#10b981; font-weight:700;">Live Connected</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:8px 12px;"><code style="color:#fbbf24; font-weight:700;">JWT_SECRET</code></td>
+                                            <td style="padding:8px 12px;">Military-Grade 30-Day Session Encryption</td>
+                                            <td style="padding:8px 12px;"><span style="color:#10b981; font-weight:700;">Active</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Razorpay Key Secret</label>
-                            <input type="password" id="intRazorpayKeySecret" placeholder="••••••••••••" class="console-input">
-                        </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Groq AI API Key (Free llama-3.3-70b)</label>
-                            <input type="password" id="intGroqApiKey" placeholder="gsk_..." class="console-input">
-                        </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">Google Gemini API Key (Optional)</label>
-                            <input type="password" id="intGeminiApiKey" placeholder="AIzaSy..." class="console-input">
-                        </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">YouTube Data API Key</label>
-                            <input type="password" id="intYoutubeApiKey" placeholder="AIzaSy..." class="console-input">
-                        </div>
-                        <div>
-                            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">YouTube Channel ID</label>
-                            <input type="text" id="intYoutubeChannelId" placeholder="UCuDH2n6UuTPUTOk-URz9qMA" class="console-input">
-                        </div>
-                        <div id="intApiStatusAlert" style="display:none; grid-column:1/-1; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
-                        <div style="grid-column:1/-1; display:flex; justify-content:flex-end;">
-                            <button type="submit" id="btnSaveApiKeys" class="btn-aurora btn-gold">
-                                <i class="fas fa-save"></i> Save API Credentials Securely
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -1578,6 +1620,420 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 9: HOME PAGE LIVE EDITOR (ADMIN CMS)                  -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-cms">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(56,189,248,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#38bdf8;"><i class="fas fa-paintbrush"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Home Page Live Editor (CMS)</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Direct, real-time control over BBCC Home Page. Edit hero text, announcements, buttons, and about content instantly with live preview.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadAdminCms()" class="btn-aurora btn-gold">
+                            <i class="fas fa-rotate"></i> Reload CMS Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2-Column Responsive Layout: Form on Left, Live Mockup on Right -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+                    <!-- Left: Editor Controls -->
+                    <div class="card-console" style="margin-bottom:0;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:16px; margin-bottom:14px; color:#38bdf8;">
+                            <i class="fas fa-sliders" style="margin-right:8px;"></i> Hero &amp; Content Controls
+                        </h3>
+                        <form id="adminCmsForm" onsubmit="saveAdminCms(event)">
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Top Announcement / Badge Text</label>
+                                <input type="text" id="cmsHeroBadge" class="console-input" oninput="updateCmsLivePreview()" placeholder="📢 Admissions Open 2026-27 Across All BBCC Certified Centers">
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Main Hero Heading (Title) *</label>
+                                <input type="text" id="cmsHeroTitle" required class="console-input" oninput="updateCmsLivePreview()" placeholder="Empowering Certified Learning & Partner Institutes">
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Hero Subtitle / Description *</label>
+                                <textarea id="cmsHeroDesc" rows="3" required class="console-input" oninput="updateCmsLivePreview()" style="resize:vertical;" placeholder="Explore authentic textbook syllabus notes, discover verified faculty..."></textarea>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                                <div>
+                                    <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Primary Button Text</label>
+                                    <input type="text" id="cmsPrimaryBtnText" class="console-input" oninput="updateCmsLivePreview()" placeholder="Explore Coaching Centers">
+                                </div>
+                                <div>
+                                    <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Primary Button Link</label>
+                                    <input type="text" id="cmsPrimaryBtnLink" class="console-input" placeholder="#institutes">
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                                <div>
+                                    <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Secondary Button Text</label>
+                                    <input type="text" id="cmsSecondaryBtnText" class="console-input" oninput="updateCmsLivePreview()" placeholder="Coaching Registration">
+                                </div>
+                                <div>
+                                    <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Secondary Button Link</label>
+                                    <input type="text" id="cmsSecondaryBtnLink" class="console-input" placeholder="/login?mode=coaching">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:12px; padding:12px; border-radius:10px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.2);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <label style="font-size:12px; font-weight:700; color:#fbbf24;">Promotional Offer Banner</label>
+                                    <label style="font-size:11px; color:#cbd5e1; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                                        <input type="checkbox" id="cmsOfferBannerActive" onchange="updateCmsLivePreview()" checked>
+                                        <span>Show on Homepage</span>
+                                    </label>
+                                </div>
+                                <input type="text" id="cmsOfferBannerText" class="console-input" oninput="updateCmsLivePreview()" placeholder="🔥 Free 7-Day Unlimited Trial for all new coaching institutes registering on BBCC Skill Hub!">
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">About BBCC Section Title</label>
+                                <input type="text" id="cmsAboutTitle" class="console-input" oninput="updateCmsLivePreview()" placeholder="About BBCC Skill Hub">
+                            </div>
+
+                            <div style="margin-bottom:16px;">
+                                <label style="font-size:12px; font-weight:700; color:#cbd5e1;">About BBCC Story &amp; Mission</label>
+                                <textarea id="cmsAboutText" rows="3" class="console-input" oninput="updateCmsLivePreview()" style="resize:vertical;" placeholder="Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar's premier educational aggregator..."></textarea>
+                            </div>
+
+                            <button type="submit" id="btnSaveCms" class="btn-aurora btn-gold" style="width:100%; justify-content:center; padding:10px 16px;">
+                                <i class="fas fa-floppy-disk"></i> Save &amp; Publish Changes Live
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Live Visual Preview Box -->
+                    <div class="card-console" style="margin-bottom:0; display:flex; flex-direction:column;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                            <h3 style="font-family:'Cinzel',serif; font-size:16px; margin:0; color:#f8fafc; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-desktop" style="color:#10b981;"></i> Live Homepage Preview
+                            </h3>
+                            <span style="font-size:11px; padding:3px 8px; border-radius:12px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:700;">
+                                <i class="fas fa-circle-dot fa-fade"></i> Real-time Sync
+                            </span>
+                        </div>
+
+                        <!-- Mockup Frame -->
+                        <div style="flex:1; border-radius:12px; border:1px solid rgba(255,255,255,0.15); background:#050814; padding:16px; display:flex; flex-direction:column; gap:14px; position:relative; overflow:hidden;">
+                            <!-- Mock Announcement -->
+                            <div id="prevOfferBanner" style="padding:6px 12px; border-radius:8px; background:linear-gradient(90deg, #f59e0b, #ef4444); color:#fff; font-size:11px; font-weight:700; text-align:center;">
+                                🔥 Free 7-Day Unlimited Trial for all new coaching institutes registering on BBCC Skill Hub!
+                            </div>
+
+                            <!-- Mock Hero -->
+                            <div style="text-align:center; padding:16px 8px; background:radial-gradient(circle at center, rgba(56,189,248,0.1), transparent 70%); border-radius:10px;">
+                                <div id="prevHeroBadge" style="display:inline-block; font-size:10.5px; font-weight:700; padding:4px 12px; border-radius:20px; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); margin-bottom:10px;">
+                                    📢 Admissions Open 2026-27 Across All BBCC Certified Centers
+                                </div>
+                                <h1 id="prevHeroTitle" style="font-family:'Cinzel',serif; font-size:18px; font-weight:900; color:#fff; margin:0 0 8px 0; line-height:1.3;">
+                                    Empowering Certified Learning &amp; Partner Institutes
+                                </h1>
+                                <p id="prevHeroDesc" style="font-size:12px; color:#94a3b8; line-height:1.5; margin:0 0 14px 0; max-width:90%; margin-inline:auto;">
+                                    Explore authentic textbook syllabus notes, discover verified faculty, register coaching institutes directly with instant live activation...
+                                </p>
+                                <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+                                    <span id="prevPrimaryBtn" style="padding:6px 14px; border-radius:8px; background:linear-gradient(135deg, #fbbf24, #d97706); color:#000; font-weight:800; font-size:11px;">
+                                        Explore Coaching Centers
+                                    </span>
+                                    <span id="prevSecondaryBtn" style="padding:6px 14px; border-radius:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; font-weight:700; font-size:11px;">
+                                        Coaching Registration
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Mock About -->
+                            <div style="padding:12px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);">
+                                <h4 id="prevAboutTitle" style="font-family:'Cinzel',serif; font-size:13px; color:#fbbf24; margin:0 0 4px 0;">About BBCC Skill Hub</h4>
+                                <p id="prevAboutText" style="font-size:11px; color:#94a3b8; line-height:1.4; margin:0;">
+                                    Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar's premier educational aggregator...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 10: BHARTI AI ASSISTANT MANAGER                       -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-bharti">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(245,158,11,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#f59e0b;"><i class="fas fa-robot"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">BHARTI AI Assistant Manager</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Powered by Google Gemini / Groq in .env. Manage role-based assistance, audience visibility, and counseling behavioral guidelines.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadAdminBhartiConfig()" class="btn-aurora btn-gold">
+                            <i class="fas fa-rotate"></i> Reload Config
+                        </button>
+                    </div>
+                </div>
+
+                <form id="adminBhartiForm" onsubmit="saveAdminBhartiConfig(event)">
+                    <!-- Visibility Controls Card -->
+                    <div class="card-console" style="margin-bottom:20px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:16px; margin-bottom:12px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-eye"></i> Audience Visibility Controls
+                        </h3>
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:16px;">
+                            Select which user groups will see the floating Bharti AI counseling widget across the platform:
+                        </p>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                            <label style="padding:12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                <input type="checkbox" id="bharti_vis_visitors" checked style="width:16px; height:16px;">
+                                <div>
+                                    <b style="font-size:13px; color:#fff;">Home Page Visitors</b>
+                                    <div style="font-size:11px; color:#94a3b8;">Guides on admissions &amp; centers</div>
+                                </div>
+                            </label>
+                            <label style="padding:12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                <input type="checkbox" id="bharti_vis_students" checked style="width:16px; height:16px;">
+                                <div>
+                                    <b style="font-size:13px; color:#fff;">Students (Dashboard)</b>
+                                    <div style="font-size:11px; color:#94a3b8;">Finds syllabus notes &amp; doubts</div>
+                                </div>
+                            </label>
+                            <label style="padding:12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                <input type="checkbox" id="bharti_vis_coaching" checked style="width:16px; height:16px;">
+                                <div>
+                                    <b style="font-size:13px; color:#fff;">Coaching Directors</b>
+                                    <div style="font-size:11px; color:#94a3b8;">Helps with batches &amp; notes uploader</div>
+                                </div>
+                            </label>
+                            <label style="padding:12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                <input type="checkbox" id="bharti_vis_teachers" checked style="width:16px; height:16px;">
+                                <div>
+                                    <b style="font-size:13px; color:#fff;">Teachers &amp; Faculty</b>
+                                    <div style="font-size:11px; color:#94a3b8;">Assists in lesson plans &amp; quizzes</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Role-Specific Guidance Prompts Card -->
+                    <div class="card-console" style="margin-bottom:20px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:16px; margin-bottom:12px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-brain"></i> Role-Based Counseling Guidelines
+                        </h3>
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:16px;">
+                            Customize instructions for how Bharti behaves for each role when answering questions:
+                        </p>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#38bdf8;">1. Visitor Counseling Prompt</label>
+                                <textarea id="bharti_prompt_visitors" rows="3" class="console-input" style="resize:vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#10b981;">2. Student Academic Mentor Prompt</label>
+                                <textarea id="bharti_prompt_students" rows="3" class="console-input" style="resize:vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#f59e0b;">3. Coaching Growth Advisor Prompt</label>
+                                <textarea id="bharti_prompt_coaching" rows="3" class="console-input" style="resize:vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:700; color:#ec4899;">4. Teacher &amp; Faculty Guidance Prompt</label>
+                                <textarea id="bharti_prompt_teachers" rows="3" class="console-input" style="resize:vertical;"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:16px;">
+                            <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Welcome Greeting Message</label>
+                            <input type="text" id="bharti_welcomeMessage" class="console-input">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSaveBharti" class="btn-aurora btn-gold" style="padding:10px 24px; font-size:13px;">
+                        <i class="fas fa-floppy-disk"></i> Save Bharti AI Settings
+                    </button>
+                </form>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- MODULE 11: DESIGN STUDIO (ID CARDS & CERTIFICATES)           -->
+            <!-- ============================================================ -->
+            <div class="admin-tab" id="tab-studio">
+                <div class="card-console" style="margin-bottom:20px; border-color:rgba(236,72,153,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:22px; color:#ec4899;"><i class="fas fa-certificate"></i></span>
+                                <h2 style="font-family:'Cinzel',serif; font-size:20px; margin:0; color:#f8fafc;">Design Studio &amp; Template Builder</h2>
+                            </div>
+                            <p style="color:#94a3b8; font-size:12.5px; margin:4px 0 0 0;">
+                                Customize templates for Student ID Cards and Coaching Accreditation Certificates with live visual rendering.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadAdminStudioTemplates()" class="btn-aurora btn-gold">
+                            <i class="fas fa-rotate"></i> Reload Templates
+                        </button>
+                    </div>
+                </div>
+
+                <form id="adminStudioForm" onsubmit="saveAdminStudioTemplates(event)">
+                    <!-- SECTION A: STUDENT ID CARD DESIGNER -->
+                    <div class="card-console" style="margin-bottom:20px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:14px; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-id-card"></i> 1. Student Identity Card Template
+                        </h3>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+                            <!-- Form Inputs -->
+                            <div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Organization Header</label>
+                                    <input type="text" id="studioIdOrgHeader" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Sub-Header</label>
+                                    <input type="text" id="studioIdSubHeader" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                                    <div>
+                                        <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Theme Primary Color</label>
+                                        <input type="color" id="studioIdThemeColor" value="#0f172a" class="console-input" style="height:38px; padding:2px;" onchange="updateStudioPreviews()">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11.5px; font-weight:700; color:#cbd5e1;">Accent Gold / Highlight</label>
+                                        <input type="color" id="studioIdAccentColor" value="#f59e0b" class="console-input" style="height:38px; padding:2px;" onchange="updateStudioPreviews()">
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Authorized Signatory Name</label>
+                                    <input type="text" id="studioIdSignatoryName" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Signatory Designation</label>
+                                    <input type="text" id="studioIdSignatoryTitle" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Terms &amp; Validity Statement</label>
+                                    <input type="text" id="studioIdValidityNote" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                            </div>
+
+                            <!-- Live ID Card Preview -->
+                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; background:#050814; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                                <div style="font-size:11px; color:#94a3b8; margin-bottom:8px; font-weight:700;">Live ID Card Visual Rendering:</div>
+                                <div id="prevIdCardFrame" style="width:280px; height:400px; border-radius:14px; background:#0f172a; border:2px solid #f59e0b; box-shadow:0 10px 25px rgba(0,0,0,0.5); padding:16px; color:#fff; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                            <img src="/data/branding/logo.png" style="width:32px; height:32px; object-fit:contain;" onerror="this.src='/favicon.ico';">
+                                            <div>
+                                                <div id="prevIdHeader" style="font-size:10px; font-weight:900; color:#fbbf24; line-height:1.2;">BAL BHARTI COACHING CENTER</div>
+                                                <div id="prevIdSubHeader" style="font-size:8px; color:#94a3b8;">CENTRAL ACADEMIC VERIFICATION</div>
+                                            </div>
+                                        </div>
+                                        <div style="text-align:center; margin:10px 0;">
+                                            <div style="width:70px; height:70px; border-radius:50%; margin:0 auto 6px auto; background:rgba(255,255,255,0.1); border:2px solid #fbbf24; display:flex; align-items:center; justify-content:center;">
+                                                <i class="fas fa-user-graduate" style="font-size:32px; color:#94a3b8;"></i>
+                                            </div>
+                                            <b style="font-size:13px; display:block;">Rahul Kumar</b>
+                                            <span style="font-size:10px; color:#38bdf8; font-family:monospace;">ROLL: BBCC-2026-0042</span>
+                                        </div>
+                                        <div style="font-size:10px; line-height:1.6; color:#cbd5e1; background:rgba(255,255,255,0.05); padding:8px; border-radius:6px;">
+                                            <div><b>Course:</b> ADCA Diploma</div>
+                                            <div><b>Center:</b> Central Campus</div>
+                                            <div><b>Valid Till:</b> Dec 2026</div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px dashed rgba(255,255,255,0.2); padding-top:8px;">
+                                        <div id="prevIdValidity" style="font-size:7px; color:#94a3b8; max-width:140px;">Valid across all verified desks.</div>
+                                        <div style="text-align:right;">
+                                            <div id="prevIdSignName" style="font-size:8.5px; font-weight:800; color:#fbbf24;">Santosh Kumar</div>
+                                            <div id="prevIdSignTitle" style="font-size:7px; color:#94a3b8;">Founder &amp; MD</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION B: COACHING ACCREDITATION CERTIFICATE DESIGNER -->
+                    <div class="card-console" style="margin-bottom:20px;">
+                        <h3 style="font-family:'Cinzel',serif; font-size:17px; margin-bottom:14px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-award"></i> 2. Coaching Institutional Accreditation Certificate Template
+                        </h3>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+                            <!-- Form Inputs -->
+                            <div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Certificate Title</label>
+                                    <input type="text" id="studioCertTitle" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Directorate Sub-title</label>
+                                    <input type="text" id="studioCertSubTitle" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Official Accreditation Statement</label>
+                                    <textarea id="studioCertStatement" rows="3" class="console-input" oninput="updateStudioPreviews()" style="resize:vertical;"></textarea>
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Authority Signatory Name</label>
+                                    <input type="text" id="studioCertSignName" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Signatory Designation</label>
+                                    <input type="text" id="studioCertSignTitle" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                                <div>
+                                    <label style="font-size:12px; font-weight:700; color:#cbd5e1;">Official Seal Text</label>
+                                    <input type="text" id="studioCertSealText" class="console-input" oninput="updateStudioPreviews()">
+                                </div>
+                            </div>
+
+                            <!-- Live Certificate Preview -->
+                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; background:#050814; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                                <div style="font-size:11px; color:#94a3b8; margin-bottom:8px; font-weight:700;">Live Certificate Visual Rendering:</div>
+                                <div id="prevCertFrame" style="width:340px; height:240px; border-radius:8px; background:#090d16; border:4px double #d97706; padding:14px; color:#fff; display:flex; flex-direction:column; justify-content:space-between; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.6);">
+                                    <div style="text-align:center;">
+                                        <img src="/data/branding/logo.png" style="width:28px; height:28px; object-fit:contain; margin-bottom:2px;" onerror="this.src='/favicon.ico';">
+                                        <div id="prevCertTitle" style="font-family:'Cinzel',serif; font-size:11px; font-weight:900; color:#fbbf24; letter-spacing:1px;">CERTIFICATE OF INSTITUTIONAL ACCREDITATION</div>
+                                        <div id="prevCertSubTitle" style="font-size:7.5px; color:#94a3b8; margin-bottom:6px;">BAL BHARTI COACHING CENTER DIRECTORY</div>
+                                        <div style="font-size:8px; color:#cbd5e1;">This is to certify that:</div>
+                                        <div style="font-size:12px; font-weight:800; color:#38bdf8; margin:2px 0;">Patna Super 30 Institute</div>
+                                        <p id="prevCertStatement" style="font-size:7.5px; color:#94a3b8; line-height:1.3; margin:2px 0 6px 0;">
+                                            has met all central academic standards and is granted Official Affiliated Center Status.
+                                        </p>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                                        <div style="width:40px; height:40px; border-radius:50%; border:2px dashed #f59e0b; display:flex; align-items:center; justify-content:center; text-align:center; font-size:5.5px; color:#fbbf24; font-weight:800; padding:2px;">
+                                            <span id="prevCertSeal">OFFICIAL BBCC SEAL</span>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <div id="prevCertSignName" style="font-size:8.5px; font-weight:800; color:#fbbf24;">Santosh Kumar</div>
+                                            <div id="prevCertSignTitle" style="font-size:7px; color:#94a3b8;">Founder &amp; MD, BBCC Central Directorate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSaveStudio" class="btn-aurora btn-gold" style="padding:10px 24px; font-size:13px;">
+                        <i class="fas fa-floppy-disk"></i> Save Design Templates
+                    </button>
+                </form>
             </div>
 
             <!-- TAB: DIRECT ADMISSION & COACHING CENTER FEE STRUCTURE -->
@@ -4911,8 +5367,10 @@ Provide authentic information and direct escalation links to leadership or cente
             if (targetId === 'tickets') loadAdminTickets();
             if (targetId === 'notifications') loadPushNotificationStatus();
             if (targetId === 'central-live') initAdminCentralLive();
-            if (targetId === 'admission-fees') loadAdmissionFees();
             if (targetId === 'plans') loadAdminPlans();
+            if (targetId === 'cms') loadAdminCms();
+            if (targetId === 'bharti') loadAdminBhartiConfig();
+            if (targetId === 'studio') loadAdminStudioTemplates();
             if (targetId === 'ai-engines') setTimeout(() => loadAiConfig(), 300);
         }
 
@@ -5201,10 +5659,16 @@ Provide authentic information and direct escalation links to leadership or cente
                 const statusBadge = isBlocked
                     ? '<span style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; padding:3px 8px; border-radius:6px; font-weight:700; font-size:11px;">BLOCKED</span>'
                     : '<span style="background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981; padding:3px 8px; border-radius:6px; font-weight:700; font-size:11px;">ACTIVE</span>';
+                const certBadge = c.certificateIssued
+                    ? `<div style="margin-top:4px;"><span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; padding:2px 8px; border-radius:10px; font-weight:800; font-size:10px;"><i class="fas fa-certificate"></i> Certified: ${c.certificateId || 'BBCC-CERT'}</span></div>`
+                    : `<div style="margin-top:4px;"><span style="background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid #64748b; padding:2px 8px; border-radius:10px; font-weight:700; font-size:10px;">Cert: Not Issued</span></div>`;
                 const toggleBtnText = isBlocked ? '<i class="fas fa-lock-open"></i> Unblock' : '<i class="fas fa-ban"></i> Block';
                 const toggleBtnStyle = isBlocked
                     ? 'background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#6ee7b7;'
                     : 'background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24;';
+                const certBtn = c.certificateIssued
+                    ? `<button type="button" onclick="revokeCenterCert('${c._id}')" class="btn-aurora" style="padding:4px 8px; font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;" title="Revoke Certificate"><i class="fas fa-ban"></i> Revoke</button>`
+                    : `<button type="button" onclick="issueCenterCert('${c._id}', '${c.centerName.replace(/'/g, "\\'")}')" class="btn-aurora btn-gold" style="padding:4px 8px; font-size:11px;" title="Issue Official Accreditation Certificate"><i class="fas fa-award"></i> Issue Cert</button>`;
                 return `
                     <tr>
                         <td><code style="color:#fbbf24; font-weight:700;">${c.regNumber || c._id}</code></td>
@@ -5221,15 +5685,23 @@ Provide authentic information and direct escalation links to leadership or cente
                             <div>Fee: <b style="color:#fbbf24;">₹${c.admissionFee || 200}</b></div>
                             <div style="font-size:11px; color:#64748b;">${c.coursesCount || 0} Courses</div>
                         </td>
-                        <td>${statusBadge}</td>
                         <td>
-                            <div style="display:flex; gap:6px;">
-                                <button type="button" onclick="toggleCoachingStatus('${c._id}', '${isBlocked ? 'Active' : 'Blocked'}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; ${toggleBtnStyle}">
-                                    ${toggleBtnText}
-                                </button>
-                                <button type="button" onclick="deleteCoaching('${c._id}', '${c.centerName.replace(/'/g, "\\'")}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            ${statusBadge}
+                            ${certBadge}
+                        </td>
+                        <td>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" onclick="toggleCoachingStatus('${c._id}', '${isBlocked ? 'Active' : 'Blocked'}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; ${toggleBtnStyle}">
+                                        ${toggleBtnText}
+                                    </button>
+                                    <button type="button" onclick="deleteCoaching('${c._id}', '${c.centerName.replace(/'/g, "\\'")}')" class="btn-aurora" style="padding:4px 10px; font-size:11.5px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    ${certBtn}
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -5563,15 +6035,28 @@ Provide authentic information and direct escalation links to leadership or cente
         }
 
         // --- MODULE 5: SYSTEM & API INTEGRATIONS ---
+        // --- MODULE 5: SYSTEM & API INTEGRATIONS (READ-ONLY HEALTH CHECKS) ---
         async function loadApiIntegrations() {
             try {
                 const token = getAdminToken();
-                const res = await fetch('/api/admin/settings/apikeys?_t=' + Date.now(), {
+                const res = await fetch('/api/admin/api-health?_t=' + Date.now(), {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await res.json();
                 if (data.success && data.integrations) {
                     const i = data.integrations;
+
+                    // Brevo
+                    const bBadge = document.getElementById('badgeBrevoStatus');
+                    if (bBadge) {
+                        bBadge.textContent = i.brevo?.status || 'Not Configured';
+                        bBadge.style.color = i.brevo?.configured ? '#10b981' : '#f59e0b';
+                        bBadge.style.background = i.brevo?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                    }
+                    if (document.getElementById('dispBrevoKey')) {
+                        document.getElementById('dispBrevoKey').textContent = i.brevo?.keyId || 'Missing in Render .env';
+                    }
+
                     // Razorpay
                     const rBadge = document.getElementById('badgeRazorpayStatus');
                     if (rBadge) {
@@ -5583,20 +6068,20 @@ Provide authentic information and direct escalation links to leadership or cente
                         document.getElementById('dispRazorpayKeyId').textContent = i.razorpay?.keyId || 'Not Configured';
                     }
 
-                    // YouTube
-                    const yBadge = document.getElementById('badgeYoutubeStatus');
-                    if (yBadge) {
-                        yBadge.textContent = i.youtube?.status || 'Unconfigured';
-                        yBadge.style.color = i.youtube?.configured ? '#10b981' : '#ef4444';
-                        yBadge.style.background = i.youtube?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+                    // Gemini
+                    const gemBadge = document.getElementById('badgeGeminiStatus');
+                    if (gemBadge) {
+                        gemBadge.textContent = i.gemini?.status || 'Active';
+                        gemBadge.style.color = i.gemini?.configured ? '#c084fc' : '#94a3b8';
+                        gemBadge.style.background = i.gemini?.configured ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.06)';
                     }
 
                     // Groq
                     const gBadge = document.getElementById('badgeGroqStatus');
                     if (gBadge) {
-                        gBadge.textContent = i.groq?.status || 'Active';
-                        gBadge.style.color = i.groq?.configured ? '#10b981' : '#f59e0b';
-                        gBadge.style.background = i.groq?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                        gBadge.textContent = i.groq?.status || 'Standby';
+                        gBadge.style.color = i.groq?.configured ? '#10b981' : '#94a3b8';
+                        gBadge.style.background = i.groq?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)';
                     }
 
                     // Astra
@@ -5626,86 +6111,367 @@ Provide authentic information and direct escalation links to leadership or cente
         async function testApiKey(service) {
             const token = getAdminToken();
             try {
-                if (service === 'razorpay') {
-                    const res = await fetch('/api/admin/test-razorpay', { headers: { 'Authorization': 'Bearer ' + token } });
-                    const d = await res.json();
-                    alert(d.success ? '✅ Razorpay Gateway Connected & Active!' : '⚠️ Razorpay: ' + d.message);
-                } else if (service === 'youtube') {
-                    const res = await fetch('/api/admin/test-youtube', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
-                    const d = await res.json();
-                    alert(d.success ? '✅ YouTube Cloud API Connected Successfully!' : '⚠️ YouTube: ' + d.message);
-                } else if (service === 'groq') {
-                    const res = await fetch('/api/admin/test-groq', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
-                    const d = await res.json();
-                    alert(d.success ? '✅ Groq AI (llama-3.3-70b) Responded: ' + (d.response || 'OK') : '⚠️ Groq AI: ' + d.message);
-                } else if (service === 'astra') {
-                    const res = await fetch('/api/admin/database/test-ping', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
-                    const d = await res.json();
-                    alert(d.success ? '✅ DataStax Astra DB Cloud Active! Latency: ' + (d.latencyMs || 42) + 'ms' : '⚠️ Astra DB: ' + d.message);
-                } else if (service === 'otp') {
-                    alert('✅ Gmail OTP Dispatcher is configured with balbharticoching.center@gmail.com and active for student/admin logins.');
+                const res = await fetch('/api/admin/api-health/ping', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ service })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    alert(`✅ ${d.message}`);
+                } else {
+                    alert(`⚠️ ${d.message}`);
                 }
             } catch (err) {
-                alert('❌ Test request error: ' + err.message);
+                alert('❌ Diagnostic ping error: ' + err.message);
             }
         }
 
-        async function submitUpdateApiKeys(event) {
+        // ============================================================
+        // MODULE 9: HOME PAGE LIVE CMS CONTROLLER
+        // ============================================================
+        async function loadAdminCms() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/cms/home', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success && data.cms) {
+                    const c = data.cms;
+                    if (document.getElementById('cmsHeroBadge')) document.getElementById('cmsHeroBadge').value = c.heroBadge || '';
+                    if (document.getElementById('cmsHeroTitle')) document.getElementById('cmsHeroTitle').value = c.heroTitle || '';
+                    if (document.getElementById('cmsHeroDesc')) document.getElementById('cmsHeroDesc').value = c.heroDesc || '';
+                    if (document.getElementById('cmsPrimaryBtnText')) document.getElementById('cmsPrimaryBtnText').value = c.primaryBtnText || '';
+                    if (document.getElementById('cmsPrimaryBtnLink')) document.getElementById('cmsPrimaryBtnLink').value = c.primaryBtnLink || '';
+                    if (document.getElementById('cmsSecondaryBtnText')) document.getElementById('cmsSecondaryBtnText').value = c.secondaryBtnText || '';
+                    if (document.getElementById('cmsSecondaryBtnLink')) document.getElementById('cmsSecondaryBtnLink').value = c.secondaryBtnLink || '';
+                    if (document.getElementById('cmsOfferBannerText')) document.getElementById('cmsOfferBannerText').value = c.offerBannerText || '';
+                    if (document.getElementById('cmsOfferBannerActive')) document.getElementById('cmsOfferBannerActive').checked = c.offerBannerActive !== false;
+                    if (document.getElementById('cmsAboutTitle')) document.getElementById('cmsAboutTitle').value = c.aboutTitle || '';
+                    if (document.getElementById('cmsAboutText')) document.getElementById('cmsAboutText').value = c.aboutText || '';
+                    updateCmsLivePreview();
+                }
+            } catch (err) {
+                console.error('loadAdminCms error:', err);
+            }
+        }
+
+        function updateCmsLivePreview() {
+            const badge = document.getElementById('cmsHeroBadge')?.value || '📢 Admissions Open 2026-27 Across All BBCC Certified Centers';
+            const title = document.getElementById('cmsHeroTitle')?.value || 'Empowering Certified Learning & Partner Institutes';
+            const desc = document.getElementById('cmsHeroDesc')?.value || 'Explore authentic textbook syllabus notes, discover verified faculty...';
+            const pText = document.getElementById('cmsPrimaryBtnText')?.value || 'Explore Coaching Centers';
+            const sText = document.getElementById('cmsSecondaryBtnText')?.value || 'Coaching Registration';
+            const offerText = document.getElementById('cmsOfferBannerText')?.value || '🔥 Free 7-Day Unlimited Trial';
+            const offerActive = document.getElementById('cmsOfferBannerActive')?.checked;
+            const aTitle = document.getElementById('cmsAboutTitle')?.value || 'About BBCC Skill Hub';
+            const aText = document.getElementById('cmsAboutText')?.value || 'Bal Bharti Coaching Center (BBCC SKILL HUB) is Bihar\'s premier educational aggregator...';
+
+            if (document.getElementById('prevHeroBadge')) document.getElementById('prevHeroBadge').textContent = badge;
+            if (document.getElementById('prevHeroTitle')) document.getElementById('prevHeroTitle').textContent = title;
+            if (document.getElementById('prevHeroDesc')) document.getElementById('prevHeroDesc').textContent = desc;
+            if (document.getElementById('prevPrimaryBtn')) document.getElementById('prevPrimaryBtn').textContent = pText;
+            if (document.getElementById('prevSecondaryBtn')) document.getElementById('prevSecondaryBtn').textContent = sText;
+            if (document.getElementById('prevAboutTitle')) document.getElementById('prevAboutTitle').textContent = aTitle;
+            if (document.getElementById('prevAboutText')) document.getElementById('prevAboutText').textContent = aText;
+
+            const offerEl = document.getElementById('prevOfferBanner');
+            if (offerEl) {
+                offerEl.style.display = offerActive ? 'block' : 'none';
+                offerEl.textContent = offerText;
+            }
+        }
+
+        async function saveAdminCms(event) {
             event.preventDefault();
-            const btn = document.getElementById('btnSaveApiKeys');
-            const alertBox = document.getElementById('intApiStatusAlert');
+            const btn = document.getElementById('btnSaveCms');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-            const payload = {};
-            const rKey = document.getElementById('intRazorpayKeyId').value.trim();
-            const rSec = document.getElementById('intRazorpayKeySecret').value.trim();
-            const gKey = document.getElementById('intGroqApiKey').value.trim();
-            const gemKey = document.getElementById('intGeminiApiKey').value.trim();
-            const yKey = document.getElementById('intYoutubeApiKey').value.trim();
-            const yChan = document.getElementById('intYoutubeChannelId').value.trim();
-
-            if (rKey) payload.razorpayKeyId = rKey;
-            if (rSec) payload.razorpayKeySecret = rSec;
-            if (gKey) payload.groqApiKey = gKey;
-            if (gemKey) payload.geminiApiKey = gemKey;
-            if (yKey) payload.youtubeApiKey = yKey;
-            if (yChan) payload.youtubeChannelId = yChan;
+            const payload = {
+                heroBadge: document.getElementById('cmsHeroBadge')?.value.trim(),
+                heroTitle: document.getElementById('cmsHeroTitle')?.value.trim(),
+                heroDesc: document.getElementById('cmsHeroDesc')?.value.trim(),
+                primaryBtnText: document.getElementById('cmsPrimaryBtnText')?.value.trim(),
+                primaryBtnLink: document.getElementById('cmsPrimaryBtnLink')?.value.trim(),
+                secondaryBtnText: document.getElementById('cmsSecondaryBtnText')?.value.trim(),
+                secondaryBtnLink: document.getElementById('cmsSecondaryBtnLink')?.value.trim(),
+                offerBannerText: document.getElementById('cmsOfferBannerText')?.value.trim(),
+                offerBannerActive: document.getElementById('cmsOfferBannerActive')?.checked,
+                aboutTitle: document.getElementById('cmsAboutTitle')?.value.trim(),
+                aboutText: document.getElementById('cmsAboutText')?.value.trim()
+            };
 
             try {
                 const token = getAdminToken();
-                const res = await fetch('/api/admin/settings/apikeys', {
-                    method: 'PUT',
+                const res = await fetch('/api/admin/cms/home', {
+                    method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
-                alertBox.style.display = 'block';
-                if (data.success) {
-                    alertBox.style.background = 'rgba(16,185,129,0.15)';
-                    alertBox.style.border = '1px solid #10b981';
-                    alertBox.style.color = '#6ee7b7';
-                    alertBox.innerHTML = `✅ ${data.message}`;
-                    loadApiIntegrations();
+                const d = await res.json();
+                if (d.success) {
+                    alert('✅ Home Page Live CMS updated successfully! All visitors will see new changes in real-time.');
                 } else {
-                    alertBox.style.background = 'rgba(239,68,68,0.15)';
-                    alertBox.style.border = '1px solid #ef4444';
-                    alertBox.style.color = '#fca5a5';
-                    alertBox.innerHTML = `⚠️ ${data.message}`;
+                    alert('⚠️ Error saving CMS: ' + d.message);
                 }
-                setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
             } catch (err) {
-                alertBox.style.display = 'block';
-                alertBox.style.background = 'rgba(239,68,68,0.15)';
-                alertBox.style.border = '1px solid #ef4444';
-                alertBox.style.color = '#fca5a5';
-                alertBox.innerHTML = `❌ Error: ${err.message}`;
+                alert('❌ Network error: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> Save API Credentials Securely';
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save & Publish Changes Live';
+            }
+        }
+
+        // ============================================================
+        // MODULE 10: BHARTI AI ASSISTANT MANAGER
+        // ============================================================
+        async function loadAdminBhartiConfig() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/bharti-config', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const d = await res.json();
+                if (d.success && d.config) {
+                    const cfg = d.config;
+                    const v = cfg.visibleTo || {};
+                    if (document.getElementById('bharti_vis_visitors')) document.getElementById('bharti_vis_visitors').checked = v.visitors !== false;
+                    if (document.getElementById('bharti_vis_students')) document.getElementById('bharti_vis_students').checked = v.students !== false;
+                    if (document.getElementById('bharti_vis_coaching')) document.getElementById('bharti_vis_coaching').checked = v.coaching !== false;
+                    if (document.getElementById('bharti_vis_teachers')) document.getElementById('bharti_vis_teachers').checked = v.teachers !== false;
+
+                    const p = cfg.customPrompts || {};
+                    if (document.getElementById('bharti_prompt_visitors')) document.getElementById('bharti_prompt_visitors').value = p.visitors || '';
+                    if (document.getElementById('bharti_prompt_students')) document.getElementById('bharti_prompt_students').value = p.students || '';
+                    if (document.getElementById('bharti_prompt_coaching')) document.getElementById('bharti_prompt_coaching').value = p.coaching || '';
+                    if (document.getElementById('bharti_prompt_teachers')) document.getElementById('bharti_prompt_teachers').value = p.teachers || '';
+
+                    if (document.getElementById('bharti_welcomeMessage')) document.getElementById('bharti_welcomeMessage').value = cfg.welcomeMessage || '';
+                }
+            } catch (err) {
+                console.error('loadAdminBhartiConfig error:', err);
+            }
+        }
+
+        async function saveAdminBhartiConfig(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSaveBharti');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const payload = {
+                visibleTo: {
+                    visitors: document.getElementById('bharti_vis_visitors')?.checked,
+                    students: document.getElementById('bharti_vis_students')?.checked,
+                    coaching: document.getElementById('bharti_vis_coaching')?.checked,
+                    teachers: document.getElementById('bharti_vis_teachers')?.checked
+                },
+                customPrompts: {
+                    visitors: document.getElementById('bharti_prompt_visitors')?.value.trim(),
+                    students: document.getElementById('bharti_prompt_students')?.value.trim(),
+                    coaching: document.getElementById('bharti_prompt_coaching')?.value.trim(),
+                    teachers: document.getElementById('bharti_prompt_teachers')?.value.trim()
+                },
+                welcomeMessage: document.getElementById('bharti_welcomeMessage')?.value.trim()
+            };
+
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/bharti-config', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const d = await res.json();
+                if (d.success) {
+                    alert('✅ Bharti AI settings and role-based assistance saved successfully!');
+                } else {
+                    alert('⚠️ Error saving Bharti AI: ' + d.message);
+                }
+            } catch (err) {
+                alert('❌ Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Bharti AI Settings';
+            }
+        }
+
+        // ============================================================
+        // MODULE 11: DESIGN STUDIO (ID CARDS & CERTIFICATES)
+        // ============================================================
+        async function loadAdminStudioTemplates() {
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/design-templates', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const d = await res.json();
+                if (d.success && d.templates) {
+                    const idc = d.templates.idCard || {};
+                    if (document.getElementById('studioIdOrgHeader')) document.getElementById('studioIdOrgHeader').value = idc.orgHeader || '';
+                    if (document.getElementById('studioIdSubHeader')) document.getElementById('studioIdSubHeader').value = idc.subHeader || '';
+                    if (document.getElementById('studioIdThemeColor')) document.getElementById('studioIdThemeColor').value = idc.themeColor || '#0f172a';
+                    if (document.getElementById('studioIdAccentColor')) document.getElementById('studioIdAccentColor').value = idc.accentColor || '#f59e0b';
+                    if (document.getElementById('studioIdSignatoryName')) document.getElementById('studioIdSignatoryName').value = idc.signatoryName || '';
+                    if (document.getElementById('studioIdSignatoryTitle')) document.getElementById('studioIdSignatoryTitle').value = idc.signatoryTitle || '';
+                    if (document.getElementById('studioIdValidityNote')) document.getElementById('studioIdValidityNote').value = idc.validityNote || '';
+
+                    const cert = d.templates.certificate || {};
+                    if (document.getElementById('studioCertTitle')) document.getElementById('studioCertTitle').value = cert.title || '';
+                    if (document.getElementById('studioCertSubTitle')) document.getElementById('studioCertSubTitle').value = cert.subTitle || '';
+                    if (document.getElementById('studioCertStatement')) document.getElementById('studioCertStatement').value = cert.statement || '';
+                    if (document.getElementById('studioCertSignName')) document.getElementById('studioCertSignName').value = cert.signatoryName || '';
+                    if (document.getElementById('studioCertSignTitle')) document.getElementById('studioCertSignTitle').value = cert.signatoryTitle || '';
+                    if (document.getElementById('studioCertSealText')) document.getElementById('studioCertSealText').value = cert.sealText || '';
+
+                    updateStudioPreviews();
+                }
+            } catch (err) {
+                console.error('loadAdminStudioTemplates error:', err);
+            }
+        }
+
+        function updateStudioPreviews() {
+            // ID Card
+            const idH = document.getElementById('studioIdOrgHeader')?.value || 'BAL BHARTI COACHING CENTER';
+            const idSub = document.getElementById('studioIdSubHeader')?.value || 'CENTRAL ACADEMIC VERIFICATION';
+            const idTheme = document.getElementById('studioIdThemeColor')?.value || '#0f172a';
+            const idAccent = document.getElementById('studioIdAccentColor')?.value || '#f59e0b';
+            const idSign = document.getElementById('studioIdSignatoryName')?.value || 'Santosh Kumar';
+            const idTitle = document.getElementById('studioIdSignatoryTitle')?.value || 'Founder & MD';
+            const idVal = document.getElementById('studioIdValidityNote')?.value || 'Valid across verified desks.';
+
+            if (document.getElementById('prevIdHeader')) document.getElementById('prevIdHeader').textContent = idH;
+            if (document.getElementById('prevIdSubHeader')) document.getElementById('prevIdSubHeader').textContent = idSub;
+            if (document.getElementById('prevIdCardFrame')) {
+                document.getElementById('prevIdCardFrame').style.background = idTheme;
+                document.getElementById('prevIdCardFrame').style.borderColor = idAccent;
+            }
+            if (document.getElementById('prevIdSignName')) document.getElementById('prevIdSignName').textContent = idSign;
+            if (document.getElementById('prevIdSignTitle')) document.getElementById('prevIdSignTitle').textContent = idTitle;
+            if (document.getElementById('prevIdValidity')) document.getElementById('prevIdValidity').textContent = idVal;
+
+            // Certificate
+            const cTitle = document.getElementById('studioCertTitle')?.value || 'CERTIFICATE OF INSTITUTIONAL ACCREDITATION';
+            const cSub = document.getElementById('studioCertSubTitle')?.value || 'BAL BHARTI COACHING CENTER DIRECTORY';
+            const cStmt = document.getElementById('studioCertStatement')?.value || 'has met all central academic standards and is granted Official Affiliated Center Status.';
+            const cSign = document.getElementById('studioCertSignName')?.value || 'Santosh Kumar';
+            const cSTitle = document.getElementById('studioCertSignTitle')?.value || 'Founder & MD, BBCC Central Directorate';
+            const cSeal = document.getElementById('studioCertSealText')?.value || 'OFFICIAL BBCC SEAL';
+
+            if (document.getElementById('prevCertTitle')) document.getElementById('prevCertTitle').textContent = cTitle;
+            if (document.getElementById('prevCertSubTitle')) document.getElementById('prevCertSubTitle').textContent = cSub;
+            if (document.getElementById('prevCertStatement')) document.getElementById('prevCertStatement').textContent = cStmt;
+            if (document.getElementById('prevCertSignName')) document.getElementById('prevCertSignName').textContent = cSign;
+            if (document.getElementById('prevCertSignTitle')) document.getElementById('prevCertSignTitle').textContent = cSTitle;
+            if (document.getElementById('prevCertSeal')) document.getElementById('prevCertSeal').textContent = cSeal;
+        }
+
+        async function saveAdminStudioTemplates(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSaveStudio');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const payload = {
+                idCard: {
+                    orgHeader: document.getElementById('studioIdOrgHeader')?.value.trim(),
+                    subHeader: document.getElementById('studioIdSubHeader')?.value.trim(),
+                    themeColor: document.getElementById('studioIdThemeColor')?.value,
+                    accentColor: document.getElementById('studioIdAccentColor')?.value,
+                    signatoryName: document.getElementById('studioIdSignatoryName')?.value.trim(),
+                    signatoryTitle: document.getElementById('studioIdSignatoryTitle')?.value.trim(),
+                    validityNote: document.getElementById('studioIdValidityNote')?.value.trim()
+                },
+                certificate: {
+                    title: document.getElementById('studioCertTitle')?.value.trim(),
+                    subTitle: document.getElementById('studioCertSubTitle')?.value.trim(),
+                    statement: document.getElementById('studioCertStatement')?.value.trim(),
+                    signatoryName: document.getElementById('studioCertSignName')?.value.trim(),
+                    signatoryTitle: document.getElementById('studioCertSignTitle')?.value.trim(),
+                    sealText: document.getElementById('studioCertSealText')?.value.trim()
+                }
+            };
+
+            try {
+                const token = getAdminToken();
+                const res = await fetch('/api/admin/design-templates', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const d = await res.json();
+                if (d.success) {
+                    alert('✅ Design Studio templates saved! All student ID cards and coaching certificates will adopt this layout.');
+                } else {
+                    alert('⚠️ Error saving templates: ' + d.message);
+                }
+            } catch (err) {
+                alert('❌ Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Design Templates';
+            }
+        }
+
+        // ============================================================
+        // CONTROLLED CERTIFICATE ISSUANCE ENGINE
+        // ============================================================
+        async function issueCenterCert(centerId, centerName) {
+            if (!confirm(`Are you sure you want to issue the Official Central Accreditation Certificate to "${centerName}"? Once issued, the director will be able to view and download it.`)) {
+                return;
+            }
+            try {
+                const token = getAdminToken();
+                const res = await fetch(`/api/admin/centers/${centerId}/issue-certificate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const d = await res.json();
+                if (d.success) {
+                    alert(`🎖️ ${d.message} (Certificate ID: ${d.certificateId})`);
+                    loadCoachingManagement();
+                } else {
+                    alert(`⚠️ ${d.message}`);
+                }
+            } catch (err) {
+                alert('❌ Error issuing certificate: ' + err.message);
+            }
+        }
+
+        async function revokeCenterCert(centerId) {
+            if (!confirm('Are you sure you want to revoke this institute\'s Accreditation Certificate? Their dashboard download option will be locked.')) {
+                return;
+            }
+            try {
+                const token = getAdminToken();
+                const res = await fetch(`/api/admin/centers/${centerId}/revoke-certificate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const d = await res.json();
+                if (d.success) {
+                    alert(`🔒 ${d.message}`);
+                    loadCoachingManagement();
+                } else {
+                    alert(`⚠️ ${d.message}`);
+                }
+            } catch (err) {
+                alert('❌ Error: ' + err.message);
             }
         }
 
