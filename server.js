@@ -1467,23 +1467,26 @@ const LiveClassSession = wrapModelWithPortalDbFallback(mongoose.model('LiveClass
 // 2. HELPER UTILITIES & AUTH MIDDLEWARES
 // ============================================================
 
-// Fetch active Razorpay client from database or environment
+// Fetch active Razorpay client strictly prioritizing Render environment variables
 async function getRazorpayClient() {
-    let keyId = process.env.RAZORPAY_KEY_ID || '';
-    let keySecret = process.env.RAZORPAY_KEY_SECRET || '';
+    let keyId = (process.env.RAZORPAY_KEY_ID || '').trim();
+    let keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
 
-    try {
-        const settings = await Settings.findOne();
-        if (settings) {
-            if (settings.razorpayKeyId && settings.razorpayKeyId.trim()) {
-                keyId = settings.razorpayKeyId.trim();
+    // Only fallback to DB settings if environment variables are not set
+    if (!keyId || !keySecret) {
+        try {
+            const settings = await Settings.findOne();
+            if (settings) {
+                if (!keyId && settings.razorpayKeyId && settings.razorpayKeyId.trim()) {
+                    keyId = settings.razorpayKeyId.trim();
+                }
+                if (!keySecret && settings.razorpayKeySecret && settings.razorpayKeySecret.trim()) {
+                    keySecret = settings.razorpayKeySecret.trim();
+                }
             }
-            if (settings.razorpayKeySecret && settings.razorpayKeySecret.trim()) {
-                keySecret = settings.razorpayKeySecret.trim();
-            }
+        } catch (e) {
+            console.error('Settings fetch error for Razorpay:', e.message);
         }
-    } catch (e) {
-        console.error('Settings fetch error for Razorpay:', e.message);
     }
 
     if (!keyId || !keySecret) {
@@ -1516,7 +1519,12 @@ async function discoverGeminiModels(apiKey) {
     for (const ver of versions) {
         try {
             const listUrl = `https://generativelanguage.googleapis.com/${ver}/models?key=${cleanKey}`;
-            const res = await fetch(listUrl);
+            const res = await fetch(listUrl, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': cleanKey
+                }
+            });
             const data = await res.json();
 
             if (res.ok && data && Array.isArray(data.models)) {
@@ -1637,7 +1645,10 @@ async function callGoogleGemini({ apiKey, prompt, history = [], systemInstructio
 
             const res = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': cleanKey
+                },
                 body: JSON.stringify(reqBody)
             });
 
